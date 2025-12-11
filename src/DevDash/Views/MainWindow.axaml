@@ -2,6 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:DevDash.ViewModels"
         xmlns:views="using:DevDash.Views"
+        xmlns:controls="using:DevDash.Views.Controls"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
@@ -123,102 +124,103 @@
 
         <!-- Main Content -->
         <Grid Grid.Row="1" ColumnDefinitions="Auto,*">
-            <!-- Sidebar -->
-            <Border Grid.Column="0"
-                    Width="256"
-                    Background="#0f172a"
-                    BorderBrush="#1e293b"
-                    BorderThickness="0,0,1,0"
-                    IsVisible="{Binding ShowSidebar}">
-                <Grid RowDefinitions="Auto,*">
-                    <!-- Workspace Switcher -->
-                    <Border Grid.Row="0" BorderBrush="#1e293b" BorderThickness="0,0,0,1" Padding="8">
-                        <StackPanel Orientation="Horizontal" Spacing="4">
-                            <ItemsControl ItemsSource="{Binding Workspaces}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <StackPanel Orientation="Horizontal" Spacing="4"/>
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Button Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).SelectWorkspaceCommand}"
-                                                CommandParameter="{Binding}"
-                                                Padding="8,6"
-                                                CornerRadius="4"
-                                                FontSize="12">
-                                            <Button.Styles>
-                                                <Style Selector="Button">
-                                                    <Setter Property="Background" Value="#1e293b"/>
-                                                    <Setter Property="Foreground" Value="#94a3b8"/>
-                                                </Style>
-                                                <Style Selector="Button:pointerover">
-                                                    <Setter Property="Background" Value="#334155"/>
-                                                </Style>
-                                            </Button.Styles>
-                                            <StackPanel Orientation="Horizontal" Spacing="4">
-                                                <TextBlock Text="{Binding Icon}"/>
-                                                <TextBlock Text="{Binding Name}"/>
-                                            </StackPanel>
-                                        </Button>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- Project List -->
-                    <ScrollViewer Grid.Row="1" Padding="8">
-                        <StackPanel>
-                            <TextBlock Text="PROJECTS"
-                                       FontSize="10"
-                                       Foreground="#64748b"
-                                       Margin="8,0,0,8"
-                                       LetterSpacing="1"/>
-                            <ItemsControl ItemsSource="{Binding Projects}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate x:DataType="vm:ProjectViewModel">
-                                        <Border Classes="project-item"
-                                                Classes.selected="{Binding IsSelected}"
-                                                PointerPressed="OnProjectClicked">
-                                            <StackPanel>
-                                                <Grid ColumnDefinitions="*,Auto">
-                                                    <TextBlock Text="{Binding Name}"
-                                                               FontWeight="Medium"
-                                                               FontSize="13"/>
-                                                    <StackPanel Grid.Column="1"
-                                                                Orientation="Horizontal"
-                                                                Spacing="4">
-                                                        <PathIcon Data="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
-                                                                  Width="12" Height="12"
-                                                                  Foreground="#fbbf24"
-                                                                  IsVisible="{Binding HasPersonal}"/>
-                                                        <PathIcon Data="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2zM22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"
-                                                                  Width="12" Height="12"
-                                                                  Foreground="#3b82f6"
-                                                                  IsVisible="{Binding HasDocs}"/>
-                                                    </StackPanel>
-                                                </Grid>
-                                                <StackPanel Orientation="Horizontal"
-                                                            Spacing="4"
-                                                            Margin="0,4,0,0"
-                                                            IsVisible="{Binding Branch, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
-                                                    <PathIcon Data="M6 3v12M18 9a3 3 0 01-3 3H6"
-                                                              Width="12" Height="12"
-                                                              Foreground="#64748b"/>
-                                                    <TextBlock Text="{Binding Branch}"
-                                                               FontSize="11"
-                                                               Foreground="#64748b"/>
+            <!-- Projects Sidebar -->
+            <controls:CollapsibleSidebar Grid.Column="0"
+                                          IconData="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
+                                          TooltipText="Projects"
+                                          ExpandedWidth="256"
+                                          IsCollapsed="{Binding !ShowSidebar}">
+                <controls:CollapsibleSidebar.SidebarContent>
+                    <Grid RowDefinitions="Auto,*">
+                        <!-- Workspace Switcher -->
+                        <Border Grid.Row="0" BorderBrush="#1e293b" BorderThickness="0,0,0,1" Padding="8">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <ItemsControl ItemsSource="{Binding Workspaces}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Orientation="Horizontal" Spacing="4"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Button Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).SelectWorkspaceCommand}"
+                                                    CommandParameter="{Binding}"
+                                                    Padding="8,6"
+                                                    CornerRadius="4"
+                                                    FontSize="12">
+                                                <Button.Styles>
+                                                    <Style Selector="Button">
+                                                        <Setter Property="Background" Value="#1e293b"/>
+                                                        <Setter Property="Foreground" Value="#94a3b8"/>
+                                                    </Style>
+                                                    <Style Selector="Button:pointerover">
+                                                        <Setter Property="Background" Value="#334155"/>
+                                                    </Style>
+                                                </Button.Styles>
+                                                <StackPanel Orientation="Horizontal" Spacing="4">
+                                                    <TextBlock Text="{Binding Icon}"/>
+                                                    <TextBlock Text="{Binding Name}"/>
                                                 </StackPanel>
-                                            </StackPanel>
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </StackPanel>
-                    </ScrollViewer>
-                </Grid>
-            </Border>
+                                            </Button>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Project List -->
+                        <ScrollViewer Grid.Row="1" Padding="8">
+                            <StackPanel>
+                                <TextBlock Text="PROJECTS"
+                                           FontSize="10"
+                                           Foreground="#64748b"
+                                           Margin="8,0,0,8"
+                                           LetterSpacing="1"/>
+                                <ItemsControl ItemsSource="{Binding Projects}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:ProjectViewModel">
+                                            <Border Classes="project-item"
+                                                    Classes.selected="{Binding IsSelected}"
+                                                    PointerPressed="OnProjectClicked">
+                                                <StackPanel>
+                                                    <Grid ColumnDefinitions="*,Auto">
+                                                        <TextBlock Text="{Binding Name}"
+                                                                   FontWeight="Medium"
+                                                                   FontSize="13"/>
+                                                        <StackPanel Grid.Column="1"
+                                                                    Orientation="Horizontal"
+                                                                    Spacing="4">
+                                                            <PathIcon Data="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
+                                                                      Width="12" Height="12"
+                                                                      Foreground="#fbbf24"
+                                                                      IsVisible="{Binding HasPersonal}"/>
+                                                            <PathIcon Data="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2zM22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"
+                                                                      Width="12" Height="12"
+                                                                      Foreground="#3b82f6"
+                                                                      IsVisible="{Binding HasDocs}"/>
+                                                        </StackPanel>
+                                                    </Grid>
+                                                    <StackPanel Orientation="Horizontal"
+                                                                Spacing="4"
+                                                                Margin="0,4,0,0"
+                                                                IsVisible="{Binding Branch, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                                                        <PathIcon Data="M6 3v12M18 9a3 3 0 01-3 3H6"
+                                                                  Width="12" Height="12"
+                                                                  Foreground="#64748b"/>
+                                                        <TextBlock Text="{Binding Branch}"
+                                                                   FontSize="11"
+                                                                   Foreground="#64748b"/>
+                                                    </StackPanel>
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Grid>
+                </controls:CollapsibleSidebar.SidebarContent>
+            </controls:CollapsibleSidebar>
 
             <!-- Main Area -->
             <Grid Grid.Column="1" RowDefinitions="*,Auto">
