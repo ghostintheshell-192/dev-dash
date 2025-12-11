@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 /data/repos/dev-dash/.personal/scripts/generate-index.py 2>/dev/null || true"
+          }
+        ]
+      }
+    ]
+  }
+}

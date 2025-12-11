@@ -1,0 +1,414 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:DevDash.ViewModels"
+        xmlns:views="using:DevDash.Views"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+        x:Class="DevDash.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="DevDash"
+        Width="1200" Height="800"
+        MinWidth="800" MinHeight="600"
+        Background="#0a0a0f">
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+    <Window.Styles>
+        <!-- Accent color -->
+        <Style Selector="Button.accent">
+            <Setter Property="Background" Value="#d97706"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="Button.accent:pointerover">
+            <Setter Property="Background" Value="#f59e0b"/>
+        </Style>
+
+        <!-- Sidebar button -->
+        <Style Selector="Button.sidebar-btn">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="CornerRadius" Value="4"/>
+        </Style>
+        <Style Selector="Button.sidebar-btn:pointerover">
+            <Setter Property="Background" Value="#1e293b"/>
+        </Style>
+
+        <!-- Tab button -->
+        <Style Selector="Button.tab">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#94a3b8"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="CornerRadius" Value="4,4,0,0"/>
+        </Style>
+        <Style Selector="Button.tab:pointerover">
+            <Setter Property="Foreground" Value="#e2e8f0"/>
+        </Style>
+        <Style Selector="Button.tab.active">
+            <Setter Property="Background" Value="#1e293b"/>
+            <Setter Property="Foreground" Value="#fbbf24"/>
+        </Style>
+
+        <!-- Project item -->
+        <Style Selector="Border.project-item">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="Margin" Value="0,2"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+        </Style>
+        <Style Selector="Border.project-item:pointerover">
+            <Setter Property="Background" Value="#1e293b"/>
+        </Style>
+        <Style Selector="Border.project-item.selected">
+            <Setter Property="Background" Value="#451a03"/>
+            <Setter Property="BorderBrush" Value="#92400e"/>
+        </Style>
+
+        <!-- File tree item -->
+        <Style Selector="Button.tree-item">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Padding" Value="4"/>
+            <Setter Property="CornerRadius" Value="4"/>
+        </Style>
+        <Style Selector="Button.tree-item:pointerover">
+            <Setter Property="Background" Value="#334155"/>
+        </Style>
+        <Style Selector="Button.tree-item.selected">
+            <Setter Property="Background" Value="#451a03"/>
+        </Style>
+    </Window.Styles>
+
+    <Grid RowDefinitions="40,*">
+        <!-- Top Bar -->
+        <Border Grid.Row="0" Background="#0f172a" BorderBrush="#1e293b" BorderThickness="0,0,0,1">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <!-- Left section -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" Margin="8,0">
+                    <Button Classes="sidebar-btn" Command="{Binding ToggleSidebarCommand}">
+                        <PathIcon Data="M3 3h8v18H3zM13 3h8v18h-8z" Width="16" Height="16" Foreground="#94a3b8"/>
+                    </Button>
+                    <Border Width="1" Height="20" Background="#334155"/>
+                    <PathIcon Data="M13 10V3L4 14h7v7l9-11h-7z" Width="16" Height="16" Foreground="#fbbf24"/>
+                    <TextBlock Text="DevDash" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Center section -->
+                <TextBlock Grid.Column="1"
+                           Text="{Binding SelectedProject.Name, FallbackValue=''}"
+                           Foreground="#64748b"
+                           FontSize="12"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"/>
+
+                <!-- Right section -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4" Margin="8,0">
+                    <Button Classes="sidebar-btn" Command="{Binding ToggleTerminalCommand}">
+                        <PathIcon Data="M4 17l6-5-6-5m8 10h8" Width="16" Height="16"
+                                  Foreground="#10b981"/>
+                    </Button>
+                    <Border Width="1" Height="20" Background="#334155"/>
+                    <Button Classes="sidebar-btn" Command="{Binding OpenSettingsCommand}">
+                        <PathIcon Data="M12 15a3 3 0 100-6 3 3 0 000 6z M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"
+                                  Width="16" Height="16" Foreground="#94a3b8"/>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Main Content -->
+        <Grid Grid.Row="1" ColumnDefinitions="Auto,*">
+            <!-- Sidebar -->
+            <Border Grid.Column="0"
+                    Width="256"
+                    Background="#0f172a"
+                    BorderBrush="#1e293b"
+                    BorderThickness="0,0,1,0"
+                    IsVisible="{Binding ShowSidebar}">
+                <Grid RowDefinitions="Auto,*">
+                    <!-- Workspace Switcher -->
+                    <Border Grid.Row="0" BorderBrush="#1e293b" BorderThickness="0,0,0,1" Padding="8">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <ItemsControl ItemsSource="{Binding Workspaces}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Horizontal" Spacing="4"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).SelectWorkspaceCommand}"
+                                                CommandParameter="{Binding}"
+                                                Padding="8,6"
+                                                CornerRadius="4"
+                                                FontSize="12">
+                                            <Button.Styles>
+                                                <Style Selector="Button">
+                                                    <Setter Property="Background" Value="#1e293b"/>
+                                                    <Setter Property="Foreground" Value="#94a3b8"/>
+                                                </Style>
+                                                <Style Selector="Button:pointerover">
+                                                    <Setter Property="Background" Value="#334155"/>
+                                                </Style>
+                                            </Button.Styles>
+                                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                                <TextBlock Text="{Binding Icon}"/>
+                                                <TextBlock Text="{Binding Name}"/>
+                                            </StackPanel>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Project List -->
+                    <ScrollViewer Grid.Row="1" Padding="8">
+                        <StackPanel>
+                            <TextBlock Text="PROJECTS"
+                                       FontSize="10"
+                                       Foreground="#64748b"
+                                       Margin="8,0,0,8"
+                                       LetterSpacing="1"/>
+                            <ItemsControl ItemsSource="{Binding Projects}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:ProjectViewModel">
+                                        <Border Classes="project-item"
+                                                Classes.selected="{Binding IsSelected}"
+                                                PointerPressed="OnProjectClicked">
+                                            <StackPanel>
+                                                <Grid ColumnDefinitions="*,Auto">
+                                                    <TextBlock Text="{Binding Name}"
+                                                               FontWeight="Medium"
+                                                               FontSize="13"/>
+                                                    <StackPanel Grid.Column="1"
+                                                                Orientation="Horizontal"
+                                                                Spacing="4">
+                                                        <PathIcon Data="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
+                                                                  Width="12" Height="12"
+                                                                  Foreground="#fbbf24"
+                                                                  IsVisible="{Binding HasPersonal}"/>
+                                                        <PathIcon Data="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2zM22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"
+                                                                  Width="12" Height="12"
+                                                                  Foreground="#3b82f6"
+                                                                  IsVisible="{Binding HasDocs}"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                                <StackPanel Orientation="Horizontal"
+                                                            Spacing="4"
+                                                            Margin="0,4,0,0"
+                                                            IsVisible="{Binding Branch, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                                                    <PathIcon Data="M6 3v12M18 9a3 3 0 01-3 3H6"
+                                                              Width="12" Height="12"
+                                                              Foreground="#64748b"/>
+                                                    <TextBlock Text="{Binding Branch}"
+                                                               FontSize="11"
+                                                               Foreground="#64748b"/>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+
+            <!-- Main Area -->
+            <Grid Grid.Column="1" RowDefinitions="*,Auto">
+                <!-- Docs Panel -->
+                <Grid Grid.Row="0" RowDefinitions="Auto,*" IsVisible="{Binding !TerminalExpanded}">
+                    <!-- Tabs -->
+                    <Border Grid.Row="0" Background="#0f172a80" BorderBrush="#1e293b" BorderThickness="0,0,0,1" Padding="12,8,12,0">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <Button Classes="tab" Classes.active="{Binding ActiveTab, Converter={StaticResource StringEqualsConverter}, ConverterParameter=personal}"
+                                    Command="{Binding SetActiveTabCommand}" CommandParameter="personal">
+                                <StackPanel Orientation="Horizontal" Spacing="4">
+                                    <PathIcon Data="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" Width="14" Height="14"/>
+                                    <TextBlock Text=".personal"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="tab" Classes.active="{Binding ActiveTab, Converter={StaticResource StringEqualsConverter}, ConverterParameter=docs}"
+                                    Command="{Binding SetActiveTabCommand}" CommandParameter="docs">
+                                <StackPanel Orientation="Horizontal" Spacing="4">
+                                    <PathIcon Data="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2zM22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z" Width="14" Height="14"/>
+                                    <TextBlock Text="docs"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="tab" Classes.active="{Binding ActiveTab, Converter={StaticResource StringEqualsConverter}, ConverterParameter=issues}"
+                                    Command="{Binding SetActiveTabCommand}" CommandParameter="issues">
+                                <StackPanel Orientation="Horizontal" Spacing="4">
+                                    <PathIcon Data="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" Width="14" Height="14"/>
+                                    <TextBlock Text="Issues"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Classes="tab" Classes.active="{Binding ActiveTab, Converter={StaticResource StringEqualsConverter}, ConverterParameter=config}"
+                                    Command="{Binding SetActiveTabCommand}" CommandParameter="config">
+                                <StackPanel Orientation="Horizontal" Spacing="4">
+                                    <PathIcon Data="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" Width="14" Height="14"/>
+                                    <TextBlock Text="Config"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Content Area -->
+                    <Grid Grid.Row="1" ColumnDefinitions="256,*" Background="#1e293b30">
+                        <!-- File Tree -->
+                        <Border Grid.Column="0" BorderBrush="#334155" BorderThickness="0,0,1,0">
+                            <ScrollViewer Padding="8">
+                                <views:FileTreeView DataContext="{Binding}"/>
+                            </ScrollViewer>
+                        </Border>
+
+                        <!-- File Content -->
+                        <Grid Grid.Column="1" Margin="16">
+                            <StackPanel VerticalAlignment="Center"
+                                        HorizontalAlignment="Center"
+                                        IsVisible="{Binding SelectedFile, Converter={x:Static ObjectConverters.IsNull}}">
+                                <PathIcon Data="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8"
+                                          Width="40" Height="40"
+                                          Foreground="#334155"/>
+                                <TextBlock Text="Seleziona un file"
+                                           Foreground="#64748b"
+                                           Margin="0,8,0,0"
+                                           HorizontalAlignment="Center"/>
+                            </StackPanel>
+
+                            <Grid RowDefinitions="Auto,*"
+                                  IsVisible="{Binding SelectedFile, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,12">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <PathIcon Data="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"
+                                                  Width="16" Height="16"
+                                                  Foreground="#64748b"/>
+                                        <TextBlock Text="{Binding SelectedFile.Name}"
+                                                   FontWeight="Medium"/>
+                                    </StackPanel>
+                                    <Button Grid.Column="1"
+                                            Classes="sidebar-btn"
+                                            Padding="8,4">
+                                        <StackPanel Orientation="Horizontal" Spacing="4">
+                                            <PathIcon Data="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" Width="12" Height="12"/>
+                                            <TextBlock Text="Edit" FontSize="12"/>
+                                        </StackPanel>
+                                    </Button>
+                                </Grid>
+                                <Border Grid.Row="1"
+                                        Background="#0f172a80"
+                                        BorderBrush="#334155"
+                                        BorderThickness="1"
+                                        CornerRadius="8"
+                                        Padding="16">
+                                    <ScrollViewer>
+                                        <TextBlock Text="{Binding SelectedFileContent}"
+                                                   FontFamily="Consolas,monospace"
+                                                   FontSize="13"
+                                                   Foreground="#cbd5e1"
+                                                   TextWrapping="Wrap"/>
+                                    </ScrollViewer>
+                                </Border>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                </Grid>
+
+                <!-- Terminal Panel -->
+                <Border Grid.Row="1"
+                        Background="#0f172a"
+                        BorderBrush="#334155"
+                        BorderThickness="0,1,0,0"
+                        Height="256"
+                        IsVisible="{Binding ShowTerminal}">
+                    <Grid RowDefinitions="Auto,*">
+                        <!-- Terminal Header -->
+                        <Border Grid.Row="0"
+                                Background="#1e293b80"
+                                BorderBrush="#334155"
+                                BorderThickness="0,0,0,1"
+                                Padding="12,8">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <PathIcon Data="M4 17l6-5-6-5m8 10h8" Width="16" Height="16" Foreground="#10b981"/>
+                                    <TextBlock Text="Claude Code" FontWeight="Medium"/>
+                                    <TextBlock Text="~/project" FontSize="12" Foreground="#64748b" FontFamily="Consolas,monospace"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                                    <Button Classes="sidebar-btn" Command="{Binding ToggleTerminalExpandedCommand}">
+                                        <PathIcon Data="M15 3h6v6M9 21H3v-6M21 9v6m-18 0V9"
+                                                  Width="14" Height="14"
+                                                  Foreground="#94a3b8"/>
+                                    </Button>
+                                    <Button Classes="sidebar-btn" Command="{Binding ToggleTerminalCommand}">
+                                        <PathIcon Data="M19 9l-7 7-7-7" Width="14" Height="14" Foreground="#94a3b8"/>
+                                    </Button>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <!-- Terminal Content -->
+                        <ScrollViewer Grid.Row="1" Padding="12">
+                            <StackPanel>
+                                <TextBlock FontFamily="Consolas,monospace" FontSize="13" Foreground="#cbd5e1">
+                                    <Run Foreground="#10b981">$ </Run>
+                                    <Run>claude</Run>
+                                </TextBlock>
+                                <TextBlock Text="Ciao! Come posso aiutarti oggi?"
+                                           FontFamily="Consolas,monospace"
+                                           FontSize="13"
+                                           Foreground="#94a3b8"
+                                           Margin="0,8,0,0"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+                                    <TextBlock Text=">" Foreground="#10b981" FontFamily="Consolas,monospace"/>
+                                    <TextBlock Text="_" Foreground="#fbbf24" FontFamily="Consolas,monospace">
+                                        <TextBlock.Styles>
+                                            <Style Selector="TextBlock">
+                                                <Style.Animations>
+                                                    <Animation Duration="0:0:1" IterationCount="INFINITE">
+                                                        <KeyFrame Cue="0%">
+                                                            <Setter Property="Opacity" Value="1"/>
+                                                        </KeyFrame>
+                                                        <KeyFrame Cue="50%">
+                                                            <Setter Property="Opacity" Value="0"/>
+                                                        </KeyFrame>
+                                                        <KeyFrame Cue="100%">
+                                                            <Setter Property="Opacity" Value="1"/>
+                                                        </KeyFrame>
+                                                    </Animation>
+                                                </Style.Animations>
+                                            </Style>
+                                        </TextBlock.Styles>
+                                    </TextBlock>
+                                </StackPanel>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Grid>
+                </Border>
+
+                <!-- Terminal Toggle Button (when closed) -->
+                <Button Grid.Row="1"
+                        Height="32"
+                        Background="#0f172a"
+                        BorderBrush="#334155"
+                        BorderThickness="0,1,0,0"
+                        CornerRadius="0"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Center"
+                        Command="{Binding ToggleTerminalCommand}"
+                        IsVisible="{Binding !ShowTerminal}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <PathIcon Data="M5 15l7-7 7 7" Width="14" Height="14" Foreground="#64748b"/>
+                        <PathIcon Data="M4 17l6-5-6-5m8 10h8" Width="14" Height="14" Foreground="#64748b"/>
+                        <TextBlock Text="Open Claude Code" FontSize="12" Foreground="#64748b"/>
+                    </StackPanel>
+                </Button>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>
