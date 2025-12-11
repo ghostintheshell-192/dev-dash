@@ -14,6 +14,9 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IFileSystemService _fileSystemService;
     private readonly IConfigurationService _configurationService;
 
+    // Sidebars
+    public ObservableCollection<SidebarItem> Sidebars { get; } = [];
+
     // Workspaces
     public ObservableCollection<Workspace> Workspaces { get; } = [];
 

@@ -3,6 +3,7 @@
         xmlns:vm="using:DevDash.ViewModels"
         xmlns:views="using:DevDash.Views"
         xmlns:controls="using:DevDash.Views.Controls"
+        xmlns:models="using:DevDash.Models"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
@@ -124,13 +125,18 @@
 
         <!-- Main Content -->
         <Grid Grid.Row="1" ColumnDefinitions="Auto,*">
-            <!-- Projects Sidebar -->
-            <controls:CollapsibleSidebar Grid.Column="0"
-                                          IconData="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
-                                          TooltipText="Projects"
-                                          ExpandedWidth="256"
-                                          IsCollapsed="{Binding !ShowSidebar}">
-                <controls:CollapsibleSidebar.SidebarContent>
+            <!-- Multi Sidebar -->
+            <controls:MultiSidebar Grid.Column="0"
+                                   AllowMultipleOpen="False"
+                                   DataContext="{Binding}">
+                <controls:MultiSidebar.Items>
+                    <!-- Projects Sidebar -->
+                    <models:SidebarItem IconData="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
+                                        Tooltip="Projects"
+                                        IsOpen="True"
+                                        Width="256">
+                        <models:SidebarItem.ContentTemplate>
+                            <DataTemplate x:DataType="vm:MainWindowViewModel">
                     <Grid RowDefinitions="Auto,*">
                         <!-- Workspace Switcher -->
                         <Border Grid.Row="0" BorderBrush="#1e293b" BorderThickness="0,0,0,1" Padding="8">
@@ -219,13 +225,30 @@
                             </StackPanel>
                         </ScrollViewer>
                     </Grid>
-                </controls:CollapsibleSidebar.SidebarContent>
-            </controls:CollapsibleSidebar>
+                            </DataTemplate>
+                        </models:SidebarItem.ContentTemplate>
+                    </models:SidebarItem>
+
+                    <!-- File Tree Sidebar -->
+                    <models:SidebarItem IconData="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8"
+                                        Tooltip="Files"
+                                        IsOpen="False"
+                                        Width="256">
+                        <models:SidebarItem.ContentTemplate>
+                            <DataTemplate x:DataType="vm:MainWindowViewModel">
+                                <ScrollViewer Padding="8">
+                                    <views:FileTreeView DataContext="{Binding}"/>
+                                </ScrollViewer>
+                            </DataTemplate>
+                        </models:SidebarItem.ContentTemplate>
+                    </models:SidebarItem>
+                </controls:MultiSidebar.Items>
+            </controls:MultiSidebar>
 
             <!-- Main Area -->
             <Grid Grid.Column="1" RowDefinitions="*,Auto">
                 <!-- Docs Panel -->
-                <Grid Grid.Row="0" RowDefinitions="Auto,*" IsVisible="{Binding !TerminalExpanded}">
+                <Grid Grid.Row="0" RowDefinitions="Auto,*" Background="#1e293b30" IsVisible="{Binding !TerminalExpanded}">
                     <!-- Tabs -->
                     <Border Grid.Row="0" Background="#0f172a80" BorderBrush="#1e293b" BorderThickness="0,0,0,1" Padding="12,8,12,0">
                         <StackPanel Orientation="Horizontal" Spacing="4">
@@ -260,17 +283,8 @@
                         </StackPanel>
                     </Border>
 
-                    <!-- Content Area -->
-                    <Grid Grid.Row="1" ColumnDefinitions="256,*" Background="#1e293b30">
-                        <!-- File Tree -->
-                        <Border Grid.Column="0" BorderBrush="#334155" BorderThickness="0,0,1,0">
-                            <ScrollViewer Padding="8">
-                                <views:FileTreeView DataContext="{Binding}"/>
-                            </ScrollViewer>
-                        </Border>
-
-                        <!-- File Content -->
-                        <Grid Grid.Column="1" Margin="16">
+                    <!-- File Content -->
+                    <Grid Grid.Row="1" Margin="16">
                             <StackPanel VerticalAlignment="Center"
                                         HorizontalAlignment="Center"
                                         IsVisible="{Binding SelectedFile, Converter={x:Static ObjectConverters.IsNull}}">
@@ -319,7 +333,6 @@
                             </Grid>
                         </Grid>
                     </Grid>
-                </Grid>
 
                 <!-- Terminal Panel -->
                 <Border Grid.Row="1"
