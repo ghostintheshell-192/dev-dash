@@ -1,28 +1,28 @@
 # DevDash
 
-Dashboard personale per sviluppo in solitaria con Claude Code.
+Personal dashboard for solo development with Claude Code.
 
-## Cos'è
+## What is it
 
-DevDash è una interfaccia unificata per gestire progetti software e creativi, progettata per chi sviluppa da solo con l'assistenza di AI. Integra:
+DevDash is a unified interface for managing software and creative projects, designed for solo developers working with AI assistance. It integrates:
 
-- **Navigazione progetti** attraverso workspace tematici
-- **Gestione documentazione** (.personal + docs)
-- **Issue tracking** personale senza overhead di GitHub Issues
-- **Configurazioni Claude Code** visualizzate e modificabili
-- **Sessioni Claude Code** lanciate con contesto pre-caricato
+- **Project navigation** across thematic workspaces
+- **Documentation management** (.personal + docs)
+- **Personal issue tracking** without the overhead of GitHub Issues
+- **Claude Code configurations** displayed and editable
+- **Claude Code sessions** launched with pre-loaded context
 
-## Perché esiste
+## Why it exists
 
-Quando lavori su più progetti usando spec-driven development e mantieni documentazione strutturata, hai bisogno di:
+When you work on multiple projects using spec-driven development and maintain structured documentation, you need to:
 
-1. Vedere tutto in un posto solo
-2. Navigare velocemente tra progetti e loro documentazione
-3. Tenere traccia di issue personali che non meritano GitHub
-4. Gestire le configurazioni Claude Code sparse su tre livelli
-5. Lanciare Claude Code con il contesto giusto già caricato
+1. See everything in one place
+2. Quickly navigate between projects and their documentation
+3. Track personal issues that don't warrant GitHub
+4. Manage Claude Code configurations spread across three levels
+5. Launch Claude Code with the right context already loaded
 
-DevDash risolve questi problemi senza reinventare l'editor (usi comunque VS Code/Obsidian per modificare).
+DevDash solves these problems without reinventing the editor (you still use VS Code/Obsidian for editing).
 
 ## Stack
 
@@ -33,27 +33,27 @@ DevDash risolve questi problemi senza reinventare l'editor (usi comunque VS Code
 
 ## Status
 
-🟡 **Prototipo** - UI funzionale con dati mock, non ancora collegata al filesystem reale.
+🟡 **Prototype** - Functional UI with mock data, not yet connected to the real filesystem.
 
-## Prossimi passi
+## Next steps
 
-Piano di sviluppo in `.personal/planning/roadmap.md` (6 fasi dalla prototipazione al polish).
+Development plan in `.personal/planning/roadmap.md` (6 phases from prototyping to polish).
 
-## Struttura
+## Structure
 
-```
+```text
 dev-dash/
-├── src/DevDash/             # Applicazione Avalonia
+├── src/DevDash/             # Avalonia application
 │   ├── Models/              # Data models
 │   ├── ViewModels/          # MVVM ViewModels
 │   ├── Views/               # XAML views
 │   └── Services/            # Business logic
-├── devdash-prototype.tsx    # Prototipo UI (reference)
+├── devdash-prototype.tsx    # UI prototype (reference)
 ├── docs/
-│   ├── ARCHITECTURE.md      # Architettura overview
-│   └── SETUP.md             # Guida installazione
-└── .personal/               # Documentazione privata (non committata)
-    ├── planning/            # Roadmap, piani
+│   ├── ARCHITECTURE.md      # Architecture overview
+│   └── SETUP.md             # Installation guide
+└── .personal/               # Private documentation (not committed)
+    ├── planning/            # Roadmap, plans
     ├── reference/decisions/ # ADR
-    └── active/              # Lavoro in corso
+    └── active/              # Work in progress
 ```
