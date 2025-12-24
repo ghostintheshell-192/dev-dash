@@ -114,21 +114,19 @@
                         <PathIcon Data="M4 17l6-5-6-5m8 10h8" Width="16" Height="16"
                                   Foreground="#10b981"/>
                     </Button>
-                    <Border Width="1" Height="20" Background="#334155"/>
-                    <Button Classes="sidebar-btn" Command="{Binding OpenSettingsCommand}">
-                        <PathIcon Data="M12 15a3 3 0 100-6 3 3 0 000 6z M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"
-                                  Width="16" Height="16" Foreground="#94a3b8"/>
-                    </Button>
                 </StackPanel>
             </Grid>
         </Border>
 
         <!-- Main Content -->
         <Grid Grid.Row="1" ColumnDefinitions="Auto,*">
-            <!-- Multi Sidebar -->
-            <controls:MultiSidebar Grid.Column="0"
-                                   AllowMultipleOpen="False"
-                                   DataContext="{Binding}">
+            <!-- Sidebar Column: MultiSidebar + Settings Button -->
+            <Grid Grid.Column="0" RowDefinitions="*,Auto" ClipToBounds="True">
+                <!-- Multi Sidebar -->
+                <controls:MultiSidebar Grid.Row="0"
+                                       AllowMultipleOpen="False"
+                                       ClipToBounds="True"
+                                       DataContext="{Binding}">
                 <controls:MultiSidebar.Items>
                     <!-- Projects Sidebar -->
                     <models:SidebarItem IconData="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
@@ -242,8 +240,42 @@
                             </DataTemplate>
                         </models:SidebarItem.ContentTemplate>
                     </models:SidebarItem>
+
                 </controls:MultiSidebar.Items>
-            </controls:MultiSidebar>
+                </controls:MultiSidebar>
+
+                <!-- Settings Button (bottom of sidebar) -->
+                <Border Grid.Row="1"
+                        ZIndex="10"
+                        Background="#0a0a0f"
+                        BorderBrush="#1e293b"
+                        BorderThickness="0,1,1,0">
+                    <Button Width="48" Height="48"
+                            Background="Transparent"
+                            CornerRadius="0"
+                            Padding="0"
+                            HorizontalContentAlignment="Center"
+                            VerticalContentAlignment="Center"
+                            ToolTip.Tip="Global Configuration"
+                            Command="{Binding SetActiveTabCommand}"
+                            CommandParameter="{x:Static models:ActiveTabType.Settings}"
+                            Classes.active="{Binding ActiveTab, Converter={StaticResource EnumEqualsConverter}, ConverterParameter={x:Static models:ActiveTabType.Settings}}">
+                        <Button.Styles>
+                            <Style Selector="Button:pointerover">
+                                <Setter Property="Background" Value="#1e293b"/>
+                            </Style>
+                            <Style Selector="Button.active">
+                                <Setter Property="Background" Value="#0f172a"/>
+                                <Setter Property="BorderBrush" Value="#d97706"/>
+                                <Setter Property="BorderThickness" Value="2,0,0,0"/>
+                            </Style>
+                        </Button.Styles>
+                        <PathIcon Data="M12 15a3 3 0 100-6 3 3 0 000 6z M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"
+                                  Width="20" Height="20"
+                                  Foreground="#94a3b8"/>
+                    </Button>
+                </Border>
+            </Grid>
 
             <!-- Main Area -->
             <Grid Grid.Column="1" RowDefinitions="*,Auto">
@@ -252,39 +284,51 @@
                     <!-- Tabs -->
                     <Border Grid.Row="0" Background="#0f172a80" BorderBrush="#1e293b" BorderThickness="0,0,0,1" Padding="12,8,12,0">
                         <StackPanel Orientation="Horizontal" Spacing="4">
-                            <Button Classes="tab" Classes.active="{Binding ActiveTab, Converter={StaticResource StringEqualsConverter}, ConverterParameter=personal}"
-                                    Command="{Binding SetActiveTabCommand}" CommandParameter="personal">
+                            <Button Classes="tab" Classes.active="{Binding ActiveTab, Converter={StaticResource EnumEqualsConverter}, ConverterParameter={x:Static models:ActiveTabType.Personal}}"
+                                    Command="{Binding SetActiveTabCommand}" CommandParameter="{x:Static models:ActiveTabType.Personal}">
                                 <StackPanel Orientation="Horizontal" Spacing="4">
                                     <PathIcon Data="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" Width="14" Height="14"/>
                                     <TextBlock Text=".personal"/>
                                 </StackPanel>
                             </Button>
-                            <Button Classes="tab" Classes.active="{Binding ActiveTab, Converter={StaticResource StringEqualsConverter}, ConverterParameter=docs}"
-                                    Command="{Binding SetActiveTabCommand}" CommandParameter="docs">
+                            <Button Classes="tab" Classes.active="{Binding ActiveTab, Converter={StaticResource EnumEqualsConverter}, ConverterParameter={x:Static models:ActiveTabType.Docs}}"
+                                    Command="{Binding SetActiveTabCommand}" CommandParameter="{x:Static models:ActiveTabType.Docs}">
                                 <StackPanel Orientation="Horizontal" Spacing="4">
                                     <PathIcon Data="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2zM22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z" Width="14" Height="14"/>
                                     <TextBlock Text="docs"/>
                                 </StackPanel>
                             </Button>
-                            <Button Classes="tab" Classes.active="{Binding ActiveTab, Converter={StaticResource StringEqualsConverter}, ConverterParameter=issues}"
-                                    Command="{Binding SetActiveTabCommand}" CommandParameter="issues">
+                            <Button Classes="tab" Classes.active="{Binding ActiveTab, Converter={StaticResource EnumEqualsConverter}, ConverterParameter={x:Static models:ActiveTabType.Issues}}"
+                                    Command="{Binding SetActiveTabCommand}" CommandParameter="{x:Static models:ActiveTabType.Issues}">
                                 <StackPanel Orientation="Horizontal" Spacing="4">
                                     <PathIcon Data="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" Width="14" Height="14"/>
                                     <TextBlock Text="Issues"/>
                                 </StackPanel>
                             </Button>
-                            <Button Classes="tab" Classes.active="{Binding ActiveTab, Converter={StaticResource StringEqualsConverter}, ConverterParameter=config}"
-                                    Command="{Binding SetActiveTabCommand}" CommandParameter="config">
+                            <Button Classes="tab" Classes.active="{Binding ActiveTab, Converter={StaticResource EnumEqualsConverter}, ConverterParameter={x:Static models:ActiveTabType.Config}}"
+                                    Command="{Binding SetActiveTabCommand}" CommandParameter="{x:Static models:ActiveTabType.Config}">
                                 <StackPanel Orientation="Horizontal" Spacing="4">
                                     <PathIcon Data="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" Width="14" Height="14"/>
                                     <TextBlock Text="Config"/>
                                 </StackPanel>
                             </Button>
+                            <!-- Settings tab (visible only when Settings is active) -->
+                            <Button Classes="tab active"
+                                    IsVisible="{Binding ActiveTab, Converter={StaticResource EnumEqualsConverter}, ConverterParameter={x:Static models:ActiveTabType.Settings}}"
+                                    Command="{Binding SetActiveTabCommand}" CommandParameter="{x:Static models:ActiveTabType.Settings}">
+                                <StackPanel Orientation="Horizontal" Spacing="4">
+                                    <PathIcon Data="M12 15a3 3 0 100-6 3 3 0 000 6z M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" Width="14" Height="14"/>
+                                    <TextBlock Text="Settings"/>
+                                </StackPanel>
+                            </Button>
                         </StackPanel>
                     </Border>
 
-                    <!-- File Content -->
+                    <!-- Tab Content -->
                     <Grid Grid.Row="1" Margin="16">
+                        <!-- File Content Area (hidden when Settings tab is active) -->
+                        <Grid IsVisible="{Binding ActiveTab, Converter={StaticResource EnumNotEqualsConverter}, ConverterParameter={x:Static models:ActiveTabType.Settings}}">
+                            <!-- File view placeholder (when no file selected) -->
                             <StackPanel VerticalAlignment="Center"
                                         HorizontalAlignment="Center"
                                         IsVisible="{Binding SelectedFile, Converter={x:Static ObjectConverters.IsNull}}">
@@ -297,8 +341,10 @@
                                            HorizontalAlignment="Center"/>
                             </StackPanel>
 
+                            <!-- File content (when file selected) -->
                             <Grid RowDefinitions="Auto,*"
-                                  IsVisible="{Binding SelectedFile, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                  IsVisible="{Binding SelectedFile, Converter={x:Static ObjectConverters.IsNotNull}}"
+                                  x:Name="FileContentPanel">
                                 <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,12">
                                     <StackPanel Orientation="Horizontal" Spacing="8">
                                         <PathIcon Data="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"
@@ -331,6 +377,105 @@
                                     </ScrollViewer>
                                 </Border>
                             </Grid>
+                        </Grid>
+
+                        <!-- Settings Panel -->
+                        <ScrollViewer IsVisible="{Binding ActiveTab, Converter={StaticResource EnumEqualsConverter}, ConverterParameter={x:Static models:ActiveTabType.Settings}}">
+                            <StackPanel Spacing="24" MaxWidth="600">
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="Global Configuration"
+                                               FontSize="20"
+                                               FontWeight="SemiBold"/>
+                                    <TextBlock Text="Application-wide settings for DevDash"
+                                               Foreground="#64748b"
+                                               FontSize="13"/>
+                                </StackPanel>
+
+                                <!-- Workspace Path -->
+                                <StackPanel Spacing="8">
+                                    <TextBlock Text="Workspace Path"
+                                               FontWeight="Medium"/>
+                                    <TextBlock Text="Root directory containing your projects"
+                                               FontSize="12"
+                                               Foreground="#64748b"/>
+                                    <Border Background="#0f172a" CornerRadius="6" BorderBrush="#334155" BorderThickness="1">
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <TextBox Grid.Column="0"
+                                                     Text="{Binding WorkspacePath, Mode=TwoWay}"
+                                                     Watermark="/path/to/workspace"
+                                                     Background="Transparent"
+                                                     BorderThickness="0"
+                                                     Padding="12,10"/>
+                                            <Button Grid.Column="1"
+                                                    Classes="sidebar-btn"
+                                                    Margin="4"
+                                                    Command="{Binding BrowseWorkspacePathCommand}"
+                                                    ToolTip.Tip="Browse...">
+                                                <PathIcon Data="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
+                                                          Width="16" Height="16"
+                                                          Foreground="#94a3b8"/>
+                                            </Button>
+                                        </Grid>
+                                    </Border>
+                                </StackPanel>
+
+                                <!-- Claude Config Path -->
+                                <StackPanel Spacing="8">
+                                    <TextBlock Text="Claude Configuration Path"
+                                               FontWeight="Medium"/>
+                                    <TextBlock Text="Location of Claude Code configuration files (~/.claude)"
+                                               FontSize="12"
+                                               Foreground="#64748b"/>
+                                    <Border Background="#0f172a" CornerRadius="6" BorderBrush="#334155" BorderThickness="1">
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <TextBox Grid.Column="0"
+                                                     Text="{Binding ClaudeConfigPath, Mode=TwoWay}"
+                                                     Watermark="~/.claude"
+                                                     Background="Transparent"
+                                                     BorderThickness="0"
+                                                     Padding="12,10"/>
+                                            <Button Grid.Column="1"
+                                                    Classes="sidebar-btn"
+                                                    Margin="4"
+                                                    Command="{Binding BrowseClaudeConfigPathCommand}"
+                                                    ToolTip.Tip="Browse...">
+                                                <PathIcon Data="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
+                                                          Width="16" Height="16"
+                                                          Foreground="#94a3b8"/>
+                                            </Button>
+                                        </Grid>
+                                    </Border>
+                                </StackPanel>
+
+                                <!-- Save Button -->
+                                <Button Classes="accent"
+                                        HorizontalAlignment="Left"
+                                        Padding="20,10"
+                                        Command="{Binding SaveSettingsCommand}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <PathIcon Data="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z M17 21v-8H7v8 M7 3v5h8"
+                                                  Width="16" Height="16"/>
+                                        <TextBlock Text="Save Settings"/>
+                                    </StackPanel>
+                                </Button>
+
+                                <!-- Settings file info -->
+                                <Border Background="#1e293b40"
+                                        CornerRadius="6"
+                                        Padding="12">
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Text="Configuration file:"
+                                                   FontSize="11"
+                                                   Foreground="#64748b"/>
+                                        <TextBlock Text="{Binding SettingsFilePath}"
+                                                   FontSize="11"
+                                                   Foreground="#475569"
+                                                   FontFamily="Consolas,monospace"
+                                                   TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </ScrollViewer>
                         </Grid>
                     </Grid>
 

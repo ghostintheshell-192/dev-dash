@@ -11,20 +11,42 @@ namespace DevDash.Services;
 public class WorkspaceService : IWorkspaceService
 {
     private readonly IFileSystemService _fileSystem;
+    private readonly IAppSettingsService _appSettings;
 
-    // Workspace predefiniti (in futuro letti da configurazione)
-    private readonly List<Workspace> _workspaces =
-    [
-        Workspace.Coding,
-        Workspace.Writing
-    ];
-
-    public WorkspaceService(IFileSystemService fileSystem)
+    public WorkspaceService(IFileSystemService fileSystem, IAppSettingsService appSettings)
     {
         _fileSystem = fileSystem;
+        _appSettings = appSettings;
     }
 
-    public IReadOnlyList<Workspace> GetWorkspaces() => _workspaces.AsReadOnly();
+    public IReadOnlyList<Workspace> GetWorkspaces()
+    {
+        var settings = _appSettings.Load();
+        var workspacePath = settings.WorkspacePath;
+
+        // Se il path è configurato, usa quello; altrimenti usa il default
+        if (!string.IsNullOrWhiteSpace(workspacePath))
+        {
+            return new List<Workspace>
+            {
+                new()
+                {
+                    Id = 1,
+                    Name = "Projects",
+                    Path = workspacePath,
+                    Type = "coding",
+                    Icon = "💻"
+                }
+            }.AsReadOnly();
+        }
+
+        // Fallback: workspace predefiniti (per retrocompatibilità)
+        return new List<Workspace>
+        {
+            Workspace.Coding,
+            Workspace.Writing
+        }.AsReadOnly();
+    }
 
     public Task<IReadOnlyList<Project>> GetProjectsAsync(Workspace workspace)
     {

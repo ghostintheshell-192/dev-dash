@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DevDash.Models;
@@ -13,6 +14,10 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IWorkspaceService _workspaceService;
     private readonly IFileSystemService _fileSystemService;
     private readonly IConfigurationService _configurationService;
+    private readonly IAppSettingsService _appSettingsService;
+
+    // Storage provider for folder picker dialogs
+    public IStorageProvider? StorageProvider { get; set; }
 
     // Sidebars
     public ObservableCollection<SidebarItem> Sidebars { get; } = [];
@@ -40,7 +45,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
     // Tabs
     [ObservableProperty]
-    private string _activeTab = "personal";
+    private ActiveTabType _activeTab = ActiveTabType.None;
 
     // Panel visibility
     [ObservableProperty]
@@ -58,14 +63,32 @@ public partial class MainWindowViewModel : ViewModelBase
     // Configs
     public ObservableCollection<ConfigFile> Configs { get; } = [];
 
+    // App Settings
+    [ObservableProperty]
+    private string? _workspacePath;
+
+    [ObservableProperty]
+    private string? _claudeConfigPath;
+
+    [ObservableProperty]
+    private string? _settingsFilePath;
+
     public MainWindowViewModel(
         IWorkspaceService workspaceService,
         IFileSystemService fileSystemService,
-        IConfigurationService configurationService)
+        IConfigurationService configurationService,
+        IAppSettingsService appSettingsService)
     {
         _workspaceService = workspaceService;
         _fileSystemService = fileSystemService;
         _configurationService = configurationService;
+        _appSettingsService = appSettingsService;
+
+        // Load settings
+        SettingsFilePath = _appSettingsService.SettingsFilePath;
+        var settings = _appSettingsService.Load();
+        WorkspacePath = settings.WorkspacePath;
+        ClaudeConfigPath = settings.ClaudeConfigPath;
     }
 
     public async Task InitializeAsync()
@@ -218,14 +241,89 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void SetActiveTab(string tabId)
+    private void SetActiveTab(ActiveTabType tab)
     {
-        ActiveTab = tabId;
+        // Skip if already on this tab (avoids unnecessary UI updates)
+        if (ActiveTab == tab) return;
+
+        ActiveTab = tab;
     }
 
     [RelayCommand]
     private void SelectWorkspace(Workspace workspace)
     {
         SelectedWorkspace = workspace;
+    }
+
+    [RelayCommand]
+    private async Task BrowseWorkspacePathAsync()
+    {
+        if (StorageProvider == null) return;
+
+        var folders = await StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
+        {
+            Title = "Select Workspace Folder",
+            AllowMultiple = false
+        });
+
+        if (folders.Count > 0)
+        {
+            WorkspacePath = folders[0].Path.LocalPath;
+        }
+    }
+
+    [RelayCommand]
+    private async Task BrowseClaudeConfigPathAsync()
+    {
+        if (StorageProvider == null) return;
+
+        var folders = await StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
+        {
+            Title = "Select Claude Config Folder",
+            AllowMultiple = false
+        });
+
+        if (folders.Count > 0)
+        {
+            ClaudeConfigPath = folders[0].Path.LocalPath;
+        }
+    }
+
+    [RelayCommand]
+    private async Task SaveSettingsAsync()
+    {
+        var settings = new AppSettings
+        {
+            WorkspacePath = WorkspacePath,
+            ClaudeConfigPath = ClaudeConfigPath
+        };
+        _appSettingsService.Save(settings);
+
+        // Reload workspaces with new path
+        await ReloadWorkspacesAsync();
+    }
+
+    private async Task ReloadWorkspacesAsync()
+    {
+        Workspaces.Clear();
+        Projects.Clear();
+        FileTree.Clear();
+        SelectedWorkspace = null;
+        SelectedProject = null;
+        SelectedFile = null;
+        SelectedFileContent = null;
+
+        var workspaces = _workspaceService.GetWorkspaces();
+        foreach (var ws in workspaces)
+        {
+            Workspaces.Add(ws);
+        }
+
+        if (Workspaces.Count > 0)
+        {
+            SelectedWorkspace = Workspaces[0];
+        }
+
+        await Task.CompletedTask;
     }
 }

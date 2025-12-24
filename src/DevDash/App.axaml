@@ -10,6 +10,8 @@
         <converters:PriorityToForegroundConverter x:Key="PriorityToForegroundConverter"/>
         <converters:PriorityIsNotNoneConverter x:Key="PriorityIsNotNoneConverter"/>
         <converters:StringEqualsConverter x:Key="StringEqualsConverter"/>
+        <converters:EnumEqualsConverter x:Key="EnumEqualsConverter"/>
+        <converters:EnumNotEqualsConverter x:Key="EnumNotEqualsConverter"/>
     </Application.Resources>
 
     <Application.DataTemplates>

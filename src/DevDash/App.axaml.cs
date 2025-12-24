@@ -26,22 +26,30 @@ public partial class App : Application
 
             // Setup services (simple DI without container)
             var fileSystemService = new FileSystemService();
-            var workspaceService = new WorkspaceService(fileSystemService);
+            var appSettingsService = new AppSettingsService();
+            var workspaceService = new WorkspaceService(fileSystemService, appSettingsService);
             var configurationService = new ConfigurationService(fileSystemService);
 
             // Create ViewModel with dependencies
             var viewModel = new MainWindowViewModel(
                 workspaceService,
                 fileSystemService,
-                configurationService);
+                configurationService,
+                appSettingsService);
+
+            // Create main window
+            var mainWindow = new MainWindow
+            {
+                DataContext = viewModel,
+            };
+
+            // Provide StorageProvider to ViewModel for folder picker dialogs
+            viewModel.StorageProvider = mainWindow.StorageProvider;
 
             // Initialize data
             _ = viewModel.InitializeAsync();
 
-            desktop.MainWindow = new MainWindow
-            {
-                DataContext = viewModel,
-            };
+            desktop.MainWindow = mainWindow;
         }
 
         base.OnFrameworkInitializationCompleted();
