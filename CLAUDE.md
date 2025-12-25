@@ -3,7 +3,13 @@
 ## Project Overview
 
 **Type**: C# / Avalonia Desktop Application
-**Purpose**: Dashboard personale per gestire progetti e documentazione con Claude Code
+**Purpose**: Documentation-first project dashboard that collaborates with Claude Code
+
+## Philosophy
+
+> DevDash manages documentation and context. Claude Code manages execution and automation.
+
+DevDash is NOT a "Claude Code manager" — it's a dashboard that shows the complete context Claude will see, without duplicating functionality.
 
 ## Tech Stack
 
@@ -14,7 +20,7 @@
 
 ## Project Structure
 
-```
+```text
 dev-dash/
 ├── src/DevDash/           # Main application
 │   ├── Models/            # Data models
@@ -22,7 +28,10 @@ dev-dash/
 │   ├── Views/             # XAML views
 │   └── Services/          # Business logic, filesystem access
 ├── docs/                  # Public documentation
+│   ├── ARCHITECTURE.md    # System architecture
+│   └── SETUP.md           # Installation guide
 └── .personal/             # Private planning & notes
+    └── planning/          # Feature specs
 ```
 
 ## Build & Run
@@ -35,51 +44,45 @@ dotnet run
 
 ## MVVM Conventions
 
-- **ViewModels**: Inherit from `ViewModelBase`, use `[ObservableProperty]` for properties
+- **ViewModels**: Inherit from `ViewModelBase`, use `[ObservableProperty]`
 - **Views**: AXAML files, bind to ViewModels via `DataContext`
-- **Services**: Injected via constructor, interfaces in `Services/`
+- **Services**: Interfaces in `Services/`, injected via constructor
 - **ViewLocator**: Auto-resolves Views from ViewModels by naming convention
 
 ## Naming Conventions
 
-| Type | Convention | Example |
-|------|------------|---------|
-| ViewModel | `{Name}ViewModel` | `ProjectListViewModel` |
-| View | `{Name}View.axaml` | `ProjectListView.axaml` |
-| Model | `{Name}` | `Project`, `Workspace` |
-| Service | `I{Name}Service` / `{Name}Service` | `IFileService` |
+| Type      | Convention                         | Example                |
+|-----------|------------------------------------| -----------------------|
+| ViewModel | `{Name}ViewModel`                  | `ProjectListViewModel` |
+| View      | `{Name}View.axaml`                 | `ProjectListView.axaml`|
+| Model     | `{Name}`                           | `Project`, `Workspace` |
+| Service   | `I{Name}Service` / `{Name}Service` | `IFileService`         |
 
-## Key Models (from prototype)
+## Claude Integration Principles
 
-```csharp
-// Workspace - contenitore di progetti
-record Workspace(int Id, string Name, string Path, string Type, string Icon);
+DevDash interacts with Claude Code configuration at three levels:
 
-// Project - singolo progetto
-record Project(string Id, string Name, string Path, string? Branch,
-               bool HasPersonal, bool HasDocs, string? Language);
+| Level     | What                                 | DevDash Access |
+|-----------|--------------------------------------|----------------|
+| Global    | `~/.claude/` (agents, commands)      | Read-only      |
+| Workspace | `rules/` (standards, workflows)      | Read/Write     |
+| Project   | `.claude/settings.json`, `.mcp.json` | Read-only      |
+| Project   | `CLAUDE.md`, `.personal/`, `docs/`   | Read/Write     |
 
-// PersonalFile - file in .personal/
-record PersonalFile(string Name, string Path, FileType Type,
-                    string? Priority, DateTime? Modified);
-```
+**Key services for Claude integration:**
 
-## UI Reference
+- `IPathResolver` — Configurable path resolution
+- `IClaudeConfigService` — Read Claude configs (global, project)
+- `IWorkspaceConfigService` — Read/write workspace rules
 
-Il prototipo React (`devdash-prototype.tsx`) definisce il layout target:
+## Current Focus
 
-- **Sidebar**: Workspace switcher + lista progetti
-- **Main area**: Tabs (.personal, docs, issues, ADR, config)
-- **File tree**: Navigazione `.personal/` con expand/collapse
-- **Terminal panel**: Area Claude Code (collapsible)
-- **Settings modal**: Gestione workspace e config
+Implementing Claude Context Panel — unified view of what Claude "sees" when opening a project.
 
-## Current Phase
+See `.personal/planning/feature-claude-context.md` for the spec.
 
-Fase 1 della roadmap: implementare filesystem reale.
+## Key Documents
 
-Vedi `.personal/CURRENT-STATUS.md` per lo stato attuale.
-
----
-
-*For coding standards, see `/data/repos/rules/coding-standards/csharp-dotnet.md`*
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — System architecture
+- [.personal/CURRENT-STATUS.md](.personal/CURRENT-STATUS.md) — Current state
+- [.personal/planning/feature-claude-context.md](.personal/planning/feature-claude-context.md) — Claude integration spec

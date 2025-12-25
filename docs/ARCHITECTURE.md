@@ -42,6 +42,7 @@ Un progetto vive dentro un workspace e può avere:
 
 ---
 
+
 ## Sistema configurazioni Claude Code
 
 DevDash visualizza e permette di modificare le configurazioni Claude Code distribuite su tre livelli:
@@ -134,6 +135,7 @@ ln -s /data/repos/sheet-atlas/.personal /data/documenti/Vault@Claude/progetti/sh
 
 ---
 
+
 ## Integrazione Claude Code
 
 ### Modalità previste
@@ -154,10 +156,29 @@ Questo permette a DevDash di "comandare" Claude Code indirettamente, modificando
 
 ---
 
+## DevDash Desktop vs VS Code Extension
+
+DevDash esisterà in due versioni con filosofie distinte:
+
+| | Desktop (Avalonia) | Extension (VS Code) |
+| --- | --- | --- |
+| **Claude Code** | Embedded (terminale integrato) | Delegato all'estensione ufficiale |
+| **Focus** | Tutto: terminal + docs + config | Solo: docs + context + workflow |
+| **Autonomia** | Standalone | Companion di Claude Code Extension |
+
+L'integrazione tra le versioni avviene tramite **filesystem** (CLAUDE.md, rules/, .personal/), non tramite API. Entrambe leggono/scrivono gli stessi file.
+
+**Ordine di sviluppo**: Desktop prima (validazione workflow), Extension dopo.
+
+Per dettagli completi, vedere [ADR-006](../.personal/reference/decisions/006-desktop-vs-vscode-extension.md).
+
+---
+
 ## Decisioni architetturali
 
 Le ADR (Architecture Decision Records) sono documentate in `.personal/reference/decisions/`:
 
-- [001 - Stack tecnologico (C# + Avalonia)](/.personal/reference/decisions/001-stack-tecnologico.md)
-- [002 - Symlink vs Copy](/.personal/reference/decisions/002-symlink-vs-copy.md)
-- [003 - Issue tracking locale](/.personal/reference/decisions/003-issue-tracking-locale.md)
+- [001 - Stack tecnologico (C# + Avalonia)](../.personal/reference/decisions/001-stack-tecnologico.md)
+- [002 - Symlink vs Copy](../.personal/reference/decisions/002-symlink-vs-copy.md)
+- [003 - Issue tracking locale](../.personal/reference/decisions/003-issue-tracking-locale.md)
+- [006 - DevDash Desktop vs VS Code Extension](../.personal/reference/decisions/006-desktop-vs-vscode-extension.md)
