@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -24,28 +23,52 @@ public class WorkspaceService : IWorkspaceService
         var settings = _appSettings.Load();
         var workspacePath = settings.WorkspacePath;
 
-        // Se il path è configurato, usa quello; altrimenti usa il default
-        if (!string.IsNullOrWhiteSpace(workspacePath))
+        if (string.IsNullOrWhiteSpace(workspacePath) || !_fileSystem.DirectoryExists(workspacePath))
         {
-            return new List<Workspace>
-            {
-                new()
-                {
-                    Id = 1,
-                    Name = "Projects",
-                    Path = workspacePath,
-                    Type = "coding",
-                    Icon = "💻"
-                }
-            }.AsReadOnly();
+            return new List<Workspace>().AsReadOnly();
         }
 
-        // Fallback: workspace predefiniti (per retrocompatibilità)
+        // Rileva il tipo di workspace dalla struttura
+        var hasRules = _fileSystem.DirectoryExists(Path.Combine(workspacePath, ".rules"));
+        var hasMemoryBank = _fileSystem.DirectoryExists(Path.Combine(workspacePath, ".memory-bank"));
+        var hasClaudeMd = _fileSystem.FileExists(Path.Combine(workspacePath, "CLAUDE.md"));
+        var bootstrapType = DetectBootstrapType(workspacePath);
+
+        // Determina tipo e icona
+        var type = bootstrapType ?? "coding";
+        var icon = type == "writing" ? "✍️" : "💻";
+        var name = Path.GetFileName(workspacePath);
+
         return new List<Workspace>
         {
-            Workspace.Coding,
-            Workspace.Writing
+            new()
+            {
+                Id = 1,
+                Name = name,
+                Path = workspacePath,
+                Type = type,
+                Icon = icon,
+                HasRules = hasRules,
+                HasMemoryBank = hasMemoryBank,
+                HasClaudeMd = hasClaudeMd,
+                BootstrapType = bootstrapType
+            }
         }.AsReadOnly();
+    }
+
+    private string? DetectBootstrapType(string workspacePath)
+    {
+        var rulesPath = Path.Combine(workspacePath, ".rules");
+        if (!_fileSystem.DirectoryExists(rulesPath))
+            return null;
+
+        // Cerca bootstrap-coding.md o bootstrap-writing.md
+        if (_fileSystem.FileExists(Path.Combine(rulesPath, "bootstrap-coding.md")))
+            return "coding";
+        if (_fileSystem.FileExists(Path.Combine(rulesPath, "bootstrap-writing.md")))
+            return "writing";
+
+        return null;
     }
 
     public Task<IReadOnlyList<Project>> GetProjectsAsync(Workspace workspace)
@@ -62,12 +85,13 @@ public class WorkspaceService : IWorkspaceService
         {
             var name = Path.GetFileName(dir);
 
-            // Salta directory speciali
-            if (name.StartsWith('.') || name == "rules" || name == "node_modules")
+            // Salta directory speciali e nascoste
+            if (name.StartsWith('.') || name == "node_modules" || name == "bin" || name == "obj")
                 continue;
 
             var hasPersonal = _fileSystem.DirectoryExists(Path.Combine(dir, ".personal"));
             var hasDocs = _fileSystem.DirectoryExists(Path.Combine(dir, "docs"));
+            var hasClaudeMd = _fileSystem.FileExists(Path.Combine(dir, "CLAUDE.md"));
 
             projects.Add(new Project
             {
@@ -107,7 +131,6 @@ public class WorkspaceService : IWorkspaceService
 
         if (_fileSystem.FileExists(Path.Combine(projectPath, "package.json")))
         {
-            // Potrebbe essere TypeScript o JavaScript
             if (_fileSystem.FileExists(Path.Combine(projectPath, "tsconfig.json")))
                 return "typescript";
             return "javascript";

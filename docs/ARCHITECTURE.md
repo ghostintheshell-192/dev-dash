@@ -4,18 +4,48 @@
 
 ### Workspace
 
-Un workspace è un contenitore logico di progetti con caratteristiche comuni:
+Un workspace e un contenitore logico di progetti con caratteristiche comuni:
 
 | Workspace | Path | Tipo contenuto |
 |-----------|------|----------------|
 | Coding | `/data/repos` | Repository software |
 | Writing | `/data/documenti/Vault@Racconti` | Progetti creativi |
 
-I workspace sono configurati in `~/.claude/CLAUDE.md` nella sezione `goto.yaml`.
+I workspace sono configurati nelle impostazioni DevDash. Ogni workspace ha una struttura standard:
+
+```
+workspace/
+├── CLAUDE.md              # Entry point per Claude Code
+├── .rules/                # Standards e bootstrap (hidden folder)
+│   ├── bootstrap-coding.md    # oppure bootstrap-writing.md
+│   ├── user-preferences.yaml
+│   ├── core/
+│   ├── workflows/
+│   └── coding-standards/
+└── .memory-bank/          # Memoria operativa (hidden folder)
+    ├── progetti/          # Handoff sessioni (per coding)
+    └── sessioni/          # Archivio conversazioni
+```
+
+### Workspace Model
+
+Il modello `Workspace.cs` rappresenta un workspace con le seguenti proprieta:
+
+| Proprieta | Tipo | Descrizione |
+|-----------|------|-------------|
+| `Id` | int | Identificativo univoco |
+| `Name` | string | Nome del workspace |
+| `Path` | string | Path assoluto |
+| `Type` | string | "coding" o "writing" |
+| `Icon` | string | Emoji icona |
+| `HasRules` | bool | Presenza di `.rules/` |
+| `HasMemoryBank` | bool | Presenza di `.memory-bank/` |
+| `HasClaudeMd` | bool | Presenza di `CLAUDE.md` |
+| `BootstrapType` | string? | Tipo rilevato da `bootstrap-*.md` |
 
 ### Progetto
 
-Un progetto vive dentro un workspace e può avere:
+Un progetto vive dentro un workspace e puo avere:
 
 - **`.personal/`** - Documentazione privata per spec-driven development
 - **`docs/`** - Documentazione pubblica/ufficiale
@@ -31,7 +61,7 @@ Un progetto vive dentro un workspace e può avere:
 ├── active/               # Lavoro in corso
 │   ├── current-notes.md
 │   └── tech-debt/        # Debito tecnico da risolvere
-├── specs/                # Specifiche funzionalità
+├── specs/                # Specifiche funzionalita
 │   ├── planned/          # In roadmap
 │   ├── backlog/          # Idee parcheggiate
 │   └── completed/        # Archivio
@@ -51,24 +81,37 @@ DevDash visualizza e permette di modificare le configurazioni Claude Code distri
 
 ```
 ~/.claude/
-├── CLAUDE.md              # Configurazione principale
-├── bootstrap-coding.md    # Istruzioni per sessioni coding
-├── commands/              # Comandi slash personalizzati
-└── agents/                # Agenti specializzati
-    ├── code-reviewer.md
-    ├── security-auditor.md
-    └── api-designer.md
+├── settings.json          # Configurazione Claude Code (schema strict)
+├── user-profile.md        # Profilo utente, preferenze comunicazione
+├── hooks/                 # Hook globali (session archiving, etc.)
+├── agents/                # Agenti riutilizzabili
+│   ├── code-reviewer.md
+│   ├── security-auditor.md
+│   └── api-designer.md
+└── commands/              # Comandi slash personalizzati
 ```
 
-### Livello 2: Workspace (`/data/repos/`)
+### Livello 2: Workspace (`.rules/` - portabile)
 
 ```
-/data/repos/
-├── CLAUDE.md              # Regole workspace-wide
-└── .claude/
-    └── rules/             # Regole modulari
-        ├── csharp-conventions.md
-        └── git-workflow.md
+workspace/
+├── CLAUDE.md              # Entry point, regole workspace-wide
+└── .rules/                # Hidden folder, portabile con il workspace
+    ├── bootstrap-coding.md    # Bootstrap per sessioni coding
+    ├── bootstrap-writing.md   # Bootstrap per sessioni writing
+    ├── user-preferences.yaml  # Preferenze workflow
+    ├── goto.yaml              # Language detection routing
+    ├── core/
+    │   ├── principles.md
+    │   └── security-boundaries.md
+    ├── workflows/
+    │   ├── git.md
+    │   ├── session.md
+    │   └── personal-folder.md
+    └── coding-standards/
+        ├── general-principles.md
+        ├── csharp-dotnet.md
+        └── ...
 ```
 
 ### Livello 3: Project (ogni repo)
@@ -77,14 +120,33 @@ DevDash visualizza e permette di modificare le configurazioni Claude Code distri
 progetto/
 ├── CLAUDE.md              # Override specifici progetto
 └── .claude/
-    └── rules/             # Regole solo questo progetto
+    ├── settings.json      # Settings progetto (read-only)
+    └── .mcp.json          # MCP servers configurati
 ```
 
 ### Effective Configuration
 
 Le configurazioni si combinano con precedenza: **Project > Workspace > Global**.
 
-DevDash mostrerà la "effective configuration" risultante dal merge dei tre livelli.
+DevDash mostrera la "effective configuration" risultante dal merge dei tre livelli.
+
+---
+
+## Memory Bank
+
+La `.memory-bank/` e la memoria operativa del workspace:
+
+```
+.memory-bank/
+├── progetti/           # Per workspace coding
+│   └── [project].md    # Handoff note per progetto
+└── sessioni/           # Archivio conversazioni (auto-saved by hook)
+```
+
+Questa cartella e:
+- **Hidden** (prefisso `.`) per non inquinare la root
+- **Portabile** con il workspace
+- **Opzionale** - DevDash funziona anche senza
 
 ---
 
@@ -96,7 +158,7 @@ Per avere una vista unificata di tutte le configurazioni e documentazione, usiam
 /data/documenti/Vault@Claude/
 ├── _sistema/                          # Symlink config Claude
 │   ├── global/          → ~/.claude/
-│   ├── workspace/       → /data/repos/CLAUDE.md + .claude/
+│   ├── workspace/       → /data/repos/CLAUDE.md + .rules/
 │   └── progetti/
 │       ├── sheet-atlas/ → /data/repos/sheet-atlas/.claude/
 │       └── ...
@@ -127,7 +189,7 @@ mkdir -p /data/documenti/Vault@Claude/{_sistema/{global,workspace,progetti},prog
 # Symlink configurazioni
 ln -s ~/.claude /data/documenti/Vault@Claude/_sistema/global
 ln -s /data/repos/CLAUDE.md /data/documenti/Vault@Claude/_sistema/workspace/
-ln -s /data/repos/.claude /data/documenti/Vault@Claude/_sistema/workspace/
+ln -s /data/repos/.rules /data/documenti/Vault@Claude/_sistema/workspace/
 
 # Symlink .personal di ogni progetto
 ln -s /data/repos/sheet-atlas/.personal /data/documenti/Vault@Claude/progetti/sheet-atlas
@@ -138,9 +200,9 @@ ln -s /data/repos/sheet-atlas/.personal /data/documenti/Vault@Claude/progetti/sh
 
 ## Integrazione Claude Code
 
-### Modalità previste
+### Modalita previste
 
-1. **Launch con contesto** - Aprire Claude Code con `.personal/INDEX.md` già caricato
+1. **Launch con contesto** - Aprire Claude Code con `.personal/INDEX.md` gia caricato
 2. **Issue → Task** - Convertire issue selezionata in prompt Claude Code
 3. **Config editing** - Modificare configurazioni e vedere effective config live
 
@@ -158,15 +220,15 @@ Questo permette a DevDash di "comandare" Claude Code indirettamente, modificando
 
 ## DevDash Desktop vs VS Code Extension
 
-DevDash esisterà in due versioni con filosofie distinte:
+DevDash esistera in due versioni con filosofie distinte:
 
 | | Desktop (Avalonia) | Extension (VS Code) |
 | --- | --- | --- |
-| **Claude Code** | Embedded (terminale integrato) | Delegato all'estensione ufficiale |
-| **Focus** | Tutto: terminal + docs + config | Solo: docs + context + workflow |
+| **Claude Code** | Delegato a terminale esterno | Delegato all'estensione ufficiale |
+| **Focus** | Docs + context + workspace management | Solo: docs + context + workflow |
 | **Autonomia** | Standalone | Companion di Claude Code Extension |
 
-L'integrazione tra le versioni avviene tramite **filesystem** (CLAUDE.md, rules/, .personal/), non tramite API. Entrambe leggono/scrivono gli stessi file.
+L'integrazione tra le versioni avviene tramite **filesystem** (CLAUDE.md, .rules/, .personal/), non tramite API. Entrambe leggono/scrivono gli stessi file.
 
 **Ordine di sviluppo**: Desktop prima (validazione workflow), Extension dopo.
 
@@ -182,3 +244,4 @@ Le ADR (Architecture Decision Records) sono documentate in `.personal/reference/
 - [002 - Symlink vs Copy](../.personal/reference/decisions/002-symlink-vs-copy.md)
 - [003 - Issue tracking locale](../.personal/reference/decisions/003-issue-tracking-locale.md)
 - [006 - DevDash Desktop vs VS Code Extension](../.personal/reference/decisions/006-desktop-vs-vscode-extension.md)
+- [007 - Rimozione Terminale Embedded](../.personal/reference/decisions/007-rimozione-terminale-embedded.md)

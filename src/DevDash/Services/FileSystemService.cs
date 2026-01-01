@@ -44,6 +44,9 @@ public class FileSystemService : IFileSystemService
             .OrderBy(f => Path.GetFileName(f));
     }
 
+    /// <summary>
+    /// Ottiene l'albero di .personal/ per un progetto
+    /// </summary>
     public PersonalFile? GetPersonalTree(string projectPath)
     {
         var personalPath = Path.Combine(projectPath, ".personal");
@@ -51,6 +54,30 @@ public class FileSystemService : IFileSystemService
             return null;
 
         return BuildTree(personalPath, ".personal");
+    }
+
+    /// <summary>
+    /// Ottiene l'albero di .memory-bank/ per un workspace
+    /// </summary>
+    public PersonalFile? GetMemoryBankTree(string workspacePath)
+    {
+        var memoryBankPath = Path.Combine(workspacePath, ".memory-bank");
+        if (!Directory.Exists(memoryBankPath))
+            return null;
+
+        return BuildTree(memoryBankPath, ".memory-bank");
+    }
+
+    /// <summary>
+    /// Ottiene l'albero di .rules/ per un workspace
+    /// </summary>
+    public PersonalFile? GetRulesTree(string workspacePath)
+    {
+        var rulesPath = Path.Combine(workspacePath, ".rules");
+        if (!Directory.Exists(rulesPath))
+            return null;
+
+        return BuildTree(rulesPath, ".rules");
     }
 
     private PersonalFile BuildTree(string fullPath, string relativePath)
@@ -114,7 +141,6 @@ public class FileSystemService : IFileSystemService
 
     private Priority DetectPriority(string filePath)
     {
-        // Legge frontmatter per priority (semplificato - cerca pattern nel file)
         try
         {
             if (!File.Exists(filePath))

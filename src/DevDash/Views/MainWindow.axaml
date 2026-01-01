@@ -188,9 +188,7 @@
                                                     PointerPressed="OnProjectClicked">
                                                 <StackPanel>
                                                     <Grid ColumnDefinitions="*,Auto">
-                                                        <TextBlock Text="{Binding Name}"
-                                                                   FontWeight="Medium"
-                                                                   FontSize="13"/>
+                                                        <StackPanel Orientation="Horizontal" Spacing="6"><TextBlock Text="{Binding Name}" FontWeight="Medium" FontSize="13"/><Border Background="#334155" CornerRadius="3" Padding="4,1" IsVisible="{Binding Language, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"><TextBlock Text="{Binding Language}" FontSize="9" Foreground="#94a3b8"/></Border></StackPanel>
                                                         <StackPanel Grid.Column="1"
                                                                     Orientation="Horizontal"
                                                                     Spacing="4">
@@ -445,6 +443,45 @@
                                             </Button>
                                         </Grid>
                                     </Border>
+                                </StackPanel>
+
+                                <!-- Workspace Type -->
+                                <StackPanel Spacing="8">
+                                    <TextBlock Text="Workspace Type"
+                                               FontWeight="Medium"/>
+                                    <TextBlock Text="Choose the type of workspace (affects bootstrap file generation)"
+                                               FontSize="12"
+                                               Foreground="#64748b"/>
+                                    <StackPanel Orientation="Horizontal" Spacing="16">
+                                        <RadioButton Content="Coding" 
+                                                     IsChecked="{Binding IsCodingWorkspace, Mode=TwoWay}"
+                                                     GroupName="WorkspaceType"
+                                                     Foreground="#e2e8f0"/>
+                                        <RadioButton Content="Writing" 
+                                                     IsChecked="{Binding IsCodingWorkspace, Mode=TwoWay, Converter={x:Static BoolConverters.Not}}"
+                                                     GroupName="WorkspaceType"
+                                                     Foreground="#e2e8f0"/>
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <!-- Workspace Status -->
+                                <StackPanel Spacing="8">
+                                    <TextBlock Text="Workspace Status"
+                                               FontWeight="Medium"/>
+                                    <StackPanel Orientation="Horizontal" Spacing="12">
+                                        <StackPanel Orientation="Horizontal" Spacing="4">
+                                            <TextBlock Text="●" Foreground="{Binding WorkspaceHasRules, Converter={StaticResource BoolToColorConverter}}" FontSize="10"/>
+                                            <TextBlock Text=".rules/" Foreground="#94a3b8" FontSize="12"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Spacing="4">
+                                            <TextBlock Text="●" Foreground="{Binding WorkspaceHasMemoryBank, Converter={StaticResource BoolToColorConverter}}" FontSize="10"/>
+                                            <TextBlock Text=".memory-bank/" Foreground="#94a3b8" FontSize="12"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Spacing="4">
+                                            <TextBlock Text="●" Foreground="{Binding WorkspaceHasClaudeMd, Converter={StaticResource BoolToColorConverter}}" FontSize="10"/>
+                                            <TextBlock Text="CLAUDE.md" Foreground="#94a3b8" FontSize="12"/>
+                                        </StackPanel>
+                                    </StackPanel>
                                 </StackPanel>
 
                                 <!-- Save Button -->

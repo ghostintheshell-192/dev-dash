@@ -12,6 +12,7 @@
         <converters:StringEqualsConverter x:Key="StringEqualsConverter"/>
         <converters:EnumEqualsConverter x:Key="EnumEqualsConverter"/>
         <converters:EnumNotEqualsConverter x:Key="EnumNotEqualsConverter"/>
+        <converters:BoolToColorConverter x:Key="BoolToColorConverter"/>
     </Application.Resources>
 
     <Application.DataTemplates>

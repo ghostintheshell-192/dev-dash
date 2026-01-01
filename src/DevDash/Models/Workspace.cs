@@ -2,7 +2,10 @@ namespace DevDash.Models;
 
 /// <summary>
 /// Rappresenta un workspace (contenitore di progetti).
-/// Esempi: Coding (/data/repos), Writing (Vault@Racconti)
+/// Un workspace ha una struttura standard:
+/// - .rules/           → Standards e bootstrap
+/// - .memory-bank/     → Memoria operativa (handoff sessioni)
+/// - CLAUDE.md         → Entry point per Claude Code
 /// </summary>
 public record Workspace
 {
@@ -10,23 +13,11 @@ public record Workspace
     public required string Name { get; init; }
     public required string Path { get; init; }
     public required string Type { get; init; }  // "coding" | "writing"
-    public required string Icon { get; init; }  // Emoji
+    public required string Icon { get; init; }
 
-    public static Workspace Coding => new()
-    {
-        Id = 1,
-        Name = "Coding",
-        Path = "/data/repos",
-        Type = "coding",
-        Icon = "💻"
-    };
-
-    public static Workspace Writing => new()
-    {
-        Id = 2,
-        Name = "Writing",
-        Path = "/data/documenti/Vault@Racconti",
-        Type = "writing",
-        Icon = "✍️"
-    };
+    // Struttura workspace
+    public bool HasRules { get; init; }         // .rules/ presente
+    public bool HasMemoryBank { get; init; }    // .memory-bank/ presente
+    public bool HasClaudeMd { get; init; }      // CLAUDE.md presente
+    public string? BootstrapType { get; init; } // "coding" | "writing" | null (da bootstrap-*.md)
 }
