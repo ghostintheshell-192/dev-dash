@@ -15,6 +15,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IFileSystemService _fileSystemService;
     private readonly IConfigurationService _configurationService;
     private readonly IAppSettingsService _appSettingsService;
+    private readonly IScaffoldService _scaffoldService;
 
     public IStorageProvider? StorageProvider { get; set; }
     public ObservableCollection<SidebarItem> Sidebars { get; } = [];
@@ -49,12 +50,14 @@ public partial class MainWindowViewModel : ViewModelBase
         IWorkspaceService workspaceService,
         IFileSystemService fileSystemService,
         IConfigurationService configurationService,
-        IAppSettingsService appSettingsService)
+        IAppSettingsService appSettingsService,
+        IScaffoldService scaffoldService)
     {
         _workspaceService = workspaceService;
         _fileSystemService = fileSystemService;
         _configurationService = configurationService;
         _appSettingsService = appSettingsService;
+        _scaffoldService = scaffoldService;
 
         SettingsFilePath = _appSettingsService.SettingsFilePath;
         var settings = _appSettingsService.Load();
@@ -190,6 +193,13 @@ public partial class MainWindowViewModel : ViewModelBase
             WorkspaceType = WorkspaceType
         };
         _appSettingsService.Save(settings);
+
+        // Apply workspace scaffold if workspace path is set
+        if (!string.IsNullOrWhiteSpace(WorkspacePath))
+        {
+            await _scaffoldService.ApplyWorkspaceScaffoldAsync(WorkspacePath);
+        }
+
         await ReloadWorkspacesAsync();
     }
 

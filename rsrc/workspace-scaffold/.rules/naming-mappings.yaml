@@ -1,0 +1,97 @@
+# Naming Mappings - Repository Standards
+# Convert kebab-case repository names to language-specific conventions
+
+# Conversion Rules by Language
+conversion_rules:
+  csharp:
+    namespace: PascalCase
+    project_file: "{PascalCase}.csproj"
+    solution_file: "{PascalCase}.sln"
+    assembly: "{PascalCase}.dll"
+    folder_convention: PascalCase
+    example: "financial-tracker → FinancialTracker"
+    
+  flutter_dart:
+    package_name: snake_case
+    android_package: "com.example.{snake_case}"
+    ios_bundle: "com.example.{snake_case}"
+    folder_convention: snake_case
+    file_convention: snake_case
+    example: "cadenza-app → cadenza_app"
+    
+  python:
+    module_name: snake_case
+    package_name: snake_case
+    folder_convention: snake_case
+    file_convention: snake_case
+    example: "financial-tracker → financial_tracker"
+    
+  cpp:
+    executable_name: snake_case
+    header_guards: UPPER_SNAKE_CASE
+    folder_convention: snake_case
+    file_convention: snake_case
+    example: "network-handler → network_handler"
+    
+  javascript_typescript:
+    package_name: kebab-case  # npm convention
+    folder_convention: kebab-case
+    file_convention: kebab-case
+    component_files: PascalCase  # React components
+    example: "user-manager → user-manager (npm), UserManager.tsx"
+
+# Existing Repository Mappings
+# (Auto-generated based on current repo names)
+repository_mappings:
+  cadenza-app:  # Target name
+    current: "cadenza_app"
+    csharp: "CadenzaApp"
+    flutter: "cadenza_app"
+    python: "cadenza_app"
+    cpp: "cadenza_app"
+    
+  financial-tracker:  # Target name
+    current: "FinancialTracker"
+    csharp: "FinancialTracker"
+    flutter: "financial_tracker"
+    python: "financial_tracker"
+    cpp: "financial_tracker"
+    
+  sandbox-disassembly:  # Target name
+    current: "SandBoxDisassembly"
+    csharp: "SandboxDisassembly"
+    flutter: "sandbox_disassembly"
+    python: "sandbox_disassembly"
+    cpp: "sandbox_disassembly"
+    
+  socratic-learning:  # Target name
+    current: "SocraticLearning"
+    csharp: "SocraticLearning"
+    flutter: "socratic_learning"
+    python: "socratic_learning"
+    cpp: "socratic_learning"
+    
+  study-path:  # Target name
+    current: "StudyPath"
+    csharp: "StudyPath"
+    flutter: "study_path"
+    python: "study_path"
+    cpp: "study_path"
+
+# Conversion Functions (for scripts)
+conversion_patterns:
+  kebab_to_pascal: "each-word-capitalized → EachWordCapitalized"
+  kebab_to_snake: "each-word-separated → each_word_separated"
+  kebab_to_upper_snake: "each-word-separated → EACH_WORD_SEPARATED"
+  kebab_to_camel: "each-word-separated → eachWordSeparated"
+  
+# Reserved/Forbidden Names
+forbidden_names:
+  - "test"
+  - "tmp"
+  - "temp"
+  - "build"
+  - "dist"
+  - "node_modules"
+  - "bin"
+  - "obj"

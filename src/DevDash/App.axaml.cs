@@ -29,13 +29,15 @@ public partial class App : Application
             var appSettingsService = new AppSettingsService();
             var workspaceService = new WorkspaceService(fileSystemService, appSettingsService);
             var configurationService = new ConfigurationService(fileSystemService);
+            var scaffoldService = new ScaffoldService();
 
             // Create ViewModel with dependencies
             var viewModel = new MainWindowViewModel(
                 workspaceService,
                 fileSystemService,
                 configurationService,
-                appSettingsService);
+                appSettingsService,
+                scaffoldService);
 
             // Create main window
             var mainWindow = new MainWindow

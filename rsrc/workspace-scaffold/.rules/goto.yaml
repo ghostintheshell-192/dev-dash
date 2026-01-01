@@ -1,0 +1,114 @@
+# Goto Standards - File routing for coding standards
+# This file helps Claude navigate to the appropriate coding standards based on project type
+
+language_detection:
+  flutter:
+    files: ["pubspec.yaml", "*.dart"]
+    standards: ["coding-standards/general-principles.md", "coding-standards/flutter-dart.md"]
+    description: "Flutter/Dart mobile application project"
+    mandatory_files: [".gitignore", "LICENSE", "README.md", "CLAUDE.md"]
+    templates:
+      gitignore_append: "templates/gitignore-flutter.txt"
+
+  python:
+    files: ["requirements.txt", "pyproject.toml", "setup.py", "*.py", "Pipfile"]
+    mandatory_files: [".gitignore", "LICENSE", "README.md", "CLAUDE.md"]
+    standards: ["coding-standards/general-principles.md", "coding-standards/python.md"]
+    description: "Python application or library project"
+    project_type: "private"  # private, open, commercial
+    templates:
+      gitignore_append: "templates/gitignore-python.txt"
+
+  csharp:
+    files: ["*.csproj", "*.sln", "*.cs", "appsettings.json"]
+    standards: ["coding-standards/general-principles.md", "coding-standards/csharp-dotnet.md"]
+    description: "C#/.NET application project"
+    mandatory_files: [".gitignore", "LICENSE", "README.md", "CLAUDE.md"]
+    templates:
+      gitignore_append: "templates/gitignore-csharp.txt"
+
+  cpp:
+    files: ["CMakeLists.txt", "Makefile", "*.cpp", "*.hpp", "*.h", "*.c"]
+    standards: ["coding-standards/general-principles.md", "coding-standards/c-cpp.md"]
+    description: "C/C++ application project"
+    mandatory_files: [".gitignore", "LICENSE", "README.md", "CLAUDE.md"]
+    templates:
+      gitignore_append: "templates/gitignore-cpp.txt"
+
+  javascript_typescript:
+    files: ["package.json", "*.js", "*.ts", "*.tsx", "*.jsx", "tsconfig.json"]
+    standards: ["coding-standards/general-principles.md", "coding-standards/javascript-typescript.md"]
+    description: "JavaScript/TypeScript web or Node.js project"
+    mandatory_files: [".gitignore", "LICENSE", "README.md", "CLAUDE.md"]
+    templates:
+      gitignore_append: "templates/gitignore-javascript.txt"
+
+# Multi-language projects
+multi_language:
+  # When multiple language indicators are found, prioritize by main technology
+  priority_order: ["flutter", "javascript_typescript", "csharp", "python", "cpp"]
+  
+# Fallback for unknown or mixed projects
+unknown_project:
+  standards: ["coding-standards/general-principles.md"]
+  ask_user: true
+  message: "Could not determine project type. Please specify which language standards to apply."
+
+# Repository-level standards (always applicable)
+repository_standards:
+  files: ["repository-standards.md", "naming-mappings.yaml"]
+  description: "Repository organization, naming conventions, and structure guidelines"
+
+# IDE-specific standards
+ide_standards:
+  vscode:
+    file: "ide-standards/vs-code.md"
+    description: "VSCode workspace configuration and extensions"
+
+# License selection guide
+license_guide:
+  private:
+    license: "MIT"
+    description: "Personal/internal tools, maximum flexibility"
+  open:
+    license: "MIT"
+    description: "Open source contributions, community projects"
+  commercial:
+    license: "ask_user"
+    description: "Ask user: All Rights Reserved, BSL, Elastic v2, or Dual License?"
+    options: ["All Rights Reserved", "Business Source License", "Elastic License v2", "Dual License"]
+
+# Workflow reminders
+workflow_reminders:
+  - "Always read goto.yaml first to identify project type"
+  - "Check mandatory_files exist for detected language"
+  - "Select appropriate license based on project_type"
+  - "Apply language-specific standards from detected type"
+  - "Consider adding VSCode configuration from ide-standards/vs-code.md"
+
+# Templates
+templates:
+  base_templates:
+    - "templates/CLAUDE.md"
+    - "templates/README.md"
+    - "templates/.gitignore"
+
+  usage: |
+    When creating missing mandatory files:
+    1. Use base templates from templates/ directory
+    2. Replace {PROJECT_NAME}, {project_name}, etc. with actual values
+    3. For .gitignore: combine base template + language-specific append file
+    4. For CLAUDE.md and README.md: replace placeholders with project info
+
+# Usage instructions
+usage:
+  workflow: |
+    1. Scan current directory for file patterns
+    2. Match against language_detection patterns
+    3. Read the corresponding standards files
+    4. Check mandatory_files are present
+    5. If missing: use templates/ to generate (based on user-preferences mode)
+    6. Select license based on project_type
+    7. Apply language-specific coding guidelines
+    8. If multiple matches, use priority_order
+    9. If no matches, use unknown_project fallback
