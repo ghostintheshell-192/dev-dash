@@ -32,8 +32,6 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private string? _selectedFileContent;
     [ObservableProperty] private ActiveTabType _activeTab = ActiveTabType.None;
     [ObservableProperty] private bool _showSidebar = true;
-    [ObservableProperty] private bool _showTerminal = true;
-    [ObservableProperty] private bool _terminalExpanded;
     [ObservableProperty] private bool _showSettings;
 
     public ObservableCollection<ConfigFile> Configs { get; } = [];
@@ -153,8 +151,6 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     [RelayCommand] private void ToggleSidebar() => ShowSidebar = !ShowSidebar;
-    [RelayCommand] private void ToggleTerminal() => ShowTerminal = !ShowTerminal;
-    [RelayCommand] private void ToggleTerminalExpanded() => TerminalExpanded = !TerminalExpanded;
     [RelayCommand] private void OpenSettings() => ShowSettings = true;
     [RelayCommand] private void CloseSettings() => ShowSettings = false;
     [RelayCommand] private void SetActiveTab(ActiveTabType tab) { if (ActiveTab != tab) ActiveTab = tab; }
