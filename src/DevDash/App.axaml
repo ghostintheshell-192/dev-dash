@@ -21,5 +21,6 @@
 
     <Application.Styles>
         <FluentTheme />
+        <StyleInclude Source="avares://DevDash/Styles/_Index.axaml"/>
     </Application.Styles>
 </Application>

@@ -1,0 +1,9 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!--
+        Style Index - Aggregates all style dictionaries
+        To add new styles: create a new .axaml file and add it here
+    -->
+    <StyleInclude Source="avares://DevDash/Styles/CommonStyles.axaml"/>
+    <StyleInclude Source="avares://DevDash/Styles/MarkdownStyleDark.axaml"/>
+</Styles>
