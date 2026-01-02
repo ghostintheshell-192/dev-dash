@@ -24,4 +24,11 @@ public interface IScaffoldService
     /// <param name="workspacePath">The workspace root path.</param>
     /// <returns>Result containing counts of files created, updated, and skipped.</returns>
     Task<ScaffoldResult> ApplyWorkspaceScaffoldAsync(string workspacePath);
+
+    /// <summary>
+    /// Checks if a workspace has already been configured with Claude Code files.
+    /// </summary>
+    /// <param name="workspacePath">The workspace root path.</param>
+    /// <returns>True if the workspace has .rules/, .memory-bank/, or CLAUDE.md.</returns>
+    bool IsWorkspaceConfigured(string workspacePath);
 }

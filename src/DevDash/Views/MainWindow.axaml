@@ -375,7 +375,7 @@
 
                         <!-- Settings Panel -->
                         <ScrollViewer IsVisible="{Binding ActiveTab, Converter={StaticResource EnumEqualsConverter}, ConverterParameter={x:Static models:ActiveTabType.Settings}}">
-                            <StackPanel Spacing="24" MaxWidth="600">
+                            <StackPanel Spacing="24" MaxWidth="700">
                                 <StackPanel Spacing="4">
                                     <TextBlock Text="Global Configuration"
                                                FontSize="20"
@@ -385,32 +385,140 @@
                                                FontSize="13"/>
                                 </StackPanel>
 
-                                <!-- Workspace Path -->
-                                <StackPanel Spacing="8">
-                                    <TextBlock Text="Workspace Path"
-                                               FontWeight="Medium"/>
-                                    <TextBlock Text="Root directory containing your projects"
+                                <!-- Workspaces Section -->
+                                <StackPanel Spacing="12">
+                                    <TextBlock Text="Workspaces"
+                                               FontWeight="Medium"
+                                               FontSize="16"/>
+                                    <TextBlock Text="Manage your workspace directories. Click 'Apply Scaffold' to configure a new workspace."
                                                FontSize="12"
                                                Foreground="#64748b"/>
+
+                                    <!-- Add New Workspace -->
                                     <Border Background="#0f172a" CornerRadius="6" BorderBrush="#334155" BorderThickness="1">
-                                        <Grid ColumnDefinitions="*,Auto">
+                                        <Grid ColumnDefinitions="*,Auto,Auto">
                                             <TextBox Grid.Column="0"
-                                                     Text="{Binding WorkspacePath, Mode=TwoWay}"
-                                                     Watermark="/path/to/workspace"
+                                                     Text="{Binding NewWorkspacePath, Mode=TwoWay}"
+                                                     Watermark="Add new workspace path..."
                                                      Background="Transparent"
                                                      BorderThickness="0"
                                                      Padding="12,10"/>
                                             <Button Grid.Column="1"
                                                     Classes="sidebar-btn"
                                                     Margin="4"
-                                                    Command="{Binding BrowseWorkspacePathCommand}"
+                                                    Command="{Binding BrowseNewWorkspacePathCommand}"
                                                     ToolTip.Tip="Browse...">
                                                 <PathIcon Data="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
                                                           Width="16" Height="16"
                                                           Foreground="#94a3b8"/>
                                             </Button>
+                                            <Button Grid.Column="2"
+                                                    Classes="accent"
+                                                    Margin="4"
+                                                    Padding="12,6"
+                                                    Command="{Binding AddWorkspaceCommand}">
+                                                <TextBlock Text="Add"/>
+                                            </Button>
                                         </Grid>
                                     </Border>
+
+                                    <!-- Workspace List -->
+                                    <ItemsControl ItemsSource="{Binding ConfiguredWorkspaces}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="vm:WorkspaceConfigViewModel">
+                                                <Border Classes="project-item"
+                                                        Classes.selected="{Binding IsSelected}"
+                                                        Cursor="Hand"
+                                                        PointerPressed="OnWorkspaceRowClicked">
+                                                    <Grid RowDefinitions="Auto" ColumnDefinitions="Auto,*,Auto">
+                                                        <!-- Selection indicator -->
+                                                        <TextBlock Grid.Column="0"
+                                                                   Text="●"
+                                                                   FontSize="12"
+                                                                   Margin="0,0,8,0"
+                                                                   VerticalAlignment="Center"
+                                                                   Foreground="{Binding IsSelected, Converter={StaticResource BoolToColorConverter}}"/>
+
+                                                        <!-- Workspace Info -->
+                                                        <StackPanel Grid.Column="1" Spacing="2">
+                                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                                <TextBlock Text="{Binding Name}"
+                                                                           FontWeight="Medium"
+                                                                           FontSize="14"/>
+                                                                <!-- Status badge -->
+                                                                <Border CornerRadius="4"
+                                                                        Padding="6,2"
+                                                                        Background="{Binding IsConfigured, Converter={StaticResource BoolToColorConverter}}">
+                                                                    <TextBlock Text="{Binding StatusText}"
+                                                                               FontSize="10"
+                                                                               Foreground="White"/>
+                                                                </Border>
+                                                            </StackPanel>
+                                                            <TextBlock Text="{Binding Path}"
+                                                                       FontSize="11"
+                                                                       Foreground="#64748b"
+                                                                       FontFamily="Consolas,monospace"
+                                                                       TextTrimming="CharacterEllipsis"/>
+                                                        </StackPanel>
+
+                                                        <!-- Actions -->
+                                                        <StackPanel Grid.Column="2"
+                                                                    Orientation="Horizontal"
+                                                                    Spacing="8"
+                                                                    VerticalAlignment="Center">
+                                                            <!-- Type toggle -->
+                                                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                                                <RadioButton Content="Coding"
+                                                                             IsChecked="{Binding IsCoding}"
+                                                                             GroupName="{Binding Path}"
+                                                                             FontSize="11"
+                                                                             Foreground="#94a3b8"/>
+                                                                <RadioButton Content="Writing"
+                                                                             IsChecked="{Binding IsCoding, Converter={x:Static BoolConverters.Not}}"
+                                                                             GroupName="{Binding Path}"
+                                                                             FontSize="11"
+                                                                             Foreground="#94a3b8"/>
+                                                            </StackPanel>
+                                                            <!-- Apply scaffold button (only if not configured) -->
+                                                            <Button Classes="accent"
+                                                                    Padding="8,4"
+                                                                    FontSize="11"
+                                                                    IsVisible="{Binding IsConfigured, Converter={x:Static BoolConverters.Not}}"
+                                                                    Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).ApplyScaffoldCommand}"
+                                                                    CommandParameter="{Binding}">
+                                                                <TextBlock Text="Apply Scaffold"/>
+                                                            </Button>
+                                                            <!-- Re-apply button (if already configured) -->
+                                                            <Button Classes="sidebar-btn"
+                                                                    Padding="8,4"
+                                                                    FontSize="11"
+                                                                    IsVisible="{Binding IsConfigured}"
+                                                                    Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).ApplyScaffoldCommand}"
+                                                                    CommandParameter="{Binding}"
+                                                                    ToolTip.Tip="Re-apply scaffold (will overwrite existing files)">
+                                                                <TextBlock Text="Re-apply" Foreground="#f59e0b"/>
+                                                            </Button>
+                                                            <!-- Remove button -->
+                                                            <Button Classes="sidebar-btn"
+                                                                    Padding="4"
+                                                                    Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).RemoveWorkspaceCommand}"
+                                                                    CommandParameter="{Binding}"
+                                                                    ToolTip.Tip="Remove workspace">
+                                                                <TextBlock Text="×" FontSize="16" Foreground="#ef4444"/>
+                                                            </Button>
+                                                        </StackPanel>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+
+                                    <!-- Empty state -->
+                                    <TextBlock Text="No workspaces configured. Add one above."
+                                               FontSize="12"
+                                               Foreground="#64748b"
+                                               FontStyle="Italic"
+                                               IsVisible="{Binding !ConfiguredWorkspaces.Count}"/>
                                 </StackPanel>
 
                                 <!-- Claude Config Path -->
@@ -439,45 +547,6 @@
                                             </Button>
                                         </Grid>
                                     </Border>
-                                </StackPanel>
-
-                                <!-- Workspace Type -->
-                                <StackPanel Spacing="8">
-                                    <TextBlock Text="Workspace Type"
-                                               FontWeight="Medium"/>
-                                    <TextBlock Text="Choose the type of workspace (affects bootstrap file generation)"
-                                               FontSize="12"
-                                               Foreground="#64748b"/>
-                                    <StackPanel Orientation="Horizontal" Spacing="16">
-                                        <RadioButton Content="Coding" 
-                                                     IsChecked="{Binding IsCodingWorkspace, Mode=TwoWay}"
-                                                     GroupName="WorkspaceType"
-                                                     Foreground="#e2e8f0"/>
-                                        <RadioButton Content="Writing" 
-                                                     IsChecked="{Binding IsCodingWorkspace, Mode=TwoWay, Converter={x:Static BoolConverters.Not}}"
-                                                     GroupName="WorkspaceType"
-                                                     Foreground="#e2e8f0"/>
-                                    </StackPanel>
-                                </StackPanel>
-
-                                <!-- Workspace Status -->
-                                <StackPanel Spacing="8">
-                                    <TextBlock Text="Workspace Status"
-                                               FontWeight="Medium"/>
-                                    <StackPanel Orientation="Horizontal" Spacing="12">
-                                        <StackPanel Orientation="Horizontal" Spacing="4">
-                                            <TextBlock Text="●" Foreground="{Binding WorkspaceHasRules, Converter={StaticResource BoolToColorConverter}}" FontSize="10"/>
-                                            <TextBlock Text=".rules/" Foreground="#94a3b8" FontSize="12"/>
-                                        </StackPanel>
-                                        <StackPanel Orientation="Horizontal" Spacing="4">
-                                            <TextBlock Text="●" Foreground="{Binding WorkspaceHasMemoryBank, Converter={StaticResource BoolToColorConverter}}" FontSize="10"/>
-                                            <TextBlock Text=".memory-bank/" Foreground="#94a3b8" FontSize="12"/>
-                                        </StackPanel>
-                                        <StackPanel Orientation="Horizontal" Spacing="4">
-                                            <TextBlock Text="●" Foreground="{Binding WorkspaceHasClaudeMd, Converter={StaticResource BoolToColorConverter}}" FontSize="10"/>
-                                            <TextBlock Text="CLAUDE.md" Foreground="#94a3b8" FontSize="12"/>
-                                        </StackPanel>
-                                    </StackPanel>
                                 </StackPanel>
 
                                 <!-- Save Button -->

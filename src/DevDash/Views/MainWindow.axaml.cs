@@ -21,4 +21,15 @@ public partial class MainWindow : Window
             }
         }
     }
+
+    private void OnWorkspaceRowClicked(object? sender, PointerPressedEventArgs e)
+    {
+        if (sender is Border border && border.DataContext is WorkspaceConfigViewModel workspace)
+        {
+            if (DataContext is MainWindowViewModel vm)
+            {
+                vm.SelectedConfiguredWorkspace = workspace;
+            }
+        }
+    }
 }

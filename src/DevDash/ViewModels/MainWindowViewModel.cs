@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Platform.Storage;
@@ -37,11 +38,12 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public ObservableCollection<ConfigFile> Configs { get; } = [];
 
-    [ObservableProperty] private string? _workspacePath;
+    // Multi-workspace support
+    public ObservableCollection<WorkspaceConfigViewModel> ConfiguredWorkspaces { get; } = [];
+    [ObservableProperty] private WorkspaceConfigViewModel? _selectedConfiguredWorkspace;
+    [ObservableProperty] private string? _newWorkspacePath;
     [ObservableProperty] private string? _claudeConfigPath;
     [ObservableProperty] private string? _settingsFilePath;
-    [ObservableProperty] private string _workspaceType = "coding";
-    [ObservableProperty] private bool _isCodingWorkspace = true;
     [ObservableProperty] private bool _workspaceHasRules;
     [ObservableProperty] private bool _workspaceHasMemoryBank;
     [ObservableProperty] private bool _workspaceHasClaudeMd;
@@ -60,15 +62,52 @@ public partial class MainWindowViewModel : ViewModelBase
         _scaffoldService = scaffoldService;
 
         SettingsFilePath = _appSettingsService.SettingsFilePath;
-        var settings = _appSettingsService.Load();
-        WorkspacePath = settings.WorkspacePath;
-        ClaudeConfigPath = settings.ClaudeConfigPath;
-        WorkspaceType = settings.WorkspaceType;
-        IsCodingWorkspace = settings.WorkspaceType == "coding";
+        LoadSettings();
     }
 
-    partial void OnIsCodingWorkspaceChanged(bool value) =>
-        WorkspaceType = value ? "coding" : "writing";
+    private void LoadSettings()
+    {
+        var settings = _appSettingsService.Load();
+        ClaudeConfigPath = settings.ClaudeConfigPath;
+
+        ConfiguredWorkspaces.Clear();
+        foreach (var ws in settings.Workspaces)
+        {
+            var vm = new WorkspaceConfigViewModel(ws, _scaffoldService);
+            ConfiguredWorkspaces.Add(vm);
+        }
+
+        if (settings.SelectedWorkspaceIndex >= 0 && settings.SelectedWorkspaceIndex < ConfiguredWorkspaces.Count)
+        {
+            SelectedConfiguredWorkspace = ConfiguredWorkspaces[settings.SelectedWorkspaceIndex];
+        }
+        else if (ConfiguredWorkspaces.Count > 0)
+        {
+            SelectedConfiguredWorkspace = ConfiguredWorkspaces[0];
+        }
+    }
+
+    partial void OnSelectedConfiguredWorkspaceChanged(WorkspaceConfigViewModel? value)
+    {
+        // Update selection state on all workspaces
+        foreach (var ws in ConfiguredWorkspaces)
+            ws.IsSelected = ws == value;
+
+        if (value != null)
+        {
+            value.RefreshStatus();
+        }
+
+        // Auto-save selection and reload projects
+        SaveSettingsOnly();
+        _ = ReloadWorkspacesAsync();
+    }
+
+    [RelayCommand]
+    private void SelectConfiguredWorkspace(WorkspaceConfigViewModel workspace)
+    {
+        SelectedConfiguredWorkspace = workspace;
+    }
 
     public async Task InitializeAsync()
     {
@@ -160,7 +199,7 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand] private void SelectWorkspace(Workspace workspace) => SelectedWorkspace = workspace;
 
     [RelayCommand]
-    private async Task BrowseWorkspacePathAsync()
+    private async Task BrowseNewWorkspacePathAsync()
     {
         if (StorageProvider == null) return;
         var folders = await StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
@@ -168,7 +207,7 @@ public partial class MainWindowViewModel : ViewModelBase
             Title = "Select Workspace Folder",
             AllowMultiple = false
         });
-        if (folders.Count > 0) WorkspacePath = folders[0].Path.LocalPath;
+        if (folders.Count > 0) NewWorkspacePath = folders[0].Path.LocalPath;
     }
 
     [RelayCommand]
@@ -184,23 +223,82 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task SaveSettingsAsync()
+    private void AddWorkspace()
     {
-        var settings = new AppSettings
-        {
-            WorkspacePath = WorkspacePath,
-            ClaudeConfigPath = ClaudeConfigPath,
-            WorkspaceType = WorkspaceType
-        };
-        _appSettingsService.Save(settings);
+        if (string.IsNullOrWhiteSpace(NewWorkspacePath)) return;
+        if (!Directory.Exists(NewWorkspacePath)) return;
 
-        // Apply workspace scaffold if workspace path is set
-        if (!string.IsNullOrWhiteSpace(WorkspacePath))
+        // Check if already exists
+        if (ConfiguredWorkspaces.Any(w => w.Path == NewWorkspacePath)) return;
+
+        var name = Path.GetFileName(NewWorkspacePath) ?? "Workspace";
+        var config = new WorkspaceConfig
         {
-            await _scaffoldService.ApplyWorkspaceScaffoldAsync(WorkspacePath);
+            Path = NewWorkspacePath,
+            Name = name,
+            Type = "coding"
+        };
+
+        var vm = new WorkspaceConfigViewModel(config, _scaffoldService);
+        ConfiguredWorkspaces.Add(vm);
+        SelectedConfiguredWorkspace = vm;
+        NewWorkspacePath = null;
+
+        SaveSettingsOnly();
+    }
+
+    [RelayCommand]
+    private void RemoveWorkspace(WorkspaceConfigViewModel? workspace)
+    {
+        if (workspace == null) return;
+        ConfiguredWorkspaces.Remove(workspace);
+
+        if (SelectedConfiguredWorkspace == workspace)
+        {
+            SelectedConfiguredWorkspace = ConfiguredWorkspaces.FirstOrDefault();
         }
 
+        SaveSettingsOnly();
+    }
+
+    [RelayCommand]
+    private async Task ApplyScaffoldAsync(WorkspaceConfigViewModel? workspace)
+    {
+        if (workspace == null || string.IsNullOrWhiteSpace(workspace.Path)) return;
+
+        await _scaffoldService.ApplyWorkspaceScaffoldAsync(workspace.Path);
+        workspace.RefreshStatus();
         await ReloadWorkspacesAsync();
+    }
+
+    [RelayCommand]
+    private async Task SaveSettingsAsync()
+    {
+        SaveSettingsOnly();
+        await ReloadWorkspacesAsync();
+    }
+
+    private void SaveSettingsOnly()
+    {
+        var workspaces = ConfiguredWorkspaces.Select(w => new WorkspaceConfig
+        {
+            Path = w.Path,
+            Name = w.Name,
+            Type = w.IsCoding ? "coding" : "writing"
+        }).ToList();
+
+        var selectedIndex = SelectedConfiguredWorkspace != null
+            ? ConfiguredWorkspaces.IndexOf(SelectedConfiguredWorkspace)
+            : 0;
+
+        var settings = new AppSettings
+        {
+            Workspaces = workspaces,
+            SelectedWorkspaceIndex = selectedIndex,
+            ClaudeConfigPath = ClaudeConfigPath
+        };
+
+        _appSettingsService.Save(settings);
     }
 
     private async Task ReloadWorkspacesAsync()
@@ -219,5 +317,40 @@ public partial class MainWindowViewModel : ViewModelBase
         if (Workspaces.Count > 0) SelectedWorkspace = Workspaces[0];
 
         await Task.CompletedTask;
+    }
+}
+
+/// <summary>
+/// ViewModel for a configured workspace in settings.
+/// </summary>
+public partial class WorkspaceConfigViewModel : ViewModelBase
+{
+    private readonly IScaffoldService _scaffoldService;
+
+    public string Path { get; }
+    [ObservableProperty] private string _name;
+    [ObservableProperty] private bool _isCoding = true;
+    [ObservableProperty] private bool _isConfigured;
+    [ObservableProperty] private bool _isSelected;
+    [ObservableProperty] private string _statusText = "Not configured";
+
+    public WorkspaceConfigViewModel(WorkspaceConfig config, IScaffoldService scaffoldService)
+    {
+        _scaffoldService = scaffoldService;
+        Path = config.Path;
+        Name = config.Name;
+        IsCoding = config.Type == "coding";
+        RefreshStatus();
+    }
+
+    public void RefreshStatus()
+    {
+        IsConfigured = _scaffoldService.IsWorkspaceConfigured(Path);
+        StatusText = IsConfigured ? "Configured" : "Not configured";
+    }
+
+    partial void OnIsCodingChanged(bool value)
+    {
+        // Type changed, could trigger save in parent
     }
 }

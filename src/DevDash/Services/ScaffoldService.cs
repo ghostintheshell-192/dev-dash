@@ -15,6 +15,19 @@ public class ScaffoldService : IScaffoldService
 {
     private const string ScaffoldPrefix = "workspace_scaffold";
 
+    public bool IsWorkspaceConfigured(string workspacePath)
+    {
+        if (string.IsNullOrWhiteSpace(workspacePath) || !Directory.Exists(workspacePath))
+            return false;
+
+        // Check for any of the main configuration indicators
+        var hasRules = Directory.Exists(Path.Combine(workspacePath, ".rules"));
+        var hasMemoryBank = Directory.Exists(Path.Combine(workspacePath, ".memory-bank"));
+        var hasClaudeMd = File.Exists(Path.Combine(workspacePath, "CLAUDE.md"));
+
+        return hasRules || hasMemoryBank || hasClaudeMd;
+    }
+
     public async Task<ScaffoldResult> ApplyWorkspaceScaffoldAsync(string workspacePath)
     {
         if (string.IsNullOrWhiteSpace(workspacePath))
