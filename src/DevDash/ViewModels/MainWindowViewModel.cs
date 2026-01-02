@@ -1,6 +1,9 @@
+using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -33,6 +36,10 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private FileTreeItemViewModel? _selectedFile;
     [ObservableProperty] private string? _selectedFileContent;
     [ObservableProperty] private ActiveTabType _activeTab = ActiveTabType.None;
+
+    // Document tabs
+    public ObservableCollection<DocumentTabViewModel> OpenDocuments { get; } = [];
+    [ObservableProperty] private DocumentTabViewModel? _selectedDocument;
     [ObservableProperty] private bool _showSidebar = true;
     [ObservableProperty] private bool _showSettings;
 
@@ -182,14 +189,76 @@ public partial class MainWindowViewModel : ViewModelBase
 
     partial void OnSelectedFileChanged(FileTreeItemViewModel? value)
     {
-        if (value != null && value.IsFile) _ = LoadFileContentAsync(value.File);
-        else SelectedFileContent = null;
+        if (value != null && value.IsFile)
+            _ = OpenDocumentAsync(value.File);
     }
 
-    private async Task LoadFileContentAsync(PersonalFile file)
+    private async Task OpenDocumentAsync(PersonalFile file)
     {
-        try { SelectedFileContent = await _fileSystemService.ReadFileAsync(file.FullPath); }
-        catch { SelectedFileContent = "Errore nel caricamento del file: " + file.FullPath; }
+        // Check if already open
+        var existing = OpenDocuments.FirstOrDefault(d => d.FilePath == file.FullPath);
+        if (existing != null)
+        {
+            SelectedDocument = existing;
+            return;
+        }
+
+        // Create new tab
+        var doc = new DocumentTabViewModel(file);
+        try
+        {
+            doc.RawContent = await _fileSystemService.ReadFileAsync(file.FullPath);
+        }
+        catch
+        {
+            doc.RawContent = $"Error loading file: {file.FullPath}";
+        }
+
+        OpenDocuments.Add(doc);
+        SelectedDocument = doc;
+    }
+
+    partial void OnSelectedDocumentChanged(DocumentTabViewModel? value)
+    {
+        foreach (var doc in OpenDocuments)
+            doc.IsSelected = doc == value;
+
+        // Keep SelectedFileContent in sync for backwards compatibility
+        SelectedFileContent = value?.Content;
+    }
+
+    [RelayCommand]
+    private void CloseDocument(DocumentTabViewModel doc)
+    {
+        var index = OpenDocuments.IndexOf(doc);
+        OpenDocuments.Remove(doc);
+
+        // Select adjacent tab if available
+        if (OpenDocuments.Count > 0)
+        {
+            var newIndex = Math.Min(index, OpenDocuments.Count - 1);
+            SelectedDocument = OpenDocuments[newIndex];
+        }
+        else
+        {
+            SelectedDocument = null;
+        }
+    }
+
+    [RelayCommand]
+    private void CloseAllDocuments()
+    {
+        OpenDocuments.Clear();
+        SelectedDocument = null;
+    }
+
+    [RelayCommand]
+    private void CloseOtherDocuments(DocumentTabViewModel doc)
+    {
+        var toKeep = doc;
+        OpenDocuments.Clear();
+        OpenDocuments.Add(toKeep);
+        SelectedDocument = toKeep;
     }
 
     [RelayCommand] private void ToggleSidebar() => ShowSidebar = !ShowSidebar;
@@ -197,6 +266,67 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand] private void CloseSettings() => ShowSettings = false;
     [RelayCommand] private void SetActiveTab(ActiveTabType tab) { if (ActiveTab != tab) ActiveTab = tab; }
     [RelayCommand] private void SelectWorkspace(Workspace workspace) => SelectedWorkspace = workspace;
+
+    [RelayCommand]
+    private async Task HandleMarkdownLinkAsync(string? url)
+    {
+        if (string.IsNullOrEmpty(url)) return;
+
+        // External URL - open in browser
+        if (url.StartsWith("http://") || url.StartsWith("https://"))
+        {
+            OpenUrlInBrowser(url);
+            return;
+        }
+
+        // Relative link - try to open as document
+        if (SelectedDocument != null && SelectedProject != null)
+        {
+            // Resolve relative to current document's directory
+            var currentDir = Path.GetDirectoryName(SelectedDocument.FilePath) ?? SelectedProject.Project.Path;
+            var targetPath = Path.GetFullPath(Path.Combine(currentDir, url));
+
+            if (File.Exists(targetPath))
+            {
+                var file = new PersonalFile
+                {
+                    Name = Path.GetFileName(targetPath),
+                    Path = targetPath,
+                    FullPath = targetPath,
+                    Type = FileType.File
+                };
+                await OpenDocumentAsync(file);
+                return;
+            }
+        }
+
+        // Fallback: try to open as URL anyway
+        OpenUrlInBrowser(url);
+    }
+
+    private static void OpenUrlInBrowser(string url)
+    {
+        try
+        {
+            // Cross-platform URL opening
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                Process.Start("open", url);
+            }
+            else
+            {
+                Process.Start("xdg-open", url);
+            }
+        }
+        catch
+        {
+            // Silently fail if browser can't be opened
+        }
+    }
 
     [RelayCommand]
     private async Task BrowseNewWorkspacePathAsync()

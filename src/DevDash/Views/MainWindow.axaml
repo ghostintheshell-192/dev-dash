@@ -4,6 +4,7 @@
         xmlns:views="using:DevDash.Views"
         xmlns:controls="using:DevDash.Views.Controls"
         xmlns:models="using:DevDash.Models"
+        xmlns:md="clr-namespace:Markdown.Avalonia;assembly=Markdown.Avalonia"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
@@ -84,6 +85,39 @@
         <Style Selector="Button.tree-item.selected">
             <Setter Property="Background" Value="#451a03"/>
         </Style>
+
+        <!-- Document tab -->
+        <Style Selector="Border.doc-tab">
+            <Setter Property="Background" Value="#1e293b"/>
+            <Setter Property="CornerRadius" Value="6,6,0,0"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="Margin" Value="0,0,2,0"/>
+            <Setter Property="BorderThickness" Value="1,1,1,0"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+        </Style>
+        <Style Selector="Border.doc-tab:pointerover">
+            <Setter Property="Background" Value="#334155"/>
+        </Style>
+        <Style Selector="Border.doc-tab.selected">
+            <Setter Property="Background" Value="#0f172a"/>
+            <Setter Property="BorderBrush" Value="#334155"/>
+        </Style>
+
+        <!-- Close button on tabs -->
+        <Style Selector="Button.tab-close">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#64748b"/>
+            <Setter Property="Width" Value="16"/>
+            <Setter Property="Height" Value="16"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="CornerRadius" Value="3"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style Selector="Button.tab-close:pointerover">
+            <Setter Property="Background" Value="#475569"/>
+            <Setter Property="Foreground" Value="#e2e8f0"/>
+        </Style>
+
     </Window.Styles>
 
     <Grid RowDefinitions="40,*">
@@ -320,55 +354,78 @@
 
                     <!-- Tab Content -->
                     <Grid Grid.Row="1" Margin="16">
-                        <!-- File Content Area (hidden when Settings tab is active) -->
-                        <Grid IsVisible="{Binding ActiveTab, Converter={StaticResource EnumNotEqualsConverter}, ConverterParameter={x:Static models:ActiveTabType.Settings}}">
-                            <!-- File view placeholder (when no file selected) -->
-                            <StackPanel VerticalAlignment="Center"
-                                        HorizontalAlignment="Center"
-                                        IsVisible="{Binding SelectedFile, Converter={x:Static ObjectConverters.IsNull}}">
-                                <PathIcon Data="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8"
-                                          Width="40" Height="40"
-                                          Foreground="#334155"/>
-                                <TextBlock Text="Seleziona un file"
-                                           Foreground="#64748b"
-                                           Margin="0,8,0,0"
-                                           HorizontalAlignment="Center"/>
-                            </StackPanel>
+                        <!-- Document tabs area (hidden when Settings tab is active) -->
+                        <Grid RowDefinitions="Auto,*"
+                              IsVisible="{Binding ActiveTab, Converter={StaticResource EnumNotEqualsConverter}, ConverterParameter={x:Static models:ActiveTabType.Settings}}">
 
-                            <!-- File content (when file selected) -->
-                            <Grid RowDefinitions="Auto,*"
-                                  IsVisible="{Binding SelectedFile, Converter={x:Static ObjectConverters.IsNotNull}}"
-                                  x:Name="FileContentPanel">
-                                <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,12">
-                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <PathIcon Data="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"
-                                                  Width="16" Height="16"
-                                                  Foreground="#64748b"/>
-                                        <TextBlock Text="{Binding SelectedFile.Name}"
-                                                   FontWeight="Medium"/>
-                                    </StackPanel>
-                                    <Button Grid.Column="1"
-                                            Classes="sidebar-btn"
-                                            Padding="8,4">
-                                        <StackPanel Orientation="Horizontal" Spacing="4">
-                                            <PathIcon Data="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" Width="12" Height="12"/>
-                                            <TextBlock Text="Edit" FontSize="12"/>
-                                        </StackPanel>
-                                    </Button>
-                                </Grid>
-                                <Border Grid.Row="1"
-                                        Background="#0f172a80"
+                            <!-- Document tab strip -->
+                            <ScrollViewer Grid.Row="0"
+                                          HorizontalScrollBarVisibility="Auto"
+                                          VerticalScrollBarVisibility="Disabled"
+                                          Margin="0,0,0,8"
+                                          IsVisible="{Binding OpenDocuments.Count}">
+                                <ItemsControl ItemsSource="{Binding OpenDocuments}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Orientation="Horizontal"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:DocumentTabViewModel">
+                                            <Border Classes="doc-tab"
+                                                    Classes.selected="{Binding IsSelected}"
+                                                    PointerPressed="OnDocumentTabClicked">
+                                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                                    <!-- Markdown indicator -->
+                                                    <TextBlock Text="M↓"
+                                                               FontSize="10"
+                                                               FontWeight="Bold"
+                                                               Foreground="#3b82f6"
+                                                               IsVisible="{Binding IsMarkdown}"
+                                                               VerticalAlignment="Center"/>
+                                                    <!-- File name -->
+                                                    <TextBlock Text="{Binding FileName}"
+                                                               FontSize="12"
+                                                               VerticalAlignment="Center"/>
+                                                    <!-- Close button -->
+                                                    <Button Classes="tab-close"
+                                                            Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).CloseDocumentCommand}"
+                                                            CommandParameter="{Binding}">
+                                                        <TextBlock Text="×" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Button>
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+
+                            <!-- Document content area -->
+                            <Grid Grid.Row="1">
+                                <!-- No document open placeholder -->
+                                <StackPanel VerticalAlignment="Center"
+                                            HorizontalAlignment="Center"
+                                            IsVisible="{Binding SelectedDocument, Converter={x:Static ObjectConverters.IsNull}}">
+                                    <PathIcon Data="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8"
+                                              Width="40" Height="40"
+                                              Foreground="#334155"/>
+                                    <TextBlock Text="Select a file to view"
+                                               Foreground="#64748b"
+                                               Margin="0,8,0,0"
+                                               HorizontalAlignment="Center"/>
+                                </StackPanel>
+
+                                <!-- Document viewer (when document selected) -->
+                                <Border Background="#0f172a80"
                                         BorderBrush="#334155"
                                         BorderThickness="1"
                                         CornerRadius="8"
-                                        Padding="16">
-                                    <ScrollViewer>
-                                        <TextBlock Text="{Binding SelectedFileContent}"
-                                                   FontFamily="Consolas,monospace"
-                                                   FontSize="13"
-                                                   Foreground="#cbd5e1"
-                                                   TextWrapping="Wrap"/>
-                                    </ScrollViewer>
+                                        Padding="16"
+                                        IsVisible="{Binding SelectedDocument, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                    <!-- Markdown viewer - DataContext null to prevent inheritance bug -->
+                                    <md:MarkdownScrollViewer
+                                        x:Name="MarkdownViewer"
+                                        DataContext="{x:Null}"/>
                                 </Border>
                             </Grid>
                         </Grid>
