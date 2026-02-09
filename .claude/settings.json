@@ -1,12 +1,11 @@
-{
+﻿{
   "hooks": {
-    "SessionStart": [
+    "SessionEnd": [
       {
-        "matcher": "startup",
         "hooks": [
           {
             "type": "command",
-            "command": "python3 /data/repos/dev-dash/.personal/scripts/generate-index.py 2>/dev/null || true"
+            "command": "bash -c 'cat | python3 \"$PWD/.scripts/session-archive.py\"'"
           }
         ]
       }
