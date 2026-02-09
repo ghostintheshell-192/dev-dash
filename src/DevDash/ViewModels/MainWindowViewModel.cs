@@ -52,9 +52,6 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private string? _newWorkspacePath;
     [ObservableProperty] private string? _claudeConfigPath;
     [ObservableProperty] private string? _settingsFilePath;
-    [ObservableProperty] private bool _workspaceHasRules;
-    [ObservableProperty] private bool _workspaceHasMemoryBank;
-    [ObservableProperty] private bool _workspaceHasClaudeMd;
 
     public MainWindowViewModel(
         IWorkspaceService workspaceService,
@@ -81,7 +78,7 @@ public partial class MainWindowViewModel : ViewModelBase
         ConfiguredWorkspaces.Clear();
         foreach (var ws in settings.Workspaces)
         {
-            var vm = new WorkspaceConfigViewModel(ws, _scaffoldService);
+            var vm = new WorkspaceConfigViewModel(ws);
             ConfiguredWorkspaces.Add(vm);
         }
 
@@ -101,14 +98,9 @@ public partial class MainWindowViewModel : ViewModelBase
         foreach (var ws in ConfiguredWorkspaces)
             ws.IsSelected = ws == value;
 
-        if (value != null)
-        {
-            value.RefreshStatus();
-        }
-
         // Auto-save selection and reload projects
         SaveSettingsOnly();
-        _ = ReloadWorkspacesAsync();
+        ReloadWorkspaces();
     }
 
     [RelayCommand]
@@ -117,33 +109,24 @@ public partial class MainWindowViewModel : ViewModelBase
         SelectedConfiguredWorkspace = workspace;
     }
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync()
     {
         var workspaces = _workspaceService.GetWorkspaces();
         foreach (var ws in workspaces) Workspaces.Add(ws);
 
         if (Workspaces.Count > 0)
-        {
             SelectedWorkspace = Workspaces[0];
-            UpdateWorkspaceStatus(Workspaces[0]);
-        }
 
         var globalConfigs = _configurationService.GetGlobalConfigs();
         foreach (var config in globalConfigs) Configs.Add(config);
 
-        await Task.CompletedTask;
-    }
-
-    private void UpdateWorkspaceStatus(Workspace ws)
-    {
-        // Workspace status properties removed - projects now manage their own configuration
+        return Task.CompletedTask;
     }
 
     partial void OnSelectedWorkspaceChanged(Workspace? value)
     {
         if (value != null)
         {
-            UpdateWorkspaceStatus(value);
             _ = LoadProjectsAsync(value);
 
             // Initialize ProjectInitializationViewModel
@@ -189,7 +172,8 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private void LoadProjectConfigs(Project project)
     {
-        var projectConfigs = _configurationService.GetProjectConfigs(project.Path);
+        // TODO: Display project-level configs in Config tab
+        _ = _configurationService.GetProjectConfigs(project.Path);
     }
 
     partial void OnSelectedFileChanged(FileTreeItemViewModel? value)
@@ -374,7 +358,7 @@ public partial class MainWindowViewModel : ViewModelBase
             Type = "coding"
         };
 
-        var vm = new WorkspaceConfigViewModel(config, _scaffoldService);
+        var vm = new WorkspaceConfigViewModel(config);
         ConfiguredWorkspaces.Add(vm);
         SelectedConfiguredWorkspace = vm;
         NewWorkspacePath = null;
@@ -397,17 +381,10 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task ApplyScaffoldAsync(WorkspaceConfigViewModel? workspace)
-    {
-        // Deprecated: Use Projects tab for project-level initialization
-        await Task.CompletedTask;
-    }
-
-    [RelayCommand]
-    private async Task SaveSettingsAsync()
+    private void SaveSettings()
     {
         SaveSettingsOnly();
-        await ReloadWorkspacesAsync();
+        ReloadWorkspaces();
     }
 
     private void SaveSettingsOnly()
@@ -433,7 +410,7 @@ public partial class MainWindowViewModel : ViewModelBase
         _appSettingsService.Save(settings);
     }
 
-    private async Task ReloadWorkspacesAsync()
+    private void ReloadWorkspaces()
     {
         Workspaces.Clear();
         Projects.Clear();
@@ -447,8 +424,6 @@ public partial class MainWindowViewModel : ViewModelBase
         foreach (var ws in workspaces) Workspaces.Add(ws);
 
         if (Workspaces.Count > 0) SelectedWorkspace = Workspaces[0];
-
-        await Task.CompletedTask;
     }
 }
 
@@ -457,33 +432,15 @@ public partial class MainWindowViewModel : ViewModelBase
 /// </summary>
 public partial class WorkspaceConfigViewModel : ViewModelBase
 {
-    private readonly IScaffoldService _scaffoldService;
-
     public string Path { get; }
     [ObservableProperty] private string _name;
     [ObservableProperty] private bool _isCoding = true;
-    [ObservableProperty] private bool _isConfigured;
     [ObservableProperty] private bool _isSelected;
-    [ObservableProperty] private string _statusText = "Not configured";
 
-    public WorkspaceConfigViewModel(WorkspaceConfig config, IScaffoldService scaffoldService)
+    public WorkspaceConfigViewModel(WorkspaceConfig config)
     {
-        _scaffoldService = scaffoldService;
         Path = config.Path;
         Name = config.Name;
         IsCoding = config.Type == "coding";
-        RefreshStatus();
-    }
-
-    public void RefreshStatus()
-    {
-        // Status check removed - projects now manage their own configuration
-        IsConfigured = false;
-        StatusText = "See Projects tab";
-    }
-
-    partial void OnIsCodingChanged(bool value)
-    {
-        // Type changed, could trigger save in parent
     }
 }
