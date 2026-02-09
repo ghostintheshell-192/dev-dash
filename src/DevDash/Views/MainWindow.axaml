@@ -239,6 +239,16 @@
                                     <TextBlock Text="Config"/>
                                 </StackPanel>
                             </Button>
+                            <Button Classes="tab"
+                                    Classes.active="{Binding ActiveTab, Converter={StaticResource EnumEqualsConverter}, ConverterParameter={x:Static models:ActiveTabType.Projects}}"
+                                    Command="{Binding SetActiveTabCommand}"
+                                    CommandParameter="{x:Static models:ActiveTabType.Projects}">
+                                <StackPanel Orientation="Horizontal" Spacing="4">
+                                    <PathIcon Data="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
+                                              Width="14" Height="14"/>
+                                    <TextBlock Text="Projects"/>
+                                </StackPanel>
+                            </Button>
                             <!-- Settings tab (visible only when Settings is active) -->
                             <Button Classes="tab active"
                                     IsVisible="{Binding ActiveTab, Converter={StaticResource EnumEqualsConverter}, ConverterParameter={x:Static models:ActiveTabType.Settings}}"
@@ -327,6 +337,11 @@
                                         DataContext="{x:Null}"/>
                                 </Border>
                             </Grid>
+                        </Grid>
+
+                        <!-- Projects Panel -->
+                        <Grid IsVisible="{Binding ActiveTab, Converter={StaticResource EnumEqualsConverter}, ConverterParameter={x:Static models:ActiveTabType.Projects}}">
+                            <views:ProjectInitializationPanel DataContext="{Binding ProjectInitializationVm}"/>
                         </Grid>
 
                         <!-- Settings Panel -->

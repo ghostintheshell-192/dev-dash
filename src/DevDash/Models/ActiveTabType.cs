@@ -20,6 +20,9 @@ public enum ActiveTabType
     /// <summary>The config files tab.</summary>
     Config,
 
+    /// <summary>The projects initialization tab.</summary>
+    Projects,
+
     /// <summary>The global settings tab.</summary>
     Settings
 }

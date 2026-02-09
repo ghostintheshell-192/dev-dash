@@ -30,6 +30,7 @@ public partial class MainWindowViewModel : ViewModelBase
     public ObservableCollection<ProjectViewModel> Projects { get; } = [];
 
     [ObservableProperty] private ProjectViewModel? _selectedProject;
+    [ObservableProperty] private ProjectInitializationViewModel? _projectInitializationVm;
 
     public ObservableCollection<FileTreeItemViewModel> FileTree { get; } = [];
 
@@ -135,9 +136,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private void UpdateWorkspaceStatus(Workspace ws)
     {
-        WorkspaceHasRules = ws.HasRules;
-        WorkspaceHasMemoryBank = ws.HasMemoryBank;
-        WorkspaceHasClaudeMd = ws.HasClaudeMd;
+        // Workspace status properties removed - projects now manage their own configuration
     }
 
     partial void OnSelectedWorkspaceChanged(Workspace? value)
@@ -146,6 +145,9 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             UpdateWorkspaceStatus(value);
             _ = LoadProjectsAsync(value);
+
+            // Initialize ProjectInitializationViewModel
+            ProjectInitializationVm = new ProjectInitializationViewModel(_scaffoldService);
         }
     }
 
@@ -171,6 +173,9 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             LoadFileTree(value.Project);
             LoadProjectConfigs(value.Project);
+
+            // Update project initialization panel
+            ProjectInitializationVm?.SetProject(value.Project);
         }
     }
 
@@ -394,11 +399,8 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private async Task ApplyScaffoldAsync(WorkspaceConfigViewModel? workspace)
     {
-        if (workspace == null || string.IsNullOrWhiteSpace(workspace.Path)) return;
-
-        await _scaffoldService.ApplyWorkspaceScaffoldAsync(workspace.Path);
-        workspace.RefreshStatus();
-        await ReloadWorkspacesAsync();
+        // Deprecated: Use Projects tab for project-level initialization
+        await Task.CompletedTask;
     }
 
     [RelayCommand]
@@ -475,8 +477,9 @@ public partial class WorkspaceConfigViewModel : ViewModelBase
 
     public void RefreshStatus()
     {
-        IsConfigured = _scaffoldService.IsWorkspaceConfigured(Path);
-        StatusText = IsConfigured ? "Configured" : "Not configured";
+        // Status check removed - projects now manage their own configuration
+        IsConfigured = false;
+        StatusText = "See Projects tab";
     }
 
     partial void OnIsCodingChanged(bool value)

@@ -1,7 +1,8 @@
 namespace DevDash.Models;
 
 /// <summary>
-/// Rappresenta un progetto all'interno di un workspace.
+/// Represents a project within a workspace.
+/// Each project has its own .claude/ configuration.
 /// </summary>
 public record Project
 {
@@ -13,4 +14,9 @@ public record Project
     public bool HasDocs { get; init; }
     public string? Language { get; init; }  // "csharp", "python", "flutter", etc.
     public int WorkspaceId { get; init; }
+
+    // Claude configuration status
+    public bool IsConfigured { get; init; }  // Has .claude/ directory with rules/
+    public bool HasClaudeDir { get; init; }  // Has .claude/ directory
+    public bool HasRules { get; init; }      // Has .claude/rules/ directory
 }

@@ -47,11 +47,7 @@ public class WorkspaceService : IWorkspaceService
                 Name = name,
                 Path = workspacePath,
                 Type = type,
-                Icon = icon,
-                HasRules = hasRules,
-                HasMemoryBank = hasMemoryBank,
-                HasClaudeMd = hasClaudeMd,
-                BootstrapType = bootstrapType
+                Icon = icon
             }
         }.AsReadOnly();
     }
@@ -93,6 +89,13 @@ public class WorkspaceService : IWorkspaceService
             var hasDocs = _fileSystem.DirectoryExists(Path.Combine(dir, "docs"));
             var hasClaudeMd = _fileSystem.FileExists(Path.Combine(dir, "CLAUDE.md"));
 
+            // Check Claude Code configuration status
+            var claudeDir = Path.Combine(dir, ".claude");
+            var rulesDir = Path.Combine(claudeDir, "rules");
+            var hasClaudeDir = _fileSystem.DirectoryExists(claudeDir);
+            var hasRules = _fileSystem.DirectoryExists(rulesDir);
+            var isConfigured = hasRules; // Project is configured if it has .claude/rules/
+
             projects.Add(new Project
             {
                 Id = $"{workspace.Id}_{idCounter++}",
@@ -102,7 +105,10 @@ public class WorkspaceService : IWorkspaceService
                 HasPersonal = hasPersonal,
                 HasDocs = hasDocs,
                 Language = DetectLanguage(dir),
-                WorkspaceId = workspace.Id
+                WorkspaceId = workspace.Id,
+                IsConfigured = isConfigured,
+                HasClaudeDir = hasClaudeDir,
+                HasRules = hasRules
             });
         }
 
