@@ -1,0 +1,44 @@
+# Generato automaticamente - non modificare manualmente
+projects:
+  SocraticLearning:
+    path: SocraticLearning
+    type: csharp
+  audio-c-plus-plus:
+    path: audio-c-plus-plus
+    type: csharp
+  calabria-intelligence:
+    path: calabria-intelligence
+    type: python
+  calculator-mcp-server:
+    path: calculator-mcp-server
+    type: python
+  dev-dash:
+    path: dev-dash
+    type: csharp
+  financial-scripts:
+    path: financial-scripts
+    type: python
+  financial-tracker:
+    path: financial-tracker
+    type: python
+  ghostintheshell-192.github.io:
+    path: ghostintheshell-192.github.io
+    type: javascript_typescript
+  government-feed:
+    path: government-feed
+    type: python
+  meta-projects:
+    path: meta-projects
+    type: python
+  powershell-mcp-server:
+    path: powershell-mcp-server
+    type: javascript_typescript
+  sandbox-disassembly:
+    path: sandbox-disassembly
+    type: csharp
+  serena-mcp-server:
+    path: serena-mcp-server
+    type: python
+  sheet-atlas:
+    path: sheet-atlas
+    type: csharp

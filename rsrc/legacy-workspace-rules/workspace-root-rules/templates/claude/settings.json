@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(done)",
+      "Bash(dotnet test:*)",
+      "Bash(pytest:*)",
+      "Bash(npm test:*)",
+      "Bash(cargo test:*)",
+      "Bash(grep:*)",
+      "WebSearch",
+      "Bash(dotnet build:*)",
+      "Bash(npm run build:*)",
+      "Bash(cargo build:*)",
+      "Bash(gh run view:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh issue view:*)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'cat | python3 \"$PWD/.development/scripts/session-archive.py\"'"
+          }
+        ]
+      }
+    ]
+  }
+}

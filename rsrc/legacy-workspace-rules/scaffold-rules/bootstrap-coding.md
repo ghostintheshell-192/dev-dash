@@ -57,7 +57,7 @@ workspace/
 
 1. Leggi `CLAUDE.md` (caricato automaticamente)
 2. Identifica il progetto su cui lavorare
-3. Leggi `.memory-bank/projects/[nome-progetto].md` se esiste
+3. Leggi gli ultimi handoff in `.memory-bank/projects/[nome-progetto]/` se esiste
 4. Chiedi: "Quanto tempo è passato? Cosa è successo?"
 
 ### Durante la sessione
@@ -68,7 +68,7 @@ workspace/
 
 ### Fine sessione
 
-Aggiorna `.memory-bank/projects/[nome-progetto].md`:
+Crea un nuovo file in `.memory-bank/projects/[nome-progetto]/` con nome `YYYY-MM-DD-HHmm-titolo-slug.md`:
 
 ```markdown
 ## YYYY-MM-DD - Titolo breve

@@ -17,11 +17,13 @@ Review the conversation and identify:
 - Which projects were discussed substantially
 - The current working directory (may be a project itself)
 
-### 2. Update the handoff file for each project
+### 2. Create a handoff file for each project
 
-**Location**: `.memory-bank/projects/<project-name>.md`
+**Location**: `.memory-bank/projects/<project-name>/`
 
-If the file doesn't exist, create it. Add a new entry **at the top** (most recent first):
+**Filename**: `YYYY-MM-DD-HHmm-titolo-slug.md`
+
+Create a new file for this session (one file per session, not appending to existing):
 
 ```markdown
 ## YYYY-MM-DD - Brief title
@@ -58,9 +60,9 @@ After updating, confirm:
 
 If during the session you worked on `my-app` and `utils-lib`:
 
-1. Update `.memory-bank/projects/my-app.md`
-2. Update `.memory-bank/projects/utils-lib.md`
-3. Confirm: "Updated handoff notes for my-app and utils-lib. You can exit with /exit."
+1. Create `.memory-bank/projects/my-app/2026-01-29-1030-feature-implementation.md`
+2. Create `.memory-bank/projects/utils-lib/2026-01-29-1030-bug-fix.md`
+3. Confirm: "Created handoff notes for my-app and utils-lib. You can exit with /exit."
 
 ## Multi-project sessions
 

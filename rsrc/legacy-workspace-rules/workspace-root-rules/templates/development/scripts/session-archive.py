@@ -15,14 +15,15 @@ from datetime import datetime
 from pathlib import Path
 
 
-def find_workspace_root(start_path: Path) -> Path | None:
-    """Walk up the directory tree looking for .memory-bank folder."""
+def find_project_root(start_path: Path) -> Path:
+    """Find project root by looking for .memory-bank folder."""
     current = start_path.resolve()
     while current != current.parent:
         if (current / ".memory-bank").exists():
             return current
         current = current.parent
-    return None
+    # Fallback: if no .memory-bank found, use current directory
+    return start_path.resolve()
 
 
 def main():
@@ -38,14 +39,9 @@ def main():
     reason = data.get("reason", "unknown")
     cwd = Path(data.get("cwd", "."))
 
-    # Find workspace root by looking for .memory-bank
-    workspace_root = find_workspace_root(cwd)
-
-    if not workspace_root:
-        print("Could not find .memory-bank folder in directory tree", file=sys.stderr)
-        sys.exit(1)
-
-    destination_dir = workspace_root / ".memory-bank" / "sessions"
+    # Find project root
+    project_root = find_project_root(cwd)
+    destination_dir = project_root / ".memory-bank" / "sessions"
     destination_dir.mkdir(parents=True, exist_ok=True)
 
     # Verify transcript exists
@@ -62,7 +58,7 @@ def main():
     # Copy the transcript
     try:
         shutil.copy2(transcript_path, destination_path)
-        print(f"Session archived: {filename} (reason: {reason})")
+        print(f"Session archived to {project_root.name}/.memory-bank/sessions/{filename} (reason: {reason})")
     except Exception as e:
         print(f"Failed to copy transcript: {e}", file=sys.stderr)
         sys.exit(1)

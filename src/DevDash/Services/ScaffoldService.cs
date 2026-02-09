@@ -9,28 +9,26 @@ using System.Threading.Tasks;
 namespace DevDash.Services;
 
 /// <summary>
-/// Service for creating workspace configuration scaffolds from embedded resources.
+/// Service for creating project-level configuration scaffolds from embedded resources.
 /// </summary>
 public class ScaffoldService : IScaffoldService
 {
     private const string ScaffoldPrefix = "workspace_scaffold";
 
-    public bool IsWorkspaceConfigured(string workspacePath)
+    public bool IsProjectConfigured(string projectPath)
     {
-        if (string.IsNullOrWhiteSpace(workspacePath) || !Directory.Exists(workspacePath))
+        if (string.IsNullOrWhiteSpace(projectPath) || !Directory.Exists(projectPath))
             return false;
 
-        // Check for any of the main configuration indicators
-        var hasRules = Directory.Exists(Path.Combine(workspacePath, ".rules"));
-        var hasMemoryBank = Directory.Exists(Path.Combine(workspacePath, ".memory-bank"));
-        var hasClaudeMd = File.Exists(Path.Combine(workspacePath, "CLAUDE.md"));
+        var claudeDir = Path.Combine(projectPath, ".claude");
+        var rulesDir = Path.Combine(claudeDir, "rules");
 
-        return hasRules || hasMemoryBank || hasClaudeMd;
+        return Directory.Exists(rulesDir);
     }
 
-    public async Task<ScaffoldResult> ApplyWorkspaceScaffoldAsync(string workspacePath)
+    public async Task<ScaffoldResult> ApplyProjectScaffoldAsync(string projectPath, ProjectScaffoldConfig config)
     {
-        if (string.IsNullOrWhiteSpace(workspacePath))
+        if (string.IsNullOrWhiteSpace(projectPath))
             return new ScaffoldResult(0, 0, 0);
 
         var assembly = Assembly.GetExecutingAssembly();
@@ -51,13 +49,26 @@ public class ScaffoldService : IScaffoldService
                 continue;
             }
 
-            var targetPath = Path.Combine(workspacePath, relativePath);
+            var targetPath = Path.Combine(projectPath, relativePath);
             var content = await ReadEmbeddedResourceAsync(assembly, resourceName);
 
             if (content == null)
             {
                 filesSkipped++;
                 continue;
+            }
+
+            // Apply template replacements
+            content = ApplyTemplateReplacements(content, config, projectPath);
+
+            // Special handling for coding-standards.md
+            if (relativePath.EndsWith("coding-standards.md") && !string.IsNullOrEmpty(config.Language))
+            {
+                var languageStandards = await GetCodingStandardsForLanguageAsync(config.Language);
+                if (!string.IsNullOrEmpty(languageStandards))
+                {
+                    content = content.Replace("{LANGUAGE_SPECIFIC_STANDARDS}", languageStandards);
+                }
             }
 
             // Skip .gitkeep files - just ensure directory exists
@@ -77,7 +88,7 @@ public class ScaffoldService : IScaffoldService
             if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
 
-            // Write file (always overwrite - these are system files, not user files)
+            // Write file
             try
             {
                 await File.WriteAllTextAsync(targetPath, content, Encoding.UTF8);
@@ -92,27 +103,144 @@ public class ScaffoldService : IScaffoldService
             }
         }
 
+        // Create additional directories that are not in scaffold
+        await CreateAdditionalStructureAsync(projectPath);
+
         return new ScaffoldResult(filesCreated, filesUpdated, filesSkipped);
+    }
+
+    public async Task<string?> GetCodingStandardsForLanguageAsync(string language)
+    {
+        var assembly = Assembly.GetExecutingAssembly();
+        var resourceName = $"DevDash.rsrc.legacy_workspace_rules.scaffold_rules.coding_standards.{language}.md";
+
+        // Try exact match first
+        var content = await ReadEmbeddedResourceAsync(assembly, resourceName);
+        if (content != null)
+            return content;
+
+        // Try with hyphens converted to underscores
+        resourceName = resourceName.Replace("-", "_");
+        return await ReadEmbeddedResourceAsync(assembly, resourceName);
+    }
+
+    /// <summary>
+    /// Creates additional directory structure not included in embedded scaffold.
+    /// </summary>
+    private async Task CreateAdditionalStructureAsync(string projectPath)
+    {
+        var directories = new[]
+        {
+            ".development/specs/implemented",
+            ".development/specs/in-progress",
+            ".development/specs/planned",
+            ".development/specs/backlog",
+            ".development/specs/archived",
+            ".development/tech-debt",
+            ".development/reference/decisions",
+            ".development/reference/technical",
+            ".development/reference/checklists",
+            ".development/archive/completed",
+            ".development/archive/analysis",
+            ".development/archive/postmortems",
+            ".development/archive/legacy",
+            ".development/scripts",
+            ".personal",
+            "docs"
+        };
+
+        foreach (var dir in directories)
+        {
+            var fullPath = Path.Combine(projectPath, dir);
+            Directory.CreateDirectory(fullPath);
+        }
+
+        // Create README files for key directories
+        await CreateReadmeAsync(projectPath, ".development", GetDevelopmentReadme());
+        await CreateReadmeAsync(projectPath, ".personal", GetPersonalReadme());
+        await CreateReadmeAsync(projectPath, "docs", GetDocsReadme());
+
+        // Create CURRENT-STATUS.md template
+        var statusPath = Path.Combine(projectPath, ".development", "CURRENT-STATUS.md");
+        if (!File.Exists(statusPath))
+        {
+            await File.WriteAllTextAsync(statusPath, GetCurrentStatusTemplate(), Encoding.UTF8);
+        }
+    }
+
+    private async Task CreateReadmeAsync(string projectPath, string directory, string content)
+    {
+        var readmePath = Path.Combine(projectPath, directory, "README.md");
+        if (!File.Exists(readmePath))
+        {
+            await File.WriteAllTextAsync(readmePath, content, Encoding.UTF8);
+        }
+    }
+
+    /// <summary>
+    /// Applies template variable replacements.
+    /// </summary>
+    private string ApplyTemplateReplacements(string content, ProjectScaffoldConfig config, string projectPath)
+    {
+        var projectStructure = GenerateProjectStructure(projectPath);
+
+        var replacements = new Dictionary<string, string>
+        {
+            { "{PROJECT_NAME}", config.ProjectName },
+            { "{PROJECT_DESCRIPTION}", config.ProjectDescription ?? "Project description to be added." },
+            { "{TECH_STACK_DESCRIPTION}", config.TechStack ?? "Tech stack to be documented." },
+            { "{PROJECT_STRUCTURE}", projectStructure },
+            { "{LANGUAGE_SPECIFIC_STANDARDS}", "" } // Will be replaced specifically for coding-standards.md
+        };
+
+        foreach (var (placeholder, value) in replacements)
+        {
+            content = content.Replace(placeholder, value);
+        }
+
+        return content;
+    }
+
+    /// <summary>
+    /// Generates a simple directory tree structure for the project.
+    /// </summary>
+    private string GenerateProjectStructure(string projectPath)
+    {
+        try
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("```");
+            sb.AppendLine(Path.GetFileName(projectPath) + "/");
+
+            var directories = Directory.GetDirectories(projectPath)
+                .Select(d => Path.GetFileName(d))
+                .Where(d => !d.StartsWith(".") && d != "bin" && d != "obj" && d != "node_modules")
+                .OrderBy(d => d)
+                .Take(10);
+
+            foreach (var dir in directories)
+            {
+                sb.AppendLine($"├── {dir}/");
+            }
+
+            sb.AppendLine("```");
+            return sb.ToString();
+        }
+        catch
+        {
+            return "```\n[Project structure]\n```";
+        }
     }
 
     /// <summary>
     /// Extracts the relative file path from an embedded resource name.
-    /// .NET embedded resource naming:
-    /// - Slashes become dots
-    /// - Leading dots in names get an extra dot prefix (e.g., .claude -> ..claude)
-    /// - Hyphens in directories become underscores (session-handoff -> session_handoff)
-    ///
-    /// Example: "DevDash.rsrc.workspace_scaffold..claude.settings.json"
-    ///       -> ".claude/settings.json"
     /// </summary>
     private static string? ExtractRelativePath(string resourceName)
     {
-        // Find the scaffold prefix position
         var prefixIndex = resourceName.IndexOf(ScaffoldPrefix, StringComparison.Ordinal);
         if (prefixIndex < 0)
             return null;
 
-        // Get everything after "workspace_scaffold."
         var afterPrefix = resourceName[(prefixIndex + ScaffoldPrefix.Length)..];
         if (afterPrefix.StartsWith("."))
             afterPrefix = afterPrefix[1..];
@@ -120,25 +248,16 @@ public class ScaffoldService : IScaffoldService
         if (string.IsNullOrEmpty(afterPrefix))
             return null;
 
-        // Split by dots, but we need to handle the special cases:
-        // - Double dots (..) indicate a leading dot in the original name
-        // - The last segment is the file extension
-        // - Second-to-last segment is the filename (without extension)
-
-        // Rebuild path by processing the string
         var result = new List<string>();
         var current = afterPrefix;
 
         while (!string.IsNullOrEmpty(current))
         {
-            // Check for double dot (hidden folder/file indicator)
             if (current.StartsWith("."))
             {
-                // This is a hidden item, find the end of this segment
                 var nextDot = current.IndexOf('.', 1);
                 if (nextDot < 0)
                 {
-                    // Rest is the hidden item
                     result.Add(RestoreOriginalName(current));
                     break;
                 }
@@ -150,7 +269,6 @@ public class ScaffoldService : IScaffoldService
             }
             else
             {
-                // Normal segment
                 var nextDot = current.IndexOf('.');
                 if (nextDot < 0)
                 {
@@ -168,20 +286,16 @@ public class ScaffoldService : IScaffoldService
         if (result.Count < 2)
             return null;
 
-        // Handle special case: hidden files like .gitkeep (last element starts with .)
-        // In this case, the last element IS the filename, not an extension
         string filename;
         List<string> dirParts;
 
         if (result[^1].StartsWith("."))
         {
-            // Last element is a hidden file (e.g., .gitkeep)
             filename = result[^1];
             dirParts = result.Take(result.Count - 1).ToList();
         }
         else
         {
-            // Normal case: last is extension, second-to-last is filename base
             var extension = result[^1];
             var filenameBase = result[^2];
             filename = filenameBase + "." + extension;
@@ -195,16 +309,8 @@ public class ScaffoldService : IScaffoldService
         return Path.Combine(directoryPath, filename);
     }
 
-    /// <summary>
-    /// Restores original naming conventions from embedded resource naming.
-    /// - Underscores become hyphens (e.g., memory_bank -> memory-bank)
-    /// - Leading dots are preserved (e.g., .memory_bank -> .memory-bank)
-    /// </summary>
     private static string RestoreOriginalName(string segment)
     {
-        // Replace underscores with hyphens
-        // This works for both hidden (.memory_bank -> .memory-bank)
-        // and regular items (session_handoff -> session-handoff)
         return segment.Replace("_", "-");
     }
 
@@ -224,4 +330,107 @@ public class ScaffoldService : IScaffoldService
             return null;
         }
     }
+
+    // Template content methods
+    private string GetDevelopmentReadme() => @"# .development/ - Development Documentation
+
+Private development documentation for spec-driven development workflow.
+
+**Committed to git** - shared development documentation.
+
+## Quick Start
+
+1. Read `CURRENT-STATUS.md` for project state
+2. Check `specs/` for feature specifications
+3. Check `tech-debt/` for active issues
+
+## Structure
+
+```
+.development/
+├── CURRENT-STATUS.md      # Current project state
+├── specs/                 # Feature specifications
+│   ├── implemented/       # Completed features
+│   ├── in-progress/       # Currently being developed
+│   ├── planned/           # Confirmed for next releases
+│   ├── backlog/           # Validated but not scheduled
+│   └── archived/          # Deprecated/cancelled
+├── tech-debt/             # Active technical debt
+├── reference/             # Reference documentation
+│   ├── decisions/         # Architecture Decision Records (ADR)
+│   ├── technical/         # Technical notes
+│   └── checklists/        # Workflow checklists
+├── archive/               # Historical
+│   ├── completed/         # Resolved issues
+│   ├── analysis/          # Agent reports
+│   ├── postmortems/       # Post-mortems
+│   └── legacy/            # Old files
+└── scripts/               # Utility scripts
+```
+
+## Related
+
+- Public docs: `docs/`
+- Personal notes: `.personal/`
+";
+
+    private string GetPersonalReadme() => @"# .personal/ - Personal Notes
+
+Private notes and work-in-progress. **Not tracked in git.**
+
+## Usage
+
+This directory is for your personal notes, analysis, and work-in-progress that shouldn't be committed.
+
+Suggested structure:
+- `analysis/` - Your analysis and research
+- `strategy/` - Strategic planning
+- `work-in-progress/` - Current work notes
+- `completed/` - Finished work
+- `ideas/` - Ideas and brainstorming
+- `scripts/` - Personal utility scripts
+";
+
+    private string GetDocsReadme() => @"# Documentation
+
+Public project documentation.
+
+## Contents
+
+Add project documentation here:
+- Architecture diagrams
+- API documentation
+- User guides
+- Technical specifications
+";
+
+    private string GetCurrentStatusTemplate() => @"# Current Status
+
+## Project State
+
+**Last Updated**: [DATE]
+
+**Current Phase**: [Development/Alpha/Beta/Production]
+
+**Active Work**: [Description of current focus]
+
+## Recent Milestones
+
+- [Milestone 1] - [Date]
+- [Milestone 2] - [Date]
+
+## Next Steps
+
+- [ ] Task 1
+- [ ] Task 2
+- [ ] Task 3
+
+## Active Issues
+
+See `.development/tech-debt/` for tracked technical debt.
+
+## Notes
+
+[Any important notes or context]
+";
 }

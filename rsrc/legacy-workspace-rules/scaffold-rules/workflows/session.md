@@ -13,7 +13,8 @@ What to do at the start, during, and end of each coding session.
    - `CURRENT-STATUS.md` → where we left off
 
 3. **Check session notes**:
-   - Location: `.memory-bank/projects/[project-name].md`
+   - Location: `.memory-bank/projects/[project-name]/`
+   - Read the most recent note (sorted by filename date)
    - Contains: last session summary, decisions made, next steps
 
 4. **Pre-flight checks** (for coding projects):
@@ -44,11 +45,15 @@ What to do at the start, during, and end of each coding session.
 
 ## Session End
 
-### Update session notes
+### Create a new session note
 
-Location: `.memory-bank/projects/[project-name].md`
+Location: `.memory-bank/projects/[project-name]/`
 
-Format (new entries at top):
+**Filename format**: `YYYY-MM-DD-HHmm-titolo-slug.md`
+
+Example: `2026-01-22-1430-fix-authentication-bug.md`
+
+**Content format**:
 
 ```markdown
 ## YYYY-MM-DD - Brief Title
@@ -67,6 +72,12 @@ Format (new entries at top):
 - Gotchas to remember
 ```
 
+### First time setup for a project
+
+If the project folder doesn't exist yet:
+1. Create folder: `.memory-bank/projects/[project-name]/`
+2. If migrating from old monolithic file, move it to `_archive-monolithic-pre-split.md`
+
 ### Cleanup
 
 - Move scattered notes from `active/` to proper location
@@ -79,7 +90,7 @@ Format (new entries at top):
 
 Every session should end with enough context that a **different Claude instance** could continue the work seamlessly.
 
-The handoff file (`.memory-bank/projects/*.md`) is your external memory — use it.
+The handoff folder (`.memory-bank/projects/[project-name]/`) is your external memory — use it.
 
 ---
 
@@ -87,10 +98,10 @@ The handoff file (`.memory-bank/projects/*.md`) is your external memory — use 
 
 | Purpose | Location | Format |
 |---------|----------|--------|
-| **Handoff** (operational) | `.memory-bank/projects/` | Structured markdown |
-| **Archive** (historical) | `.memory-bank/sessions/` | Full transcripts |
+| **Handoff** (operational) | `.memory-bank/projects/[project-name]/` | One `.md` per session |
+| **Archive** (historical) | `.memory-bank/sessions/` | Full transcripts (auto) |
 
-The hook `session_end_archive.py` automatically saves transcripts. Session notes are **your responsibility** to update.
+The hook `session-archive.py` automatically saves transcripts. Session notes are **your responsibility** to create.
 
 ---
 

@@ -16,6 +16,9 @@
     <EmbeddedResource Include="..\..\rsrc\workspace-scaffold\**\*">
       <Link>rsrc\workspace-scaffold\%(RecursiveDir)%(Filename)%(Extension)</Link>
     </EmbeddedResource>
+    <EmbeddedResource Include="..\..\rsrc\legacy-workspace-rules\scaffold-rules\coding-standards\**\*.md">
+      <Link>rsrc\legacy-workspace-rules\scaffold-rules\coding-standards\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
