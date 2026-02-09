@@ -149,4 +149,37 @@ public partial class MainWindow : Window
             }
         }
     }
+
+    private void OnTechDebtItemClicked(object? sender, PointerPressedEventArgs e)
+    {
+        if (sender is Border border && border.DataContext is TechDebtItemViewModel item)
+        {
+            if (DataContext is MainWindowViewModel vm)
+            {
+                vm.OpenDocumentByPathCommand.Execute(item.FullPath);
+            }
+        }
+    }
+
+    private void OnAdrItemClicked(object? sender, PointerPressedEventArgs e)
+    {
+        if (sender is Border border && border.DataContext is AdrItemViewModel item)
+        {
+            if (DataContext is MainWindowViewModel vm)
+            {
+                vm.OpenDocumentByPathCommand.Execute(item.FullPath);
+            }
+        }
+    }
+
+    private void OnSpecItemClicked(object? sender, PointerPressedEventArgs e)
+    {
+        if (sender is Border border && border.DataContext is SpecItemViewModel item)
+        {
+            if (DataContext is MainWindowViewModel vm)
+            {
+                vm.OpenDocumentByPathCommand.Execute(item.FullPath);
+            }
+        }
+    }
 }

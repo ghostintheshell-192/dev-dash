@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -33,10 +34,17 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private ProjectInitializationViewModel? _projectInitializationVm;
 
     public ObservableCollection<FileTreeItemViewModel> FileTree { get; } = [];
+    public ObservableCollection<FileTreeItemViewModel> DevelopmentTree { get; } = [];
+    public ObservableCollection<FileTreeItemViewModel> DocsTree { get; } = [];
+
+    // Specialized tab items
+    public ObservableCollection<TechDebtItemViewModel> TechDebtItems { get; } = [];
+    public ObservableCollection<AdrItemViewModel> AdrItems { get; } = [];
+    public ObservableCollection<SpecItemViewModel> SpecItems { get; } = [];
 
     [ObservableProperty] private FileTreeItemViewModel? _selectedFile;
     [ObservableProperty] private string? _selectedFileContent;
-    [ObservableProperty] private ActiveTabType _activeTab = ActiveTabType.None;
+    [ObservableProperty] private ActiveTabType _activeTab = ActiveTabType.TechDebt;
 
     // Document tabs
     public ObservableCollection<DocumentTabViewModel> OpenDocuments { get; } = [];
@@ -138,6 +146,11 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         Projects.Clear();
         FileTree.Clear();
+        DevelopmentTree.Clear();
+        DocsTree.Clear();
+        TechDebtItems.Clear();
+        AdrItems.Clear();
+        SpecItems.Clear();
         SelectedProject = null;
         SelectedFile = null;
         SelectedFileContent = null;
@@ -154,20 +167,123 @@ public partial class MainWindowViewModel : ViewModelBase
         foreach (var p in Projects) p.IsSelected = p == value;
         if (value != null)
         {
-            LoadFileTree(value.Project);
+            LoadAllTrees(value.Project);
             LoadProjectConfigs(value.Project);
+            LoadSpecializedTabs(value.Project);
 
             // Update project initialization panel
             ProjectInitializationVm?.SetProject(value.Project);
         }
     }
 
-    private void LoadFileTree(Project project)
+    private void LoadAllTrees(Project project)
     {
-        FileTree.Clear();
-        var tree = _fileSystemService.GetPersonalTree(project.Path);
+        LoadTreeInto(FileTree, _fileSystemService.GetPersonalTree(project.Path));
+        LoadTreeInto(DevelopmentTree, _fileSystemService.GetDirectoryTree(project.Path, ".development"));
+        LoadTreeInto(DocsTree, _fileSystemService.GetDirectoryTree(project.Path, "docs"));
+    }
+
+    private static void LoadTreeInto(ObservableCollection<FileTreeItemViewModel> target, PersonalFile? tree)
+    {
+        target.Clear();
         if (tree?.Children != null)
-            foreach (var child in tree.Children) FileTree.Add(new FileTreeItemViewModel(child));
+            foreach (var child in tree.Children) target.Add(new FileTreeItemViewModel(child));
+    }
+
+    private void LoadSpecializedTabs(Project project)
+    {
+        LoadTechDebtItems(project);
+        LoadAdrItems(project);
+        LoadSpecItems(project);
+    }
+
+    private void LoadTechDebtItems(Project project)
+    {
+        TechDebtItems.Clear();
+        var dir = Path.Combine(project.Path, ".development", "tech-debt");
+        if (!Directory.Exists(dir)) return;
+
+        foreach (var file in Directory.GetFiles(dir, "*.md").OrderBy(Path.GetFileName))
+        {
+            var content = File.ReadAllText(file);
+            var fm = FrontmatterData.Parse(content);
+            TechDebtItems.Add(new TechDebtItemViewModel
+            {
+                FileName = Path.GetFileNameWithoutExtension(file),
+                FullPath = file,
+                Priority = fm?.Priority,
+                Status = fm?.Status,
+                Frontmatter = fm
+            });
+        }
+    }
+
+    private void LoadAdrItems(Project project)
+    {
+        AdrItems.Clear();
+        var dir = Path.Combine(project.Path, ".development", "reference", "decisions");
+        if (!Directory.Exists(dir)) return;
+
+        var adrRegex = new Regex(@"^(\d+)-(.+)\.md$", RegexOptions.IgnoreCase);
+        foreach (var file in Directory.GetFiles(dir, "*.md").OrderBy(Path.GetFileName))
+        {
+            var fileName = Path.GetFileName(file);
+            var match = adrRegex.Match(fileName);
+            if (!match.Success) continue;
+
+            var content = File.ReadAllText(file);
+            var fm = FrontmatterData.Parse(content);
+            AdrItems.Add(new AdrItemViewModel
+            {
+                Number = match.Groups[1].Value,
+                Title = match.Groups[2].Value.Replace('-', ' '),
+                FullPath = file,
+                Frontmatter = fm
+            });
+        }
+    }
+
+    private void LoadSpecItems(Project project)
+    {
+        SpecItems.Clear();
+        var dir = Path.Combine(project.Path, ".development", "specs");
+        if (!Directory.Exists(dir)) return;
+
+        // Direct files go in "root" group
+        foreach (var file in Directory.GetFiles(dir, "*.md").OrderBy(Path.GetFileName))
+        {
+            var content = File.ReadAllText(file);
+            var fm = FrontmatterData.Parse(content);
+            SpecItems.Add(new SpecItemViewModel
+            {
+                FileName = Path.GetFileNameWithoutExtension(file),
+                FullPath = file,
+                Group = "specs",
+                Priority = fm?.Priority,
+                Status = fm?.Status,
+                Frontmatter = fm
+            });
+        }
+
+        // Subdirectories as groups
+        foreach (var subdir in Directory.GetDirectories(dir).OrderBy(Path.GetFileName))
+        {
+            var groupName = Path.GetFileName(subdir);
+            foreach (var file in Directory.GetFiles(subdir, "*.md").OrderBy(Path.GetFileName))
+            {
+                var content = File.ReadAllText(file);
+                var fm = FrontmatterData.Parse(content);
+                SpecItems.Add(new SpecItemViewModel
+                {
+                    FileName = Path.GetFileNameWithoutExtension(file),
+                    FullPath = file,
+                    Group = groupName,
+                    Priority = fm?.Priority,
+                    Status = fm?.Status,
+                    Frontmatter = fm
+                });
+            }
+        }
     }
 
     private void LoadProjectConfigs(Project project)
@@ -207,6 +323,23 @@ public partial class MainWindowViewModel : ViewModelBase
         SelectedDocument = doc;
     }
 
+    [RelayCommand]
+    private async Task OpenDocumentByPathAsync(string? path)
+    {
+        if (string.IsNullOrEmpty(path) || !File.Exists(path)) return;
+        var file = new PersonalFile
+        {
+            Name = Path.GetFileName(path),
+            Path = path,
+            FullPath = path,
+            Type = FileType.File
+        };
+        await OpenDocumentAsync(file);
+    }
+
+    /// <summary>True when no document is open — used to show tab item lists.</summary>
+    public bool ShowTabList => SelectedDocument == null;
+
     partial void OnSelectedDocumentChanged(DocumentTabViewModel? value)
     {
         foreach (var doc in OpenDocuments)
@@ -214,6 +347,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
         // Keep SelectedFileContent in sync for backwards compatibility
         SelectedFileContent = value?.Content;
+        OnPropertyChanged(nameof(ShowTabList));
     }
 
     [RelayCommand]

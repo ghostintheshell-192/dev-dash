@@ -15,19 +15,13 @@ public interface IFileSystemService
     IEnumerable<string> GetFiles(string path, string pattern = "*");
     
     /// <summary>
-    /// Ottiene l'albero di .personal/ per un progetto
+    /// Gets a directory tree for any subdirectory relative to a base path.
     /// </summary>
+    PersonalFile? GetDirectoryTree(string basePath, string subdirectory);
+
     PersonalFile? GetPersonalTree(string projectPath);
-    
-    /// <summary>
-    /// Ottiene l'albero di .memory-bank/ per un workspace
-    /// </summary>
     PersonalFile? GetMemoryBankTree(string workspacePath);
-    
-    /// <summary>
-    /// Ottiene l'albero di .rules/ per un workspace
-    /// </summary>
     PersonalFile? GetRulesTree(string workspacePath);
-    
+
     DateTime? GetLastModified(string path);
 }

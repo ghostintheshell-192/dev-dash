@@ -19,11 +19,17 @@ public partial class DocumentTabViewModel : ViewModelBase
     [ObservableProperty] private string _rawContent = string.Empty;
     [ObservableProperty] private bool _isSelected;
     [ObservableProperty] private bool _isMarkdown;
+    [ObservableProperty] private FrontmatterData? _frontmatter;
 
     /// <summary>
     /// Content for rendering (frontmatter stripped for markdown files).
     /// </summary>
     public string Content => IsMarkdown ? StripFrontmatter(_rawContent) : _rawContent;
+
+    /// <summary>
+    /// Breadcrumb path relative to project root.
+    /// </summary>
+    public string Breadcrumb => System.IO.Path.GetDirectoryName(FilePath)?.Replace('\\', '/') ?? "";
 
     public DocumentTabViewModel(PersonalFile file)
     {
@@ -42,6 +48,7 @@ public partial class DocumentTabViewModel : ViewModelBase
     partial void OnRawContentChanged(string value)
     {
         OnPropertyChanged(nameof(Content));
+        Frontmatter = FrontmatterData.Parse(value);
     }
 
     private static string StripFrontmatter(string content)

@@ -47,6 +47,7 @@ For detailed documentation, see `docs/`.
 - `AppSettings.cs` — Represents a configured workspace with its settings.
 - `ConfigFile.cs` — Rappresenta un file di configurazione Claude Code
 - `FileType.cs` — Tipi di file nella struttura .personal
+- `FrontmatterData.cs` — Parsed frontmatter data from a markdown document.
 - `PersonalFile.cs` — Rappresenta un file o folder nella struttura .personal
 - `Project.cs` — Represents a project within a workspace. Each project has its own .claude/ configuration.
 - `SidebarItem.cs`
@@ -65,11 +66,14 @@ For detailed documentation, see `docs/`.
 - `WorkspaceService.cs`
 
 ### DevDash/ViewModels
+- `AdrItemViewModel.cs` — Represents an ADR from .development/reference/decisions/
 - `DocumentTabViewModel.cs` — Represents an open document tab.
 - `FileTreeItemViewModel.cs` — ViewModel per un item nell'albero file (.personal)
 - `MainWindowViewModel.cs` — ViewModel for a configured workspace in settings.
 - `ProjectInitializationViewModel.cs` — ViewModel for the project initialization panel. Initializes a single selected project with Claude Code configuration.
 - `ProjectViewModel.cs` — ViewModel per un progetto nella lista sidebar
+- `SpecItemViewModel.cs` — Represents a spec from .development/specs/
+- `TechDebtItemViewModel.cs` — Represents a tech debt item from .development/tech-debt/
 - `ViewModelBase.cs`
 
 ### DevDash/Views

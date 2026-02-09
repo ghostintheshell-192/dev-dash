@@ -102,4 +102,49 @@
         <Setter Property="Foreground" Value="#e2e8f0"/>
     </Style>
 
+    <!-- Priority badges -->
+    <Style Selector="Border.badge">
+        <Setter Property="CornerRadius" Value="4"/>
+        <Setter Property="Padding" Value="6,2"/>
+    </Style>
+    <Style Selector="Border.badge-high">
+        <Setter Property="Background" Value="#7f1d1d"/>
+    </Style>
+    <Style Selector="Border.badge-medium">
+        <Setter Property="Background" Value="#78350f"/>
+    </Style>
+    <Style Selector="Border.badge-low">
+        <Setter Property="Background" Value="#1e293b"/>
+    </Style>
+
+    <!-- Status badges -->
+    <Style Selector="Border.badge-open">
+        <Setter Property="Background" Value="#14532d"/>
+    </Style>
+    <Style Selector="Border.badge-in-progress">
+        <Setter Property="Background" Value="#1e3a5f"/>
+    </Style>
+    <Style Selector="Border.badge-resolved">
+        <Setter Property="Background" Value="#334155"/>
+    </Style>
+
+    <!-- Breadcrumb -->
+    <Style Selector="TextBlock.breadcrumb">
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="Foreground" Value="#64748b"/>
+        <Setter Property="FontFamily" Value="Consolas,monospace"/>
+    </Style>
+
+    <!-- Specialized tab list item -->
+    <Style Selector="Border.tab-list-item">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="CornerRadius" Value="6"/>
+        <Setter Property="Padding" Value="10,8"/>
+        <Setter Property="Margin" Value="0,2"/>
+        <Setter Property="Cursor" Value="Hand"/>
+    </Style>
+    <Style Selector="Border.tab-list-item:pointerover">
+        <Setter Property="Background" Value="#1e293b"/>
+    </Style>
+
 </Styles>

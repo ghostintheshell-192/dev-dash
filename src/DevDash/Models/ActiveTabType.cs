@@ -8,14 +8,14 @@ public enum ActiveTabType
     /// <summary>No tab is active (default file view).</summary>
     None,
 
-    /// <summary>The .personal files tab.</summary>
-    Personal,
+    /// <summary>Tech debt items from .development/tech-debt/</summary>
+    TechDebt,
 
-    /// <summary>The docs tab.</summary>
-    Docs,
+    /// <summary>Architecture Decision Records from .development/reference/decisions/</summary>
+    ADR,
 
-    /// <summary>The issues tab.</summary>
-    Issues,
+    /// <summary>Specs from .development/specs/</summary>
+    Specs,
 
     /// <summary>The config files tab.</summary>
     Config,

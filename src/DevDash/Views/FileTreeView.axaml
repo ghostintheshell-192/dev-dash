@@ -5,7 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="250" d:DesignHeight="400"
              x:Class="DevDash.Views.FileTreeView"
-             x:DataType="vm:MainWindowViewModel">
+             x:Name="Root">
 
     <UserControl.Styles>
         <Style Selector="Button.tree-item">
@@ -21,11 +21,11 @@
         </Style>
     </UserControl.Styles>
 
-    <TreeView ItemsSource="{Binding FileTree}"
-              SelectedItem="{Binding SelectedFile, Mode=TwoWay}"
+    <TreeView ItemsSource="{Binding ItemsSource, ElementName=Root}"
+              SelectionChanged="OnTreeSelectionChanged"
               Background="Transparent">
         <TreeView.ItemTemplate>
-            <TreeDataTemplate ItemsSource="{Binding Children}">
+            <TreeDataTemplate x:DataType="vm:FileTreeItemViewModel" ItemsSource="{Binding Children}">
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <!-- Folder icon -->
                     <PathIcon Data="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"

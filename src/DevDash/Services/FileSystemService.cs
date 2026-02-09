@@ -44,41 +44,23 @@ public class FileSystemService : IFileSystemService
             .OrderBy(f => Path.GetFileName(f));
     }
 
-    /// <summary>
-    /// Ottiene l'albero di .personal/ per un progetto
-    /// </summary>
-    public PersonalFile? GetPersonalTree(string projectPath)
+    public PersonalFile? GetDirectoryTree(string basePath, string subdirectory)
     {
-        var personalPath = Path.Combine(projectPath, ".personal");
-        if (!Directory.Exists(personalPath))
+        var fullPath = Path.Combine(basePath, subdirectory);
+        if (!Directory.Exists(fullPath))
             return null;
 
-        return BuildTree(personalPath, ".personal");
+        return BuildTree(fullPath, subdirectory);
     }
 
-    /// <summary>
-    /// Ottiene l'albero di .memory-bank/ per un workspace
-    /// </summary>
-    public PersonalFile? GetMemoryBankTree(string workspacePath)
-    {
-        var memoryBankPath = Path.Combine(workspacePath, ".memory-bank");
-        if (!Directory.Exists(memoryBankPath))
-            return null;
+    public PersonalFile? GetPersonalTree(string projectPath) =>
+        GetDirectoryTree(projectPath, ".personal");
 
-        return BuildTree(memoryBankPath, ".memory-bank");
-    }
+    public PersonalFile? GetMemoryBankTree(string workspacePath) =>
+        GetDirectoryTree(workspacePath, ".memory-bank");
 
-    /// <summary>
-    /// Ottiene l'albero di .rules/ per un workspace
-    /// </summary>
-    public PersonalFile? GetRulesTree(string workspacePath)
-    {
-        var rulesPath = Path.Combine(workspacePath, ".rules");
-        if (!Directory.Exists(rulesPath))
-            return null;
-
-        return BuildTree(rulesPath, ".rules");
-    }
+    public PersonalFile? GetRulesTree(string workspacePath) =>
+        GetDirectoryTree(workspacePath, ".rules");
 
     private PersonalFile BuildTree(string fullPath, string relativePath)
     {
