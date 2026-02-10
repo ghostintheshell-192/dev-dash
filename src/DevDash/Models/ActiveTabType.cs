@@ -24,5 +24,14 @@ public enum ActiveTabType
     Projects,
 
     /// <summary>The global settings tab.</summary>
-    Settings
+    Settings,
+
+    /// <summary>Documents opened from .personal/ sidebar.</summary>
+    Personal,
+
+    /// <summary>Documents opened from .development/ sidebar.</summary>
+    Development,
+
+    /// <summary>Documents opened from docs/ sidebar.</summary>
+    Docs
 }

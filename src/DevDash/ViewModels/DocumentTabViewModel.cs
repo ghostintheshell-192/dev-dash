@@ -22,6 +22,11 @@ public partial class DocumentTabViewModel : ViewModelBase
     [ObservableProperty] private FrontmatterData? _frontmatter;
 
     /// <summary>
+    /// The tab that owns this document. Used to filter documents per-tab.
+    /// </summary>
+    public ActiveTabType OwnerTab { get; init; }
+
+    /// <summary>
     /// Content for rendering (frontmatter stripped for markdown files).
     /// </summary>
     public string Content => IsMarkdown ? StripFrontmatter(_rawContent) : _rawContent;

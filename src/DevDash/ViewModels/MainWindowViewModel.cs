@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
@@ -295,21 +296,51 @@ public partial class MainWindowViewModel : ViewModelBase
     partial void OnSelectedFileChanged(FileTreeItemViewModel? value)
     {
         if (value != null && value.IsFile)
-            _ = OpenDocumentAsync(value.File);
+            _ = OpenDocumentFromSidebarAsync(value.File);
     }
 
-    private async Task OpenDocumentAsync(PersonalFile file)
+    private async Task OpenDocumentFromSidebarAsync(PersonalFile file)
     {
-        // Check if already open
-        var existing = OpenDocuments.FirstOrDefault(d => d.FilePath == file.FullPath);
+        var ownerTab = InferTabFromPath(file.FullPath);
+        await OpenDocumentAsync(file, ownerTab);
+
+        // Switch to the inferred tab so the document is visible
+        if (ActiveTab != ownerTab)
+        {
+            ActiveTab = ownerTab;
+            OnPropertyChanged(nameof(ShowTabList));
+            OnPropertyChanged(nameof(CurrentTabDocuments));
+            OnPropertyChanged(nameof(HasPersonalDocs));
+            OnPropertyChanged(nameof(HasDevelopmentDocs));
+            OnPropertyChanged(nameof(HasDocsDocs));
+        }
+    }
+
+    private ActiveTabType InferTabFromPath(string filePath)
+    {
+        var normalized = filePath.Replace('\\', '/');
+        if (normalized.Contains("/.personal/") || normalized.Contains("\\.personal\\"))
+            return ActiveTabType.Personal;
+        if (normalized.Contains("/.development/") || normalized.Contains("\\.development\\"))
+            return ActiveTabType.Development;
+        if (normalized.Contains("/docs/") || normalized.Contains("\\docs\\"))
+            return ActiveTabType.Docs;
+        // Fallback: use current active tab
+        return ActiveTab;
+    }
+
+    private async Task OpenDocumentAsync(PersonalFile file, ActiveTabType ownerTab)
+    {
+        // Check if already open in the target tab
+        var existing = OpenDocuments.FirstOrDefault(d => d.FilePath == file.FullPath && d.OwnerTab == ownerTab);
         if (existing != null)
         {
             SelectedDocument = existing;
             return;
         }
 
-        // Create new tab
-        var doc = new DocumentTabViewModel(file);
+        // Create new tab owned by the specified tab
+        var doc = new DocumentTabViewModel(file) { OwnerTab = ownerTab };
         try
         {
             doc.RawContent = await _fileSystemService.ReadFileAsync(file.FullPath);
@@ -321,6 +352,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
         OpenDocuments.Add(doc);
         SelectedDocument = doc;
+        NotifyDocumentCollectionChanged();
     }
 
     [RelayCommand]
@@ -334,11 +366,32 @@ public partial class MainWindowViewModel : ViewModelBase
             FullPath = path,
             Type = FileType.File
         };
-        await OpenDocumentAsync(file);
+        await OpenDocumentAsync(file, ActiveTab);
     }
 
-    /// <summary>True when no document is open — used to show tab item lists.</summary>
-    public bool ShowTabList => SelectedDocument == null;
+    /// <summary>Documents belonging to the currently active tab.</summary>
+    public IEnumerable<DocumentTabViewModel> CurrentTabDocuments =>
+        OpenDocuments.Where(d => d.OwnerTab == ActiveTab);
+
+    /// <summary>True when the tab list (or panel) should be shown instead of the document viewer.</summary>
+    public bool ShowTabList =>
+        ActiveTab is ActiveTabType.Projects or ActiveTabType.Settings
+        || SelectedDocument == null
+        || SelectedDocument.OwnerTab != ActiveTab;
+
+    // Dynamic tab visibility — shown only when they have open documents
+    public bool HasPersonalDocs => OpenDocuments.Any(d => d.OwnerTab == ActiveTabType.Personal);
+    public bool HasDevelopmentDocs => OpenDocuments.Any(d => d.OwnerTab == ActiveTabType.Development);
+    public bool HasDocsDocs => OpenDocuments.Any(d => d.OwnerTab == ActiveTabType.Docs);
+
+    private void NotifyDocumentCollectionChanged()
+    {
+        OnPropertyChanged(nameof(ShowTabList));
+        OnPropertyChanged(nameof(CurrentTabDocuments));
+        OnPropertyChanged(nameof(HasPersonalDocs));
+        OnPropertyChanged(nameof(HasDevelopmentDocs));
+        OnPropertyChanged(nameof(HasDocsDocs));
+    }
 
     partial void OnSelectedDocumentChanged(DocumentTabViewModel? value)
     {
@@ -347,24 +400,32 @@ public partial class MainWindowViewModel : ViewModelBase
 
         // Keep SelectedFileContent in sync for backwards compatibility
         SelectedFileContent = value?.Content;
-        OnPropertyChanged(nameof(ShowTabList));
+        NotifyDocumentCollectionChanged();
     }
 
     [RelayCommand]
     private void CloseDocument(DocumentTabViewModel doc)
     {
-        var index = OpenDocuments.IndexOf(doc);
+        var ownerTab = doc.OwnerTab;
         OpenDocuments.Remove(doc);
 
-        // Select adjacent tab if available
-        if (OpenDocuments.Count > 0)
+        // Select another document from the same tab, or null to show the list
+        var nextInTab = OpenDocuments.LastOrDefault(d => d.OwnerTab == ownerTab);
+        if (SelectedDocument == doc || doc.IsSelected)
         {
-            var newIndex = Math.Min(index, OpenDocuments.Count - 1);
-            SelectedDocument = OpenDocuments[newIndex];
+            SelectedDocument = nextInTab;
         }
-        else
+
+        NotifyDocumentCollectionChanged();
+
+        // If we closed the last doc of a dynamic tab, switch away
+        if (ownerTab is ActiveTabType.Personal or ActiveTabType.Development or ActiveTabType.Docs
+            && !OpenDocuments.Any(d => d.OwnerTab == ownerTab)
+            && ActiveTab == ownerTab)
         {
+            ActiveTab = ActiveTabType.TechDebt;
             SelectedDocument = null;
+            NotifyDocumentCollectionChanged();
         }
     }
 
@@ -373,6 +434,7 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         OpenDocuments.Clear();
         SelectedDocument = null;
+        NotifyDocumentCollectionChanged();
     }
 
     [RelayCommand]
@@ -382,12 +444,26 @@ public partial class MainWindowViewModel : ViewModelBase
         OpenDocuments.Clear();
         OpenDocuments.Add(toKeep);
         SelectedDocument = toKeep;
+        NotifyDocumentCollectionChanged();
     }
 
     [RelayCommand] private void ToggleSidebar() => ShowSidebar = !ShowSidebar;
     [RelayCommand] private void OpenSettings() => ShowSettings = true;
     [RelayCommand] private void CloseSettings() => ShowSettings = false;
-    [RelayCommand] private void SetActiveTab(ActiveTabType tab) { if (ActiveTab != tab) ActiveTab = tab; }
+    [RelayCommand]
+    private void SetActiveTab(ActiveTabType tab)
+    {
+        if (ActiveTab == tab) return;
+        ActiveTab = tab;
+
+        // Restore the selected document for this tab (if any)
+        var docForTab = OpenDocuments.FirstOrDefault(d => d.OwnerTab == tab && d.IsSelected)
+                        ?? OpenDocuments.LastOrDefault(d => d.OwnerTab == tab);
+        SelectedDocument = docForTab; // null => shows the list
+
+        OnPropertyChanged(nameof(ShowTabList));
+        OnPropertyChanged(nameof(CurrentTabDocuments));
+    }
     [RelayCommand] private void SelectWorkspace(Workspace workspace) => SelectedWorkspace = workspace;
 
     [RelayCommand]
@@ -418,7 +494,8 @@ public partial class MainWindowViewModel : ViewModelBase
                     FullPath = targetPath,
                     Type = FileType.File
                 };
-                await OpenDocumentAsync(file);
+                // Keep same owner tab as the document containing the link
+                await OpenDocumentAsync(file, SelectedDocument.OwnerTab);
                 return;
             }
         }
