@@ -1,0 +1,45 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!--
+        DevDash Color Palette - Hacker Terminal Theme
+        All colors centralized here. Views reference these via DynamicResource.
+    -->
+
+    <!-- Background -->
+    <SolidColorBrush x:Key="BgDeep" Color="#0a0a0a"/>
+    <SolidColorBrush x:Key="BgPrimary" Color="#111111"/>
+    <SolidColorBrush x:Key="BgSecondary" Color="#1a1a1a"/>
+    <SolidColorBrush x:Key="BgTertiary" Color="#2a2a2a"/>
+    <SolidColorBrush x:Key="BgSelected" Color="#0a1f0a"/>
+    <SolidColorBrush x:Key="BgSelectedBorder" Color="#1a3a1a"/>
+
+    <!-- Text -->
+    <SolidColorBrush x:Key="TextPrimary" Color="#cccccc"/>
+    <SolidColorBrush x:Key="TextSecondary" Color="#888888"/>
+    <SolidColorBrush x:Key="TextMuted" Color="#555555"/>
+    <SolidColorBrush x:Key="TextHeading" Color="#e0e0e0"/>
+
+    <!-- Accent (terminal green) -->
+    <SolidColorBrush x:Key="Accent" Color="#00ff41"/>
+    <SolidColorBrush x:Key="AccentDim" Color="#00cc33"/>
+    <SolidColorBrush x:Key="AccentBg" Color="#132e13"/>
+
+    <!-- Semantic -->
+    <SolidColorBrush x:Key="Warning" Color="#ccaa00"/>
+    <SolidColorBrush x:Key="WarningBg" Color="#1a1800"/>
+    <SolidColorBrush x:Key="Info" Color="#00cc33"/>
+    <SolidColorBrush x:Key="InfoBg" Color="#0a1f0a"/>
+    <SolidColorBrush x:Key="Danger" Color="#ff3333"/>
+    <SolidColorBrush x:Key="Success" Color="#00ff41"/>
+    <SolidColorBrush x:Key="SuccessBg" Color="#0a1f0a"/>
+
+    <!-- FluentTheme accent overrides (replaces default blue) -->
+    <Color x:Key="SystemAccentColor">#00cc33</Color>
+    <Color x:Key="SystemAccentColorDark1">#00ff41</Color>
+    <Color x:Key="SystemAccentColorDark2">#33ff6a</Color>
+    <Color x:Key="SystemAccentColorDark3">#66ff8e</Color>
+    <Color x:Key="SystemAccentColorLight1">#00aa2a</Color>
+    <Color x:Key="SystemAccentColorLight2">#008822</Color>
+    <Color x:Key="SystemAccentColorLight3">#006619</Color>
+
+</ResourceDictionary>

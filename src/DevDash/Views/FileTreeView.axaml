@@ -17,7 +17,7 @@
             <Setter Property="Margin" Value="0,1"/>
         </Style>
         <Style Selector="Button.tree-item:pointerover">
-            <Setter Property="Background" Value="#334155"/>
+            <Setter Property="Background" Value="{DynamicResource BgSecondary}"/>
         </Style>
     </UserControl.Styles>
 
@@ -30,18 +30,18 @@
                     <!-- Folder icon -->
                     <PathIcon Data="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"
                               Width="14" Height="14"
-                              Foreground="#fbbf24"
+                              Foreground="{DynamicResource Accent}"
                               IsVisible="{Binding IsFolder}"
                               Opacity="0.7"/>
                     <!-- File icon -->
                     <PathIcon Data="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"
                               Width="14" Height="14"
-                              Foreground="#64748b"
+                              Foreground="{DynamicResource TextMuted}"
                               IsVisible="{Binding IsFile}"/>
                     <!-- Name -->
                     <TextBlock Text="{Binding Name}"
                                FontSize="13"
-                               Foreground="#e2e8f0"/>
+                               Foreground="{DynamicResource TextPrimary}"/>
                     <!-- Priority badge -->
                     <Border CornerRadius="4"
                             Padding="4,1"

@@ -11,9 +11,9 @@ public class BoolToColorConverter : IValueConverter
     {
         if (value is bool b)
         {
-            return b ? new SolidColorBrush(Color.Parse("#22c55e")) : new SolidColorBrush(Color.Parse("#64748b"));
+            return b ? PaletteHelper.GetBrush("Accent") : PaletteHelper.GetBrush("TextMuted");
         }
-        return new SolidColorBrush(Color.Parse("#64748b"));
+        return PaletteHelper.GetBrush("TextMuted");
     }
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)

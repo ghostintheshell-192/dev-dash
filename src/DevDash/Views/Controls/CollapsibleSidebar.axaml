@@ -17,11 +17,11 @@
             <Setter Property="CornerRadius" Value="0"/>
         </Style>
         <Style Selector="Button.sidebar-icon:pointerover">
-            <Setter Property="Background" Value="#1e293b"/>
+            <Setter Property="Background" Value="{DynamicResource BgSecondary}"/>
         </Style>
         <Style Selector="Button.sidebar-icon.active">
-            <Setter Property="Background" Value="#0f172a"/>
-            <Setter Property="BorderBrush" Value="#d97706"/>
+            <Setter Property="Background" Value="{DynamicResource BgPrimary}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Accent}"/>
             <Setter Property="BorderThickness" Value="2,0,0,0"/>
         </Style>
     </UserControl.Styles>
@@ -29,8 +29,8 @@
     <Grid ColumnDefinitions="48,Auto">
         <!-- Icon Bar -->
         <Border Grid.Column="0"
-                Background="#0a0a0f"
-                BorderBrush="#1e293b"
+                Background="{DynamicResource BgDeep}"
+                BorderBrush="{DynamicResource BgTertiary}"
                 BorderThickness="0,0,1,0">
             <Button x:Name="IconButton"
                     Classes="sidebar-icon"
@@ -40,8 +40,8 @@
         <!-- Content Area -->
         <Border Grid.Column="1"
                 x:Name="ContentArea"
-                Background="#0f172a"
-                BorderBrush="#1e293b"
+                Background="{DynamicResource BgPrimary}"
+                BorderBrush="{DynamicResource BgTertiary}"
                 BorderThickness="0,0,1,0">
             <Border.Transitions>
                 <Transitions>

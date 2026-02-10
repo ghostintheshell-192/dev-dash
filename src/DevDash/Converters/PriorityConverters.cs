@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using Avalonia;
 using Avalonia.Data.Converters;
 using Avalonia.Media;
 using DevDash.Models;
@@ -16,9 +17,9 @@ public class PriorityToBrushConverter : IValueConverter
         {
             return priority switch
             {
-                Priority.High => new SolidColorBrush(Color.Parse("#7f1d1d20")),    // red-900/20
-                Priority.Medium => new SolidColorBrush(Color.Parse("#78350f20")), // amber-900/20
-                Priority.Low => new SolidColorBrush(Color.Parse("#1e293b")),       // slate-800
+                Priority.High => PaletteHelper.GetBrush("WarningBg"),
+                Priority.Medium => PaletteHelper.GetBrush("AccentBg"),
+                Priority.Low => PaletteHelper.GetBrush("BgSecondary"),
                 _ => Brushes.Transparent
             };
         }
@@ -41,13 +42,13 @@ public class PriorityToForegroundConverter : IValueConverter
         {
             return priority switch
             {
-                Priority.High => new SolidColorBrush(Color.Parse("#f87171")),   // red-400
-                Priority.Medium => new SolidColorBrush(Color.Parse("#fbbf24")), // amber-400
-                Priority.Low => new SolidColorBrush(Color.Parse("#94a3b8")),    // slate-400
-                _ => new SolidColorBrush(Color.Parse("#64748b"))
+                Priority.High => PaletteHelper.GetBrush("Warning"),
+                Priority.Medium => PaletteHelper.GetBrush("AccentDim"),
+                Priority.Low => PaletteHelper.GetBrush("TextSecondary"),
+                _ => PaletteHelper.GetBrush("TextMuted")
             };
         }
-        return new SolidColorBrush(Color.Parse("#64748b"));
+        return PaletteHelper.GetBrush("TextMuted");
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)

@@ -12,94 +12,94 @@
                 <TextBlock Text="Initialize Project"
                            FontSize="24"
                            FontWeight="SemiBold"
-                           Foreground="#e2e8f0"/>
+                           Foreground="{DynamicResource TextHeading}"/>
                 <TextBlock Text="Configure Claude Code for the selected project"
                            FontSize="14"
-                           Foreground="#94a3b8"/>
+                           Foreground="{DynamicResource TextSecondary}"/>
             </StackPanel>
 
             <!-- No project selected message -->
-            <Border Background="#1e293b"
+            <Border Background="{DynamicResource BgSecondary}"
                     CornerRadius="8"
-                    BorderBrush="#334155"
+                    BorderBrush="{DynamicResource BgTertiary}"
                     BorderThickness="1"
                     Padding="24"
                     IsVisible="{Binding !HasProject}">
                 <StackPanel Spacing="8" HorizontalAlignment="Center">
-                    <TextBlock Text="📂 No project selected"
+                    <TextBlock Text="No project selected"
                                FontSize="16"
-                               Foreground="#94a3b8"
+                               Foreground="{DynamicResource TextSecondary}"
                                HorizontalAlignment="Center"/>
                     <TextBlock Text="Select a project from the sidebar to initialize it"
                                FontSize="13"
-                               Foreground="#64748b"
+                               Foreground="{DynamicResource TextMuted}"
                                HorizontalAlignment="Center"/>
                 </StackPanel>
             </Border>
 
             <!-- Project info (when project is selected) -->
-            <Border Background="#0f172a"
+            <Border Background="{DynamicResource BgPrimary}"
                     CornerRadius="8"
-                    BorderBrush="#334155"
+                    BorderBrush="{DynamicResource BgTertiary}"
                     BorderThickness="1"
                     Padding="16"
                     IsVisible="{Binding HasProject}">
                 <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="12" RowSpacing="8">
                     <TextBlock Grid.Row="0" Grid.Column="0"
                                Text="Project:"
-                               Foreground="#94a3b8"
+                               Foreground="{DynamicResource TextSecondary}"
                                FontSize="13"/>
                     <TextBlock Grid.Row="0" Grid.Column="1"
                                Text="{Binding ProjectName}"
-                               Foreground="#e2e8f0"
+                               Foreground="{DynamicResource TextPrimary}"
                                FontSize="13"
                                FontWeight="Medium"/>
 
                     <Border Grid.Row="0" Grid.Column="2"
-                            Background="#334155"
+                            Background="{DynamicResource BgTertiary}"
                             CornerRadius="4"
                             Padding="6,2"
                             IsVisible="{Binding DetectedLanguage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
                         <TextBlock Text="{Binding DetectedLanguage}"
                                    FontSize="11"
-                                   Foreground="#94a3b8"/>
+                                   Foreground="{DynamicResource TextSecondary}"/>
                     </Border>
 
                     <TextBlock Grid.Row="1" Grid.Column="0"
                                Text="Path:"
-                               Foreground="#94a3b8"
+                               Foreground="{DynamicResource TextSecondary}"
                                FontSize="13"/>
                     <TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"
                                Text="{Binding ProjectPath}"
-                               Foreground="#64748b"
+                               Foreground="{DynamicResource TextMuted}"
                                FontSize="12"
                                FontFamily="monospace"/>
                 </Grid>
             </Border>
 
             <!-- Already initialized message -->
-            <Border Background="#22c55e20"
-                    BorderBrush="#22c55e"
+            <Border Background="{DynamicResource SuccessBg}"
+                    BorderBrush="{DynamicResource Success}"
                     BorderThickness="1"
                     CornerRadius="6"
                     Padding="16"
                     IsVisible="{Binding IsInitialized}">
                 <StackPanel Spacing="8">
-                    <TextBlock Text="✓ Project Already Initialized"
+                    <TextBlock Text="Project Already Initialized"
                                FontSize="15"
                                FontWeight="SemiBold"
-                               Foreground="#22c55e"/>
+                               Foreground="{DynamicResource Success}"/>
                     <TextBlock Text="This project already has Claude Code configuration in .claude/rules/"
                                FontSize="13"
-                               Foreground="#86efac"
+                               Foreground="{DynamicResource AccentDim}"
                                TextWrapping="Wrap"/>
                 </StackPanel>
             </Border>
 
             <!-- Configuration form (when project selected and not initialized) -->
-            <Border Background="#0f172a"
+            <Border Background="{DynamicResource BgPrimary}"
                     CornerRadius="8"
-                    BorderBrush="#334155"
+                    BorderBrush="{DynamicResource BgTertiary}"
                     BorderThickness="1"
                     Padding="16"
                     IsVisible="{Binding HasProject}"
@@ -108,11 +108,11 @@
                     <TextBlock Text="Project Configuration"
                                FontSize="15"
                                FontWeight="SemiBold"
-                               Foreground="#e2e8f0"/>
+                               Foreground="{DynamicResource TextHeading}"/>
 
                     <TextBlock Text="Provide information about this project (optional fields will use defaults)"
                                FontSize="13"
-                               Foreground="#94a3b8"
+                               Foreground="{DynamicResource TextSecondary}"
                                TextWrapping="Wrap"/>
 
                     <Grid ColumnDefinitions="120,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="12" RowSpacing="12">
@@ -120,7 +120,7 @@
                         <TextBlock Grid.Row="0" Grid.Column="0"
                                    Text="Description:"
                                    VerticalAlignment="Center"
-                                   Foreground="#94a3b8"/>
+                                   Foreground="{DynamicResource TextSecondary}"/>
                         <TextBox Grid.Row="0" Grid.Column="1"
                                  Text="{Binding ProjectDescription, Mode=TwoWay}"
                                  Watermark="Brief project description..."/>
@@ -128,7 +128,7 @@
                         <TextBlock Grid.Row="1" Grid.Column="0"
                                    Text="Tech Stack:"
                                    VerticalAlignment="Center"
-                                   Foreground="#94a3b8"/>
+                                   Foreground="{DynamicResource TextSecondary}"/>
                         <TextBox Grid.Row="1" Grid.Column="1"
                                  Text="{Binding ProjectTechStack, Mode=TwoWay}"
                                  Watermark="e.g., .NET 8, Avalonia 11.3"/>
@@ -136,7 +136,7 @@
                         <TextBlock Grid.Row="2" Grid.Column="0"
                                    Text="Language:"
                                    VerticalAlignment="Center"
-                                   Foreground="#94a3b8"/>
+                                   Foreground="{DynamicResource TextSecondary}"/>
                         <ComboBox Grid.Row="2" Grid.Column="1"
                                   SelectedItem="{Binding ProjectLanguage, Mode=TwoWay}">
                             <ComboBoxItem Content="(Auto-detect)" IsSelected="True"/>
@@ -156,7 +156,8 @@
             <!-- Initialize button -->
             <Button Command="{Binding InitializeProjectCommand}"
                     HorizontalAlignment="Stretch"
-                    Background="#3b82f6"
+                    Background="{DynamicResource AccentDim}"
+                    Foreground="#000000"
                     Padding="16"
                     IsVisible="{Binding HasProject}">
                 <TextBlock Text="Initialize Project"
@@ -166,14 +167,14 @@
             </Button>
 
             <!-- Status message -->
-            <Border Background="#22c55e20"
-                    BorderBrush="#22c55e"
+            <Border Background="{DynamicResource SuccessBg}"
+                    BorderBrush="{DynamicResource Success}"
                     BorderThickness="1"
                     CornerRadius="6"
                     Padding="12"
                     IsVisible="{Binding StatusMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
                 <TextBlock Text="{Binding StatusMessage}"
-                           Foreground="#22c55e"
+                           Foreground="{DynamicResource Success}"
                            FontSize="13"
                            TextWrapping="Wrap"/>
             </Border>

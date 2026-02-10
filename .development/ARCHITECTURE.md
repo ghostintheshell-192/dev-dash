@@ -37,8 +37,9 @@ For detailed documentation, see `docs/`.
 
 ### DevDash/Converters
 - `BoolToColorConverter.cs`
-- `EnumEqualsConverter.cs` — Converter that compares an enum value with a parameter and returns true if they are equal. Usage: {Binding ActiveTab, Converter={StaticResource EnumEqualsConverter}, ConverterParameter={x:Static mode...
-- `EnumNotEqualsConverter.cs` — Converter that compares an enum value with a parameter and returns true if they are NOT equal. Usage: {Binding ActiveTab, Converter={StaticResource EnumNotEqualsConverter}, ConverterParameter={x:Stat...
+- `EnumEqualsConverter.cs` — Converter that compares an enum value with a parameter and returns true if they are equal. Usage: {Binding ActiveTab, Converter={StaticResource EnumEqualsConverter}, ConverterParameter={x:Static model...
+- `EnumNotEqualsConverter.cs` — Converter that compares an enum value with a parameter and returns true if they are NOT equal. Usage: {Binding ActiveTab, Converter={StaticResource EnumNotEqualsConverter}, ConverterParameter={x:Stati...
+- `PaletteHelper.cs` — Resolves brush resources from the centralized ColorPalette. All converters use this instead of hardcoding colors.
 - `PriorityConverters.cs`
 - `StringEqualsConverter.cs`
 
@@ -54,7 +55,7 @@ For detailed documentation, see `docs/`.
 - `Workspace.cs` — Represents a workspace (container of projects). Workspaces are directories containing multiple projects. Each project manages its own .claude/ configuration independently.
 
 ### DevDash/Services
-- `AppSettingsService.cs` — Service for reading and writing application settings to a JSON file. Settings are stored in the platform-appropriate application data directory.
+- `AppSettingsService.cs` — Service for reading and writing application settings to a JSON file. Settings are stored in the platform-appropriate application data directory.
 - `ConfigurationService.cs`
 - `FileSystemService.cs`
 - `IAppSettingsService.cs` — Service for reading and writing application settings.
@@ -70,7 +71,7 @@ For detailed documentation, see `docs/`.
 - `DocumentTabViewModel.cs` — Represents an open document tab.
 - `FileTreeItemViewModel.cs` — ViewModel per un item nell'albero file (.personal)
 - `MainWindowViewModel.cs` — ViewModel for a configured workspace in settings.
-- `ProjectInitializationViewModel.cs` — ViewModel for the project initialization panel. Initializes a single selected project with Claude Code configuration.
+- `ProjectInitializationViewModel.cs` — ViewModel for the project initialization panel. Initializes a single selected project with Claude Code configuration.
 - `ProjectViewModel.cs` — ViewModel per un progetto nella lista sidebar
 - `SpecItemViewModel.cs` — Represents a spec from .development/specs/
 - `TechDebtItemViewModel.cs` — Represents a tech debt item from .development/tech-debt/
