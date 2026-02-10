@@ -20,11 +20,11 @@
             <Setter Property="CornerRadius" Value="0"/>
         </Style>
         <Style Selector="Button.sidebar-icon:pointerover">
-            <Setter Property="Background" Value="#1e293b"/>
+            <Setter Property="Background" Value="{DynamicResource BgSecondary}"/>
         </Style>
         <Style Selector="Button.sidebar-icon.active">
-            <Setter Property="Background" Value="#0f172a"/>
-            <Setter Property="BorderBrush" Value="#d97706"/>
+            <Setter Property="Background" Value="{DynamicResource BgPrimary}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Accent}"/>
             <Setter Property="BorderThickness" Value="2,0,0,0"/>
         </Style>
     </UserControl.Styles>
@@ -32,8 +32,8 @@
     <Grid ColumnDefinitions="48,*">
         <!-- Icon Bar -->
         <Border Grid.Column="0"
-                Background="#0a0a0f"
-                BorderBrush="#1e293b"
+                Background="{DynamicResource BgDeep}"
+                BorderBrush="{DynamicResource BgTertiary}"
                 BorderThickness="0,0,1,0">
             <ItemsControl x:Name="IconBar"
                           ItemsSource="{Binding Items, RelativeSource={RelativeSource AncestorType=controls:MultiSidebar}}">
@@ -52,7 +52,7 @@
                             <PathIcon Data="{Binding IconData}"
                                       Width="20"
                                       Height="20"
-                                      Foreground="#94a3b8"/>
+                                      Foreground="{DynamicResource TextSecondary}"/>
                         </Button>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
@@ -72,8 +72,8 @@
                 <DataTemplate>
                     <Border x:Name="SidebarBorder"
                             x:DataType="models:SidebarItem"
-                            Background="#0f172a"
-                            BorderBrush="#1e293b"
+                            Background="{DynamicResource BgPrimary}"
+                            BorderBrush="{DynamicResource BgTertiary}"
                             BorderThickness="0,0,1,0"
                             Width="{Binding Width}"
                             IsVisible="{Binding IsOpen}">
@@ -82,8 +82,26 @@
                                 <DoubleTransition Property="Width" Duration="0:0:0.2" Easing="CubicEaseOut"/>
                             </Transitions>
                         </Border.Transitions>
-                        <ContentControl Content="{Binding DataContext, RelativeSource={RelativeSource AncestorType=controls:MultiSidebar}}"
-                                        ContentTemplate="{Binding ContentTemplate}"/>
+                        <DockPanel>
+                            <!-- Collapse button header -->
+                            <Border DockPanel.Dock="Top" BorderBrush="{DynamicResource BgTertiary}"
+                                    BorderThickness="0,0,0,1" Padding="4">
+                                <Button HorizontalAlignment="Right"
+                                        Background="Transparent" Padding="6,2" CornerRadius="4"
+                                        ToolTip.Tip="Collapse"
+                                        Command="{Binding ToggleSidebarCommand, RelativeSource={RelativeSource AncestorType=controls:MultiSidebar}}"
+                                        CommandParameter="{Binding}">
+                                    <Button.Styles>
+                                        <Style Selector="Button:pointerover">
+                                            <Setter Property="Background" Value="{DynamicResource BgSecondary}"/>
+                                        </Style>
+                                    </Button.Styles>
+                                    <TextBlock Text="&#xAB;" FontSize="14" Foreground="{DynamicResource TextMuted}"/>
+                                </Button>
+                            </Border>
+                            <ContentControl Content="{Binding DataContext, RelativeSource={RelativeSource AncestorType=controls:MultiSidebar}}"
+                                            ContentTemplate="{Binding ContentTemplate}"/>
+                        </DockPanel>
                     </Border>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
