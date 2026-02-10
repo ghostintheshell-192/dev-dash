@@ -32,6 +32,6 @@
       <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1" />
-    <PackageReference Include="Adzup.Markdown.Avalonia.Tight" Version="1.0.5" />
+    <PackageReference Include="LiveMarkdown.Avalonia" Version="1.7.0" />
   </ItemGroup>
 </Project>

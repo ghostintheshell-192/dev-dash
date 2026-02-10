@@ -12,5 +12,4 @@
         </ResourceDictionary>
     </Styles.Resources>
     <StyleInclude Source="avares://DevDash/Styles/CommonStyles.axaml"/>
-    <StyleInclude Source="avares://DevDash/Styles/MarkdownStyleDark.axaml"/>
 </Styles>
