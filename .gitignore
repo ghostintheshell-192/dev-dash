@@ -1,23 +1,72 @@
-# Build outputs
+# Visual Studio leftover files
+*.suo
+*.ncb
+*.user
+*.ccscc
+*.cache
+
+# Compiled files
+src/*/[Bb]in
+src/*/[Oo]bj
+tests/*/[Bb]in
+tests/*/[Oo]bj
 bin/
 obj/
 *.dll
 *.exe
 *.pdb
 
+# Editor leftovers
+*.bak
+
+# Visual Studio temp folder
+.vs
+
 # IDE
-.vs/
-.vscode/
 .idea/
-*.user
-*.suo
+.vscode/
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Private documentation (not committed)
-.personal/
+# NuGet
+*.nupkg
+**/[Pp]ackages/*
 
-# Session handoffs (local only)
-.memory-bank/
+# Build artifacts
+**/[Aa]rtifacts/*
+
+# Logs
+*.log
+build_log.txt
+app_output.log
+logs/
+
+# Code signing certificates - NEVER commit private keys!
+*.key
+*.pfx
+*.p12
+
+# Backups
+backups/
+*.bak
+
+# Sample files / test data
+samples/
+
+# Private folders (not committed)
+.personal/
+.secrets/
+
+# Session handoffs (selectively ignored, see .memory-bank/.gitignore)
+.memory-bank/sessions/
+
+# Legacy binary archives in development archive
+.development/archive/legacy/*.zip
+
+# Claude Code local overrides
+**/claude-todos*.md
+**/temp-todos*.md
+.claude/settings.local.json
+.claude/*.local.md

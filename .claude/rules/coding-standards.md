@@ -1,64 +1,64 @@
-﻿# Coding Standards
+# Coding Standards
 
-## Language-Specific Standards
+## Naming Conventions
 
+- **Classes/Methods/Properties**: `PascalCase`
+- **Local variables/parameters**: `camelCase`
+- **Private fields**: `_camelCase`
+- **Constants**: `PascalCase`
+- **Interfaces**: Prefix with `I` (e.g., `IUserService`)
 
+## Code Style
 
-## General Principles
+- **Enforced via**: `dotnet format` + `.editorconfig`
+- **Pre-commit hook**: Verifies formatting before commit
+- **Manual check**: `dotnet format --verify-no-changes`
 
-### Naming Conventions
+## File Organization
 
-- Use clear, descriptive names
-- Follow language conventions for casing
-- Avoid abbreviations unless widely understood
-- Be consistent within the codebase
+- **One class per file**: Class name matches file name
+- **Using statements order**:
+  1. System namespaces
+  2. Microsoft namespaces
+  3. Third-party namespaces
+  4. Local project namespaces
+- **File structure**:
+  1. Constants
+  2. Fields
+  3. Constructor
+  4. Public methods
+  5. Private methods
 
-### Code Style
+## Documentation
 
-- Use automated formatters where available
-- Follow the principle of least surprise
-- Keep functions/methods focused and small
-- Prefer composition over inheritance
-
-### File Organization
-
-- One primary entity per file
-- Group related functionality
-- Use consistent directory structure
-- Keep imports/dependencies organized
-
-### Documentation
-
-- **XML/JSDoc comments**: Required for public APIs
+- **XML comments**: Required for public APIs and complex methods
 - **Language**: English only
 - **Focus**: Explain "why", not "what"
-- Keep comments up-to-date with code changes
+- **Example**:
 
-### Error Handling
+  ```csharp
+  /// <summary>
+  /// Resolves the effective Claude configuration for a project by merging
+  /// global, workspace, and project-level rules in precedence order.
+  /// Required because Claude Code itself does not expose this resolution.
+  /// </summary>
+  ```
 
-- Handle errors explicitly
-- Use appropriate error types
-- Provide meaningful error messages
-- Log errors with sufficient context
+## Dependency Injection
 
-### Testing
+- **Constructor injection**: Inject dependencies through constructor
+- **Use interfaces**: Depend on abstractions, not implementations
+- **Validate early**: Check for null in constructor, fail fast
+- **Example**:
 
-- Write tests for new features
-- Maintain existing test coverage
-- Use descriptive test names
-- Follow AAA pattern (Arrange, Act, Assert)
+  ```csharp
+  public class WorkspaceService
+  {
+      private readonly IFileSystemService _fileSystem;
 
-### Dependencies
-
-- Keep dependencies minimal
-- Use well-maintained libraries
-- Pin versions for reproducibility
-- Document why each dependency is needed
-
-## Code Review Guidelines
-
-- Review for logic and architecture, not just syntax
-- Check for security issues
-- Verify tests are adequate
-- Ensure documentation is updated
-- Be constructive in feedback
+      public WorkspaceService(IFileSystemService fileSystem)
+      {
+          _fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
+      }
+  }
+  ```
