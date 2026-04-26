@@ -201,6 +201,7 @@ Convenzioni tue (da sheet-atlas), non Anthropic. Tutte mono-scope (P), composizi
 | Spec — implemented | `.development/specs/implemented/*.md` | md+frontmatter | RW | spostati dal pre-commit hook su merge |
 | Spec — backlog/archived | `.development/specs/{backlog,archived}/*.md` | md+frontmatter | RW | |
 | Tech-debt issue | `.development/tech-debt/*.md` | md+frontmatter | RW | kanban candidate |
+| Tangential idea note | `.memory-bank/ideas/YYYY-MM-DD-<slug>.md` | md+frontmatter | RW | Capture di idee emerse in conversazione. Lifecycle `open → parked → promoted-to-X → dropped`. Vedi `.memory-bank/ideas/README.md` e regola operativa in `.claude/rules/idea-capture.md` |
 | CURRENT-STATUS | `.development/CURRENT-STATUS.md` | md | RW | manuale |
 | INDEX | `.development/INDEX.md` | md | RO | auto-generato (hook) |
 | ARCHITECTURE | `.development/ARCHITECTURE.md` | md | RO | auto-generato (hook) |
@@ -345,3 +346,27 @@ In ordine di valore percepito, da scegliere/scartare in fase di spec dedicata:
 ### L.4 — Stato
 
 **Spec dedicata da scrivere separatamente** dopo che il resource-model è consolidato. Da decidere: priorità (subito dopo MVP del core? o fase 2?), perimetro minimo (solo search? search + cross-ref?), storage indice (in-memory? su disco?).
+
+---
+
+## M. Pilastro 6 — Config versioning (placeholder)
+
+Pilastro sorello del 5 (Conversation history): entrambe sono "evoluzione di stato di Claude nel tempo", ma con operazioni diverse. La 5 è search/navigazione su una cronologia immutabile; la 6 è snapshot/restore/diff su uno stato mutevole.
+
+### M.1 — Cosa serve
+
+Un sistema di **profili nominati** sopra l'intera config Claude Code (`~/.claude/`, `~/.claude.json`, eventualmente `.claude/` di progetto). Capabilities target: snapshot, switch, diff, list, eventualmente cross-machine sync.
+
+### M.2 — Caso d'uso primario
+
+Testare l'impatto di una modifica alla config senza perdere il setup precedente né confondersi su quale variante si sta usando. Esempio concreto: sessioni con `ARCHITECTURE.md` auto-loaded vs senza, per misurare se davvero cambia il comportamento di Claude.
+
+### M.3 — Spazio di design
+
+Decisione cardine: backing store. Candidato forte è **git su `~/.claude/`** (snapshot/swap/diff sono primitive native), con esclusioni per file derived (auto-memory, conversation history) e secrets. Granularità inizialmente globale-only, per-progetto come fase 2.
+
+### M.4 — Stato
+
+**Spec dedicata da scrivere separatamente.** Punto di partenza completo: `.memory-bank/ideas/2026-04-26-claude-config-versioning.md` (idea catturata con sketch del design space e decisioni che la spec dovrà sciogliere). Quando si attacca, quella nota viene promossa a `promoted-to-spec` con link al nuovo file.
+
+Pattern di render dedicato: probabilmente non ne ha bisogno di uno nuovo — un mix di `single-render` (lista profili) + `override-render` (diff fra due profili) basta. Da confermare in spec.
