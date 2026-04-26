@@ -1,6 +1,6 @@
 # DevDash — Resource Model (DRAFT)
 
-*Created: 2026-04-26 — In flux. Working artifact for the dev-dash redesign discussion.*
+*Created: 2026-04-26 · Updated: 2026-04-26 (J.1-J.5 resolved). In flux finché il viewer base non è implementato e validato. Working artifact per la discussione di redesign dev-dash.*
 
 ## Scope di questo documento
 
@@ -26,8 +26,8 @@ L'ipotesi architettonica sotto: dev-dash non è N feature pages, è **1 astrazio
 ### Modalità di composizione fra scope
 
 - **`concat`** — *tutti* i livelli contribuiscono in catena, niente vince (può essere multi-livello, non solo G+P; vedi CLAUDE.md). Il rendering mostra ogni livello in ordine di concatenazione.
-- **`override`** — gerarchia formale, livello più specifico vince sulla stessa chiave. Il rendering è un "merge resolver" che per ogni chiave mostra origine e vincitore.
-- **`union`** — coesistenza con disambiguazione visuale per scope (badge `[G]`/`[P]`). Le collisioni sono individuate per **identità logica** (campo `name:` di frontmatter, chiave JSON), non solo per filename. Quando il runtime di Claude shadowa effettivamente uno (es. agents/skills, da verificare per tipo), badge `shadowed`. Per hooks la `union` è pura — tutti i livelli si attivano, nessuno shadowing, il badge è solo etichettatura della provenienza.
+- **`override`** — gerarchia formale, livello più specifico vince sulla stessa **chiave di identità**. La chiave varia per tipo: chiave JSON (`settings.json` e dintorni), nome del server (MCP), campo `name:` di frontmatter (subagent, skill, output style), filename (slash command legacy). Il rendering è un "merge resolver": per ogni chiave mostra il vincitore e segnala i livelli **shadowati** dietro (badge `[shadowed: <scope>]`). ⚠️ **La direzione della gerarchia varia per famiglia di risorsa** — non c'è una regola unica "più vicino vince": agents `Managed > CLI > Project > User > Plugin`, skills `Enterprise > User > Project` (con plugin namespaced, no conflict), MCP `Local > Project > User > Plugin > Connectors`, settings `Managed > Project local > Project shared > User`. Vedi sezioni B/C/D per le mappe complete.
+- **`union`** — coesistenza pura, **nessuno shadowing**: tutti i livelli si attivano insieme. Si applica dove non esiste concetto di "stesso nome che shadowa": **hooks** (ogni hook config è additiva su matcher/event) e **path-scoped rules** (ogni rule si carica indipendentemente se i suoi `paths:` matchano). Rendering: lista con badge `[G]`/`[P]` per provenienza, nessuna etichetta `shadowed`.
 - **`n/a`** — risorsa esiste a un solo livello.
 
 ---
@@ -64,7 +64,7 @@ Tutti i livelli che esistono vengono **concatenati** nel context all'inizio di o
 
 **`@path` imports**: un file CLAUDE.md può tirarne dentro altri con sintassi `@docs/git-instructions.md` o `@~/.claude/my-prefs.md`. Ricorsivo fino a 5 hop. Il content "effettivo" che Claude vede è file + import espansi. Dev-dash deve esporre **vista raw** + **vista expanded** (pulsante toggle) per evitare che l'utente debba mentalmente fare l'espansione.
 
-**`claudeMdExcludes`** (in `.claude/settings.local.json` o ai vari livelli di settings): array di glob pattern che **escludono** specifici CLAUDE.md dall'essere caricati. Per mostrare correttamente "what Claude actually sees", dev-dash deve applicare questi exclude alla catena A.1 e marcare i file mutati come `excluded`.
+**`claudeMdExcludes`** (in `.claude/settings.local.json` o ai vari livelli di settings): array di glob pattern che **escludono** specifici CLAUDE.md dall'essere caricati. Per mostrare correttamente "what Claude actually sees", dev-dash deve **applicare** questi exclude alla catena A.1 e marcare i file mutati come `excluded` (fase 1, vedi J.4). La **gestione** dei pattern (UI add/remove) è fase 2 nice-to-have.
 
 **Auto-memory encoding**: il `<encoded-path>` di `~/.claude/projects/<encoded-path>/` è il path della repo root con `/` sostituiti da `-`. Per dev-dash: `/data/repos/dev-dash/` → `-data-repos-dev-dash`.
 
@@ -104,24 +104,29 @@ Configurazione runtime di Claude Code. Modalità `override` formale.
 
 ## C. Subagents, skills, commands, output styles — `[Anthropic]`
 
-Estensioni utente ai comportamenti di Claude. Modalità `union` con potenziale collisione di nomi.
+Estensioni utente ai comportamenti di Claude. Modalità `override` gerarchico **con gerarchie diverse per famiglia** — vedi note in C.2.
 
 ### C.1 — Quick-reference
 
 | Tipo | Scope | Path | Formato | Postura | Composizione | Doc |
 |---|---|---|---|---|---|---|
-| Subagent | G + P | `~/.claude/agents/*.md`, `.claude/agents/*.md` | md+frontmatter | RW | union, runtime shadowing? → vedi J.1 | [sub-agents](https://code.claude.com/docs/en/sub-agents) |
-| Skill | G + P | `~/.claude/skills/<name>/SKILL.md` (+ files), `.claude/skills/<name>/...` | dir + md+frontmatter | RW | union, runtime shadowing? → vedi J.1 | [skills](https://code.claude.com/docs/en/skills) |
-| Slash command (legacy) | G + P | `~/.claude/commands/*.md`, `.claude/commands/*.md` | md | RW | union, deprecato → migrare a Skill | [commands](https://code.claude.com/docs/en/commands) |
-| Output style | G + P | `~/.claude/output-styles/*.md`, `.claude/output-styles/*.md` | md+frontmatter | RW | union | [output-styles](https://code.claude.com/docs/en/output-styles) |
+| Subagent | M + CLI + P + G + Plugin | `<managed>/.claude/agents/*.md` · `--agents` CLI · `.claude/agents/*.md` · `~/.claude/agents/*.md` · `<plugin>/agents/*.md` | md+frontmatter | RW | override `Managed > CLI > Project > User > Plugin` | [sub-agents](https://code.claude.com/docs/en/sub-agents) |
+| Skill | E + G + P + Plugin | `~/.claude/skills/<name>/SKILL.md` (+ files), `.claude/skills/<name>/...`, `<plugin>/skills/<name>/...` | dir + md+frontmatter | RW | override `Enterprise > User > Project` (plugin namespaced `plugin:skill`, no conflict) | [skills](https://code.claude.com/docs/en/skills) |
+| Slash command (legacy) | G + P | `~/.claude/commands/*.md`, `.claude/commands/*.md` | md | RW | mergiato in skills (skill > command se collidono per nome) | [skills#custom-commands](https://code.claude.com/docs/en/skills) |
+| Output style | G + P | `~/.claude/output-styles/*.md`, `.claude/output-styles/*.md` | md+frontmatter | RW | override (presunto, da verificare empiricamente) | [output-styles](https://code.claude.com/docs/en/output-styles) |
 
 ### C.2 — Note
 
-- **Skills sostituiscono Commands**: la doc Anthropic dice "for new workflows, use skills/ instead — same `/name` invocation, plus you can bundle supporting files". Trattare commands come legacy in dev-dash, ma comunque visualizzabili.
-- **Campi chiave per Subagent** (frontmatter): `name`, `description`, `tools`, `model`, `color` (probabilmente).
-- **Campi chiave per Skill** (frontmatter): `name`, `description`, eventuali `allowed-tools`, `model`.
-- **Collisione di nomi**: strategia dev-dash decisa = **coesistenza con disambiguazione + edit** (vedi schema sezione "Modalità di composizione fra scope" e issue J.1). Identità per `name:` di frontmatter, non per filename.
-- Vista dev-dash: lista unica con badge `[G]`/`[P]`, collisioni evidenziate per identità logica, badge `shadowed` quando il runtime davvero sceglie uno solo.
+- **⚠️ Gerarchie opposte tra agents e skills** — caso non simmetrico, va esposto chiaramente nell'UI. Per **subagents** vince il livello *più vicino* (`Project > User`); per **skills** vince il livello *più lontano* (`Enterprise > User > Project`, cioè user shadowa project). La stessa coppia di file `[G]`/`[P]` si comporta in modi opposti a seconda del tipo. Dev-dash deve mostrare la direzione di gerarchia esplicitamente accanto a ogni famiglia, non assumerla.
+- **Skills hanno mergiato Commands**: doc ufficiale: "Custom commands have been merged into skills. A file at `.claude/commands/deploy.md` and a skill at `.claude/skills/deploy/SKILL.md` both create `/deploy` and work the same way. Your existing `.claude/commands/` files keep working." Se collidono per nome, la skill vince. Trattare commands come legacy in dev-dash.
+- **Identità di matching**:
+  - Subagent / Skill / Output style: campo `name:` di frontmatter (se omesso, fallback su nome della directory/filename).
+  - Slash command: filename (no frontmatter univoco).
+  - L'UI deve mostrare la chiave di identità rilevante, non solo il filename.
+- **Campi chiave per Subagent** (frontmatter): `name`, `description`, `tools`, `model`, `color`, `mcpServers`, `hooks`, `memory`, `permissionMode`, `effort`, `isolation`.
+- **Campi chiave per Skill** (frontmatter): `name`, `description`, `allowed-tools`, `model`, `disable-model-invocation`, `user-invocable`, `paths`, `arguments`, `context: fork`, `agent`, `effort`.
+- **Live change detection per skills**: Claude Code watcha `~/.claude/skills/`, `.claude/skills/`, e gli `--add-dir`. Modifiche in-session sono picked up senza restart (creazione di una *nuova* top-level skills directory richiede restart). Implicazione per dev-dash: edit di una skill riflette immediatamente, niente "applica modifiche" needed.
+- Vista dev-dash: render `override` (merge resolver) per ciascuna famiglia, con shadowed-list visibile e direzione di gerarchia esplicita. Non `union-list`.
 
 ---
 
@@ -131,19 +136,26 @@ Estensioni utente ai comportamenti di Claude. Modalità `union` con potenziale c
 
 | Tipo | Scope | Path | Formato | Postura | Composizione | Doc |
 |---|---|---|---|---|---|---|
-| Hook | G + P | dentro `settings.json` campo `hooks` | json + script paths | RM | union (tutti i livelli si attivano) | [hooks](https://code.claude.com/docs/en/hooks) · [hooks-guide](https://code.claude.com/docs/en/hooks-guide) |
-| MCP server (project) | P | `./.mcp.json` (project root, NON dentro `.claude/`) | json | RM | union con user-scope | [mcp](https://code.claude.com/docs/en/mcp) |
-| MCP server (user) | G | `~/.claude.json` | json | RM | union con project-scope | [mcp](https://code.claude.com/docs/en/mcp) |
+| Hook | G + P | dentro `settings.json` campo `hooks` | json + script paths | RM | union (tutti i livelli si attivano, no shadowing) | [hooks](https://code.claude.com/docs/en/hooks) · [hooks-guide](https://code.claude.com/docs/en/hooks-guide) |
+| MCP server (local) | P (per-project, gitignored de facto) | `~/.claude.json` (entry del progetto, scope `local`) | json | RM | override per `name`: `Local > Project > User > Plugin > Connectors` | [mcp](https://code.claude.com/docs/en/mcp) |
+| MCP server (project, shared) | P | `./.mcp.json` (project root, NON dentro `.claude/`) | json | RM | override (vedi sopra) | [mcp](https://code.claude.com/docs/en/mcp) |
+| MCP server (user) | G | `~/.claude.json` (top-level, scope `user`) | json | RM | override (vedi sopra) | [mcp](https://code.claude.com/docs/en/mcp) |
 | Channel | P | configurato come MCP server | json | RM | n/a | [channels](https://code.claude.com/docs/en/channels) · [channels-reference](https://code.claude.com/docs/en/channels-reference) |
-| Plugin ⏬ | G + P | bundle (skills + agents + hooks + MCP combinati) | dir | RO (list-only) | union | [plugins](https://code.claude.com/docs/en/plugins) · [plugins-reference](https://code.claude.com/docs/en/plugins-reference) |
+| Plugin ⏬ | G + P | bundle (skills + agents + hooks + MCP combinati) | dir | RO (list-only) | varies (ogni componente segue la gerarchia della propria famiglia) | [plugins](https://code.claude.com/docs/en/plugins) · [plugins-reference](https://code.claude.com/docs/en/plugins-reference) |
 
 ### D.2 — Note
 
-- **Hooks**: gli eventi documentati includono `SessionStart`, `SessionEnd`, `PreToolUse`, `PostToolUse`, `UserPromptSubmit`, `PreCompact`, `Stop`, `SubagentStop`, `Notification`, `WorktreeCreate`. Già usati nel progetto (`SessionStart` rigenera INDEX.md, ecc.).
-- **MCP** ha due file separati per scope user/project — non è un singolo file con override. È union pura.
+- **Hooks**: gli eventi documentati includono `SessionStart`, `SessionEnd`, `PreToolUse`, `PostToolUse`, `UserPromptSubmit`, `PreCompact`, `Stop`, `SubagentStop`, `Notification`, `WorktreeCreate`. Già usati nel progetto (`SessionStart` rigenera INDEX.md, ecc.). Modalità `union` pura (tutti i livelli si attivano, no shadowing).
+- **MCP** è **override per nome del server**, non union. Tre scope distinti su due file:
+  - `local` (per-project, privato): dentro `~/.claude.json`, nell'entry corrispondente al path del progetto. È il default quando aggiungi un server senza `--scope`.
+  - `project` (per-project, shared): in `./.mcp.json` alla root del progetto, designato per essere committato.
+  - `user` (cross-project, privato): dentro `~/.claude.json` a livello top.
+
+  Gerarchia di precedenza (alto → basso): `Local > Project > User > Plugin > claude.ai connectors`. Plugins e connectors matchano per *endpoint* (URL/command), non per nome — duplicati cross-source vengono unificati. Quote doc: "When the same server is defined in more than one place, Claude Code connects to it once, using the definition from the highest-precedence source."
+- **Implicazione per dev-dash**: `~/.claude.json` non è "user-scope only" — contiene **due scope distinti**. L'adapter MCP deve leggere il file e separare le entry per-project (sotto la chiave del path del progetto) dalle entry user (top-level). Mostrare entrambi gli scope come righe separate nel render.
 - **Plugins** ⏬ (deprioritized): bundle distribuibili che combinano skills/agents/hooks/MCP/commands, installabili via marketplace. Pensati per *condividere* setup tra team/community. Per uso solo come quello dell'utente, valore basso — i mattoni primitivi (skill, agent, hook, MCP) sono già abbastanza. Adapter minimo: list-only "ecco i plugin installati", niente UI di gestione. **Ultima priorità.**
 - **Campi chiave per Hook**: `event`, `matcher` (pattern di tool names o evento-specifico), `hooks[]` con `type` (command/prompt) e `command`.
-- **Campi chiave per MCP server**: `command`, `args`, `env`, `transport` (stdio/http/sse).
+- **Campi chiave per MCP server**: `command`, `args`, `env`, `transport` (stdio/http/sse), `oauth.scopes`, `authServerMetadataUrl`.
 
 ---
 
@@ -243,14 +255,14 @@ Per scansione rapida. Le righe `A` (Anthropic) sono quelle da tenere sotto osser
 | 7 | Permission mode | A | G+P | override |
 | 8 | Env vars | A | G+P | override |
 | 9 | Model config | A | G+P | override |
-| 10 | Subagent | A | G+P | union |
-| 11 | Skill | A | G+P | union |
-| 12 | Slash command (legacy) | A | G+P | union |
-| 13 | Output style | A | G+P | union |
+| 10 | Subagent | A | M+CLI+P+G+Plugin | override (`Project > User`, vedi C.2) |
+| 11 | Skill | A | E+G+P+Plugin | override (`User > Project`, plugin namespaced) |
+| 12 | Slash command (legacy) | A | G+P | mergiato in skill |
+| 13 | Output style | A | G+P | override (presunto) |
 | 14 | Hook | A | G+P | union |
-| 15 | MCP server | A | G+P (file diversi) | union |
+| 15 | MCP server | A | local+project+user+plugin+conn | override per `name` |
 | 16 | Channel | A | P | n/a |
-| 17 | Plugin ⏬ | A | G+P | union |
+| 17 | Plugin ⏬ | A | G+P | varies (per componente) |
 | 18 | Status line | A | G+P | override |
 | 19 | Keybindings | A | G | n/a |
 | 20 | Themes ⏬ | A | G | n/a |
@@ -268,53 +280,99 @@ Legenda: ⏬ deprioritized (adapter minimo, ultima fase) · ⛔ fuori scope (alm
 ### Distribuzione (28 risorse totali)
 
 - **Origine**: 22 Anthropic, 6 User scaffolding
-- **Composizione**: 8 union, 6 override, 1 concat (multi-livello), 13 n/a
+- **Composizione**: 1 concat, ~10 override, 2 union pura (hook, path-scoped rules), 1 mergiato (slash command → skill), 1 varies (plugin), ~13 n/a
 - **Stato**: 25 da implementare normalmente, 2 deprioritized (Plugin, Themes), 1 fuori scope (Checkpointing); più 1 pilastro separato (Conversation history)
 - **Postura prevalente**: ~12 RW (full edit utile), ~13 RM (read-mostly + quick-edit), il resto RO o specializzati
 
-→ La modalità dominante è `union` (estensioni: agents/skills/commands/hooks/output-styles/MCP). Conferma che la vista più frequente è "lista unica con badge dello scope".
+→ La modalità dominante è `override` gerarchico (settings family + estensioni: agents/skills/output-styles/MCP). Un singolo render `override` di qualità copre la maggioranza delle risorse.
 → Il pattern `concat` è raro ma centrale (CLAUDE.md). Una sola riga, ma la più complessa: 6 livelli di scope, imports, exclude, condizionalità.
-→ `override` è quasi tutto in `settings.json` e dintorni.
+→ `union` pura sopravvive solo su hooks e path-scoped rules — non più la modalità dominante come ipotizzato inizialmente.
+→ **Asimmetria gerarchica**: la direzione di `override` non è uniforme. Subagents privilegia il livello più vicino (project shadowa user), skills l'opposto (user shadowa project). L'UI deve esporre la direzione esplicitamente per ogni famiglia.
 
 ---
 
 ## J. Open questions
 
-### Risolte in discussione 2026-04-26
+### Risolte in discussione 2026-04-26 (prima tornata)
 
-1. ✅ **Collisione di nomi** per agents/skills/commands/hooks → strategia: **coesistenza con disambiguazione + edit**. Render `union` mostra entrambi con badge `[G]`/`[P]`, marca `shadowed` se runtime sceglie uno solo, identità per `name:` di frontmatter (non solo filename). Per hooks: pura union, no shadowing. Resta da **verificare la semantica runtime esatta** (locale vince? errore?) per agents/skills prima di scrivere l'adapter.
-2. ✅ **`.rules/` workspace** → **obsoleta**, rimossa dal modello (vedi sezione G.2).
-3. ✅ **Conversation history** → **pilastro separato (sezione L)**, non adapter.
-4. ✅ **Plugins** → **deprioritized**, adapter minimo list-only, ultima priorità.
-5. ✅ **Auto-memory encoding** → `<repo-path>` con `/` → `-`. Verificato.
-6. ✅ **Themes** → deprioritized, una riga nello schema, ultima fase.
-7. ✅ **Checkpointing** → **fuori scope** prima fase.
-8. ✅ **`.worktreeinclude`** → fuori scope, listato in H per esaustività.
+1. ✅ **`.rules/` workspace** → **obsoleta**, rimossa dal modello (vedi sezione G.2).
+2. ✅ **Conversation history** → **pilastro separato (sezione L)**, non adapter.
+3. ✅ **Plugins** → **deprioritized**, adapter minimo list-only, ultima priorità.
+4. ✅ **Auto-memory encoding** → `<repo-path>` con `/` → `-`. Verificato.
+5. ✅ **Themes** → deprioritized, una riga nello schema, ultima fase.
+6. ✅ **Checkpointing** → **fuori scope** prima fase.
+7. ✅ **`.worktreeinclude`** → fuori scope, listato in H per esaustività.
+
+### Risolte in discussione 2026-04-26 (seconda tornata, J.1-J.5)
+
+8. ✅ **J.1 — Semantica runtime di shadowing**. Verificata via doc Anthropic ufficiale (`code.claude.com/docs/en/sub-agents`, `/skills`, `/mcp`). Risultato: **non è `union` come ipotizzato, è `override` gerarchico** ma con **gerarchie diverse per famiglia**:
+   - Subagents: `Managed > CLI > Project > User > Plugin` (project shadowa user).
+   - Skills: `Enterprise > User > Project` (user shadowa project — opposto agli agents). Plugin namespaced `plugin:skill`, no conflict.
+   - Slash commands legacy: mergiati in skills, skill > command per stesso nome.
+   - MCP server: `Local > Project > User > Plugin > Connectors` (vedi J.5).
+   - Hooks: `union` pura, tutti i livelli si attivano, no shadowing.
+   - Output styles: presunto `override`, da verificare empiricamente.
+
+   **Implicazioni**: il render `union` ipotizzato in prima tornata diventa `override` (merge resolver con shadowed-list). I 5 pattern di rendering della sezione K si riducono a 4. La direzione di gerarchia va esposta esplicitamente per famiglia nell'UI — non è uniforme.
+
+9. ✅ **J.2 — Promote-scope**. Risoluzione: **quick-action contestuale del render `override`**, non operazione top-level. Frequenza prevista bassa in steady-state, alta ora durante setup config (~1 ogni 2-3 sessioni) e quando Anthropic riorganizza i path. Implementazione: filesystem mv + git operations sul progetto sorgente/destinazione (`git mv` cross-tree NON funziona — la home è fuori dal working tree del repo, serve `mv` plain + `git add` per registrare la deletion). L'adapter incapsula la sequenza corretta.
+
+10. ✅ **J.3 — Discovery ancestor CLAUDE.md**. Risoluzione: **viewer puro fase 1**, fedele a ciò che Claude effettivamente carica (walk-up del filesystem applicato esattamente come fa il runtime). **Diagnostic layer fase 2 emergente**, scope definito dall'uso — seed iniziale: drift cleanup quando si cambia configurazione. Eleva a principio architettonico trasversale: *dev-dash mostra runtime truth, non spec* — vedi sezione K.
+
+11. ✅ **J.4 — `claudeMdExcludes`**. Risoluzione: stesso pattern di J.3 — **applicazione fase 1** (la chain mostrata = chain effettivamente caricata, file marcati `excluded` se matchati da un pattern), **gestione fase 2** (UI add/remove pattern). Caso particolare del principio "view-of-truth runtime + management come nice-to-have".
+
+12. ✅ **J.5 — Composizione MCP**. Verificata via doc ufficiale. Risultato: **`override` per nome del server**, non union. Tre scope distinti su due file:
+    - `local` in `~/.claude.json` (per-project, sotto la chiave del progetto, default)
+    - `project` in `./.mcp.json` (shared, designato per version control)
+    - `user` in `~/.claude.json` (top-level, cross-project)
+
+    Gerarchia: `Local > Project > User > Plugin > Connectors`. Plugins/connectors matchano per endpoint (URL/command). **Implicazione**: `~/.claude.json` non è "user-scope only" — l'adapter MCP deve separare le due aree.
 
 ### Aperte
 
-- **J.1 — Semantica runtime di shadowing per agents/skills**. Quando un agent di nome `X` esiste sia globalmente che in progetto, cosa fa Claude a runtime? Locale vince silenziosamente? Errore? Coesistono con disambiguatore tipo `X@global` / `X@project`? *Vale per ogni tipo (agent, skill, command, hook, MCP server) o cambia?* Verifica via doc + test prima di scrivere il render `union`. Nota: per hooks la doc è chiara (tutti si attivano, no shadowing).
-- **J.2 — Promozione di scope**. Workflow utile in dev-dash? Es. "promuovi questo agent da locale a globale" (o viceversa). È un'operazione che fai abbastanza spesso da meritare un comando dedicato, o è raro come "git mv" e basta che sia possibile a mano?
-- **J.3 — Catena CLAUDE.md su filesystem reale**. Il walk-up di ancestor directories può scoprire CLAUDE.md inattesi (es. `/data/repos/CLAUDE.md` se mai esistesse). Dev-dash deve **scoprirli proattivamente** e mostrarli, o solo elencare ciò che trova senza commentare? Il caso d'uso interessante: scoprire che un ancestor sta iniettando contenuto che non sapevi.
-- **J.4 — `claudeMdExcludes`**: dev-dash deve solo **applicare** gli exclude (mostrare cosa è effettivamente caricato) o anche **gestirli** (UI per aggiungere/rimuovere pattern)? La gestione è quick-edit di un campo JSON, banale; il valore è esporre la presenza dell'exclude.
-- **J.5 — `.mcp.json` semantica**: come si compongono `~/.claude.json` (user-scope) e `./.mcp.json` (project-scope)? Union? Override per nome del server? Verifica.
+*(nessuna al 2026-04-26 — tutte le OQ del modello base sono risolte. Restano i pilastri 5 e 6 con spec dedicate da scrivere — vedi L e M.)*
 
 ---
 
 ## K. Implicazioni architettoniche
 
+### K.1 — Pattern di rendering
+
 Quattro pattern di rendering, derivati dalla colonna *Composizione*:
 
-1. **`concat-render`**: due (o più) viste affiancate con ordine di concatenazione esplicito. Usato da: CLAUDE.md user/project.
-2. **`override-render` (merge resolver)**: vista chiave-per-chiave che mostra origine e vincitore. Usato da: settings.json e tutto ciò che vive dentro.
-3. **`union-render` (lista con badge)**: lista unica, badge `[G]`/`[P]`, collisioni di nome evidenziate. Usato da: agents, skills, commands, hooks, MCP, output-styles, plugins, path-scoped rules.
-4. **`single-render`**: vista singola, niente da comporre. Usato da: tutto il resto.
+1. **`concat-render`**: due (o più) viste affiancate con ordine di concatenazione esplicito. Usato da: catena CLAUDE.md (multi-livello).
+2. **`override-render` (merge resolver)**: vista chiave-per-chiave che mostra il **vincitore** e i livelli **shadowati** dietro, con direzione di gerarchia esplicita per famiglia. Usato da: settings.json e dintorni, subagents, skills, output styles, MCP server, slash commands legacy. **È il pattern dominante** del modello (~10 risorse).
+3. **`union-render` (lista con badge)**: lista unica con badge `[G]`/`[P]` per provenienza, **nessuno shadowing** (tutti i livelli attivi). Usato solo da: hooks, path-scoped rules.
+4. **`single-render`**: vista singola, niente da comporre. Usato da: tutto il resto (auto-memory, agent memory, keybindings, themes, channel, e tutti gli artefatti scaffolding utente).
 
 Più un quinto pattern dedicato:
 
 5. **`history-render`**: search full-text + navigazione cronologica. Solo per conversation history. Architettonicamente diverso, da progettare a parte.
 
-→ **Il "core" di dev-dash è 5 render + N adapter.** Quando Anthropic introduce qualcosa di nuovo, scegli il render giusto e scrivi un adapter da 30 righe.
+→ **Il "core" di dev-dash è 4 render principali + 1 dedicato + N adapter.** Quando Anthropic introduce qualcosa di nuovo, scegli il render giusto e scrivi un adapter sottile.
+
+### K.2 — Principio trasversale: view-of-truth runtime
+
+Emerso da J.3 e J.4, vale per **tutti gli adapter** del modello: **dev-dash mostra ciò che Claude effettivamente carica a runtime, non ciò che è dichiarato sulla carta**. Implicazioni concrete:
+
+- **CLAUDE.md catena**: applicare `claudeMdExcludes`, risolvere `@`-imports come fa Claude (limite 5 hop), rispettare `--add-dir` se rilevante.
+- **Subagents/skills/commands/MCP**: applicare la gerarchia di shadowing di J.1 — la riga "vincente" è quella che Claude usa, le altre sono mostrate come `shadowed`.
+- **Path-scoped rules**: indicare che il caricamento è **condizionale** sui `paths:` glob — esporre i pattern, segnalare se la rule è attualmente attiva nel contesto in cui dev-dash è aperto.
+- **Hooks**: indicare quale levels sono attivi per quale evento.
+
+Niente "view-of-spec" parallela. Una sola vista, fedele al runtime. Filosofia coerente con `overview.md`: "DevDash manages documentation and context. Claude Code manages execution and automation" — la trasparenza sul runtime *è* gestione del contesto.
+
+### K.3 — Layer diagnostico (fase 2, emergente)
+
+Sopra il viewer base, un layer opzionale che fa **interpretazione attiva** su quanto il viewer mostra. Scope definito dall'uso, non specificato in anticipo. Seed iniziali (J.3, J.4, dalla discussione):
+
+- Drift cleanup quando si cambia configurazione
+- Segnalare ancestor CLAUDE.md inattesi
+- Diff dall'ultima sessione su file di config rilevanti
+- Pattern import circolari o `@`-targets cancellati
+- Catene CLAUDE.md inusualmente lunghe in token count
+
+Costruirlo dopo aver familiarizzato col viewer base. Il rischio è generare rumore se i segnali sono troppi o mal calibrati.
 
 ---
 
