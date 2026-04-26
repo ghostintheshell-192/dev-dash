@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Windows.Input;
 using Avalonia.Controls;
 using Avalonia.Input;
+using LiveMarkdown.Avalonia;
 using DevDash.ViewModels;
 
 namespace DevDash.Views;
@@ -11,6 +12,7 @@ public partial class MainWindow : Window
 {
     private MainWindowViewModel? _viewModel;
     private DocumentTabViewModel? _currentDocument;
+    private readonly ObservableStringBuilder _markdownBuilder = new();
 
     public MainWindow()
     {
@@ -61,10 +63,12 @@ public partial class MainWindow : Window
             _currentDocument.PropertyChanged += OnDocumentPropertyChanged;
         }
 
-        // Update the viewer
-        if (MarkdownViewer != null)
+        // Update the viewer via ObservableStringBuilder
+        _markdownBuilder.Clear();
+        var content = doc?.Content ?? string.Empty;
+        if (!string.IsNullOrEmpty(content))
         {
-            MarkdownViewer.Markdown = doc?.Content ?? string.Empty;
+            _markdownBuilder.Append(content);
         }
     }
 
@@ -73,19 +77,24 @@ public partial class MainWindow : Window
         if (e.PropertyName == nameof(DocumentTabViewModel.Content) ||
             e.PropertyName == nameof(DocumentTabViewModel.RawContent))
         {
-            if (MarkdownViewer != null && _currentDocument != null)
+            if (_currentDocument != null)
             {
-                MarkdownViewer.Markdown = _currentDocument.Content;
+                _markdownBuilder.Clear();
+                if (!string.IsNullOrEmpty(_currentDocument.Content))
+                {
+                    _markdownBuilder.Append(_currentDocument.Content);
+                }
             }
         }
     }
 
     private void OnLoaded(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        // Configure hyperlink command
-        if (MarkdownViewer?.Engine is Markdown.Avalonia.Markdown mdEngine)
+        // Wire up the ObservableStringBuilder and link command
+        if (MarkdownViewer != null)
         {
-            mdEngine.HyperlinkCommand = new MarkdownLinkCommand(this);
+            MarkdownViewer.MarkdownBuilder = _markdownBuilder;
+            MarkdownViewer.LinkCommand = new MarkdownLinkCommand(this);
         }
 
         // Initial content update (in case DataContextChanged fired before MarkdownViewer was ready)
@@ -110,9 +119,9 @@ public partial class MainWindow : Window
 
         public void Execute(object? parameter)
         {
-            if (parameter is string url && _window.DataContext is MainWindowViewModel vm)
+            if (parameter is LinkClickedEventArgs args && _window.DataContext is MainWindowViewModel vm)
             {
-                vm.HandleMarkdownLinkCommand.Execute(url);
+                vm.HandleMarkdownLinkCommand.Execute(args.HRef?.ToString() ?? string.Empty);
             }
         }
     }

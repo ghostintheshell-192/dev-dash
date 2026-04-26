@@ -4,7 +4,7 @@
         xmlns:views="using:DevDash.Views"
         xmlns:controls="using:DevDash.Views.Controls"
         xmlns:models="using:DevDash.Models"
-        xmlns:md="clr-namespace:Markdown.Avalonia;assembly=Markdown.Avalonia"
+        xmlns:md="clr-namespace:LiveMarkdown.Avalonia;assembly=LiveMarkdown.Avalonia"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
@@ -493,7 +493,7 @@
 
                             <!-- Markdown viewer -->
                             <Border Grid.Row="3" Background="{DynamicResource BgPrimary}" BorderBrush="{DynamicResource BgTertiary}" BorderThickness="1" CornerRadius="8" Padding="16">
-                                <md:MarkdownScrollViewer x:Name="MarkdownViewer" DataContext="{x:Null}"/>
+                                <md:MarkdownRenderer x:Name="MarkdownViewer" CodeBlockColorTheme="DarkPlus"/>
                             </Border>
                         </Grid>
 

@@ -6,13 +6,18 @@
              RequestedThemeVariant="Dark">
 
     <Application.Resources>
-        <converters:PriorityToBrushConverter x:Key="PriorityToBrushConverter"/>
-        <converters:PriorityToForegroundConverter x:Key="PriorityToForegroundConverter"/>
-        <converters:PriorityIsNotNoneConverter x:Key="PriorityIsNotNoneConverter"/>
-        <converters:StringEqualsConverter x:Key="StringEqualsConverter"/>
-        <converters:EnumEqualsConverter x:Key="EnumEqualsConverter"/>
-        <converters:EnumNotEqualsConverter x:Key="EnumNotEqualsConverter"/>
-        <converters:BoolToColorConverter x:Key="BoolToColorConverter"/>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceInclude Source="avares://LiveMarkdown.Avalonia/Defaults.axaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <converters:PriorityToBrushConverter x:Key="PriorityToBrushConverter"/>
+            <converters:PriorityToForegroundConverter x:Key="PriorityToForegroundConverter"/>
+            <converters:PriorityIsNotNoneConverter x:Key="PriorityIsNotNoneConverter"/>
+            <converters:StringEqualsConverter x:Key="StringEqualsConverter"/>
+            <converters:EnumEqualsConverter x:Key="EnumEqualsConverter"/>
+            <converters:EnumNotEqualsConverter x:Key="EnumNotEqualsConverter"/>
+            <converters:BoolToColorConverter x:Key="BoolToColorConverter"/>
+        </ResourceDictionary>
     </Application.Resources>
 
     <Application.DataTemplates>
@@ -21,6 +26,7 @@
 
     <Application.Styles>
         <FluentTheme />
+        <StyleInclude Source="avares://LiveMarkdown.Avalonia/Styles.axaml"/>
         <StyleInclude Source="avares://DevDash/Styles/_Index.axaml"/>
     </Application.Styles>
 </Application>
