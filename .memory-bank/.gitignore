@@ -5,3 +5,6 @@ sessions/
 *.md
 !README.md
 !_archive-*.md
+
+# Tangential idea notes ARE tracked (durable artifacts, not session ephemera)
+!ideas/*.md
