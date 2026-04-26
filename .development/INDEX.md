@@ -85,8 +85,8 @@
 
 ## Recently Modified (last 7 days)
 
-1. [resource-model.md](reference/technical/resource-model.md) (today)
-2. [INDEX.md](INDEX.md) (today)
+1. [INDEX.md](INDEX.md) (today)
+2. [resource-model.md](reference/technical/resource-model.md) (today)
 3. [feature-code-graph.md](specs/in-progress/feature-code-graph.md) (today)
 4. [README.md](tech-debt/README.md) (today)
 5. [README.md](README.md) (today)
