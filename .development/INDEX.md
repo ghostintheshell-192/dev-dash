@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-04-26 00:33*
+*Auto-generated: 2026-04-26 21:17*
 
 ---
 
@@ -19,9 +19,9 @@
 
 ### (root)/ (4 files)
 
-- [ARCHITECTURE.md](ARCHITECTURE.md) (4KB, 2026-04-26) **RECENT**
-- [INDEX.md](INDEX.md) (2KB, 2026-04-26) **RECENT**
+- [INDEX.md](INDEX.md) (3KB, 2026-04-26) **RECENT**
 - [README.md](README.md) (2KB, 2026-04-26) **RECENT**
+- [ARCHITECTURE.md](ARCHITECTURE.md) (4KB, 2026-04-26) **RECENT**
 - [CURRENT-STATUS.md](CURRENT-STATUS.md) (8KB, 2026-02-10)
 
 ### specs/ (2 files)
@@ -31,13 +31,13 @@
 
 ### specs/archived/ (1 files)
 
-- [feature-embedded-terminal.md](specs/archived/feature-embedded-terminal.md) (5KB, 2026-02-10)
+- [feature-embedded-terminal.md](specs/archived/feature-embedded-terminal.md) (5KB, 2026-04-26) **RECENT**
 
 ### specs/planned/ (3 files)
 
-- [feature-claude-context.md](specs/planned/feature-claude-context.md) (11KB, 2026-02-10)
-- [feature-issue-management.md](specs/planned/feature-issue-management.md) (18KB, 2026-02-10)
-- [feature-markdown-rendering.md](specs/planned/feature-markdown-rendering.md) (10KB, 2026-02-10)
+- [feature-claude-context.md](specs/planned/feature-claude-context.md) (11KB, 2026-04-26) **RECENT**
+- [feature-issue-management.md](specs/planned/feature-issue-management.md) (18KB, 2026-04-26) **RECENT**
+- [feature-markdown-rendering.md](specs/planned/feature-markdown-rendering.md) (10KB, 2026-04-26) **RECENT**
 
 ### tech-debt/ (5 files)
 
@@ -55,6 +55,10 @@
 - [006-desktop-vs-vscode-extension.md](reference/decisions/006-desktop-vs-vscode-extension.md) (3KB, 2026-02-10)
 - [007-rimozione-terminale-embedded.md](reference/decisions/007-rimozione-terminale-embedded.md) (6KB, 2026-02-10)
 - [README.md](reference/decisions/README.md) (1KB, 2026-02-10)
+
+### reference/technical/ (1 files)
+
+- [resource-model.md](reference/technical/resource-model.md) (26KB, 2026-04-26) **RECENT**
 
 ### archive/analysis/ (1 files)
 
@@ -77,12 +81,16 @@
 
 ## Recently Modified (last 7 days)
 
-1. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
-2. [README.md](tech-debt/README.md) (today)
-3. [INDEX.md](INDEX.md) (today)
+1. [resource-model.md](reference/technical/resource-model.md) (today)
+2. [INDEX.md](INDEX.md) (today)
+3. [README.md](tech-debt/README.md) (today)
 4. [README.md](README.md) (today)
-5. [_TEMPLATE.md](tech-debt/_TEMPLATE.md) (today)
-6. [README.md](specs/README.md) (today)
+5. [README.md](specs/README.md) (today)
+6. [feature-embedded-terminal.md](specs/archived/feature-embedded-terminal.md) (today)
+7. [feature-claude-context.md](specs/planned/feature-claude-context.md) (today)
+8. [feature-issue-management.md](specs/planned/feature-issue-management.md) (today)
+9. [feature-markdown-rendering.md](specs/planned/feature-markdown-rendering.md) (today)
+10. [_TEMPLATE.md](tech-debt/_TEMPLATE.md) (today)
 
 ---
 
