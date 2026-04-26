@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-04-26 19:27*
+*Auto-generated: 2026-04-26 21:17*
 
 ---
 
@@ -24,13 +24,9 @@
 - [ARCHITECTURE.md](ARCHITECTURE.md) (4KB, 2026-04-26) **RECENT**
 - [CURRENT-STATUS.md](CURRENT-STATUS.md) (8KB, 2026-02-10)
 
-### specs/ (6 files)
+### specs/ (2 files)
 
 - [README.md](specs/README.md) (2KB, 2026-04-26) **RECENT**
-- [feature-claude-context.md](specs/feature-claude-context.md) (11KB, 2026-04-26) **RECENT**
-- [feature-embedded-terminal.md](specs/feature-embedded-terminal.md) (5KB, 2026-04-26) **RECENT**
-- [feature-issue-management.md](specs/feature-issue-management.md) (18KB, 2026-04-26) **RECENT**
-- [feature-markdown-rendering.md](specs/feature-markdown-rendering.md) (10KB, 2026-04-26) **RECENT**
 - [roadmap.md](specs/roadmap.md) (3KB, 2026-02-10)
 
 ### specs/archived/ (1 files)
@@ -62,7 +58,7 @@
 
 ### reference/technical/ (1 files)
 
-- [resource-model.md](reference/technical/resource-model.md) (17KB, 2026-04-26) **RECENT**
+- [resource-model.md](reference/technical/resource-model.md) (26KB, 2026-04-26) **RECENT**
 
 ### archive/analysis/ (1 files)
 
