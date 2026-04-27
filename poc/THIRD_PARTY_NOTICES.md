@@ -34,8 +34,17 @@ internationalization removed). The original template can be found at
 - License: MIT
 - Downloaded on first configure into the build directory (see `cmake/get_cpm.cmake`).
 
-## SDL3 / Vulkan
+## SDL3
 
-Provided by the host system (apt packages on Debian/Ubuntu:
-`libsdl3-dev`, `libvulkan-dev`, `vulkan-utility-libraries-dev`).
-Not redistributed in this repo.
+- Source: <https://github.com/libsdl-org/SDL>
+- Version: 3.2.20 (tag `release-3.2.20`)
+- License: Zlib
+- Built from source via CPM as a static library. Debian 12 (bookworm) does
+  not yet ship `libsdl3-dev`; the in-tree build avoids the dependency on a
+  specific OS version.
+
+## Vulkan
+
+Provided by the host system (`libvulkan-dev` on Debian/Ubuntu). Not
+redistributed in this repo. The Vulkan loader is dynamically linked at
+runtime as usual.

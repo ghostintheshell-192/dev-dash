@@ -1,5 +1,28 @@
 set(CMAKE_FOLDER "external")
 
+# ----- SDL3 -----
+#
+# Built from source via CPM. Debian 12 (bookworm) does not yet ship libsdl3-dev
+# (SDL3 stable arrived early 2025 and lands in Debian with trixie). Pulling
+# SDL3 in via CPM removes the version-of-system dependency and gives us the
+# same behaviour on any reasonably-recent Linux.
+#
+# Builds as a static library to avoid worrying about runtime .so paths.
+# SDL_TESTS / SDL_EXAMPLES off — we only want the library.
+
+CPMAddPackage(
+    NAME SDL3
+    VERSION 3.2.20
+    GITHUB_REPOSITORY libsdl-org/SDL
+    GIT_TAG release-3.2.20
+    OPTIONS
+        "SDL_TEST_LIBRARY OFF"
+        "SDL_TESTS OFF"
+        "SDL_EXAMPLES OFF"
+        "SDL_SHARED OFF"
+        "SDL_STATIC ON"
+)
+
 # ----- vk-bootstrap -----
 
 CPMAddPackage(
@@ -54,8 +77,8 @@ target_include_directories(ImGui
 )
 
 # ----- ImGui SDL3 backend -----
-
-find_package(SDL3 REQUIRED)
+# (SDL3 itself is built above via CPM; the SDL3::SDL3 / SDL3::SDL3-static
+# targets are exported by SDL's own CMake.)
 
 add_library(ImGui-SDL3 STATIC)
 
@@ -68,7 +91,7 @@ target_sources(ImGui-SDL3
 target_link_libraries(ImGui-SDL3
     PUBLIC
         ImGui
-        SDL3::SDL3
+        SDL3::SDL3-static
 )
 
 target_include_directories(ImGui-SDL3 PUBLIC ${ImGui_SOURCE_DIR}/backends)
