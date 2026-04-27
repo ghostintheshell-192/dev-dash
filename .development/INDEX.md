@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-04-27 20:53*
+*Auto-generated: 2026-04-27 22:49*
 
 ---
 
@@ -82,8 +82,8 @@
 
 ## Recently Modified (last 7 days)
 
-1. [feature-code-graph.md](specs/planned/feature-code-graph.md) (today)
-2. [INDEX.md](INDEX.md) (today)
+1. [INDEX.md](INDEX.md) (today)
+2. [feature-code-graph.md](specs/planned/feature-code-graph.md) (today)
 3. [README.md](tech-debt/README.md) (today)
 4. [resource-model.md](reference/technical/resource-model.md) (today)
 5. [README.md](README.md) (1d ago)
