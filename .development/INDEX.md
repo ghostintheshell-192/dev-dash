@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-04-26 23:21*
+*Auto-generated: 2026-04-27 20:36*
 
 ---
 
@@ -19,7 +19,7 @@
 
 ### (root)/ (4 files)
 
-- [INDEX.md](INDEX.md) (3KB, 2026-04-26) **RECENT**
+- [INDEX.md](INDEX.md) (3KB, 2026-04-27) **RECENT**
 - [README.md](README.md) (2KB, 2026-04-26) **RECENT**
 - [ARCHITECTURE.md](ARCHITECTURE.md) (4KB, 2026-04-26) **RECENT**
 - [CURRENT-STATUS.md](CURRENT-STATUS.md) (8KB, 2026-02-10)
@@ -45,7 +45,7 @@
 
 ### tech-debt/ (5 files)
 
-- [README.md](tech-debt/README.md) (2KB, 2026-04-26) **RECENT**
+- [README.md](tech-debt/README.md) (2KB, 2026-04-27) **RECENT**
 - [_TEMPLATE.md](tech-debt/_TEMPLATE.md) (1KB, 2026-04-26) **RECENT**
 - [contentcontrol-binding-multisidebar.md](tech-debt/contentcontrol-binding-multisidebar.md) (2KB, 2026-02-10)
 - [scaffold-architecture-scripts.md](tech-debt/scaffold-architecture-scripts.md) (<1KB, 2026-02-10)
@@ -86,15 +86,15 @@
 ## Recently Modified (last 7 days)
 
 1. [INDEX.md](INDEX.md) (today)
-2. [resource-model.md](reference/technical/resource-model.md) (today)
-3. [feature-code-graph.md](specs/in-progress/feature-code-graph.md) (today)
-4. [README.md](tech-debt/README.md) (today)
-5. [README.md](README.md) (today)
-6. [README.md](specs/README.md) (today)
-7. [feature-embedded-terminal.md](specs/archived/feature-embedded-terminal.md) (today)
-8. [feature-claude-context.md](specs/planned/feature-claude-context.md) (today)
-9. [feature-issue-management.md](specs/planned/feature-issue-management.md) (today)
-10. [feature-markdown-rendering.md](specs/planned/feature-markdown-rendering.md) (today)
+2. [README.md](tech-debt/README.md) (today)
+3. [resource-model.md](reference/technical/resource-model.md) (today)
+4. [feature-code-graph.md](specs/in-progress/feature-code-graph.md) (today)
+5. [README.md](README.md) (1d ago)
+6. [README.md](specs/README.md) (1d ago)
+7. [feature-embedded-terminal.md](specs/archived/feature-embedded-terminal.md) (1d ago)
+8. [feature-claude-context.md](specs/planned/feature-claude-context.md) (1d ago)
+9. [feature-issue-management.md](specs/planned/feature-issue-management.md) (1d ago)
+10. [feature-markdown-rendering.md](specs/planned/feature-markdown-rendering.md) (1d ago)
 
 ---
 
