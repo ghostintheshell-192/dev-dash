@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-04-27 20:36*
+*Auto-generated: 2026-04-27 20:53*
 
 ---
 
@@ -33,12 +33,9 @@
 
 - [feature-embedded-terminal.md](specs/archived/feature-embedded-terminal.md) (5KB, 2026-04-26) **RECENT**
 
-### specs/in-progress/ (1 files)
+### specs/planned/ (4 files)
 
-- [feature-code-graph.md](specs/in-progress/feature-code-graph.md) (7KB, 2026-04-26) **RECENT**
-
-### specs/planned/ (3 files)
-
+- [feature-code-graph.md](specs/planned/feature-code-graph.md) (8KB, 2026-04-27) **RECENT**
 - [feature-claude-context.md](specs/planned/feature-claude-context.md) (11KB, 2026-04-26) **RECENT**
 - [feature-issue-management.md](specs/planned/feature-issue-management.md) (18KB, 2026-04-26) **RECENT**
 - [feature-markdown-rendering.md](specs/planned/feature-markdown-rendering.md) (10KB, 2026-04-26) **RECENT**
@@ -85,10 +82,10 @@
 
 ## Recently Modified (last 7 days)
 
-1. [INDEX.md](INDEX.md) (today)
-2. [README.md](tech-debt/README.md) (today)
-3. [resource-model.md](reference/technical/resource-model.md) (today)
-4. [feature-code-graph.md](specs/in-progress/feature-code-graph.md) (today)
+1. [feature-code-graph.md](specs/planned/feature-code-graph.md) (today)
+2. [INDEX.md](INDEX.md) (today)
+3. [README.md](tech-debt/README.md) (today)
+4. [resource-model.md](reference/technical/resource-model.md) (today)
 5. [README.md](README.md) (1d ago)
 6. [README.md](specs/README.md) (1d ago)
 7. [feature-embedded-terminal.md](specs/archived/feature-embedded-terminal.md) (1d ago)
