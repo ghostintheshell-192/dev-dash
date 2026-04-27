@@ -24,10 +24,15 @@ CPMAddPackage(
 )
 
 # ----- vk-bootstrap -----
+#
+# Pinned to 1.3.302 (last release of the 1.3.x branch). vk-bootstrap 1.4.x
+# requires Vulkan 1.4 headers, which Debian 12 — even with bookworm-backports —
+# does not provide yet. Once we move to a host with Vulkan 1.4 headers
+# available (Debian 13 / current Fedora / SDK install), bump this back to 1.4.x.
 
 CPMAddPackage(
     NAME vk-bootstrap
-    VERSION 1.4.336
+    VERSION 1.3.302
     GITHUB_REPOSITORY charles-lunarg/vk-bootstrap
 )
 

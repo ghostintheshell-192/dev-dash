@@ -23,7 +23,8 @@ internationalization removed). The original template can be found at
 ## vk-bootstrap
 
 - Source: <https://github.com/charles-lunarg/vk-bootstrap>
-- Version: 1.4.336
+- Version: 1.3.302 (last release of the 1.3.x branch; pinned to match the
+  Vulkan 1.3 headers shipped on Debian 12 / bookworm-backports).
 - License: MIT
 - Pulled in at configure time via CPM.
 
