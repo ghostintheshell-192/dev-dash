@@ -13,8 +13,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="..\..\rsrc\workspace-scaffold\**\*">
-      <Link>rsrc\workspace-scaffold\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    <EmbeddedResource Include="..\..\rsrc\project-scaffold\**\*">
+      <Link>rsrc\project-scaffold\%(RecursiveDir)%(Filename)%(Extension)</Link>
     </EmbeddedResource>
   </ItemGroup>
 
