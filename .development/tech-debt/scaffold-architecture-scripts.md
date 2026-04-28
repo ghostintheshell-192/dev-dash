@@ -19,7 +19,7 @@ The scaffold creates `.development/scripts/` but doesn't include these scripts.
 
 ## Affected Files
 
-- `rsrc/workspace-scaffold/.development/scripts/generate-architecture.sh`
-- `rsrc/workspace-scaffold/.development/scripts/extract-summary.sh` (C#)
-- `rsrc/workspace-scaffold/.development/scripts/extract-summary.py` (Python)
+- `rsrc/project-scaffold/.development/scripts/generate-architecture.sh`
+- `rsrc/project-scaffold/.development/scripts/extract-summary.sh` (C#)
+- `rsrc/project-scaffold/.development/scripts/extract-summary.py` (Python)
 - `src/DevDash/Services/ScaffoldService.cs` — add new template variables
