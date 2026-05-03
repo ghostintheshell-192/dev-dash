@@ -62,3 +62,37 @@
       }
   }
   ```
+
+---
+
+## C++ Conventions (PoC under `poc/`)
+
+Applies to all C++ code in the C++/ImGui PoC, including code ported from
+external sources (Germen Pulchrum). Borrowed code is translated to these
+conventions on the way in — the source project's style is not preserved.
+
+| Element | Convention | Example |
+| ------- | ---------- | ------- |
+| File names | `snake_case.cpp` / `snake_case.h` | `renderer.cpp` |
+| Types (class, struct, enum) | `PascalCase` | `class DeletionQueue` |
+| Member functions & free functions | `PascalCase` | `void Init();` |
+| Local variables & parameters | `camelCase` | `uint32_t apiVersion` |
+| Private member fields | `_camelCase` | `VkDevice _device;` |
+| Constants (`constexpr`) | `kPascalCase` | `constexpr int kMaxFramesInFlight = 3;` |
+| Namespaces | `snake_case` (sparingly; nest only when needed) | `namespace dev_dash::renderer` |
+| Indentation | 4 spaces | — |
+| Braces | Allman (open brace on its own line) | — |
+| `std::` qualification | Always explicit; never `using namespace std` | `std::printf(...)` |
+
+**Why these choices**:
+
+- `PascalCase` for types and member functions stays coherent with the .NET side
+  of the codebase, so future C# bindings (if needed) read symmetrically.
+- The `k`-prefix for constants comes from the Google C++ style — it makes a
+  constant visually distinct from a type at the call site, which matters in
+  ImGui/Vulkan code where types and constants are densely interleaved.
+- Allman braces and 4-space indent match the style established in
+  `poc/src/main.cpp` at Step 1.
+
+When porting Italian-named identifiers from Germen, translate to English
+*and* re-style in one pass — never carry over the Italian/source style.
