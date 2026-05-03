@@ -96,12 +96,56 @@ End of sample.
             std::cerr << "[error] SDL_OpenURL failed for '" << url << "': " << SDL_GetError() << '\n';
     }
 
+    // Bridge styling for emphasis and code while we don't have a font system.
+    // Defers to defaultMarkdownFormatCallback first so heading separators and
+    // link hover colours are preserved; then layers our own colour pushes for
+    // the categories the default treats as plain text. Each branch pushes once
+    // on start and pops once on end, so the style stack stays balanced even
+    // though defaults and ours interleave.
+    void OnMarkdownFormat(const ImGui::MarkdownFormatInfo &info, bool start)
+    {
+        ImGui::defaultMarkdownFormatCallback(info, start);
+
+        switch (info.type)
+        {
+            case ImGui::MarkdownFormatType::EMPHASIS:
+                if (start)
+                {
+                    // Bold goes to pale cyan rather than pure white because
+                    // ImGui dark theme already paints body text at full
+                    // (1, 1, 1, 1) — there's no headroom above. A cool tint
+                    // also keeps bold visually distinct from the warm yellow
+                    // we use for code.
+                    const ImVec4 colour = (info.level == 1)
+                        ? ImVec4(0.65f, 0.65f, 0.65f, 1.0f)  // italic: muted grey
+                        : ImVec4(0.70f, 0.90f, 1.00f, 1.0f); // bold: pale cyan
+                    ImGui::PushStyleColor(ImGuiCol_Text, colour);
+                }
+                else
+                {
+                    ImGui::PopStyleColor();
+                }
+                break;
+
+            case ImGui::MarkdownFormatType::CODE:
+                if (start)
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.85f, 0.40f, 1.0f));
+                else
+                    ImGui::PopStyleColor();
+                break;
+
+            default:
+                break;
+        }
+    }
+
     const ImGui::MarkdownConfig &MarkdownConfig()
     {
         static const ImGui::MarkdownConfig config = [] {
             ImGui::MarkdownConfig c{};
-            c.linkCallback = OnMarkdownLink;
-            c.formatFlags  = ImGuiMarkdownFormatFlags_CommonMarkAll;
+            c.linkCallback   = OnMarkdownLink;
+            c.formatCallback = OnMarkdownFormat;
+            c.formatFlags    = ImGuiMarkdownFormatFlags_CommonMarkAll;
             // headingFormats left at default (font=NULL, separator=true).
             // Without custom fonts H1/H2/H3 share the default size; the
             // separator underline carries the visual hierarchy.
