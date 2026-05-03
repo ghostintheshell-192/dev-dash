@@ -38,6 +38,27 @@ validated.
 - License: MIT
 - Pulled in at configure time via CPM (see `external/CMakeLists.txt`).
 
+## imgui_markdown
+
+A single-header markdown renderer for Dear ImGui.
+
+- Base library: <https://github.com/enkisoftware/imgui_markdown> by
+  Juliette Foucaut & Doug Binks.
+- License: zlib (see header inline).
+- Vendored at: `external/imgui_markdown/imgui_markdown.h`.
+- Pinned source: `mgerhardy/imgui_markdown` @ `214a836c` (the head of
+  PR <https://github.com/enkisoftware/imgui_markdown/pull/43>,
+  "extend markdown syntax support (tables and code)"). We follow the
+  PR branch instead of upstream main because the PR adds fenced code
+  blocks and tables — features needed to render typical CLAUDE.md /
+  ADR / spec content. The PR has been open without maintainer review
+  since 2026-01-22; if it lands upstream, switch the pin back to
+  `enkisoftware/imgui_markdown` main.
+
+The integration pattern (callback shape, `MarkdownConfig` setup, link
+handler routed through `SDL_OpenURL`) was informed by Germen Pulchrum's
+own markdown integration in PR <https://github.com/DPD85/Germen/pull/4>.
+
 ## vk-bootstrap
 
 - Source: <https://github.com/charles-lunarg/vk-bootstrap>
