@@ -43,15 +43,15 @@ The following rules are automatically loaded from `.claude/rules/`:
 
 ## Documentation Structure
 
-- **[.development/](.development/)** — Operational documentation
-  - **[ARCHITECTURE.md](.development/ARCHITECTURE.md)** — Project tree (auto-generated)
-  - **[CURRENT-STATUS.md](.development/CURRENT-STATUS.md)** — Project state
-  - **[INDEX.md](.development/INDEX.md)** — Auto-generated navigation
-  - `specs/` — Feature specifications
-  - `tech-debt/` — Known issues
-  - `reference/decisions/` — ADRs
-- **[docs/](docs/)** — Public documentation
-- **[.personal/](.personal/)** — Personal notes (not tracked)
+- **[.development/](.development/)** - how the project is made and how it works (operational, canonical source-of-truth, tracked)
+  - **[ARCHITECTURE.md](.development/ARCHITECTURE.md)** - Project tree (auto-generated)
+  - **[CURRENT-STATUS.md](.development/CURRENT-STATUS.md)** - Project state
+  - **[INDEX.md](.development/INDEX.md)** - Auto-generated navigation
+  - `specs/` - Feature specifications
+  - `tech-debt/` - Known issues
+  - `reference/decisions/` - ADRs
+- **[docs/](docs/)** - Public documentation
+- **[.personal/](.personal/)** - what the user thinks about the project and its context (analysis, reflection, exploration, untracked)
 
 ---
 

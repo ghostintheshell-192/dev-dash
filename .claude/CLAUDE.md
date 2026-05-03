@@ -32,7 +32,7 @@ See **critical-rules.md** for critical architecture rules (auto-generated from A
 
 ## Documentation Structure
 
-- **[.development/](.development/)** - Operational documentation
+- **[.development/](.development/)** - how the project is made and how it works (operational, canonical source-of-truth, tracked)
   - **[ARCHITECTURE.md](.development/ARCHITECTURE.md)** - Project tree (auto-generated)
   - **[CURRENT-STATUS.md](.development/CURRENT-STATUS.md)** - Project state
   - **[INDEX.md](.development/INDEX.md)** - Auto-generated navigation
@@ -40,7 +40,7 @@ See **critical-rules.md** for critical architecture rules (auto-generated from A
   - `tech-debt/` - Known issues
   - `reference/decisions/` - ADRs
 - **[docs/](docs/)** - Public documentation
-- **[.personal/](.personal/)** - Personal notes (not tracked)
+- **[.personal/](.personal/)** - what the user thinks about the project and its context (analysis, reflection, exploration, untracked)
 
 ---
 
