@@ -2,6 +2,9 @@ add_executable(dev-dash-poc)
 
 target_sources(dev-dash-poc
     PRIVATE
+        deletion_queue.h
+        renderer.h
+        renderer.cpp
         main.cpp
 )
 
