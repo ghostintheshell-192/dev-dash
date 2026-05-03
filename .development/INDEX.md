@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-04-28 23:53*
+*Auto-generated: 2026-05-03 17:07*
 
 ---
 
@@ -19,7 +19,7 @@
 
 ### (root)/ (4 files)
 
-- [INDEX.md](INDEX.md) (3KB, 2026-04-28) **RECENT**
+- [INDEX.md](INDEX.md) (3KB, 2026-05-03) **RECENT**
 - [ARCHITECTURE.md](ARCHITECTURE.md) (4KB, 2026-04-28) **RECENT**
 - [README.md](README.md) (2KB, 2026-04-26) **RECENT**
 - [CURRENT-STATUS.md](CURRENT-STATUS.md) (8KB, 2026-02-10)
@@ -42,9 +42,9 @@
 
 ### tech-debt/ (5 files)
 
+- [README.md](tech-debt/README.md) (2KB, 2026-05-03) **RECENT**
 - [scaffold-architecture-scripts.md](tech-debt/scaffold-architecture-scripts.md) (<1KB, 2026-04-28) **RECENT**
 - [session-handoff-skill-note.md](tech-debt/session-handoff-skill-note.md) (<1KB, 2026-04-28) **RECENT**
-- [README.md](tech-debt/README.md) (2KB, 2026-04-28) **RECENT**
 - [_TEMPLATE.md](tech-debt/_TEMPLATE.md) (1KB, 2026-04-26) **RECENT**
 - [contentcontrol-binding-multisidebar.md](tech-debt/contentcontrol-binding-multisidebar.md) (2KB, 2026-02-10)
 
@@ -78,25 +78,20 @@
 - [README.md](docs/README.md) (<1KB, 2026-02-10)
 - [SETUP.md](docs/SETUP.md) (2KB, 2026-02-10)
 
-### docs/analysis/
-
-- [analysis.md](docs/analysis/analysis.md) (11KB, 2026-04-28) **RECENT**
-- [conversation.md](docs/analysis/conversation.md) (39KB, 2026-04-28) **RECENT**
-
 ---
 
 ## Recently Modified (last 7 days)
 
 1. [INDEX.md](INDEX.md) (today)
-2. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
-3. [scaffold-architecture-scripts.md](tech-debt/scaffold-architecture-scripts.md) (today)
-4. [session-handoff-skill-note.md](tech-debt/session-handoff-skill-note.md) (today)
-5. [README.md](tech-debt/README.md) (today)
-6. [feature-code-graph.md](specs/planned/feature-code-graph.md) (1d ago)
-7. [resource-model.md](reference/technical/resource-model.md) (2d ago)
-8. [README.md](README.md) (2d ago)
-9. [README.md](specs/README.md) (2d ago)
-10. [feature-embedded-terminal.md](specs/archived/feature-embedded-terminal.md) (2d ago)
+2. [README.md](tech-debt/README.md) (today)
+3. [ARCHITECTURE.md](ARCHITECTURE.md) (4d ago)
+4. [scaffold-architecture-scripts.md](tech-debt/scaffold-architecture-scripts.md) (4d ago)
+5. [session-handoff-skill-note.md](tech-debt/session-handoff-skill-note.md) (4d ago)
+6. [feature-code-graph.md](specs/planned/feature-code-graph.md) (5d ago)
+7. [resource-model.md](reference/technical/resource-model.md) (6d ago)
+8. [README.md](README.md) (6d ago)
+9. [README.md](specs/README.md) (6d ago)
+10. [feature-embedded-terminal.md](specs/archived/feature-embedded-terminal.md) (6d ago)
 
 ---
 
