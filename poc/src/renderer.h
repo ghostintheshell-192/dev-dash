@@ -50,6 +50,8 @@ class Renderer
     bool InitImGui();
     bool RecreateSwapchain();
 
+    void RenderMarkdownWindow();
+
     static void CheckVkResultFn(VkResult err);
 
     SDL_Window         *_window  = nullptr;

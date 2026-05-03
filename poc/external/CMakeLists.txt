@@ -120,3 +120,26 @@ target_link_libraries(ImGui-Vulkan
 )
 
 target_include_directories(ImGui-Vulkan PUBLIC ${ImGui_SOURCE_DIR}/backends)
+
+# ----- imgui_markdown (vendored single-header) -----
+#
+# Vendored from mgerhardy/imgui_markdown @ 214a836c (PR enkisoftware/imgui_markdown#43,
+# "extend markdown syntax support (tables and code)"). The base library is
+# enkisoftware/imgui_markdown (zlib, by Juliette Foucaut & Doug Binks). We use
+# mgerhardy's branch instead of upstream main because it adds tables and code
+# blocks — features needed to render typical CLAUDE.md / ADR / spec content.
+# When PR #43 lands upstream, switch the pin back to enkisoftware/main.
+
+add_library(ImGui-Markdown INTERFACE)
+
+target_sources(ImGui-Markdown
+    INTERFACE
+        ${CMAKE_CURRENT_SOURCE_DIR}/imgui_markdown/imgui_markdown.h
+)
+
+target_include_directories(ImGui-Markdown
+    INTERFACE
+        ${CMAKE_CURRENT_SOURCE_DIR}/imgui_markdown
+)
+
+target_link_libraries(ImGui-Markdown INTERFACE ImGui)

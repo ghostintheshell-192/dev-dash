@@ -11,6 +11,8 @@
 #include <cstdlib>
 #include <iostream>
 #include <ranges>
+#include <string>
+#include <string_view>
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_vulkan.h>
@@ -20,9 +22,94 @@
 #include <imgui_impl_sdl3.h>
 #include <imgui_impl_vulkan.h>
 
+#include <imgui_markdown.h>
+
 #include <VkBootstrap.h>
 
 #include "deletion_queue.h"
+
+namespace
+{
+    constexpr std::string_view kSampleMarkdown = R"md(# DevDash PoC — Step 3
+
+This window validates the integration of `imgui_markdown` (vendored from
+`mgerhardy`'s PR #43 branch on top of `enkisoftware/imgui_markdown`).
+It exercises the standard features of the upstream library plus the two
+features `mgerhardy` added on top — *fenced code blocks* and *tables*.
+
+## Headers and emphasis
+
+Headers H1, H2, and H3 each get an underline separator drawn beneath them
+(see `MarkdownHeadingFormat::separator` in the config struct).
+
+*Italic* and **bold** are rendered with the default ImGui font, so the
+visual difference is colour-only until we wire a proper font hierarchy.
+
+### Inline elements
+
+You can open links in the system browser: try
+[Anthropic](https://www.anthropic.com) or
+[Dear ImGui on GitHub](https://github.com/ocornut/imgui).
+
+Inline `code` should render in a distinct style.
+
+## Lists
+
+  * First item
+    * Sub-item with two leading spaces
+    * Another sub-item
+  * Second top-level item
+  * Third top-level item
+
+## Code block
+
+```cpp
+int main()
+{
+    Renderer renderer;
+    return renderer.Run();
+}
+```
+
+## Table
+
+| Component        | Source                          | Pinned at  |
+|------------------|---------------------------------|------------|
+| ImGui (docking)  | ocornut/imgui                   | 1.92.6     |
+| SDL3             | libsdl-org/SDL                  | 3.2.20     |
+| vk-bootstrap     | charles-lunarg/vk-bootstrap     | 1.3.302    |
+| imgui_markdown   | mgerhardy/imgui_markdown PR #43 | 214a836c   |
+
+## Horizontal rule
+
+Above this line, below the next:
+
+***
+
+End of sample.
+)md";
+
+    void OnMarkdownLink(ImGui::MarkdownLinkCallbackData data)
+    {
+        const std::string url(data.link, static_cast<size_t>(data.linkLength));
+        if (!SDL_OpenURL(url.c_str()))
+            std::cerr << "[error] SDL_OpenURL failed for '" << url << "': " << SDL_GetError() << '\n';
+    }
+
+    const ImGui::MarkdownConfig &MarkdownConfig()
+    {
+        static const ImGui::MarkdownConfig config = [] {
+            ImGui::MarkdownConfig c{};
+            c.linkCallback = OnMarkdownLink;
+            c.formatFlags  = ImGuiMarkdownFormatFlags_CommonMarkAll;
+            // headingFormats left at default (font=NULL, separator=true).
+            // Without custom fonts H1/H2/H3 share the default size; the
+            // separator underline carries the visual hierarchy.
+            return c;
+        }();
+        return config;
+    }
+}
 
 Renderer::~Renderer()
 {
@@ -576,6 +663,7 @@ bool Renderer::MainLoop()
         ImGui::NewFrame();
 
         ImGui::ShowDemoWindow();
+        RenderMarkdownWindow();
 
         ImGui::Render();
 
@@ -685,6 +773,15 @@ bool Renderer::MainLoop()
     }
 
     return true;
+}
+
+void Renderer::RenderMarkdownWindow()
+{
+    if (ImGui::Begin("Markdown"))
+    {
+        ImGui::Markdown(kSampleMarkdown.data(), kSampleMarkdown.size(), MarkdownConfig());
+    }
+    ImGui::End();
 }
 
 void Renderer::CheckVkResultFn(VkResult err)
