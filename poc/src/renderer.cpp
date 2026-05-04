@@ -1,6 +1,6 @@
 // Adapted from Germen Pulchrum (DPD85/Germen @ 037827b, MIT) — `Disegnatore.cpp`.
 // Translated to English, restructured into a class, and stripped of:
-// custom font loading, theme system, ImPlot, DPI scaling, and i18n.
+// theme system, ImPlot, DPI scaling, and i18n.
 // See poc/THIRD_PARTY_NOTICES.md for attribution details.
 
 #include "renderer.h"
@@ -9,10 +9,14 @@
 #include <clocale>
 #include <cstdint>
 #include <cstdlib>
+#include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <ranges>
+#include <regex>
 #include <string>
 #include <string_view>
+#include <vector>
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_vulkan.h>
@@ -30,78 +34,95 @@
 
 namespace
 {
-    constexpr std::string_view kSampleMarkdown = R"md(# DevDash PoC — Step 3
+    // IBM Plex Sans family loaded at init time; null until InitImGui() runs.
+    ImFont *gFontRegular = nullptr;
+    ImFont *gFontItalic  = nullptr;
+    ImFont *gFontBold    = nullptr;
+    ImFont *gFontBoldH1  = nullptr;
+    ImFont *gFontBoldH2  = nullptr;
+    ImFont *gFontBoldH3  = nullptr;
 
-This window validates the integration of `imgui_markdown` (vendored from
-`mgerhardy`'s PR #43 branch on top of `enkisoftware/imgui_markdown`).
-It exercises the standard features of the upstream library plus the two
-features `mgerhardy` added on top — *fenced code blocks* and *tables*.
+    // ----- Markdown panel system -----
 
-## Headers and emphasis
+    struct MarkdownPanel
+    {
+        std::string title;
+        std::string path;
+        std::string content;
+        bool        open = true;
+    };
 
-Headers H1, H2, and H3 each get an underline separator drawn beneath them
-(see `MarkdownHeadingFormat::separator` in the config struct).
+    std::vector<MarkdownPanel> gPanels;
+    std::vector<std::string>   gPendingPanels; // paths queued from link callbacks
 
-*Italic* and **bold** are rendered with the default ImGui font, so the
-visual difference is colour-only until we wire a proper font hierarchy.
+    // Reads a file and rewrites @import lines as clickable claudeimport:// links.
+    // Does not recurse — imports are opened on demand when the user clicks.
+    std::string PreprocessImports(const std::filesystem::path &filePath)
+    {
+        std::ifstream file(filePath);
+        if (!file)
+            return "";
 
-### Inline elements
+        const std::filesystem::path dir = filePath.parent_path();
+        std::string                 result;
+        std::string                 line;
 
-You can open links in the system browser: try
-[Anthropic](https://www.anthropic.com) or
-[Dear ImGui on GitHub](https://github.com/ocornut/imgui).
+        while (std::getline(file, line))
+        {
+            const auto firstNonSpace = line.find_first_not_of(" \t");
+            if (firstNonSpace != std::string::npos && line[firstNonSpace] == '@'
+                && firstNonSpace + 1 < line.size() && line[firstNonSpace + 1] != ' ')
+            {
+                const std::string importPath = line.substr(firstNonSpace + 1);
+                const auto        resolved   = std::filesystem::weakly_canonical(dir / importPath);
+                const std::string label      = resolved.filename().string();
+                result += "[" + label + "](claudeimport://" + resolved.string() + ")\n";
+            }
+            else
+            {
+                result += line + '\n';
+            }
+        }
+        // imgui_markdown does not support bold wrapping a link (**[t](u)**).
+        // Strip the outer ** so the link remains clickable without literal asterisks.
+        static const std::regex kBoldLink(R"(\*\*(\[[^\]]*\]\([^)]*\))\*\*)");
+        result = std::regex_replace(result, kBoldLink, "$1");
 
-Inline `code` should render in a distinct style.
+        return result;
+    }
 
-## Lists
+    void OpenPanel(const std::string &path)
+    {
+        for (const auto &p : gPanels)
+            if (p.path == path) return;
 
-  * First item
-    * Sub-item with two leading spaces
-    * Another sub-item
-  * Second top-level item
-  * Third top-level item
-
-## Code block
-
-```cpp
-int main()
-{
-    Renderer renderer;
-    return renderer.Run();
-}
-```
-
-## Table
-
-| Component        | Source                          | Pinned at  |
-|------------------|---------------------------------|------------|
-| ImGui (docking)  | ocornut/imgui                   | 1.92.6     |
-| SDL3             | libsdl-org/SDL                  | 3.2.20     |
-| vk-bootstrap     | charles-lunarg/vk-bootstrap     | 1.3.302    |
-| imgui_markdown   | mgerhardy/imgui_markdown PR #43 | 214a836c   |
-
-## Horizontal rule
-
-Above this line, below the next:
-
-***
-
-End of sample.
-)md";
+        const std::filesystem::path fsPath(path);
+        std::string                 content = PreprocessImports(fsPath);
+        if (content.empty())
+        {
+            std::cerr << "[warn] Could not open: " << path << '\n';
+            return;
+        }
+        // ImGui identifies windows by title; append ##path to keep the label
+        // readable while using the full path as the unique internal ID.
+        const std::string title = fsPath.filename().string() + "##" + path;
+        gPanels.push_back({ title, path, std::move(content), true });
+    }
 
     void OnMarkdownLink(ImGui::MarkdownLinkCallbackData data)
     {
         const std::string url(data.link, static_cast<size_t>(data.linkLength));
-        if (!SDL_OpenURL(url.c_str()))
+        if (url.starts_with("claudeimport://"))
+            gPendingPanels.push_back(url.substr(std::string_view("claudeimport://").size()));
+        else if (!SDL_OpenURL(url.c_str()))
             std::cerr << "[error] SDL_OpenURL failed for '" << url << "': " << SDL_GetError() << '\n';
     }
 
-    // Bridge styling for emphasis and code while we don't have a font system.
     // Defers to defaultMarkdownFormatCallback first so heading separators and
-    // link hover colours are preserved; then layers our own colour pushes for
-    // the categories the default treats as plain text. Each branch pushes once
-    // on start and pops once on end, so the style stack stays balanced even
-    // though defaults and ours interleave.
+    // link hover colours are preserved; then layers font or colour pushes for
+    // emphasis and code. Each branch pushes once on start and pops once on end,
+    // so the style stack stays balanced. Colour fallbacks activate when a font
+    // pointer is null (e.g. assets not found at startup).
     void OnMarkdownFormat(const ImGui::MarkdownFormatInfo &info, bool start)
     {
         ImGui::defaultMarkdownFormatCallback(info, start);
@@ -109,23 +130,25 @@ End of sample.
         switch (info.type)
         {
             case ImGui::MarkdownFormatType::EMPHASIS:
+            {
+                const bool isItalic = (info.level == 1);
+                ImFont    *font     = isItalic ? gFontItalic : gFontBold;
                 if (start)
                 {
-                    // Bold goes to pale cyan rather than pure white because
-                    // ImGui dark theme already paints body text at full
-                    // (1, 1, 1, 1) — there's no headroom above. A cool tint
-                    // also keeps bold visually distinct from the warm yellow
-                    // we use for code.
-                    const ImVec4 colour = (info.level == 1)
-                        ? ImVec4(0.65f, 0.65f, 0.65f, 1.0f)  // italic: muted grey
-                        : ImVec4(0.70f, 0.90f, 1.00f, 1.0f); // bold: pale cyan
-                    ImGui::PushStyleColor(ImGuiCol_Text, colour);
+                    if (font)
+                        ImGui::PushFont(font, 0.0f);
+                    else
+                        ImGui::PushStyleColor(ImGuiCol_Text,
+                            isItalic ? ImVec4(0.65f, 0.65f, 0.65f, 1.0f)
+                                     : ImVec4(0.70f, 0.90f, 1.00f, 1.0f));
                 }
                 else
                 {
-                    ImGui::PopStyleColor();
+                    if (font) ImGui::PopFont();
+                    else      ImGui::PopStyleColor();
                 }
                 break;
+            }
 
             case ImGui::MarkdownFormatType::CODE:
                 if (start)
@@ -141,14 +164,15 @@ End of sample.
 
     const ImGui::MarkdownConfig &MarkdownConfig()
     {
+        // First call happens after InitImGui(), so font pointers are valid.
         static const ImGui::MarkdownConfig config = [] {
             ImGui::MarkdownConfig c{};
-            c.linkCallback   = OnMarkdownLink;
-            c.formatCallback = OnMarkdownFormat;
-            c.formatFlags    = ImGuiMarkdownFormatFlags_CommonMarkAll;
-            // headingFormats left at default (font=NULL, separator=true).
-            // Without custom fonts H1/H2/H3 share the default size; the
-            // separator underline carries the visual hierarchy.
+            c.linkCallback      = OnMarkdownLink;
+            c.formatCallback    = OnMarkdownFormat;
+            c.formatFlags       = ImGuiMarkdownFormatFlags_CommonMarkAll;
+            c.headingFormats[0] = { .font = gFontBoldH1, .separator = true  };
+            c.headingFormats[1] = { .font = gFontBoldH2, .separator = true  };
+            c.headingFormats[2] = { .font = gFontBoldH3, .separator = false };
             return c;
         }();
         return config;
@@ -185,6 +209,11 @@ bool Renderer::Init()
     if (!CreateCommandPool())      return false;
     if (!CreateCommandBuffers())   return false;
     if (!CreateSyncObjects())      return false;
+
+    if (const char *home = getenv("HOME"))
+        OpenPanel(std::string(home) + "/.claude/CLAUDE.md");
+    OpenPanel("/data/repos/dev-dash/.claude/CLAUDE.md");
+
     return true;
 }
 
@@ -604,6 +633,56 @@ bool Renderer::InitImGui()
     ImGui::CreateContext();
     _deletionQueue.Add([] { ImGui::DestroyContext(); });
 
+    // ----- Font loading -----
+    {
+        std::string fontsDir;
+        if (const char *base = SDL_GetBasePath())
+            fontsDir = base;
+        fontsDir += "assets/fonts/";
+
+        ImFontAtlas    *atlas     = ImGui::GetIO().Fonts;
+        constexpr float kBodySize = 16.0f;
+
+        // IBM Plex Sans covers Latin but omits many Unicode symbols (arrows,
+        // dingbats, etc.). DejaVu Sans is merged in after each IBM Plex face
+        // to supply the missing glyphs. MergeMode appends into the last-added
+        // font, so the merge call must immediately follow its primary face.
+        static constexpr ImWchar kPrimaryRanges[] = {
+            0x0020, 0x00FF, // Basic Latin + Latin Supplement
+            0x2000, 0x206F, // General Punctuation  (—  …  •  etc.)
+            0x2190, 0x21FF, // Arrows               (→  ←  etc.)
+            0x2700, 0x27BF, // Dingbats             (✓  ✗  etc.)
+            0,
+        };
+        static constexpr ImWchar kFallbackRanges[] = {
+            0x0100, 0x024F, // Latin Extended
+            0x2000, 0x27BF, // Punctuation + Arrows + Dingbats (all in one block)
+            0,
+        };
+        constexpr const char *kDejaVu = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf";
+
+        auto load = [&](const char *file, float size) -> ImFont * {
+            ImFont *f = atlas->AddFontFromFileTTF((fontsDir + file).c_str(), size,
+                                                  nullptr, kPrimaryRanges);
+            if (!f)
+            {
+                std::cerr << "[warn] Font not found: " << fontsDir << file << '\n';
+                return f;
+            }
+            ImFontConfig merge;
+            merge.MergeMode = true;
+            atlas->AddFontFromFileTTF(kDejaVu, size, &merge, kFallbackRanges);
+            return f;
+        };
+
+        gFontRegular = load("IBMPlexSans-Regular.ttf", kBodySize);
+        gFontItalic  = load("IBMPlexSans-Italic.ttf",  kBodySize);
+        gFontBold    = load("IBMPlexSans-Bold.ttf",    kBodySize);
+        gFontBoldH1  = load("IBMPlexSans-Bold.ttf", 30.0f);
+        gFontBoldH2  = load("IBMPlexSans-Bold.ttf", 22.5f);
+        gFontBoldH3  = load("IBMPlexSans-Bold.ttf", 17.55f);
+    }
+
     ImGuiIO &io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
@@ -821,11 +900,20 @@ bool Renderer::MainLoop()
 
 void Renderer::RenderMarkdownWindow()
 {
-    if (ImGui::Begin("Markdown"))
+    for (const auto &path : gPendingPanels)
+        OpenPanel(path);
+    gPendingPanels.clear();
+
+    for (auto &panel : gPanels)
     {
-        ImGui::Markdown(kSampleMarkdown.data(), kSampleMarkdown.size(), MarkdownConfig());
+        if (!panel.open) continue;
+        ImGui::SetNextWindowSize(ImVec2(700, 900), ImGuiCond_FirstUseEver);
+        if (ImGui::Begin(panel.title.c_str(), &panel.open))
+            ImGui::Markdown(panel.content.data(), panel.content.size(), MarkdownConfig());
+        ImGui::End();
     }
-    ImGui::End();
+
+    std::erase_if(gPanels, [](const MarkdownPanel &p) { return !p.open; });
 }
 
 void Renderer::CheckVkResultFn(VkResult err)

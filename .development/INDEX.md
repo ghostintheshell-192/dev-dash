@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-05-03 18:34*
+*Auto-generated: 2026-05-04 23:55*
 
 ---
 
@@ -19,33 +19,33 @@
 
 ### (root)/ (4 files)
 
-- [INDEX.md](INDEX.md) (3KB, 2026-05-03) **RECENT**
+- [INDEX.md](INDEX.md) (3KB, 2026-05-04) **RECENT**
 - [ARCHITECTURE.md](ARCHITECTURE.md) (4KB, 2026-04-28) **RECENT**
-- [README.md](README.md) (2KB, 2026-04-26) **RECENT**
+- [README.md](README.md) (2KB, 2026-04-26)
 - [CURRENT-STATUS.md](CURRENT-STATUS.md) (8KB, 2026-02-10)
 
 ### specs/ (2 files)
 
-- [README.md](specs/README.md) (2KB, 2026-04-26) **RECENT**
+- [README.md](specs/README.md) (2KB, 2026-04-26)
 - [roadmap.md](specs/roadmap.md) (3KB, 2026-02-10)
 
 ### specs/archived/ (1 files)
 
-- [feature-embedded-terminal.md](specs/archived/feature-embedded-terminal.md) (5KB, 2026-04-26) **RECENT**
+- [feature-embedded-terminal.md](specs/archived/feature-embedded-terminal.md) (5KB, 2026-04-26)
 
 ### specs/planned/ (4 files)
 
 - [feature-code-graph.md](specs/planned/feature-code-graph.md) (8KB, 2026-04-27) **RECENT**
-- [feature-claude-context.md](specs/planned/feature-claude-context.md) (11KB, 2026-04-26) **RECENT**
-- [feature-issue-management.md](specs/planned/feature-issue-management.md) (18KB, 2026-04-26) **RECENT**
-- [feature-markdown-rendering.md](specs/planned/feature-markdown-rendering.md) (10KB, 2026-04-26) **RECENT**
+- [feature-claude-context.md](specs/planned/feature-claude-context.md) (11KB, 2026-04-26)
+- [feature-issue-management.md](specs/planned/feature-issue-management.md) (18KB, 2026-04-26)
+- [feature-markdown-rendering.md](specs/planned/feature-markdown-rendering.md) (10KB, 2026-04-26)
 
 ### tech-debt/ (5 files)
 
-- [README.md](tech-debt/README.md) (2KB, 2026-05-03) **RECENT**
+- [README.md](tech-debt/README.md) (2KB, 2026-05-04) **RECENT**
 - [scaffold-architecture-scripts.md](tech-debt/scaffold-architecture-scripts.md) (<1KB, 2026-04-28) **RECENT**
 - [session-handoff-skill-note.md](tech-debt/session-handoff-skill-note.md) (<1KB, 2026-04-28) **RECENT**
-- [_TEMPLATE.md](tech-debt/_TEMPLATE.md) (1KB, 2026-04-26) **RECENT**
+- [_TEMPLATE.md](tech-debt/_TEMPLATE.md) (1KB, 2026-04-26)
 - [contentcontrol-binding-multisidebar.md](tech-debt/contentcontrol-binding-multisidebar.md) (2KB, 2026-02-10)
 
 ### reference/decisions/ (6 files)
@@ -59,7 +59,7 @@
 
 ### reference/technical/ (1 files)
 
-- [resource-model.md](reference/technical/resource-model.md) (35KB, 2026-04-26) **RECENT**
+- [resource-model.md](reference/technical/resource-model.md) (35KB, 2026-04-26)
 
 ### archive/analysis/ (1 files)
 
@@ -84,14 +84,9 @@
 
 1. [INDEX.md](INDEX.md) (today)
 2. [README.md](tech-debt/README.md) (today)
-3. [ARCHITECTURE.md](ARCHITECTURE.md) (4d ago)
-4. [scaffold-architecture-scripts.md](tech-debt/scaffold-architecture-scripts.md) (4d ago)
-5. [session-handoff-skill-note.md](tech-debt/session-handoff-skill-note.md) (4d ago)
-6. [feature-code-graph.md](specs/planned/feature-code-graph.md) (5d ago)
-7. [resource-model.md](reference/technical/resource-model.md) (6d ago)
-8. [README.md](README.md) (6d ago)
-9. [README.md](specs/README.md) (6d ago)
-10. [feature-embedded-terminal.md](specs/archived/feature-embedded-terminal.md) (6d ago)
+3. [ARCHITECTURE.md](ARCHITECTURE.md) (6d ago)
+4. [scaffold-architecture-scripts.md](tech-debt/scaffold-architecture-scripts.md) (6d ago)
+5. [session-handoff-skill-note.md](tech-debt/session-handoff-skill-note.md) (6d ago)
 
 ---
 
