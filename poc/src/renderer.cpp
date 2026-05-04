@@ -1,6 +1,6 @@
 // Adapted from Germen Pulchrum (DPD85/Germen @ 037827b, MIT) — `Disegnatore.cpp`.
 // Translated to English, restructured into a class, and stripped of:
-// custom font loading, theme system, ImPlot, DPI scaling, and i18n.
+// theme system, ImPlot, DPI scaling, and i18n.
 // See poc/THIRD_PARTY_NOTICES.md for attribution details.
 
 #include "renderer.h"
@@ -30,7 +30,15 @@
 
 namespace
 {
-    constexpr std::string_view kSampleMarkdown = R"md(# DevDash PoC — Step 3
+    // IBM Plex Sans family loaded at init time; null until InitImGui() runs.
+    ImFont *gFontRegular = nullptr;
+    ImFont *gFontItalic  = nullptr;
+    ImFont *gFontBold    = nullptr;
+    ImFont *gFontBoldH1  = nullptr;
+    ImFont *gFontBoldH2  = nullptr;
+    ImFont *gFontBoldH3  = nullptr;
+
+    constexpr std::string_view kSampleMarkdown = R"md(# DevDash PoC — Step 4
 
 This window validates the integration of `imgui_markdown` (vendored from
 `mgerhardy`'s PR #43 branch on top of `enkisoftware/imgui_markdown`).
@@ -42,8 +50,7 @@ features `mgerhardy` added on top — *fenced code blocks* and *tables*.
 Headers H1, H2, and H3 each get an underline separator drawn beneath them
 (see `MarkdownHeadingFormat::separator` in the config struct).
 
-*Italic* and **bold** are rendered with the default ImGui font, so the
-visual difference is colour-only until we wire a proper font hierarchy.
+*Italic* uses IBM Plex Sans Italic; **bold** uses IBM Plex Sans Bold.
 
 ### Inline elements
 
@@ -96,12 +103,11 @@ End of sample.
             std::cerr << "[error] SDL_OpenURL failed for '" << url << "': " << SDL_GetError() << '\n';
     }
 
-    // Bridge styling for emphasis and code while we don't have a font system.
     // Defers to defaultMarkdownFormatCallback first so heading separators and
-    // link hover colours are preserved; then layers our own colour pushes for
-    // the categories the default treats as plain text. Each branch pushes once
-    // on start and pops once on end, so the style stack stays balanced even
-    // though defaults and ours interleave.
+    // link hover colours are preserved; then layers font or colour pushes for
+    // emphasis and code. Each branch pushes once on start and pops once on end,
+    // so the style stack stays balanced. Colour fallbacks activate when a font
+    // pointer is null (e.g. assets not found at startup).
     void OnMarkdownFormat(const ImGui::MarkdownFormatInfo &info, bool start)
     {
         ImGui::defaultMarkdownFormatCallback(info, start);
@@ -109,23 +115,25 @@ End of sample.
         switch (info.type)
         {
             case ImGui::MarkdownFormatType::EMPHASIS:
+            {
+                const bool isItalic = (info.level == 1);
+                ImFont    *font     = isItalic ? gFontItalic : gFontBold;
                 if (start)
                 {
-                    // Bold goes to pale cyan rather than pure white because
-                    // ImGui dark theme already paints body text at full
-                    // (1, 1, 1, 1) — there's no headroom above. A cool tint
-                    // also keeps bold visually distinct from the warm yellow
-                    // we use for code.
-                    const ImVec4 colour = (info.level == 1)
-                        ? ImVec4(0.65f, 0.65f, 0.65f, 1.0f)  // italic: muted grey
-                        : ImVec4(0.70f, 0.90f, 1.00f, 1.0f); // bold: pale cyan
-                    ImGui::PushStyleColor(ImGuiCol_Text, colour);
+                    if (font)
+                        ImGui::PushFont(font, 0.0f);
+                    else
+                        ImGui::PushStyleColor(ImGuiCol_Text,
+                            isItalic ? ImVec4(0.65f, 0.65f, 0.65f, 1.0f)
+                                     : ImVec4(0.70f, 0.90f, 1.00f, 1.0f));
                 }
                 else
                 {
-                    ImGui::PopStyleColor();
+                    if (font) ImGui::PopFont();
+                    else      ImGui::PopStyleColor();
                 }
                 break;
+            }
 
             case ImGui::MarkdownFormatType::CODE:
                 if (start)
@@ -141,14 +149,15 @@ End of sample.
 
     const ImGui::MarkdownConfig &MarkdownConfig()
     {
+        // First call happens after InitImGui(), so font pointers are valid.
         static const ImGui::MarkdownConfig config = [] {
             ImGui::MarkdownConfig c{};
-            c.linkCallback   = OnMarkdownLink;
-            c.formatCallback = OnMarkdownFormat;
-            c.formatFlags    = ImGuiMarkdownFormatFlags_CommonMarkAll;
-            // headingFormats left at default (font=NULL, separator=true).
-            // Without custom fonts H1/H2/H3 share the default size; the
-            // separator underline carries the visual hierarchy.
+            c.linkCallback      = OnMarkdownLink;
+            c.formatCallback    = OnMarkdownFormat;
+            c.formatFlags       = ImGuiMarkdownFormatFlags_CommonMarkAll;
+            c.headingFormats[0] = { .font = gFontBoldH1, .separator = true  };
+            c.headingFormats[1] = { .font = gFontBoldH2, .separator = true  };
+            c.headingFormats[2] = { .font = gFontBoldH3, .separator = false };
             return c;
         }();
         return config;
@@ -603,6 +612,31 @@ bool Renderer::InitImGui()
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     _deletionQueue.Add([] { ImGui::DestroyContext(); });
+
+    // ----- Font loading -----
+    {
+        std::string fontsDir;
+        if (const char *base = SDL_GetBasePath())
+            fontsDir = base;
+        fontsDir += "assets/fonts/";
+
+        ImFontAtlas    *atlas     = ImGui::GetIO().Fonts;
+        constexpr float kBodySize = 16.0f;
+
+        auto load = [&](const char *file, float size) -> ImFont * {
+            ImFont *f = atlas->AddFontFromFileTTF((fontsDir + file).c_str(), size);
+            if (!f)
+                std::cerr << "[warn] Font not found: " << fontsDir << file << '\n';
+            return f;
+        };
+
+        gFontRegular = load("IBMPlexSans-Regular.ttf", kBodySize);
+        gFontItalic  = load("IBMPlexSans-Italic.ttf",  kBodySize);
+        gFontBold    = load("IBMPlexSans-Bold.ttf",    kBodySize);
+        gFontBoldH1  = load("IBMPlexSans-Bold.ttf", 30.0f);
+        gFontBoldH2  = load("IBMPlexSans-Bold.ttf", 22.5f);
+        gFontBoldH3  = load("IBMPlexSans-Bold.ttf", 17.55f);
+    }
 
     ImGuiIO &io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;

@@ -16,3 +16,10 @@ target_link_libraries(dev-dash-poc
         ImGui-Vulkan
         vk-bootstrap::vk-bootstrap
 )
+
+add_custom_command(TARGET dev-dash-poc POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_SOURCE_DIR}/assets"
+        "$<TARGET_FILE_DIR:dev-dash-poc>/assets"
+    COMMENT "Copying assets to output directory"
+)
