@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-05-04 23:29*
+*Auto-generated: 2026-05-04 23:55*
 
 ---
 
@@ -84,9 +84,9 @@
 
 1. [INDEX.md](INDEX.md) (today)
 2. [README.md](tech-debt/README.md) (today)
-3. [ARCHITECTURE.md](ARCHITECTURE.md) (5d ago)
-4. [scaffold-architecture-scripts.md](tech-debt/scaffold-architecture-scripts.md) (5d ago)
-5. [session-handoff-skill-note.md](tech-debt/session-handoff-skill-note.md) (5d ago)
+3. [ARCHITECTURE.md](ARCHITECTURE.md) (6d ago)
+4. [scaffold-architecture-scripts.md](tech-debt/scaffold-architecture-scripts.md) (6d ago)
+5. [session-handoff-skill-note.md](tech-debt/session-handoff-skill-note.md) (6d ago)
 
 ---
 

@@ -9,10 +9,14 @@
 #include <clocale>
 #include <cstdint>
 #include <cstdlib>
+#include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <ranges>
+#include <regex>
 #include <string>
 #include <string_view>
+#include <vector>
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_vulkan.h>
@@ -38,68 +42,79 @@ namespace
     ImFont *gFontBoldH2  = nullptr;
     ImFont *gFontBoldH3  = nullptr;
 
-    constexpr std::string_view kSampleMarkdown = R"md(# DevDash PoC — Step 4
+    // ----- Markdown panel system -----
 
-This window validates the integration of `imgui_markdown` (vendored from
-`mgerhardy`'s PR #43 branch on top of `enkisoftware/imgui_markdown`).
-It exercises the standard features of the upstream library plus the two
-features `mgerhardy` added on top — *fenced code blocks* and *tables*.
+    struct MarkdownPanel
+    {
+        std::string title;
+        std::string path;
+        std::string content;
+        bool        open = true;
+    };
 
-## Headers and emphasis
+    std::vector<MarkdownPanel> gPanels;
+    std::vector<std::string>   gPendingPanels; // paths queued from link callbacks
 
-Headers H1, H2, and H3 each get an underline separator drawn beneath them
-(see `MarkdownHeadingFormat::separator` in the config struct).
+    // Reads a file and rewrites @import lines as clickable claudeimport:// links.
+    // Does not recurse — imports are opened on demand when the user clicks.
+    std::string PreprocessImports(const std::filesystem::path &filePath)
+    {
+        std::ifstream file(filePath);
+        if (!file)
+            return "";
 
-*Italic* uses IBM Plex Sans Italic; **bold** uses IBM Plex Sans Bold.
+        const std::filesystem::path dir = filePath.parent_path();
+        std::string                 result;
+        std::string                 line;
 
-### Inline elements
+        while (std::getline(file, line))
+        {
+            const auto firstNonSpace = line.find_first_not_of(" \t");
+            if (firstNonSpace != std::string::npos && line[firstNonSpace] == '@'
+                && firstNonSpace + 1 < line.size() && line[firstNonSpace + 1] != ' ')
+            {
+                const std::string importPath = line.substr(firstNonSpace + 1);
+                const auto        resolved   = std::filesystem::weakly_canonical(dir / importPath);
+                const std::string label      = resolved.filename().string();
+                result += "[" + label + "](claudeimport://" + resolved.string() + ")\n";
+            }
+            else
+            {
+                result += line + '\n';
+            }
+        }
+        // imgui_markdown does not support bold wrapping a link (**[t](u)**).
+        // Strip the outer ** so the link remains clickable without literal asterisks.
+        static const std::regex kBoldLink(R"(\*\*(\[[^\]]*\]\([^)]*\))\*\*)");
+        result = std::regex_replace(result, kBoldLink, "$1");
 
-You can open links in the system browser: try
-[Anthropic](https://www.anthropic.com) or
-[Dear ImGui on GitHub](https://github.com/ocornut/imgui).
+        return result;
+    }
 
-Inline `code` should render in a distinct style.
+    void OpenPanel(const std::string &path)
+    {
+        for (const auto &p : gPanels)
+            if (p.path == path) return;
 
-## Lists
-
-  * First item
-    * Sub-item with two leading spaces
-    * Another sub-item
-  * Second top-level item
-  * Third top-level item
-
-## Code block
-
-```cpp
-int main()
-{
-    Renderer renderer;
-    return renderer.Run();
-}
-```
-
-## Table
-
-| Component        | Source                          | Pinned at  |
-|------------------|---------------------------------|------------|
-| ImGui (docking)  | ocornut/imgui                   | 1.92.6     |
-| SDL3             | libsdl-org/SDL                  | 3.2.20     |
-| vk-bootstrap     | charles-lunarg/vk-bootstrap     | 1.3.302    |
-| imgui_markdown   | mgerhardy/imgui_markdown PR #43 | 214a836c   |
-
-## Horizontal rule
-
-Above this line, below the next:
-
-***
-
-End of sample.
-)md";
+        const std::filesystem::path fsPath(path);
+        std::string                 content = PreprocessImports(fsPath);
+        if (content.empty())
+        {
+            std::cerr << "[warn] Could not open: " << path << '\n';
+            return;
+        }
+        // ImGui identifies windows by title; append ##path to keep the label
+        // readable while using the full path as the unique internal ID.
+        const std::string title = fsPath.filename().string() + "##" + path;
+        gPanels.push_back({ title, path, std::move(content), true });
+    }
 
     void OnMarkdownLink(ImGui::MarkdownLinkCallbackData data)
     {
         const std::string url(data.link, static_cast<size_t>(data.linkLength));
-        if (!SDL_OpenURL(url.c_str()))
+        if (url.starts_with("claudeimport://"))
+            gPendingPanels.push_back(url.substr(std::string_view("claudeimport://").size()));
+        else if (!SDL_OpenURL(url.c_str()))
             std::cerr << "[error] SDL_OpenURL failed for '" << url << "': " << SDL_GetError() << '\n';
     }
 
@@ -194,6 +209,11 @@ bool Renderer::Init()
     if (!CreateCommandPool())      return false;
     if (!CreateCommandBuffers())   return false;
     if (!CreateSyncObjects())      return false;
+
+    if (const char *home = getenv("HOME"))
+        OpenPanel(std::string(home) + "/.claude/CLAUDE.md");
+    OpenPanel("/data/repos/dev-dash/.claude/CLAUDE.md");
+
     return true;
 }
 
@@ -623,10 +643,35 @@ bool Renderer::InitImGui()
         ImFontAtlas    *atlas     = ImGui::GetIO().Fonts;
         constexpr float kBodySize = 16.0f;
 
+        // IBM Plex Sans covers Latin but omits many Unicode symbols (arrows,
+        // dingbats, etc.). DejaVu Sans is merged in after each IBM Plex face
+        // to supply the missing glyphs. MergeMode appends into the last-added
+        // font, so the merge call must immediately follow its primary face.
+        static constexpr ImWchar kPrimaryRanges[] = {
+            0x0020, 0x00FF, // Basic Latin + Latin Supplement
+            0x2000, 0x206F, // General Punctuation  (—  …  •  etc.)
+            0x2190, 0x21FF, // Arrows               (→  ←  etc.)
+            0x2700, 0x27BF, // Dingbats             (✓  ✗  etc.)
+            0,
+        };
+        static constexpr ImWchar kFallbackRanges[] = {
+            0x0100, 0x024F, // Latin Extended
+            0x2000, 0x27BF, // Punctuation + Arrows + Dingbats (all in one block)
+            0,
+        };
+        constexpr const char *kDejaVu = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf";
+
         auto load = [&](const char *file, float size) -> ImFont * {
-            ImFont *f = atlas->AddFontFromFileTTF((fontsDir + file).c_str(), size);
+            ImFont *f = atlas->AddFontFromFileTTF((fontsDir + file).c_str(), size,
+                                                  nullptr, kPrimaryRanges);
             if (!f)
+            {
                 std::cerr << "[warn] Font not found: " << fontsDir << file << '\n';
+                return f;
+            }
+            ImFontConfig merge;
+            merge.MergeMode = true;
+            atlas->AddFontFromFileTTF(kDejaVu, size, &merge, kFallbackRanges);
             return f;
         };
 
@@ -855,11 +900,20 @@ bool Renderer::MainLoop()
 
 void Renderer::RenderMarkdownWindow()
 {
-    if (ImGui::Begin("Markdown"))
+    for (const auto &path : gPendingPanels)
+        OpenPanel(path);
+    gPendingPanels.clear();
+
+    for (auto &panel : gPanels)
     {
-        ImGui::Markdown(kSampleMarkdown.data(), kSampleMarkdown.size(), MarkdownConfig());
+        if (!panel.open) continue;
+        ImGui::SetNextWindowSize(ImVec2(700, 900), ImGuiCond_FirstUseEver);
+        if (ImGui::Begin(panel.title.c_str(), &panel.open))
+            ImGui::Markdown(panel.content.data(), panel.content.size(), MarkdownConfig());
+        ImGui::End();
     }
-    ImGui::End();
+
+    std::erase_if(gPanels, [](const MarkdownPanel &p) { return !p.open; });
 }
 
 void Renderer::CheckVkResultFn(VkResult err)
