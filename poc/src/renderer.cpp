@@ -9,11 +9,9 @@
 #include <clocale>
 #include <cstdint>
 #include <cstdlib>
-#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <ranges>
-#include <regex>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -26,158 +24,11 @@
 #include <imgui_impl_sdl3.h>
 #include <imgui_impl_vulkan.h>
 
-#include <imgui_markdown.h>
-
 #include <VkBootstrap.h>
 
 #include "deletion_queue.h"
 
-namespace
-{
-    // IBM Plex Sans family loaded at init time; null until InitImGui() runs.
-    ImFont *gFontRegular = nullptr;
-    ImFont *gFontItalic  = nullptr;
-    ImFont *gFontBold    = nullptr;
-    ImFont *gFontBoldH1  = nullptr;
-    ImFont *gFontBoldH2  = nullptr;
-    ImFont *gFontBoldH3  = nullptr;
-
-    // ----- Markdown panel system -----
-
-    struct MarkdownPanel
-    {
-        std::string title;
-        std::string path;
-        std::string content;
-        bool        open = true;
-    };
-
-    std::vector<MarkdownPanel> gPanels;
-    std::vector<std::string>   gPendingPanels; // paths queued from link callbacks
-
-    // Reads a file and rewrites @import lines as clickable claudeimport:// links.
-    // Does not recurse — imports are opened on demand when the user clicks.
-    std::string PreprocessImports(const std::filesystem::path &filePath)
-    {
-        std::ifstream file(filePath);
-        if (!file)
-            return "";
-
-        const std::filesystem::path dir = filePath.parent_path();
-        std::string                 result;
-        std::string                 line;
-
-        while (std::getline(file, line))
-        {
-            const auto firstNonSpace = line.find_first_not_of(" \t");
-            if (firstNonSpace != std::string::npos && line[firstNonSpace] == '@'
-                && firstNonSpace + 1 < line.size() && line[firstNonSpace + 1] != ' ')
-            {
-                const std::string importPath = line.substr(firstNonSpace + 1);
-                const auto        resolved   = std::filesystem::weakly_canonical(dir / importPath);
-                const std::string label      = resolved.filename().string();
-                result += "[" + label + "](claudeimport://" + resolved.string() + ")\n";
-            }
-            else
-            {
-                result += line + '\n';
-            }
-        }
-        // imgui_markdown does not support bold wrapping a link (**[t](u)**).
-        // Strip the outer ** so the link remains clickable without literal asterisks.
-        static const std::regex kBoldLink(R"(\*\*(\[[^\]]*\]\([^)]*\))\*\*)");
-        result = std::regex_replace(result, kBoldLink, "$1");
-
-        return result;
-    }
-
-    void OpenPanel(const std::string &path)
-    {
-        for (const auto &p : gPanels)
-            if (p.path == path) return;
-
-        const std::filesystem::path fsPath(path);
-        std::string                 content = PreprocessImports(fsPath);
-        if (content.empty())
-        {
-            std::cerr << "[warn] Could not open: " << path << '\n';
-            return;
-        }
-        // ImGui identifies windows by title; append ##path to keep the label
-        // readable while using the full path as the unique internal ID.
-        const std::string title = fsPath.filename().string() + "##" + path;
-        gPanels.push_back({ title, path, std::move(content), true });
-    }
-
-    void OnMarkdownLink(ImGui::MarkdownLinkCallbackData data)
-    {
-        const std::string url(data.link, static_cast<size_t>(data.linkLength));
-        if (url.starts_with("claudeimport://"))
-            gPendingPanels.push_back(url.substr(std::string_view("claudeimport://").size()));
-        else if (!SDL_OpenURL(url.c_str()))
-            std::cerr << "[error] SDL_OpenURL failed for '" << url << "': " << SDL_GetError() << '\n';
-    }
-
-    // Defers to defaultMarkdownFormatCallback first so heading separators and
-    // link hover colours are preserved; then layers font or colour pushes for
-    // emphasis and code. Each branch pushes once on start and pops once on end,
-    // so the style stack stays balanced. Colour fallbacks activate when a font
-    // pointer is null (e.g. assets not found at startup).
-    void OnMarkdownFormat(const ImGui::MarkdownFormatInfo &info, bool start)
-    {
-        ImGui::defaultMarkdownFormatCallback(info, start);
-
-        switch (info.type)
-        {
-            case ImGui::MarkdownFormatType::EMPHASIS:
-            {
-                const bool isItalic = (info.level == 1);
-                ImFont    *font     = isItalic ? gFontItalic : gFontBold;
-                if (start)
-                {
-                    if (font)
-                        ImGui::PushFont(font, 0.0f);
-                    else
-                        ImGui::PushStyleColor(ImGuiCol_Text,
-                            isItalic ? ImVec4(0.65f, 0.65f, 0.65f, 1.0f)
-                                     : ImVec4(0.70f, 0.90f, 1.00f, 1.0f));
-                }
-                else
-                {
-                    if (font) ImGui::PopFont();
-                    else      ImGui::PopStyleColor();
-                }
-                break;
-            }
-
-            case ImGui::MarkdownFormatType::CODE:
-                if (start)
-                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.85f, 0.40f, 1.0f));
-                else
-                    ImGui::PopStyleColor();
-                break;
-
-            default:
-                break;
-        }
-    }
-
-    const ImGui::MarkdownConfig &MarkdownConfig()
-    {
-        // First call happens after InitImGui(), so font pointers are valid.
-        static const ImGui::MarkdownConfig config = [] {
-            ImGui::MarkdownConfig c{};
-            c.linkCallback      = OnMarkdownLink;
-            c.formatCallback    = OnMarkdownFormat;
-            c.formatFlags       = ImGuiMarkdownFormatFlags_CommonMarkAll;
-            c.headingFormats[0] = { .font = gFontBoldH1, .separator = true  };
-            c.headingFormats[1] = { .font = gFontBoldH2, .separator = true  };
-            c.headingFormats[2] = { .font = gFontBoldH3, .separator = false };
-            return c;
-        }();
-        return config;
-    }
-}
+Renderer::Renderer() :_markdown_r(_pendingPanels) { }
 
 Renderer::~Renderer()
 {
@@ -187,32 +38,50 @@ Renderer::~Renderer()
 
 int Renderer::Run()
 {
-    if (!Init()) return EXIT_FAILURE;
-    if (!MainLoop()) return EXIT_FAILURE;
+    if (!Init())
+        return EXIT_FAILURE;
+    if (!MainLoop())
+        return EXIT_FAILURE;
     return EXIT_SUCCESS;
 }
 
 bool Renderer::Init()
 {
-    if (!InitSdl())                return false;
-    if (!CreateWindow())           return false;
-    if (!CreateInstance())         return false;
-    if (!CreateSurface())          return false;
-    if (!SelectPhysicalDevice())   return false;
-    if (!CreateDevice())           return false;
-    if (!RetrieveQueues())         return false;
-    if (!CreateSwapchain())        return false;
-    if (!CreateImageViews())       return false;
-    if (!CreateRenderPass())       return false;
-    if (!InitImGui())              return false;
-    if (!CreateFramebuffers())     return false;
-    if (!CreateCommandPool())      return false;
-    if (!CreateCommandBuffers())   return false;
-    if (!CreateSyncObjects())      return false;
+    if (!InitSdl())
+        return false;
+    if (!CreateWindow())
+        return false;
+    if (!CreateInstance())
+        return false;
+    if (!CreateSurface())
+        return false;
+    if (!SelectPhysicalDevice())
+        return false;
+    if (!CreateDevice())
+        return false;
+    if (!RetrieveQueues())
+        return false;
+    if (!CreateSwapchain())
+        return false;
+    if (!CreateImageViews())
+        return false;
+    if (!CreateRenderPass())
+        return false;
+    if (!InitImGui())
+        return false;
+    if (!CreateFramebuffers())
+        return false;
+    if (!CreateCommandPool())
+        return false;
+    if (!CreateCommandBuffers())
+        return false;
+    if (!CreateSyncObjects())
+        return false;
 
     if (const char *home = getenv("HOME"))
         OpenPanel(std::string(home) + "/.claude/CLAUDE.md");
     OpenPanel("/data/repos/dev-dash/.claude/CLAUDE.md");
+    OpenPanel("/data/repos/dev-dash/poc/rsrc/test.md");
 
     return true;
 }
@@ -224,7 +93,8 @@ bool Renderer::InitSdl()
         std::cerr << "[error] SDL_Init failed: " << SDL_GetError() << '\n';
         return false;
     }
-    _deletionQueue.Add([] { SDL_Quit(); });
+    _deletionQueue.Add([]
+                       { SDL_Quit(); });
     return true;
 }
 
@@ -240,14 +110,15 @@ bool Renderer::CreateWindow()
         std::cerr << "[error] SDL_CreateWindow failed: " << SDL_GetError() << '\n';
         return false;
     }
-    _deletionQueue.Add([this] { SDL_DestroyWindow(_window); });
+    _deletionQueue.Add([this]
+                       { SDL_DestroyWindow(_window); });
     return true;
 }
 
 bool Renderer::CreateInstance()
 {
-    uint32_t           extensionCount = 0;
-    const char *const *extensions     = SDL_Vulkan_GetInstanceExtensions(&extensionCount);
+    uint32_t extensionCount = 0;
+    const char *const *extensions = SDL_Vulkan_GetInstanceExtensions(&extensionCount);
     if (extensions == nullptr)
     {
         std::cerr << "[error] SDL_Vulkan_GetInstanceExtensions failed: " << SDL_GetError() << '\n';
@@ -279,7 +150,8 @@ bool Renderer::CreateInstance()
     }
 
     _instance = result.value();
-    _deletionQueue.Add([this] { vkb::destroy_instance(_instance); });
+    _deletionQueue.Add([this]
+                       { vkb::destroy_instance(_instance); });
     return true;
 }
 
@@ -290,7 +162,8 @@ bool Renderer::CreateSurface()
         std::cerr << "[error] SDL_Vulkan_CreateSurface failed: " << SDL_GetError() << '\n';
         return false;
     }
-    _deletionQueue.Add([this] { SDL_Vulkan_DestroySurface(_instance, _surface, nullptr); });
+    _deletionQueue.Add([this]
+                       { SDL_Vulkan_DestroySurface(_instance, _surface, nullptr); });
     return true;
 }
 
@@ -320,40 +193,46 @@ bool Renderer::CreateDevice()
     // selection — we find a graphics-capable family and a present-capable
     // family ourselves and feed them in via custom_queue_setup.
     const std::vector<VkQueueFamilyProperties> families = _physicalDevice.get_queue_families();
-    bool     graphicsFound  = false;
-    bool     presentFound   = false;
+    bool graphicsFound = false;
+    bool presentFound = false;
     uint32_t graphicsFamily = 0;
-    uint32_t presentFamily  = 0;
+    uint32_t presentFamily = 0;
 
     for (size_t i = 0; i < families.size() && !(graphicsFound && presentFound); ++i)
     {
         if (!graphicsFound && (families[i].queueFlags & VK_QUEUE_GRAPHICS_BIT))
         {
             graphicsFamily = static_cast<uint32_t>(i);
-            graphicsFound  = true;
+            graphicsFound = true;
         }
         if (!presentFound)
         {
             VkBool32 supported = VK_FALSE;
-            if (vkGetPhysicalDeviceSurfaceSupportKHR(_physicalDevice, static_cast<uint32_t>(i), _surface, &supported)
-                    == VK_SUCCESS
-                && supported)
+            if (vkGetPhysicalDeviceSurfaceSupportKHR(_physicalDevice, static_cast<uint32_t>(i), _surface, &supported) == VK_SUCCESS && supported)
             {
                 presentFamily = static_cast<uint32_t>(i);
-                presentFound  = true;
+                presentFound = true;
             }
         }
     }
 
-    if (!graphicsFound) { std::cerr << "[error] No graphics queue family available\n"; return false; }
-    if (!presentFound)  { std::cerr << "[error] No present queue family available\n";  return false; }
+    if (!graphicsFound)
+    {
+        std::cerr << "[error] No graphics queue family available\n";
+        return false;
+    }
+    if (!presentFound)
+    {
+        std::cerr << "[error] No present queue family available\n";
+        return false;
+    }
 
     _graphicsQueueFamilyIndex = graphicsFamily;
 
     std::vector<vkb::CustomQueueDescription> queueDescriptions;
-    queueDescriptions.emplace_back(graphicsFamily, std::vector<float>{ 1.0f });
+    queueDescriptions.emplace_back(graphicsFamily, std::vector<float>{1.0f});
     if (presentFamily != graphicsFamily)
-        queueDescriptions.emplace_back(presentFamily, std::vector<float>{ 1.0f });
+        queueDescriptions.emplace_back(presentFamily, std::vector<float>{1.0f});
 
     vkb::DeviceBuilder builder(_physicalDevice);
     const vkb::Result<vkb::Device> result = builder.custom_queue_setup(queueDescriptions).build();
@@ -364,7 +243,8 @@ bool Renderer::CreateDevice()
     }
 
     _device = result.value();
-    _deletionQueue.Add([this] { vkb::destroy_device(_device); });
+    _deletionQueue.Add([this]
+                       { vkb::destroy_device(_device); });
     return true;
 }
 
@@ -390,7 +270,7 @@ bool Renderer::RetrieveQueues()
 
 bool Renderer::CreateSwapchain()
 {
-    int width  = 0;
+    int width = 0;
     int height = 0;
     if (!SDL_GetWindowSizeInPixels(_window, &width, &height))
     {
@@ -405,10 +285,10 @@ bool Renderer::CreateSwapchain()
     const vkb::Result<vkb::Swapchain> result =
         builder.set_desired_min_image_count(3)
             .set_desired_extent(width, height)
-            .set_desired_format({ .format = VK_FORMAT_B8G8R8A8_UNORM, .colorSpace = VK_COLORSPACE_SRGB_NONLINEAR_KHR })
-            .add_fallback_format({ .format = VK_FORMAT_R8G8B8A8_UNORM, .colorSpace = VK_COLORSPACE_SRGB_NONLINEAR_KHR })
-            .add_fallback_format({ .format = VK_FORMAT_B8G8R8_UNORM,   .colorSpace = VK_COLORSPACE_SRGB_NONLINEAR_KHR })
-            .add_fallback_format({ .format = VK_FORMAT_R8G8B8_UNORM,   .colorSpace = VK_COLORSPACE_SRGB_NONLINEAR_KHR })
+            .set_desired_format({.format = VK_FORMAT_B8G8R8A8_UNORM, .colorSpace = VK_COLORSPACE_SRGB_NONLINEAR_KHR})
+            .add_fallback_format({.format = VK_FORMAT_R8G8B8A8_UNORM, .colorSpace = VK_COLORSPACE_SRGB_NONLINEAR_KHR})
+            .add_fallback_format({.format = VK_FORMAT_B8G8R8_UNORM, .colorSpace = VK_COLORSPACE_SRGB_NONLINEAR_KHR})
+            .add_fallback_format({.format = VK_FORMAT_R8G8B8_UNORM, .colorSpace = VK_COLORSPACE_SRGB_NONLINEAR_KHR})
             .set_image_usage_flags(VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT)
             .set_desired_present_mode(presentMode)
             .set_old_swapchain(_swapchain)
@@ -425,7 +305,8 @@ bool Renderer::CreateSwapchain()
 
     if (!_swapchainDeleterRegistered)
     {
-        _deletionQueue.Add([this] { vkb::destroy_swapchain(_swapchain); });
+        _deletionQueue.Add([this]
+                           { vkb::destroy_swapchain(_swapchain); });
         _swapchainDeleterRegistered = true;
     }
     return true;
@@ -443,7 +324,8 @@ bool Renderer::CreateImageViews()
 
     if (!_imageViewsDeleterRegistered)
     {
-        _deletionQueue.Add([this] { _swapchain.destroy_image_views(_imageViews); });
+        _deletionQueue.Add([this]
+                           { _swapchain.destroy_image_views(_imageViews); });
         _imageViewsDeleterRegistered = true;
     }
     return true;
@@ -452,43 +334,43 @@ bool Renderer::CreateImageViews()
 bool Renderer::CreateRenderPass()
 {
     VkAttachmentDescription colorAttachment = {};
-    colorAttachment.format  = _swapchain.image_format;
+    colorAttachment.format = _swapchain.image_format;
     colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
     // Clear instead of DONT_CARE: areas not covered by ImGui draw calls (e.g.
     // when no fullscreen dockspace is present) would otherwise show
     // uninitialized GPU memory and flicker across swapchain images.
-    colorAttachment.loadOp  = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
     colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-    colorAttachment.stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
     colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    colorAttachment.initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED;
-    colorAttachment.finalLayout    = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
     VkAttachmentReference colorAttachmentRef = {};
     colorAttachmentRef.attachment = 0;
-    colorAttachmentRef.layout     = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
     VkSubpassDescription subpass = {};
-    subpass.pipelineBindPoint    = VK_PIPELINE_BIND_POINT_GRAPHICS;
+    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
     subpass.colorAttachmentCount = 1;
-    subpass.pColorAttachments    = &colorAttachmentRef;
+    subpass.pColorAttachments = &colorAttachmentRef;
 
     VkSubpassDependency dependency = {};
-    dependency.srcSubpass    = VK_SUBPASS_EXTERNAL;
-    dependency.dstSubpass    = 0;
-    dependency.srcStageMask  = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+    dependency.dstSubpass = 0;
+    dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
     dependency.srcAccessMask = 0;
-    dependency.dstStageMask  = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
     dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 
     VkRenderPassCreateInfo info = {};
-    info.sType           = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+    info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
     info.attachmentCount = 1;
-    info.pAttachments    = &colorAttachment;
-    info.subpassCount    = 1;
-    info.pSubpasses      = &subpass;
+    info.pAttachments = &colorAttachment;
+    info.subpassCount = 1;
+    info.pSubpasses = &subpass;
     info.dependencyCount = 1;
-    info.pDependencies   = &dependency;
+    info.pDependencies = &dependency;
 
     if (vkCreateRenderPass(_device, &info, nullptr, &_renderPass) != VK_SUCCESS)
     {
@@ -498,7 +380,8 @@ bool Renderer::CreateRenderPass()
 
     if (!_renderPassDeleterRegistered)
     {
-        _deletionQueue.Add([this] { vkDestroyRenderPass(_device, _renderPass, nullptr); });
+        _deletionQueue.Add([this]
+                           { vkDestroyRenderPass(_device, _renderPass, nullptr); });
         _renderPassDeleterRegistered = true;
     }
     return true;
@@ -510,16 +393,16 @@ bool Renderer::CreateFramebuffers()
 
     for (size_t i = 0; i < _imageViews.size(); ++i)
     {
-        const VkImageView attachments[] = { _imageViews[i] };
+        const VkImageView attachments[] = {_imageViews[i]};
 
         VkFramebufferCreateInfo info = {};
-        info.sType           = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-        info.renderPass      = _renderPass;
+        info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+        info.renderPass = _renderPass;
         info.attachmentCount = 1;
-        info.pAttachments    = attachments;
-        info.width           = _swapchain.extent.width;
-        info.height          = _swapchain.extent.height;
-        info.layers          = 1;
+        info.pAttachments = attachments;
+        info.width = _swapchain.extent.width;
+        info.height = _swapchain.extent.height;
+        info.layers = 1;
 
         if (vkCreateFramebuffer(_device, &info, nullptr, &_framebuffers[i]) != VK_SUCCESS)
         {
@@ -530,10 +413,10 @@ bool Renderer::CreateFramebuffers()
 
     if (!_framebuffersDeleterRegistered)
     {
-        _deletionQueue.Add([this] {
+        _deletionQueue.Add([this]
+                           {
             for (const VkFramebuffer fb : _framebuffers)
-                vkDestroyFramebuffer(_device, fb, nullptr);
-        });
+                vkDestroyFramebuffer(_device, fb, nullptr); });
         _framebuffersDeleterRegistered = true;
     }
     return true;
@@ -542,8 +425,8 @@ bool Renderer::CreateFramebuffers()
 bool Renderer::CreateCommandPool()
 {
     VkCommandPoolCreateInfo info = {};
-    info.sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-    info.flags            = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+    info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
     info.queueFamilyIndex = _graphicsQueueFamilyIndex;
 
     if (vkCreateCommandPool(_device, &info, nullptr, &_commandPool) != VK_SUCCESS)
@@ -551,16 +434,17 @@ bool Renderer::CreateCommandPool()
         std::cerr << "[error] Command pool creation failed\n";
         return false;
     }
-    _deletionQueue.Add([this] { vkDestroyCommandPool(_device, _commandPool, nullptr); });
+    _deletionQueue.Add([this]
+                       { vkDestroyCommandPool(_device, _commandPool, nullptr); });
     return true;
 }
 
 bool Renderer::CreateCommandBuffers()
 {
     VkCommandBufferAllocateInfo info = {};
-    info.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    info.commandPool        = _commandPool;
-    info.level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    info.commandPool = _commandPool;
+    info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     info.commandBufferCount = static_cast<uint32_t>(_commandBuffers.size());
 
     if (vkAllocateCommandBuffers(_device, &info, _commandBuffers.data()) != VK_SUCCESS)
@@ -585,10 +469,10 @@ bool Renderer::CreateSyncObjects()
             return false;
         }
     }
-    _deletionQueue.Add([this] {
+    _deletionQueue.Add([this]
+                       {
         for (const VkSemaphore s : _imageAvailableSemaphores)
-            vkDestroySemaphore(_device, s, nullptr);
-    });
+            vkDestroySemaphore(_device, s, nullptr); });
 
     // One render-finished semaphore per swapchain image (not per frame in flight),
     // per Vulkan spec recommendations to avoid signal-reuse races.
@@ -601,10 +485,10 @@ bool Renderer::CreateSyncObjects()
             return false;
         }
     }
-    _deletionQueue.Add([this] {
+    _deletionQueue.Add([this]
+                       {
         for (const VkSemaphore s : _renderFinishedSemaphores)
-            vkDestroySemaphore(_device, s, nullptr);
-    });
+            vkDestroySemaphore(_device, s, nullptr); });
 
     VkFenceCreateInfo fenceInfo = {};
     fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
@@ -619,10 +503,10 @@ bool Renderer::CreateSyncObjects()
             return false;
         }
     }
-    _deletionQueue.Add([this] {
+    _deletionQueue.Add([this]
+                       {
         for (const VkFence f : _inFlightFences)
-            vkDestroyFence(_device, f, nullptr);
-    });
+            vkDestroyFence(_device, f, nullptr); });
 
     return true;
 }
@@ -631,63 +515,17 @@ bool Renderer::InitImGui()
 {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    _deletionQueue.Add([] { ImGui::DestroyContext(); });
 
-    // ----- Font loading -----
-    {
-        std::string fontsDir;
-        if (const char *base = SDL_GetBasePath())
-            fontsDir = base;
-        fontsDir += "assets/fonts/";
+    _deletionQueue.Add([]
+                       { ImGui::DestroyContext(); });
 
-        ImFontAtlas    *atlas     = ImGui::GetIO().Fonts;
-        constexpr float kBodySize = 16.0f;
-
-        // IBM Plex Sans covers Latin but omits many Unicode symbols (arrows,
-        // dingbats, etc.). DejaVu Sans is merged in after each IBM Plex face
-        // to supply the missing glyphs. MergeMode appends into the last-added
-        // font, so the merge call must immediately follow its primary face.
-        static constexpr ImWchar kPrimaryRanges[] = {
-            0x0020, 0x00FF, // Basic Latin + Latin Supplement
-            0x2000, 0x206F, // General Punctuation  (—  …  •  etc.)
-            0x2190, 0x21FF, // Arrows               (→  ←  etc.)
-            0x2700, 0x27BF, // Dingbats             (✓  ✗  etc.)
-            0,
-        };
-        static constexpr ImWchar kFallbackRanges[] = {
-            0x0100, 0x024F, // Latin Extended
-            0x2000, 0x27BF, // Punctuation + Arrows + Dingbats (all in one block)
-            0,
-        };
-        constexpr const char *kDejaVu = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf";
-
-        auto load = [&](const char *file, float size) -> ImFont * {
-            ImFont *f = atlas->AddFontFromFileTTF((fontsDir + file).c_str(), size,
-                                                  nullptr, kPrimaryRanges);
-            if (!f)
-            {
-                std::cerr << "[warn] Font not found: " << fontsDir << file << '\n';
-                return f;
-            }
-            ImFontConfig merge;
-            merge.MergeMode = true;
-            atlas->AddFontFromFileTTF(kDejaVu, size, &merge, kFallbackRanges);
-            return f;
-        };
-
-        gFontRegular = load("IBMPlexSans-Regular.ttf", kBodySize);
-        gFontItalic  = load("IBMPlexSans-Italic.ttf",  kBodySize);
-        gFontBold    = load("IBMPlexSans-Bold.ttf",    kBodySize);
-        gFontBoldH1  = load("IBMPlexSans-Bold.ttf", 30.0f);
-        gFontBoldH2  = load("IBMPlexSans-Bold.ttf", 22.5f);
-        gFontBoldH3  = load("IBMPlexSans-Bold.ttf", 17.55f);
-    }
+    _markdown_r.InitFonts();
 
     ImGuiIO &io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigWindowsResizeFromEdges = true;
-    io.IniFilename                  = nullptr;
+    io.IniFilename = nullptr;
 
     ImGui::GetPlatformIO().Platform_LocaleDecimalPoint =
         static_cast<unsigned char>(*std::localeconv()->decimal_point);
@@ -699,28 +537,30 @@ bool Renderer::InitImGui()
         std::cerr << "[error] ImGui SDL3 backend init failed\n";
         return false;
     }
-    _deletionQueue.Add([] { ImGui_ImplSDL3_Shutdown(); });
+    _deletionQueue.Add([]
+                       { ImGui_ImplSDL3_Shutdown(); });
 
-    ImGui_ImplVulkan_InitInfo info    = {};
-    info.Instance                     = _instance;
-    info.PhysicalDevice               = _physicalDevice;
-    info.Device                       = _device;
-    info.QueueFamily                  = _graphicsQueueFamilyIndex;
-    info.Queue                        = _graphicsQueue;
-    info.DescriptorPoolSize           = IMGUI_IMPL_VULKAN_MINIMUM_IMAGE_SAMPLER_POOL_SIZE;
-    info.MinImageCount                = _swapchain.requested_min_image_count;
-    info.ImageCount                   = _swapchain.image_count;
-    info.PipelineInfoMain.RenderPass  = _renderPass;
-    info.PipelineInfoMain.Subpass     = 0;
+    ImGui_ImplVulkan_InitInfo info = {};
+    info.Instance = _instance;
+    info.PhysicalDevice = _physicalDevice;
+    info.Device = _device;
+    info.QueueFamily = _graphicsQueueFamilyIndex;
+    info.Queue = _graphicsQueue;
+    info.DescriptorPoolSize = IMGUI_IMPL_VULKAN_MINIMUM_IMAGE_SAMPLER_POOL_SIZE;
+    info.MinImageCount = _swapchain.requested_min_image_count;
+    info.ImageCount = _swapchain.image_count;
+    info.PipelineInfoMain.RenderPass = _renderPass;
+    info.PipelineInfoMain.Subpass = 0;
     info.PipelineInfoMain.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
-    info.CheckVkResultFn              = &Renderer::CheckVkResultFn;
+    info.CheckVkResultFn = &Renderer::CheckVkResultFn;
 
     if (!ImGui_ImplVulkan_Init(&info))
     {
         std::cerr << "[error] ImGui Vulkan backend init failed\n";
         return false;
     }
-    _deletionQueue.Add([] { ImGui_ImplVulkan_Shutdown(); });
+    _deletionQueue.Add([]
+                       { ImGui_ImplVulkan_Shutdown(); });
 
     return true;
 }
@@ -743,10 +583,10 @@ bool Renderer::MainLoop()
 {
     SDL_ShowWindow(_window);
 
-    bool   exitRequested  = false;
-    bool   paused         = false;
-    bool   recreateNeeded = false;
-    size_t frameIndex     = 0;
+    bool exitRequested = false;
+    bool paused = false;
+    bool recreateNeeded = false;
+    size_t frameIndex = 0;
 
     while (!exitRequested)
     {
@@ -758,28 +598,30 @@ bool Renderer::MainLoop()
             ImGui_ImplSDL3_ProcessEvent(&event);
             switch (event.type)
             {
-                case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
-                case SDL_EVENT_QUIT:
-                    exitRequested = true;
-                    break;
-                case SDL_EVENT_WINDOW_MINIMIZED:
-                case SDL_EVENT_WINDOW_HIDDEN:
-                    paused = true;
-                    break;
-                case SDL_EVENT_WINDOW_RESTORED:
-                case SDL_EVENT_WINDOW_SHOWN:
-                    paused = false;
-                    break;
-                case SDL_EVENT_WINDOW_RESIZED:
-                case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
-                    recreateNeeded = true;
-                    break;
-                default:
-                    break;
+            case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
+            case SDL_EVENT_QUIT:
+                exitRequested = true;
+                break;
+            case SDL_EVENT_WINDOW_MINIMIZED:
+            case SDL_EVENT_WINDOW_HIDDEN:
+                paused = true;
+                break;
+            case SDL_EVENT_WINDOW_RESTORED:
+            case SDL_EVENT_WINDOW_SHOWN:
+                paused = false;
+                break;
+            case SDL_EVENT_WINDOW_RESIZED:
+            case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
+                recreateNeeded = true;
+                break;
+            default:
+                break;
             }
-            if (exitRequested) break;
+            if (exitRequested)
+                break;
         }
-        if (exitRequested) break;
+        if (exitRequested)
+            break;
 
         ImGui_ImplVulkan_NewFrame();
         ImGui_ImplSDL3_NewFrame();
@@ -796,7 +638,7 @@ bool Renderer::MainLoop()
             return false;
         }
 
-        uint32_t       imageIndex = 0;
+        uint32_t imageIndex = 0;
         const VkResult acquire = vkAcquireNextImageKHR(
             _device, _swapchain, UINT64_MAX, _imageAvailableSemaphores[frameIndex], VK_NULL_HANDLE, &imageIndex);
         if (acquire == VK_ERROR_OUT_OF_DATE_KHR || acquire == VK_SUBOPTIMAL_KHR)
@@ -824,16 +666,16 @@ bool Renderer::MainLoop()
             return false;
         }
 
-        constexpr VkClearValue clearColor = { .color = { .float32 = { 0.06f, 0.06f, 0.06f, 1.0f } } };
+        constexpr VkClearValue clearColor = {.color = {.float32 = {0.06f, 0.06f, 0.06f, 1.0f}}};
 
         VkRenderPassBeginInfo rpBegin = {};
-        rpBegin.sType             = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        rpBegin.renderPass        = _renderPass;
-        rpBegin.framebuffer       = _framebuffers[imageIndex];
-        rpBegin.renderArea.offset = { 0, 0 };
+        rpBegin.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        rpBegin.renderPass = _renderPass;
+        rpBegin.framebuffer = _framebuffers[imageIndex];
+        rpBegin.renderArea.offset = {0, 0};
         rpBegin.renderArea.extent = _swapchain.extent;
-        rpBegin.clearValueCount   = 1;
-        rpBegin.pClearValues      = &clearColor;
+        rpBegin.clearValueCount = 1;
+        rpBegin.pClearValues = &clearColor;
         vkCmdBeginRenderPass(_commandBuffers[frameIndex], &rpBegin, VK_SUBPASS_CONTENTS_INLINE);
 
         ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), _commandBuffers[frameIndex]);
@@ -846,19 +688,19 @@ bool Renderer::MainLoop()
             return false;
         }
 
-        const VkSemaphore         waitSemaphores[]   = { _imageAvailableSemaphores[frameIndex] };
-        const VkSemaphore         signalSemaphores[] = { _renderFinishedSemaphores[imageIndex] };
-        constexpr VkPipelineStageFlags waitStages[]  = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+        const VkSemaphore waitSemaphores[] = {_imageAvailableSemaphores[frameIndex]};
+        const VkSemaphore signalSemaphores[] = {_renderFinishedSemaphores[imageIndex]};
+        constexpr VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 
         VkSubmitInfo submit = {};
-        submit.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-        submit.waitSemaphoreCount   = 1;
-        submit.pWaitSemaphores      = waitSemaphores;
-        submit.pWaitDstStageMask    = waitStages;
-        submit.commandBufferCount   = 1;
-        submit.pCommandBuffers      = &_commandBuffers[frameIndex];
+        submit.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submit.waitSemaphoreCount = 1;
+        submit.pWaitSemaphores = waitSemaphores;
+        submit.pWaitDstStageMask = waitStages;
+        submit.commandBufferCount = 1;
+        submit.pCommandBuffers = &_commandBuffers[frameIndex];
         submit.signalSemaphoreCount = 1;
-        submit.pSignalSemaphores    = signalSemaphores;
+        submit.pSignalSemaphores = signalSemaphores;
 
         if (vkQueueSubmit(_graphicsQueue, 1, &submit, _inFlightFences[frameIndex]) != VK_SUCCESS)
         {
@@ -866,14 +708,14 @@ bool Renderer::MainLoop()
             return false;
         }
 
-        const VkSwapchainKHR swapchains[] = { _swapchain };
-        VkPresentInfoKHR     present      = {};
-        present.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+        const VkSwapchainKHR swapchains[] = {_swapchain};
+        VkPresentInfoKHR present = {};
+        present.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
         present.waitSemaphoreCount = 1;
-        present.pWaitSemaphores    = signalSemaphores;
-        present.swapchainCount     = 1;
-        present.pSwapchains        = swapchains;
-        present.pImageIndices      = &imageIndex;
+        present.pWaitSemaphores = signalSemaphores;
+        present.swapchainCount = 1;
+        present.pSwapchains = swapchains;
+        present.pImageIndices = &imageIndex;
 
         const VkResult presentResult = vkQueuePresentKHR(_presentQueue, &present);
         if (presentResult == VK_ERROR_OUT_OF_DATE_KHR || presentResult == VK_SUBOPTIMAL_KHR)
@@ -888,7 +730,8 @@ bool Renderer::MainLoop()
 
         if (recreateNeeded)
         {
-            if (!RecreateSwapchain()) return false;
+            if (!RecreateSwapchain())
+                return false;
             recreateNeeded = false;
         }
 
@@ -898,26 +741,84 @@ bool Renderer::MainLoop()
     return true;
 }
 
+void Renderer::OpenPanel(const std::string &path)
+{
+    for (const auto &p : _panels)
+        if (p.path == path)
+            return;
+
+    const std::filesystem::path fsPath(path);
+    std::string content = PreprocessImports(fsPath);
+    if (content.empty())
+    {
+        std::cerr << "[warn] Could not open: " << path << '\n';
+        return;
+    }
+    // ImGui identifies windows by title; append ##path to keep the label
+    // readable while using the full path as the unique internal ID.
+    const std::string title = fsPath.filename().string() + "##" + path;
+    _panels.push_back({title, path, std::move(content), true});
+}
+
 void Renderer::RenderMarkdownWindow()
 {
-    for (const auto &path : gPendingPanels)
+    for (const auto &path : _pendingPanels)
         OpenPanel(path);
-    gPendingPanels.clear();
+    _pendingPanels.clear();
 
-    for (auto &panel : gPanels)
+    for (auto &panel : _panels)
     {
-        if (!panel.open) continue;
+        if (!panel.open)
+            continue;
         ImGui::SetNextWindowSize(ImVec2(700, 900), ImGuiCond_FirstUseEver);
         if (ImGui::Begin(panel.title.c_str(), &panel.open))
-            ImGui::Markdown(panel.content.data(), panel.content.size(), MarkdownConfig());
+            _markdown_r.print(panel.content.data(), panel.content.data() + panel.content.size());
         ImGui::End();
     }
 
-    std::erase_if(gPanels, [](const MarkdownPanel &p) { return !p.open; });
+    std::erase_if(_panels, [](const MarkdownPanel &p)
+                  { return !p.open; });
+
 }
 
 void Renderer::CheckVkResultFn(VkResult err)
 {
     if (err != VK_SUCCESS)
         std::cerr << "[error] ImGui-Vulkan check: VkResult = " << err << '\n';
+}
+
+std::string Renderer::PreprocessImports(const std::filesystem::path &filePath)
+{
+    std::ifstream file(filePath);
+    if (!file)
+        return "";
+
+    const std::filesystem::path dir = filePath.parent_path();
+    std::string result;
+    std::string line;
+    bool isCodeBlock = false;
+
+    while (std::getline(file, line))
+    {
+
+        if(line.starts_with("```"))
+        {
+            isCodeBlock = !isCodeBlock;
+        }
+
+        const auto firstNonSpace = line.find_first_not_of(" \t");
+        if (!isCodeBlock && firstNonSpace != std::string::npos && line[firstNonSpace] == '@' && firstNonSpace + 1 < line.size() && line[firstNonSpace + 1] != ' ')
+        {
+            const std::string importPath = line.substr(firstNonSpace + 1);
+            const auto resolved = std::filesystem::weakly_canonical(dir / importPath);
+            const std::string label = resolved.filename().string();
+            result += "[" + label + "](claudeimport://" + resolved.string() + ")\n";
+        }
+        else
+        {
+            result += line + '\n';
+        }
+    }
+
+    return result;
 }

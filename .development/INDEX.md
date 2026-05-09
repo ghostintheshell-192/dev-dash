@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-05-04 23:55*
+*Auto-generated: 2026-05-09 22:59*
 
 ---
 
@@ -19,8 +19,8 @@
 
 ### (root)/ (4 files)
 
-- [INDEX.md](INDEX.md) (3KB, 2026-05-04) **RECENT**
-- [ARCHITECTURE.md](ARCHITECTURE.md) (4KB, 2026-04-28) **RECENT**
+- [INDEX.md](INDEX.md) (2KB, 2026-05-07) **RECENT**
+- [ARCHITECTURE.md](ARCHITECTURE.md) (4KB, 2026-04-28)
 - [README.md](README.md) (2KB, 2026-04-26)
 - [CURRENT-STATUS.md](CURRENT-STATUS.md) (8KB, 2026-02-10)
 
@@ -35,16 +35,18 @@
 
 ### specs/planned/ (4 files)
 
-- [feature-code-graph.md](specs/planned/feature-code-graph.md) (8KB, 2026-04-27) **RECENT**
+- [feature-code-graph.md](specs/planned/feature-code-graph.md) (8KB, 2026-04-27)
 - [feature-claude-context.md](specs/planned/feature-claude-context.md) (11KB, 2026-04-26)
 - [feature-issue-management.md](specs/planned/feature-issue-management.md) (18KB, 2026-04-26)
 - [feature-markdown-rendering.md](specs/planned/feature-markdown-rendering.md) (10KB, 2026-04-26)
 
-### tech-debt/ (5 files)
+### tech-debt/ (7 files)
 
-- [README.md](tech-debt/README.md) (2KB, 2026-05-04) **RECENT**
-- [scaffold-architecture-scripts.md](tech-debt/scaffold-architecture-scripts.md) (<1KB, 2026-04-28) **RECENT**
-- [session-handoff-skill-note.md](tech-debt/session-handoff-skill-note.md) (<1KB, 2026-04-28) **RECENT**
+- [markdown-code-block-styling.md](tech-debt/markdown-code-block-styling.md) (3KB, 2026-05-09) **RECENT**
+- [preprocess-imports-indented-fences.md](tech-debt/preprocess-imports-indented-fences.md) (2KB, 2026-05-09) **RECENT**
+- [README.md](tech-debt/README.md) (2KB, 2026-05-07) **RECENT**
+- [scaffold-architecture-scripts.md](tech-debt/scaffold-architecture-scripts.md) (<1KB, 2026-04-28)
+- [session-handoff-skill-note.md](tech-debt/session-handoff-skill-note.md) (<1KB, 2026-04-28)
 - [_TEMPLATE.md](tech-debt/_TEMPLATE.md) (1KB, 2026-04-26)
 - [contentcontrol-binding-multisidebar.md](tech-debt/contentcontrol-binding-multisidebar.md) (2KB, 2026-02-10)
 
@@ -82,11 +84,10 @@
 
 ## Recently Modified (last 7 days)
 
-1. [INDEX.md](INDEX.md) (today)
-2. [README.md](tech-debt/README.md) (today)
-3. [ARCHITECTURE.md](ARCHITECTURE.md) (6d ago)
-4. [scaffold-architecture-scripts.md](tech-debt/scaffold-architecture-scripts.md) (6d ago)
-5. [session-handoff-skill-note.md](tech-debt/session-handoff-skill-note.md) (6d ago)
+1. [markdown-code-block-styling.md](tech-debt/markdown-code-block-styling.md) (today)
+2. [preprocess-imports-indented-fences.md](tech-debt/preprocess-imports-indented-fences.md) (today)
+3. [INDEX.md](INDEX.md) (2d ago)
+4. [README.md](tech-debt/README.md) (2d ago)
 
 ---
 

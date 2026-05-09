@@ -121,25 +121,45 @@ target_link_libraries(ImGui-Vulkan
 
 target_include_directories(ImGui-Vulkan PUBLIC ${ImGui_SOURCE_DIR}/backends)
 
-# ----- imgui_markdown (vendored single-header) -----
+# ----- MD4C (CommonMark parser, C library) -----
 #
-# Vendored from mgerhardy/imgui_markdown @ 214a836c (PR enkisoftware/imgui_markdown#43,
-# "extend markdown syntax support (tables and code)"). The base library is
-# enkisoftware/imgui_markdown (zlib, by Juliette Foucaut & Doug Binks). We use
-# mgerhardy's branch instead of upstream main because it adds tables and code
-# blocks — features needed to render typical CLAUDE.md / ADR / spec content.
-# When PR #43 lands upstream, switch the pin back to enkisoftware/main.
+# Pulled via CPM. Exports the `md4c` static library target. We disable the
+# md2html executable since we only need the parser. The companion target
+# `md4c-html` (HTML renderer) is also irrelevant for our ImGui rendering path.
 
-add_library(ImGui-Markdown INTERFACE)
-
-target_sources(ImGui-Markdown
-    INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}/imgui_markdown/imgui_markdown.h
+CPMAddPackage(
+    NAME md4c
+    VERSION 0.5.3
+    GITHUB_REPOSITORY mity/md4c
+    GIT_TAG release-0.5.3
+    OPTIONS
+        "BUILD_MD2HTML_EXECUTABLE OFF"
+        "BUILD_SHARED_LIBS OFF"
 )
 
-target_include_directories(ImGui-Markdown
-    INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}/imgui_markdown
+# ----- imgui_md (vendored bridge: MD4C events → ImGui rendering) -----
+#
+# Vendored from mekhontsev/imgui_md @ main (MIT, by Dmitry Mekhontsev). The
+# upstream is inactive since 2022 but the heavy lifting (parsing) is delegated
+# to MD4C, which is actively maintained — so the bridge code is small and
+# unlikely to need frequent changes. Local patch applied: PushFont call updated
+# for the ImGui 1.92.x signature change (now requires an explicit size argument).
+
+add_library(ImGui-MD STATIC)
+
+target_sources(ImGui-MD
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/imgui_md/imgui_md.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/imgui_md/imgui_md.h
 )
 
-target_link_libraries(ImGui-Markdown INTERFACE ImGui)
+target_include_directories(ImGui-MD
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/imgui_md
+)
+
+target_link_libraries(ImGui-MD
+    PUBLIC
+        ImGui
+        md4c
+)
