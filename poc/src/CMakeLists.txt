@@ -6,12 +6,14 @@ target_sources(dev-dash-poc
         renderer.h
         renderer.cpp
         main.cpp
+        "rendering/markdown_r.h"
+        "rendering/markdown_r.cpp"
 )
 
 target_link_libraries(dev-dash-poc
     PRIVATE
         ImGui
-        ImGui-Markdown
+        ImGui-MD
         ImGui-SDL3
         ImGui-Vulkan
         vk-bootstrap::vk-bootstrap
