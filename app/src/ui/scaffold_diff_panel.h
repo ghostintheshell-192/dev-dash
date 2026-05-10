@@ -36,6 +36,8 @@ namespace dev_dash::ui
         void Refresh();
         void RunDiff();
         void RenderPromoteConfirmModal();
+        void RenderNewScaffoldModal();
+        void RenderDeleteConfirmModal();
 
         services::ScaffoldRepository& _repo;
         services::DiffEngine&         _diffEngine;
@@ -48,8 +50,12 @@ namespace dev_dash::ui
         std::vector<core::DiffEntry>  _diff;
 
         std::set<std::string>         _selectedForPromote;
-        bool                          _showPromoteConfirm = false;
-        std::string                   _promoteStatusMsg;
+        bool                          _showPromoteConfirm  = false;
+        bool                          _showNewModal        = false;
+        bool                          _showDeleteConfirm   = false;
+        char                          _newName[128]        = {};
+        int                           _newMode             = 0;  // 0=empty, 1=copy
+        std::string                   _statusMsg;
         FileDiffPanel                 _diffViewer;
 
         bool _wantsBack    = false;
