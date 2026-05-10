@@ -17,6 +17,7 @@ target_link_libraries(dev-dash
         ImGui-SDL3
         ImGui-Vulkan
         vk-bootstrap::vk-bootstrap
+        nlohmann_json::nlohmann_json
 )
 
 add_custom_command(TARGET dev-dash POST_BUILD

@@ -1,8 +1,10 @@
 #pragma once
 
+#include "../core/config_layer.h"
 #include "../core/effective_config.h"
 #include "../core/project.h"
-#include "../core/config_layer.h"
+#include "config_file_scanner.h"
+#include "settings_parser.h"
 
 namespace dev_dash::services
 {
@@ -11,14 +13,40 @@ namespace dev_dash::services
     public:
         ConfigResolver() = default;
 
-        core::EffectiveConfig Resolve(
-            const core::Project& project,
-            const core::ConfigLayer& global,
-            const core::ConfigLayer& projectLayer,
-            const core::ConfigLayer& workspace = core::ConfigLayer{});
-
         core::EffectiveConfig ResolveWithDefaultGlobal(
             const core::Project& project,
             const core::ConfigLayer& projectLayer);
+
+    private:
+        core::ConfigSection ResolveClaudeMdSection(
+            const core::ConfigLayer& global,
+            const core::ConfigLayer& project,
+            const core::ConfigLayer& workspace) const;
+
+        core::ConfigSection ResolveRulesSection(
+            const core::ConfigLayer& global,
+            const core::ConfigLayer& project) const;
+
+        core::ConfigSection ResolveMemorySection(
+            const core::Project& project) const;
+
+        core::ConfigSection ResolveSkillsSection(
+            const core::ConfigLayer& global,
+            const core::ConfigLayer& project) const;
+
+        core::ConfigSection ResolveAgentsSection(
+            const core::ConfigLayer& global,
+            const core::ConfigLayer& project) const;
+
+        core::ConfigSection ResolveMcpSection(
+            const core::ConfigLayer& global,
+            const core::ConfigLayer& project) const;
+
+        core::ConfigSection ResolveHooksSection(
+            const core::ConfigLayer& global,
+            const core::ConfigLayer& project) const;
+
+        ConfigFileScanner _scanner;
+        SettingsParser    _settingsParser;
     };
 }

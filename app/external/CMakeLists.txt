@@ -1,5 +1,19 @@
 set(CMAKE_FOLDER "external")
 
+# ----- nlohmann/json -----
+#
+# Header-only JSON library used by SettingsParser to read settings.json
+# (MCP servers and hooks configuration).
+
+CPMAddPackage(
+    NAME nlohmann_json
+    VERSION 3.11.3
+    GITHUB_REPOSITORY nlohmann/json
+    OPTIONS
+        "JSON_BuildTests OFF"
+        "JSON_Install OFF"
+)
+
 # ----- SDL3 -----
 #
 # Built from source via CPM. Debian 12 (bookworm) does not yet ship libsdl3-dev
