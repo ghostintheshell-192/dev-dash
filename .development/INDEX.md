@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-05-10 15:11*
+*Auto-generated: 2026-05-10 15:13*
 
 ---
 
@@ -19,7 +19,7 @@
 
 ### (root)/ (5 files)
 
-- [ARCHITECTURE.md](ARCHITECTURE.md) (1KB, 2026-05-10) **RECENT**
+- [ARCHITECTURE.md](ARCHITECTURE.md) (5KB, 2026-05-10) **RECENT**
 - [INDEX.md](INDEX.md) (4KB, 2026-05-10) **RECENT**
 - [CURRENT-STATUS.md](CURRENT-STATUS.md) (11KB, 2026-05-10) **RECENT**
 - [api-design.md](api-design.md) (39KB, 2026-05-10) **RECENT**
