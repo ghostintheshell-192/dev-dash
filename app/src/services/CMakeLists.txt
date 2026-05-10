@@ -6,6 +6,21 @@ target_sources(dev-dash
         config_file_scanner.cpp
         settings_parser.h
         settings_parser.cpp
+        adapter_utils.h
+        claude_md_adapter.h
+        claude_md_adapter.cpp
+        rules_adapter.h
+        rules_adapter.cpp
+        memory_adapter.h
+        memory_adapter.cpp
+        skills_adapter.h
+        skills_adapter.cpp
+        agents_adapter.h
+        agents_adapter.cpp
+        mcp_adapter.h
+        mcp_adapter.cpp
+        hooks_adapter.h
+        hooks_adapter.cpp
         config_resolver.h
         config_resolver.cpp
         diff_engine.h
