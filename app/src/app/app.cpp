@@ -118,6 +118,8 @@ namespace dev_dash::app
                 &imageIndex);
             if (acquire == VK_ERROR_OUT_OF_DATE_KHR || acquire == VK_SUBOPTIMAL_KHR)
             {
+                // NewFrame() was already called; must end the frame before skipping Render().
+                ImGui::EndFrame();
                 _swapchain->Recreate(*_vulkanContext, *_window);
                 continue;
             }
