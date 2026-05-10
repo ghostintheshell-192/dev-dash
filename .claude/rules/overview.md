@@ -5,8 +5,8 @@
 **DevDash** is a personal documentation-first project dashboard that collaborates with Claude Code. It manages documentation and context (project + Claude configuration) without duplicating Claude Code's execution capabilities.
 
 - **Type**: Personal tool (closed source, single-user)
-- **Platform**: Cross-platform desktop (.NET 8 + Avalonia UI)
-- **Status**: Early development (v0.2.x)
+- **Platform**: Desktop (C++20 + Dear ImGui + SDL3 + Vulkan, Linux-first)
+- **Status**: Layered skeleton implemented; wedge features next
 
 ## Philosophy
 
@@ -30,20 +30,34 @@ This project follows a **spec-driven development** approach:
 
 ## Architecture
 
-- **MVVM Pattern**: UI/ViewModel separation via CommunityToolkit.Mvvm
-- **Service Layer**: Interfaces in `Services/`, injected via constructor
-- **ViewLocator**: Auto-resolves Views from ViewModels by naming convention
+**Layered split** under `app/src/` (ADR-010):
+
+- `core/` — pure value types, no external dependencies
+- `services/` — domain logic (file I/O, config resolution, diff/apply, snapshots)
+- `ui/` — ImGui panel classes, font library, markdown renderer
+- `platform/` — SDL3/Vulkan/ImGui plumbing
+- `app/` — composition root + main loop
+
+**"Panel as viewmodel"** instead of MVVM: each panel class in `ui/` holds its own
+state and receives services via constructor injection. No separate ViewModel layer.
+
+**Concrete services** (no virtual interfaces): test fixtures use real tmpdir.
+Promote to virtual interface only when a concrete seam emerges.
 
 ## Technology Stack
 
-- **.NET 8** + **C# 12**
-- **Avalonia UI 11.x** - Cross-platform native UI (Fluent theme, dark mode)
-- **CommunityToolkit.Mvvm** - MVVM source generators
-- **LiveMarkdown.Avalonia** - Markdown rendering
+- **C++20** — GCC on Linux, no extensions
+- **Dear ImGui 1.92.6-docking** — immediate-mode UI
+- **SDL3 3.2.20** — windowing, input, built from source via CPM
+- **Vulkan** — rendering backend (via vk-bootstrap 1.3.302)
+- **MD4C 0.5.3** — CommonMark parser
+- **imgui_md** — vendored bridge MD4C → ImGui rendering
+- **CMake ≥ 3.28** + Ninja
 
 ## Key Documents
 
 - [.development/CURRENT-STATUS.md](.development/CURRENT-STATUS.md) - Current project state
+- [.development/api-design.md](.development/api-design.md) - Definitive API design (companion to ADR-010)
 - [.development/INDEX.md](.development/INDEX.md) - Auto-generated navigation
 - [.development/specs/](.development/specs/) - Feature specifications
 - [.development/tech-debt/](.development/tech-debt/) - Known issues
