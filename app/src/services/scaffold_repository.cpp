@@ -79,4 +79,35 @@ namespace dev_dash::services
             [](const core::Scaffold& a, const core::Scaffold& b)
             { return a.name < b.name; });
     }
+
+    bool ScaffoldRepository::CreateEmpty(const std::string& name)
+    {
+        std::error_code ec;
+        std::filesystem::create_directories(_scaffoldRoot / name, ec);
+        if (ec) return false;
+        _cached = false;
+        return true;
+    }
+
+    bool ScaffoldRepository::CreateCopy(const std::filesystem::path& sourcePath,
+                                         const std::string& newName)
+    {
+        const auto dst = _scaffoldRoot / newName;
+        std::error_code ec;
+        std::filesystem::copy(sourcePath, dst,
+            std::filesystem::copy_options::recursive
+            | std::filesystem::copy_options::overwrite_existing, ec);
+        if (ec) return false;
+        _cached = false;
+        return true;
+    }
+
+    bool ScaffoldRepository::Delete(const std::filesystem::path& scaffoldPath)
+    {
+        std::error_code ec;
+        std::filesystem::remove_all(scaffoldPath, ec);
+        if (ec) return false;
+        _cached = false;
+        return true;
+    }
 }

@@ -188,6 +188,7 @@ namespace dev_dash::ui
                 {
                     _selectedIdx = i;
                     _selectedForPromote.clear();
+                    _statusMsg.clear();
                     RunDiff();
                 }
                 if (i == _selectedIdx)
@@ -197,11 +198,22 @@ namespace dev_dash::ui
         }
 
         ImGui::SameLine();
+        if (ImGui::SmallButton("New..."))
+        {
+            _newName[0] = '\0';
+            _newMode    = 0;
+            _showNewModal = true;
+        }
+        ImGui::SameLine();
+        if (ImGui::SmallButton("Delete"))
+            _showDeleteConfirm = true;
+
+        ImGui::SameLine();
         ImGui::TextDisabled("vs");
         ImGui::SameLine();
         ImGui::TextDisabled("%s", _project.path.string().c_str());
 
-        // Promote button — right-aligned, visible only when something is selected
+        // Right-aligned: Promote + Refresh
         const float rightEdge = ImGui::GetContentRegionAvail().x + ImGui::GetCursorPosX();
         const float refreshW  = 70.0f;
         const float promoteW  = _selectedForPromote.empty() ? 0.0f : 160.0f;
@@ -222,16 +234,17 @@ namespace dev_dash::ui
         {
             _repo.Refresh();
             _selectedForPromote.clear();
+            _statusMsg.clear();
             _needsRefresh = true;
         }
 
         ImGui::Separator();
 
         // ── Status message ────────────────────────────────────────────────────
-        if (!_promoteStatusMsg.empty())
+        if (!_statusMsg.empty())
         {
             ImGui::Spacing();
-            ImGui::TextUnformatted(_promoteStatusMsg.c_str());
+            ImGui::TextUnformatted(_statusMsg.c_str());
         }
 
         // ── Summary bar ───────────────────────────────────────────────────────
@@ -358,7 +371,7 @@ namespace dev_dash::ui
                     ImGui::PushID(rowId);
                     if (ImGui::Checkbox("##p", &checked))
                     {
-                        _promoteStatusMsg.clear();
+                        _statusMsg.clear();
                         if (checked)
                             _selectedForPromote.insert(entry.relativePath);
                         else
@@ -374,6 +387,8 @@ namespace dev_dash::ui
         ImGui::EndTable();
 
         RenderPromoteConfirmModal();
+        RenderNewScaffoldModal();
+        RenderDeleteConfirmModal();
 
         ImGui::End();
 
@@ -420,14 +435,14 @@ namespace dev_dash::ui
 
                 if (result.Ok())
                 {
-                    _promoteStatusMsg = "Promoted " + std::to_string(result.copiedCount)
+                    _statusMsg = "Promoted " + std::to_string(result.copiedCount)
                                         + " file(s) to scaffold.";
                 }
                 else
                 {
-                    _promoteStatusMsg = "Promote completed with errors:";
+                    _statusMsg = "Promote completed with errors:";
                     for (const auto& e : result.errors)
-                        _promoteStatusMsg += "\n  " + e;
+                        _statusMsg += "\n  " + e;
                 }
 
                 _selectedForPromote.clear();
@@ -445,6 +460,136 @@ namespace dev_dash::ui
     }
 
     // ── Private ───────────────────────────────────────────────────────────────
+
+    // ── New scaffold modal ────────────────────────────────────────────────────
+
+    void ScaffoldDiffPanel::RenderNewScaffoldModal()
+    {
+        if (_showNewModal)
+        {
+            ImGui::OpenPopup("New Scaffold");
+            _showNewModal = false;
+        }
+
+        const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+        ImGui::SetNextWindowSize(ImVec2(380, 0), ImGuiCond_Appearing);
+
+        if (ImGui::BeginPopupModal("New Scaffold", nullptr,
+                                   ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            ImGui::Text("Name:");
+            ImGui::SameLine();
+            ImGui::SetNextItemWidth(240.0f);
+            ImGui::InputText("##new_name", _newName, sizeof(_newName));
+
+            ImGui::Spacing();
+            ImGui::RadioButton("Empty", &_newMode, 0);
+            if (!_scaffolds.empty())
+            {
+                ImGui::SameLine();
+                const std::string copyLabel =
+                    "Copy of \"" + _scaffolds[_selectedIdx].name + "\"";
+                ImGui::RadioButton(copyLabel.c_str(), &_newMode, 1);
+            }
+
+            ImGui::Spacing();
+
+            const bool nameOk = _newName[0] != '\0'
+                && !std::filesystem::exists(_repo.ScaffoldRoot() / _newName);
+
+            if (!nameOk)
+                ImGui::BeginDisabled();
+            if (ImGui::Button("Create", ImVec2(120, 0)))
+            {
+                bool ok = false;
+                if (_newMode == 1 && !_scaffolds.empty())
+                    ok = _repo.CreateCopy(_scaffolds[_selectedIdx].path, _newName);
+                else
+                    ok = _repo.CreateEmpty(_newName);
+
+                if (ok)
+                {
+                    _statusMsg = std::string("Scaffold \"") + _newName + "\" created.";
+                    _needsRefresh = true;
+                }
+                else
+                {
+                    _statusMsg = std::string("Failed to create scaffold \"")
+                                 + _newName + "\".";
+                }
+                ImGui::CloseCurrentPopup();
+            }
+            if (!nameOk)
+                ImGui::EndDisabled();
+
+            ImGui::SameLine();
+            if (ImGui::Button("Cancel", ImVec2(120, 0)))
+                ImGui::CloseCurrentPopup();
+
+            if (_newName[0] != '\0'
+                && std::filesystem::exists(_repo.ScaffoldRoot() / _newName))
+            {
+                ImGui::Spacing();
+                ImGui::TextColored({1.0f, 0.4f, 0.4f, 1.0f},
+                                   "A scaffold with that name already exists.");
+            }
+
+            ImGui::EndPopup();
+        }
+    }
+
+    // ── Delete confirm modal ──────────────────────────────────────────────────
+
+    void ScaffoldDiffPanel::RenderDeleteConfirmModal()
+    {
+        if (_showDeleteConfirm)
+        {
+            ImGui::OpenPopup("Delete scaffold?");
+            _showDeleteConfirm = false;
+        }
+
+        const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+
+        if (ImGui::BeginPopupModal("Delete scaffold?", nullptr,
+                                   ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            if (_scaffolds.empty())
+            {
+                ImGui::CloseCurrentPopup();
+                ImGui::EndPopup();
+                return;
+            }
+
+            const auto& scaffold = _scaffolds[_selectedIdx];
+            ImGui::Text("Permanently delete scaffold:");
+            ImGui::TextColored({1.0f, 0.4f, 0.4f, 1.0f},
+                               "  %s", scaffold.name.c_str());
+            ImGui::TextDisabled("  %s", scaffold.path.string().c_str());
+            ImGui::Spacing();
+            ImGui::TextColored({1.0f, 0.8f, 0.2f, 1.0f},
+                               "This cannot be undone.");
+            ImGui::Spacing();
+
+            if (ImGui::Button("Delete", ImVec2(120, 0)))
+            {
+                const bool ok = _repo.Delete(scaffold.path);
+                _statusMsg = ok
+                    ? "Scaffold \"" + scaffold.name + "\" deleted."
+                    : "Failed to delete scaffold \"" + scaffold.name + "\".";
+                _selectedIdx  = 0;
+                _selectedForPromote.clear();
+                _needsRefresh = true;
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Cancel", ImVec2(120, 0)))
+                ImGui::CloseCurrentPopup();
+
+            ImGui::EndPopup();
+        }
+    }
 
     void ScaffoldDiffPanel::Refresh()
     {
