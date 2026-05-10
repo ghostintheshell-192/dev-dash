@@ -1,0 +1,9 @@
+target_sources(dev-dash
+    PRIVATE
+        font_library.h
+        font_library.cpp
+        markdown_renderer.h
+        markdown_renderer.cpp
+        document_panel_host.h
+        document_panel_host.cpp
+)

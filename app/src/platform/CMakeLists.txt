@@ -1,0 +1,16 @@
+target_sources(dev-dash
+    PRIVATE
+        deletion_queue.h
+        sdl_session.h
+        sdl_session.cpp
+        window.h
+        window.cpp
+        vulkan_context.h
+        vulkan_context.cpp
+        swapchain.h
+        swapchain.cpp
+        frame_resources.h
+        frame_resources.cpp
+        imgui_backend.h
+        imgui_backend.cpp
+)

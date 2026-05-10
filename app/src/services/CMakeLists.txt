@@ -1,0 +1,15 @@
+target_sources(dev-dash
+    PRIVATE
+        document_loader.h
+        document_loader.cpp
+        config_resolver.h
+        config_resolver.cpp
+        diff_engine.h
+        diff_engine.cpp
+        apply_engine.h
+        apply_engine.cpp
+        snapshot_service.h
+        snapshot_service.cpp
+        scaffold_repository.h
+        scaffold_repository.cpp
+)

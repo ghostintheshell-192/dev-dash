@@ -1,0 +1,219 @@
+#include "app.h"
+
+#include <cstdlib>
+#include <filesystem>
+#include <iostream>
+
+#include <imgui.h>
+#include <vulkan/vulkan.h>
+
+#include "../platform/sdl_session.h"
+#include "../platform/window.h"
+#include "../platform/vulkan_context.h"
+#include "../platform/swapchain.h"
+#include "../platform/frame_resources.h"
+#include "../platform/imgui_backend.h"
+#include "../ui/font_library.h"
+#include "../ui/markdown_renderer.h"
+#include "../ui/document_panel_host.h"
+#include "../services/document_loader.h"
+
+namespace dev_dash::app
+{
+    App::App() = default;
+
+    App::~App()
+    {
+        // Members are destroyed in LIFO declaration order automatically.
+        // ImGui context must be destroyed after all backends (ImGuiBackend dtor
+        // shuts them down), so it is handled explicitly here last.
+        if (ImGui::GetCurrentContext())
+            ImGui::DestroyContext();
+    }
+
+    int App::Run()
+    {
+        try
+        {
+            if (!Init())
+                return EXIT_FAILURE;
+            if (!MainLoop())
+                return EXIT_FAILURE;
+            return EXIT_SUCCESS;
+        }
+        catch (const std::exception& e)
+        {
+            std::cerr << "[error] " << e.what() << '\n';
+            return EXIT_FAILURE;
+        }
+    }
+
+    bool App::Init()
+    {
+        _sdlSession     = std::make_unique<platform::SdlSession>();
+        _window         = std::make_unique<platform::Window>(
+            "dev-dash", platform::kInitialWindowWidth, platform::kInitialWindowHeight);
+        _vulkanContext  = std::make_unique<platform::VulkanContext>(*_window);
+        _swapchain      = std::make_unique<platform::Swapchain>(*_vulkanContext, *_window);
+        _frameResources = std::make_unique<platform::FrameResources>(*_vulkanContext, *_swapchain);
+
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+
+        _fonts        = std::make_unique<ui::FontLibrary>();
+        _imguiBackend = std::make_unique<platform::ImGuiBackend>(*_window, *_vulkanContext, *_swapchain);
+
+        _documentLoader    = std::make_unique<services::DocumentLoader>();
+        _markdownRenderer  = std::make_unique<ui::MarkdownRenderer>(*_fonts);
+        _documentPanelHost = std::make_unique<ui::DocumentPanelHost>(*_documentLoader, *_markdownRenderer);
+
+        if (const char* home = std::getenv("HOME"))
+            _documentPanelHost->OpenPanel(std::filesystem::path(home) / ".claude/CLAUDE.md");
+        _documentPanelHost->OpenPanel("/data/repos/dev-dash/.claude/CLAUDE.md");
+
+        _window->Show();
+        return true;
+    }
+
+    bool App::MainLoop()
+    {
+        while (true)
+        {
+            SDL_Event event;
+            while (_window->IsPaused()
+                       ? SDL_WaitEvent(&event)
+                       : _window->PollEvent(event))
+            {
+                _imguiBackend->ProcessEvent(event);
+                _window->ProcessEvent(event);
+                if (_window->ShouldClose())
+                    goto done;
+            }
+            if (_window->ShouldClose())
+                break;
+
+            _imguiBackend->NewFrame();
+
+            ImGui::ShowDemoWindow();
+            _documentPanelHost->Render();
+
+            // Store fence handle locally: InFlightFence() returns by value and
+            // vkWaitForFences / vkResetFences need a pointer.
+            VkFence fence = _frameResources->InFlightFence();
+
+            if (vkWaitForFences(
+                    _vulkanContext->Device(), 1, &fence, VK_TRUE, UINT64_MAX) != VK_SUCCESS)
+            {
+                std::cerr << "[error] vkWaitForFences failed\n";
+                return false;
+            }
+
+            uint32_t imageIndex = 0;
+            const VkResult acquire = vkAcquireNextImageKHR(
+                _vulkanContext->Device(),
+                _swapchain->Handle(),
+                UINT64_MAX,
+                _frameResources->ImageAvailableSemaphore(),
+                VK_NULL_HANDLE,
+                &imageIndex);
+            if (acquire == VK_ERROR_OUT_OF_DATE_KHR || acquire == VK_SUBOPTIMAL_KHR)
+            {
+                _swapchain->Recreate(*_vulkanContext, *_window);
+                continue;
+            }
+            else if (acquire != VK_SUCCESS)
+            {
+                std::cerr << "[error] vkAcquireNextImageKHR failed\n";
+                return false;
+            }
+
+            if (vkResetFences(_vulkanContext->Device(), 1, &fence) != VK_SUCCESS)
+            {
+                std::cerr << "[error] vkResetFences failed\n";
+                return false;
+            }
+
+            VkCommandBuffer cmdBuf = _frameResources->CurrentCommandBuffer();
+
+            VkCommandBufferBeginInfo beginInfo = {};
+            beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+            beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+            if (vkBeginCommandBuffer(cmdBuf, &beginInfo) != VK_SUCCESS)
+            {
+                std::cerr << "[error] vkBeginCommandBuffer failed\n";
+                return false;
+            }
+
+            constexpr VkClearValue clearColor = {.color = {.float32 = {0.06f, 0.06f, 0.06f, 1.0f}}};
+
+            VkRenderPassBeginInfo rpBegin = {};
+            rpBegin.sType             = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+            rpBegin.renderPass        = _swapchain->RenderPass();
+            rpBegin.framebuffer       = _swapchain->Framebuffers()[imageIndex];
+            rpBegin.renderArea.offset = {0, 0};
+            rpBegin.renderArea.extent = _swapchain->Extent();
+            rpBegin.clearValueCount   = 1;
+            rpBegin.pClearValues      = &clearColor;
+            vkCmdBeginRenderPass(cmdBuf, &rpBegin, VK_SUBPASS_CONTENTS_INLINE);
+
+            _imguiBackend->Render(cmdBuf);
+
+            vkCmdEndRenderPass(cmdBuf);
+
+            if (vkEndCommandBuffer(cmdBuf) != VK_SUCCESS)
+            {
+                std::cerr << "[error] vkEndCommandBuffer failed\n";
+                return false;
+            }
+
+            const VkSemaphore waitSems[]   = {_frameResources->ImageAvailableSemaphore()};
+            const VkSemaphore signalSems[] = {_frameResources->RenderFinishedSemaphoreForImage(imageIndex)};
+            constexpr VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+
+            VkSubmitInfo submit = {};
+            submit.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+            submit.waitSemaphoreCount   = 1;
+            submit.pWaitSemaphores      = waitSems;
+            submit.pWaitDstStageMask    = waitStages;
+            submit.commandBufferCount   = 1;
+            submit.pCommandBuffers      = &cmdBuf;
+            submit.signalSemaphoreCount = 1;
+            submit.pSignalSemaphores    = signalSems;
+
+            if (vkQueueSubmit(
+                    _vulkanContext->GraphicsQueue(), 1, &submit,
+                    _frameResources->InFlightFence()) != VK_SUCCESS)
+            {
+                std::cerr << "[error] vkQueueSubmit failed\n";
+                return false;
+            }
+
+            const VkSwapchainKHR swapchains[] = {_swapchain->Handle()};
+            VkPresentInfoKHR present = {};
+            present.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+            present.waitSemaphoreCount = 1;
+            present.pWaitSemaphores    = signalSems;
+            present.swapchainCount     = 1;
+            present.pSwapchains        = swapchains;
+            present.pImageIndices      = &imageIndex;
+
+            const VkResult presentResult = vkQueuePresentKHR(_vulkanContext->PresentQueue(), &present);
+            if (presentResult == VK_ERROR_OUT_OF_DATE_KHR || presentResult == VK_SUBOPTIMAL_KHR
+                || _window->ConsumeResizeFlag())
+            {
+                _swapchain->Recreate(*_vulkanContext, *_window);
+            }
+            else if (presentResult != VK_SUCCESS)
+            {
+                std::cerr << "[error] vkQueuePresentKHR failed\n";
+                return false;
+            }
+
+            _frameResources->AdvanceFrame();
+        }
+
+    done:
+        vkDeviceWaitIdle(_vulkanContext->Device());
+        return true;
+    }
+}
