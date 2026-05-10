@@ -7,6 +7,7 @@
 #include "../core/diff_entry.h"
 #include "../core/project.h"
 #include "../core/scaffold.h"
+#include "file_diff_panel.h"
 
 namespace dev_dash::services
 {
@@ -49,6 +50,7 @@ namespace dev_dash::ui
         std::set<std::string>         _selectedForPromote;
         bool                          _showPromoteConfirm = false;
         std::string                   _promoteStatusMsg;
+        FileDiffPanel                 _diffViewer;
 
         bool _wantsBack    = false;
         bool _needsRefresh = true;
