@@ -44,8 +44,8 @@
 
 ### specs/planned/ (3 files)
 
+- [feature-scaffold-management.md](specs/planned/feature-scaffold-management.md) (10KB, 2026-05-10) **RECENT**
 - [feature-effective-config-view.md](specs/planned/feature-effective-config-view.md) (6KB, 2026-05-10) **RECENT**
-- [feature-scaffold-management.md](specs/planned/feature-scaffold-management.md) (9KB, 2026-05-10) **RECENT**
 - [feature-snapshot-history.md](specs/planned/feature-snapshot-history.md) (8KB, 2026-05-10) **RECENT**
 
 ### tech-debt/ (6 files)
@@ -98,16 +98,16 @@
 
 ## Recently Modified (last 7 days)
 
-1. [INDEX.md](INDEX.md) (today)
-2. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
-3. [CURRENT-STATUS.md](CURRENT-STATUS.md) (today)
-4. [2026-05-10_contentcontrol-binding-multisidebar.md](archive/completed/2026-05-10_contentcontrol-binding-multisidebar.md) (today)
-5. [api-design.md](api-design.md) (today)
-6. [010-architecture-design.md](reference/decisions/010-architecture-design.md) (today)
-7. [README.md](reference/decisions/README.md) (today)
-8. [README.md](tech-debt/README.md) (today)
-9. [feature-claude-context.md](specs/archived/feature-claude-context.md) (today)
-10. [feature-issue-management.md](specs/archived/feature-issue-management.md) (today)
+1. [feature-scaffold-management.md](specs/planned/feature-scaffold-management.md) (today)
+2. [INDEX.md](INDEX.md) (today)
+3. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
+4. [CURRENT-STATUS.md](CURRENT-STATUS.md) (today)
+5. [2026-05-10_contentcontrol-binding-multisidebar.md](archive/completed/2026-05-10_contentcontrol-binding-multisidebar.md) (today)
+6. [api-design.md](api-design.md) (today)
+7. [010-architecture-design.md](reference/decisions/010-architecture-design.md) (today)
+8. [README.md](reference/decisions/README.md) (today)
+9. [README.md](tech-debt/README.md) (today)
+10. [feature-claude-context.md](specs/archived/feature-claude-context.md) (today)
 
 ---
 

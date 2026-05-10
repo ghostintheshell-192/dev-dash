@@ -3,10 +3,12 @@
         "allow": [
             "Bash(find:*)",
             "Bash(done)",
-            "Bash(dotnet test:*)",
             "Bash(grep:*)",
+            "Bash(cmake:*)",
+            "Bash(ninja:*)",
+            "Bash(make:*)",
+            "Bash(ctest:*)",
             "WebSearch",
-            "Bash(dotnet build:*)",
             "Bash(gh run view:*)",
             "Bash(gh pr view:*)",
             "Bash(gh issue view:*)"
