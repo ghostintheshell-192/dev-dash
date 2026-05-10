@@ -52,7 +52,7 @@ report: null  # Optional: link to archive/analysis/YYYY-MM-DD_report_agent-name.
 
 ## Current Issues by Priority
 
-*Auto-updated: 2026-05-07 22:43*
+*Auto-updated: 2026-05-10 09:32*
 
 **High Priority:**
 - `contentcontrol-binding-multisidebar.md` - ContentControl Binding Error in MultiSidebar - Empty Sidebar Content
@@ -61,6 +61,8 @@ report: null  # Optional: link to archive/analysis/YYYY-MM-DD_report_agent-name.
 - `scaffold-architecture-scripts.md` - Include architecture scripts in project scaffold
 
 **Low Priority:**
+- `markdown-code-block-styling.md` - Fenced code blocks rendered as flat yellow text — no syntax highlighting
+- `preprocess-imports-indented-fences.md` - PreprocessImports does not recognise indented fenced code blocks
 - `session-handoff-skill-note.md` - Current Working Notes
 
 ## Integration with Reference Documentation

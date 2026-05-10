@@ -19,8 +19,8 @@
 
 ### (root)/ (4 files)
 
+- [INDEX.md](INDEX.md) (4KB, 2026-05-10) **RECENT**
 - [CURRENT-STATUS.md](CURRENT-STATUS.md) (10KB, 2026-05-10) **RECENT**
-- [INDEX.md](INDEX.md) (3KB, 2026-05-10) **RECENT**
 - [ARCHITECTURE.md](ARCHITECTURE.md) (4KB, 2026-04-28)
 - [README.md](README.md) (2KB, 2026-04-26)
 
@@ -86,12 +86,12 @@
 
 ## Recently Modified (last 7 days)
 
-1. [CURRENT-STATUS.md](CURRENT-STATUS.md) (today)
-2. [README.md](reference/decisions/README.md) (today)
-3. [001-stack-tecnologico.md](reference/decisions/001-stack-tecnologico.md) (today)
-4. [009-markdown-library-imgui-md.md](reference/decisions/009-markdown-library-imgui-md.md) (today)
-5. [008-pivot-to-cpp-imgui.md](reference/decisions/008-pivot-to-cpp-imgui.md) (today)
-6. [INDEX.md](INDEX.md) (today)
+1. [INDEX.md](INDEX.md) (today)
+2. [CURRENT-STATUS.md](CURRENT-STATUS.md) (today)
+3. [README.md](reference/decisions/README.md) (today)
+4. [001-stack-tecnologico.md](reference/decisions/001-stack-tecnologico.md) (today)
+5. [009-markdown-library-imgui-md.md](reference/decisions/009-markdown-library-imgui-md.md) (today)
+6. [008-pivot-to-cpp-imgui.md](reference/decisions/008-pivot-to-cpp-imgui.md) (today)
 7. [README.md](tech-debt/README.md) (today)
 8. [markdown-code-block-styling.md](tech-debt/markdown-code-block-styling.md) (today)
 9. [preprocess-imports-indented-fences.md](tech-debt/preprocess-imports-indented-fences.md) (today)
