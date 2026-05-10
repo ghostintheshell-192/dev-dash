@@ -23,6 +23,7 @@
 #include "../services/config_resolver.h"
 #include "../services/scaffold_repository.h"
 #include "../services/diff_engine.h"
+#include "../services/promote_engine.h"
 #include "../core/project.h"
 
 namespace dev_dash::app
@@ -76,9 +77,10 @@ namespace dev_dash::app
         _markdownRenderer  = std::make_unique<ui::MarkdownRenderer>(*_fonts);
         _documentPanelHost = std::make_unique<ui::DocumentPanelHost>(*_documentLoader, *_markdownRenderer);
 
-        _configResolver       = std::make_unique<services::ConfigResolver>();
-        _diffEngine           = std::make_unique<services::DiffEngine>();
-        _scaffoldRepository   = std::make_unique<services::ScaffoldRepository>();
+        _configResolver     = std::make_unique<services::ConfigResolver>();
+        _diffEngine         = std::make_unique<services::DiffEngine>();
+        _promoteEngine      = std::make_unique<services::PromoteEngine>();
+        _scaffoldRepository = std::make_unique<services::ScaffoldRepository>();
         if (const char* home = std::getenv("HOME"))
             _scaffoldRepository->SetScaffoldRoot(
                 std::filesystem::path(home) / ".devdash" / "scaffolds");
@@ -130,7 +132,7 @@ namespace dev_dash::app
                 if (_effectiveConfigPanel->WantsScaffoldDiff())
                 {
                     _scaffoldDiffPanel = std::make_unique<ui::ScaffoldDiffPanel>(
-                        *_scaffoldRepository, *_diffEngine,
+                        *_scaffoldRepository, *_diffEngine, *_promoteEngine,
                         *_documentPanelHost, _effectiveConfigPanel->Project());
                     _appState = AppState::kScaffoldDiff;
                 }

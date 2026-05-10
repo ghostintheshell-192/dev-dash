@@ -27,6 +27,8 @@ target_sources(dev-dash
         diff_engine.cpp
         apply_engine.h
         apply_engine.cpp
+        promote_engine.h
+        promote_engine.cpp
         snapshot_service.h
         snapshot_service.cpp
         scaffold_repository.h
