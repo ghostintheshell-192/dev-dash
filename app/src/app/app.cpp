@@ -18,8 +18,11 @@
 #include "../ui/document_panel_host.h"
 #include "../ui/project_selector_panel.h"
 #include "../ui/effective_config_panel.h"
+#include "../ui/scaffold_diff_panel.h"
 #include "../services/document_loader.h"
 #include "../services/config_resolver.h"
+#include "../services/scaffold_repository.h"
+#include "../services/diff_engine.h"
 #include "../core/project.h"
 
 namespace dev_dash::app
@@ -28,9 +31,11 @@ namespace dev_dash::app
 
     App::~App()
     {
-        // Members are destroyed in LIFO declaration order automatically.
-        // ImGui context must be destroyed after all backends (ImGuiBackend dtor
-        // shuts them down), so it is handled explicitly here last.
+        // ImGui::DestroyContext() asserts that all backends are already shut
+        // down. ImGuiBackend::~ImGuiBackend() calls ImGui_ImplVulkan_Shutdown()
+        // + ImGui_ImplSDL3_Shutdown(), but member destructors run AFTER the
+        // destructor body — so we must explicitly reset the backend first.
+        _imguiBackend.reset();
         if (ImGui::GetCurrentContext())
             ImGui::DestroyContext();
     }
@@ -72,6 +77,12 @@ namespace dev_dash::app
         _documentPanelHost = std::make_unique<ui::DocumentPanelHost>(*_documentLoader, *_markdownRenderer);
 
         _configResolver       = std::make_unique<services::ConfigResolver>();
+        _diffEngine           = std::make_unique<services::DiffEngine>();
+        _scaffoldRepository   = std::make_unique<services::ScaffoldRepository>();
+        if (const char* home = std::getenv("HOME"))
+            _scaffoldRepository->SetScaffoldRoot(
+                std::filesystem::path(home) / ".devdash" / "scaffolds");
+
         _projectSelectorPanel = std::make_unique<ui::ProjectSelectorPanel>(
             _window->Handle(),
             [this](const std::filesystem::path& path) { OnProjectSelected(path); });
@@ -82,6 +93,7 @@ namespace dev_dash::app
 
     void App::OnProjectSelected(const std::filesystem::path& path)
     {
+        _scaffoldDiffPanel.reset();
         _effectiveConfigPanel = std::make_unique<ui::EffectiveConfigPanel>(
             *_configResolver, *_documentPanelHost, core::Project{path});
         _appState = AppState::kViewingConfig;
@@ -115,10 +127,27 @@ namespace dev_dash::app
             case AppState::kViewingConfig:
                 _effectiveConfigPanel->Render();
                 _documentPanelHost->Render();
-                if (_effectiveConfigPanel->WantsBack())
+                if (_effectiveConfigPanel->WantsScaffoldDiff())
+                {
+                    _scaffoldDiffPanel = std::make_unique<ui::ScaffoldDiffPanel>(
+                        *_scaffoldRepository, *_diffEngine,
+                        *_documentPanelHost, _effectiveConfigPanel->Project());
+                    _appState = AppState::kScaffoldDiff;
+                }
+                else if (_effectiveConfigPanel->WantsBack())
                 {
                     _effectiveConfigPanel.reset();
                     _appState = AppState::kSelectingProject;
+                }
+                break;
+
+            case AppState::kScaffoldDiff:
+                _scaffoldDiffPanel->Render();
+                _documentPanelHost->Render();
+                if (_scaffoldDiffPanel->WantsBack())
+                {
+                    _scaffoldDiffPanel.reset();
+                    _appState = AppState::kViewingConfig;
                 }
                 break;
             }

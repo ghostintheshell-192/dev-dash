@@ -18,7 +18,9 @@ namespace dev_dash::ui
                              const core::Project& project);
 
         void Render();
-        bool WantsBack() const { return _wantsBack; }
+        bool WantsBack()         const { return _wantsBack; }
+        bool WantsScaffoldDiff() const { return _wantsScaffoldDiff; }
+        const core::Project& Project() const { return _project; }
 
     private:
         void Refresh();
@@ -27,6 +29,7 @@ namespace dev_dash::ui
         DocumentPanelHost&        _docHost;
         core::Project             _project;
         core::EffectiveConfig     _config;
-        bool                      _wantsBack = false;
+        bool                      _wantsBack         = false;
+        bool                      _wantsScaffoldDiff = false;
     };
 }

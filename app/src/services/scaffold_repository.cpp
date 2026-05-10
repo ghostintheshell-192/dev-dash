@@ -1,5 +1,9 @@
 #include "scaffold_repository.h"
 
+#include <algorithm>
+#include <fstream>
+#include <string>
+
 namespace dev_dash::services
 {
     std::vector<core::Scaffold> ScaffoldRepository::List()
@@ -33,5 +37,46 @@ namespace dev_dash::services
     {
         _cache.clear();
         _cached = true;
+
+        if (_scaffoldRoot.empty() || !std::filesystem::exists(_scaffoldRoot))
+            return;
+
+        std::error_code ec;
+        for (const auto& entry :
+             std::filesystem::directory_iterator(_scaffoldRoot, ec))
+        {
+            if (!entry.is_directory(ec) || ec)
+            {
+                ec.clear();
+                continue;
+            }
+
+            core::Scaffold scaffold;
+            scaffold.name    = entry.path().filename().string();
+            scaffold.path    = entry.path();
+            scaffold.isDefault =
+                std::filesystem::exists(entry.path() / ".devdash-default");
+
+            // Optional one-line description from README.md heading
+            const auto readme = entry.path() / "README.md";
+            if (std::filesystem::exists(readme))
+            {
+                std::ifstream f(readme);
+                std::string line;
+                while (std::getline(f, line))
+                {
+                    const auto start = line.find_first_not_of(" \t#");
+                    if (start == std::string::npos) continue;
+                    scaffold.description = line.substr(start);
+                    break;
+                }
+            }
+
+            _cache.push_back(std::move(scaffold));
+        }
+
+        std::sort(_cache.begin(), _cache.end(),
+            [](const core::Scaffold& a, const core::Scaffold& b)
+            { return a.name < b.name; });
     }
 }

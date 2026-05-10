@@ -20,17 +20,20 @@ namespace dev_dash::ui
     class DocumentPanelHost;
     class ProjectSelectorPanel;
     class EffectiveConfigPanel;
+    class ScaffoldDiffPanel;
 }
 
 namespace dev_dash::services
 {
     class DocumentLoader;
     class ConfigResolver;
+    class ScaffoldRepository;
+    class DiffEngine;
 }
 
 namespace dev_dash::app
 {
-    enum class AppState { kSelectingProject, kViewingConfig };
+    enum class AppState { kSelectingProject, kViewingConfig, kScaffoldDiff };
 
     class App
     {
@@ -60,13 +63,12 @@ namespace dev_dash::app
         // 9. _documentLoader
         // 10. _markdownRenderer (needs fonts)
         // 11. _documentPanelHost (needs loader + renderer; registers LinkHandler)
-        // 12. _configResolver
+        // 12. _configResolver, _diffEngine, _scaffoldRepository
         // 13. _projectSelectorPanel (needs window handle)
         //
         // ----- Declaration order (drives LIFO destruction) -----
         // Last declared = first destroyed.
-        // _effectiveConfigPanel holds refs to _configResolver + _documentPanelHost
-        // → must be declared AFTER both (destroyed before both).
+        // UI panels declared last: they hold refs to services declared earlier.
 
         std::unique_ptr<platform::SdlSession>     _sdlSession;
         std::unique_ptr<platform::Window>         _window;
@@ -82,11 +84,13 @@ namespace dev_dash::app
         std::unique_ptr<ui::DocumentPanelHost>    _documentPanelHost;
         std::unique_ptr<ui::MarkdownRenderer>     _markdownRenderer;
 
-        std::unique_ptr<services::ConfigResolver>  _configResolver;
-        std::unique_ptr<ui::ProjectSelectorPanel>  _projectSelectorPanel;
-        // _effectiveConfigPanel last → destroyed first, before _configResolver
-        // and _documentPanelHost whose references it holds.
-        std::unique_ptr<ui::EffectiveConfigPanel>  _effectiveConfigPanel;
+        std::unique_ptr<services::ConfigResolver>    _configResolver;
+        std::unique_ptr<services::ScaffoldRepository> _scaffoldRepository;
+        std::unique_ptr<services::DiffEngine>          _diffEngine;
+        std::unique_ptr<ui::ProjectSelectorPanel>    _projectSelectorPanel;
+        // Panels declared last → destroyed first, before the services they reference.
+        std::unique_ptr<ui::EffectiveConfigPanel>    _effectiveConfigPanel;
+        std::unique_ptr<ui::ScaffoldDiffPanel>       _scaffoldDiffPanel;
 
         AppState _appState = AppState::kSelectingProject;
     };
