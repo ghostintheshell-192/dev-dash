@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-05-10 09:53*
+*Auto-generated: 2026-05-10 12:05*
 
 ---
 
@@ -19,26 +19,30 @@
 
 ### (root)/ (4 files)
 
-- [INDEX.md](INDEX.md) (4KB, 2026-05-10) **RECENT**
 - [CURRENT-STATUS.md](CURRENT-STATUS.md) (10KB, 2026-05-10) **RECENT**
+- [INDEX.md](INDEX.md) (4KB, 2026-05-10) **RECENT**
 - [ARCHITECTURE.md](ARCHITECTURE.md) (4KB, 2026-04-28)
 - [README.md](README.md) (2KB, 2026-04-26)
 
-### specs/ (2 files)
+### specs/ (1 files)
 
 - [README.md](specs/README.md) (2KB, 2026-04-26)
-- [roadmap.md](specs/roadmap.md) (3KB, 2026-02-10)
 
-### specs/archived/ (1 files)
+### specs/archived/ (5 files)
 
+- [feature-claude-context.md](specs/archived/feature-claude-context.md) (11KB, 2026-04-26)
 - [feature-embedded-terminal.md](specs/archived/feature-embedded-terminal.md) (5KB, 2026-04-26)
+- [feature-issue-management.md](specs/archived/feature-issue-management.md) (18KB, 2026-04-26)
+- [feature-markdown-rendering.md](specs/archived/feature-markdown-rendering.md) (10KB, 2026-04-26)
+- [roadmap.md](specs/archived/roadmap.md) (3KB, 2026-02-10)
 
-### specs/planned/ (4 files)
+### specs/backlog/ (1 files)
 
-- [feature-code-graph.md](specs/planned/feature-code-graph.md) (8KB, 2026-04-27)
-- [feature-claude-context.md](specs/planned/feature-claude-context.md) (11KB, 2026-04-26)
-- [feature-issue-management.md](specs/planned/feature-issue-management.md) (18KB, 2026-04-26)
-- [feature-markdown-rendering.md](specs/planned/feature-markdown-rendering.md) (10KB, 2026-04-26)
+- [feature-code-graph.md](specs/backlog/feature-code-graph.md) (8KB, 2026-04-27)
+
+### specs/planned/ (1 files)
+
+- [feature-effective-config-and-scaffolds.md](specs/planned/feature-effective-config-and-scaffolds.md) (12KB, 2026-05-10) **RECENT**
 
 ### tech-debt/ (7 files)
 
@@ -52,10 +56,10 @@
 
 ### reference/decisions/ (8 files)
 
-- [README.md](reference/decisions/README.md) (1KB, 2026-05-10) **RECENT**
 - [001-stack-tecnologico.md](reference/decisions/001-stack-tecnologico.md) (3KB, 2026-05-10) **RECENT**
-- [009-markdown-library-imgui-md.md](reference/decisions/009-markdown-library-imgui-md.md) (9KB, 2026-05-10) **RECENT**
 - [008-pivot-to-cpp-imgui.md](reference/decisions/008-pivot-to-cpp-imgui.md) (12KB, 2026-05-10) **RECENT**
+- [009-markdown-library-imgui-md.md](reference/decisions/009-markdown-library-imgui-md.md) (9KB, 2026-05-10) **RECENT**
+- [README.md](reference/decisions/README.md) (1KB, 2026-05-10) **RECENT**
 - [002-symlink-vs-copy.md](reference/decisions/002-symlink-vs-copy.md) (1KB, 2026-02-10)
 - [003-issue-tracking-locale.md](reference/decisions/003-issue-tracking-locale.md) (1KB, 2026-02-10)
 - [006-desktop-vs-vscode-extension.md](reference/decisions/006-desktop-vs-vscode-extension.md) (3KB, 2026-02-10)
@@ -86,15 +90,16 @@
 
 ## Recently Modified (last 7 days)
 
-1. [INDEX.md](INDEX.md) (today)
+1. [feature-effective-config-and-scaffolds.md](specs/planned/feature-effective-config-and-scaffolds.md) (today)
 2. [CURRENT-STATUS.md](CURRENT-STATUS.md) (today)
-3. [README.md](reference/decisions/README.md) (today)
+3. [INDEX.md](INDEX.md) (today)
 4. [001-stack-tecnologico.md](reference/decisions/001-stack-tecnologico.md) (today)
-5. [009-markdown-library-imgui-md.md](reference/decisions/009-markdown-library-imgui-md.md) (today)
-6. [008-pivot-to-cpp-imgui.md](reference/decisions/008-pivot-to-cpp-imgui.md) (today)
-7. [README.md](tech-debt/README.md) (today)
-8. [markdown-code-block-styling.md](tech-debt/markdown-code-block-styling.md) (today)
-9. [preprocess-imports-indented-fences.md](tech-debt/preprocess-imports-indented-fences.md) (today)
+5. [008-pivot-to-cpp-imgui.md](reference/decisions/008-pivot-to-cpp-imgui.md) (today)
+6. [009-markdown-library-imgui-md.md](reference/decisions/009-markdown-library-imgui-md.md) (today)
+7. [README.md](reference/decisions/README.md) (today)
+8. [README.md](tech-debt/README.md) (today)
+9. [markdown-code-block-styling.md](tech-debt/markdown-code-block-styling.md) (today)
+10. [preprocess-imports-indented-fences.md](tech-debt/preprocess-imports-indented-fences.md) (today)
 
 ---
 
