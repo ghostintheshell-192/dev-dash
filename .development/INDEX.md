@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-05-10 12:32*
+*Auto-generated: 2026-05-10 12:38*
 
 ---
 
@@ -36,13 +36,16 @@
 - [feature-markdown-rendering.md](specs/archived/feature-markdown-rendering.md) (10KB, 2026-04-26)
 - [roadmap.md](specs/archived/roadmap.md) (3KB, 2026-02-10)
 
-### specs/backlog/ (1 files)
+### specs/backlog/ (2 files)
 
+- [feature-runtime-view-of-truth.md](specs/backlog/feature-runtime-view-of-truth.md) (2KB, 2026-05-10) **RECENT**
 - [feature-code-graph.md](specs/backlog/feature-code-graph.md) (8KB, 2026-04-27)
 
-### specs/planned/ (1 files)
+### specs/planned/ (3 files)
 
-- [feature-effective-config-and-scaffolds.md](specs/planned/feature-effective-config-and-scaffolds.md) (15KB, 2026-05-10) **RECENT**
+- [feature-snapshot-history.md](specs/planned/feature-snapshot-history.md) (8KB, 2026-05-10) **RECENT**
+- [feature-scaffold-management.md](specs/planned/feature-scaffold-management.md) (9KB, 2026-05-10) **RECENT**
+- [feature-effective-config-view.md](specs/planned/feature-effective-config-view.md) (6KB, 2026-05-10) **RECENT**
 
 ### tech-debt/ (7 files)
 
@@ -90,16 +93,16 @@
 
 ## Recently Modified (last 7 days)
 
-1. [feature-effective-config-and-scaffolds.md](specs/planned/feature-effective-config-and-scaffolds.md) (today)
-2. [INDEX.md](INDEX.md) (today)
-3. [CURRENT-STATUS.md](CURRENT-STATUS.md) (today)
-4. [001-stack-tecnologico.md](reference/decisions/001-stack-tecnologico.md) (today)
-5. [008-pivot-to-cpp-imgui.md](reference/decisions/008-pivot-to-cpp-imgui.md) (today)
-6. [009-markdown-library-imgui-md.md](reference/decisions/009-markdown-library-imgui-md.md) (today)
-7. [README.md](reference/decisions/README.md) (today)
-8. [README.md](tech-debt/README.md) (today)
-9. [markdown-code-block-styling.md](tech-debt/markdown-code-block-styling.md) (today)
-10. [preprocess-imports-indented-fences.md](tech-debt/preprocess-imports-indented-fences.md) (today)
+1. [feature-runtime-view-of-truth.md](specs/backlog/feature-runtime-view-of-truth.md) (today)
+2. [feature-snapshot-history.md](specs/planned/feature-snapshot-history.md) (today)
+3. [feature-scaffold-management.md](specs/planned/feature-scaffold-management.md) (today)
+4. [feature-effective-config-view.md](specs/planned/feature-effective-config-view.md) (today)
+5. [INDEX.md](INDEX.md) (today)
+6. [CURRENT-STATUS.md](CURRENT-STATUS.md) (today)
+7. [001-stack-tecnologico.md](reference/decisions/001-stack-tecnologico.md) (today)
+8. [008-pivot-to-cpp-imgui.md](reference/decisions/008-pivot-to-cpp-imgui.md) (today)
+9. [009-markdown-library-imgui-md.md](reference/decisions/009-markdown-library-imgui-md.md) (today)
+10. [README.md](reference/decisions/README.md) (today)
 
 ---
 
