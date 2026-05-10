@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-05-10 22:54*
+*Auto-generated: 2026-05-10 23:03*
 
 ---
 
@@ -104,10 +104,10 @@
 
 ## Recently Modified (last 7 days)
 
-1. [INDEX.md](INDEX.md) (today)
-2. [line-level-promote.md](tech-debt/line-level-promote.md) (today)
-3. [imgui-backend-shutdown-order.md](tech-debt/imgui-backend-shutdown-order.md) (today)
-4. [feature-scaffold-management.md](specs/planned/feature-scaffold-management.md) (today)
+1. [feature-scaffold-management.md](specs/planned/feature-scaffold-management.md) (today)
+2. [INDEX.md](INDEX.md) (today)
+3. [line-level-promote.md](tech-debt/line-level-promote.md) (today)
+4. [imgui-backend-shutdown-order.md](tech-debt/imgui-backend-shutdown-order.md) (today)
 5. [feature-snapshot-history.md](specs/planned/feature-snapshot-history.md) (today)
 6. [CURRENT-STATUS.md](CURRENT-STATUS.md) (today)
 7. [feature-effective-config-view.md](specs/implemented/feature-effective-config-view.md) (today)
