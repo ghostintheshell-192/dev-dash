@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-05-10 14:59*
+*Auto-generated: 2026-05-10 15:13*
 
 ---
 
@@ -19,10 +19,10 @@
 
 ### (root)/ (5 files)
 
-- [INDEX.md](INDEX.md) (4KB, 2026-05-10) **RECENT**
 - [ARCHITECTURE.md](ARCHITECTURE.md) (5KB, 2026-05-10) **RECENT**
+- [INDEX.md](INDEX.md) (4KB, 2026-05-10) **RECENT**
+- [CURRENT-STATUS.md](CURRENT-STATUS.md) (11KB, 2026-05-10) **RECENT**
 - [api-design.md](api-design.md) (39KB, 2026-05-10) **RECENT**
-- [CURRENT-STATUS.md](CURRENT-STATUS.md) (10KB, 2026-05-10) **RECENT**
 - [README.md](README.md) (2KB, 2026-04-26)
 
 ### specs/ (1 files)
@@ -48,7 +48,7 @@
 - [feature-scaffold-management.md](specs/planned/feature-scaffold-management.md) (9KB, 2026-05-10) **RECENT**
 - [feature-snapshot-history.md](specs/planned/feature-snapshot-history.md) (8KB, 2026-05-10) **RECENT**
 
-### tech-debt/ (7 files)
+### tech-debt/ (6 files)
 
 - [README.md](tech-debt/README.md) (2KB, 2026-05-10) **RECENT**
 - [markdown-code-block-styling.md](tech-debt/markdown-code-block-styling.md) (3KB, 2026-05-09) **RECENT**
@@ -56,12 +56,11 @@
 - [scaffold-architecture-scripts.md](tech-debt/scaffold-architecture-scripts.md) (<1KB, 2026-04-28)
 - [session-handoff-skill-note.md](tech-debt/session-handoff-skill-note.md) (<1KB, 2026-04-28)
 - [_TEMPLATE.md](tech-debt/_TEMPLATE.md) (1KB, 2026-04-26)
-- [contentcontrol-binding-multisidebar.md](tech-debt/contentcontrol-binding-multisidebar.md) (2KB, 2026-02-10)
 
 ### reference/decisions/ (9 files)
 
-- [README.md](reference/decisions/README.md) (1KB, 2026-05-10) **RECENT**
 - [010-architecture-design.md](reference/decisions/010-architecture-design.md) (12KB, 2026-05-10) **RECENT**
+- [README.md](reference/decisions/README.md) (1KB, 2026-05-10) **RECENT**
 - [001-stack-tecnologico.md](reference/decisions/001-stack-tecnologico.md) (3KB, 2026-05-10) **RECENT**
 - [008-pivot-to-cpp-imgui.md](reference/decisions/008-pivot-to-cpp-imgui.md) (12KB, 2026-05-10) **RECENT**
 - [009-markdown-library-imgui-md.md](reference/decisions/009-markdown-library-imgui-md.md) (9KB, 2026-05-10) **RECENT**
@@ -77,6 +76,10 @@
 ### archive/analysis/ (1 files)
 
 - [2025-12-11_report_code-reviewer.md](archive/analysis/2025-12-11_report_code-reviewer.md) (8KB, 2026-02-10)
+
+### archive/completed/ (1 files)
+
+- [2026-05-10_contentcontrol-binding-multisidebar.md](archive/completed/2026-05-10_contentcontrol-binding-multisidebar.md) (2KB, 2026-05-10) **RECENT**
 
 ---
 
@@ -95,16 +98,16 @@
 
 ## Recently Modified (last 7 days)
 
-1. [INDEX.md](INDEX.md) (today)
-2. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
-3. [api-design.md](api-design.md) (today)
-4. [README.md](reference/decisions/README.md) (today)
-5. [010-architecture-design.md](reference/decisions/010-architecture-design.md) (today)
-6. [README.md](tech-debt/README.md) (today)
-7. [feature-claude-context.md](specs/archived/feature-claude-context.md) (today)
-8. [feature-issue-management.md](specs/archived/feature-issue-management.md) (today)
-9. [feature-markdown-rendering.md](specs/archived/feature-markdown-rendering.md) (today)
-10. [roadmap.md](specs/archived/roadmap.md) (today)
+1. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
+2. [INDEX.md](INDEX.md) (today)
+3. [CURRENT-STATUS.md](CURRENT-STATUS.md) (today)
+4. [2026-05-10_contentcontrol-binding-multisidebar.md](archive/completed/2026-05-10_contentcontrol-binding-multisidebar.md) (today)
+5. [api-design.md](api-design.md) (today)
+6. [010-architecture-design.md](reference/decisions/010-architecture-design.md) (today)
+7. [README.md](reference/decisions/README.md) (today)
+8. [README.md](tech-debt/README.md) (today)
+9. [feature-claude-context.md](specs/archived/feature-claude-context.md) (today)
+10. [feature-issue-management.md](specs/archived/feature-issue-management.md) (today)
 
 ---
 

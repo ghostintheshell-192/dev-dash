@@ -6,8 +6,9 @@ For detailed documentation, see `docs/`.
 > **Status note**: as of 2026-05-10, DevDash has pivoted from .NET 8 + Avalonia
 > to C++20 + Dear ImGui (see [ADR-008](reference/decisions/008-pivot-to-cpp-imgui.md)).
 > The current code lives under `poc/` (the validated proof-of-concept). The
-> legacy .NET tree under `src/DevDash/` is preserved at tag `legacy/avalonia-final`
-> and will be removed from `develop` in a dedicated branch.
+> legacy .NET tree previously at `src/DevDash/` was removed from `develop`
+> (2026-05-10); historical state preserved at tag `legacy/avalonia-final` —
+> recover with `git checkout legacy/avalonia-final`.
 > The layered split (platform / services / ui / core / app) for the real project
 > is documented in [ADR-010](reference/decisions/010-architecture-design.md) and
 > [api-design.md](api-design.md). Implementation (refactor of `poc/` → `app/`) is
@@ -83,12 +84,11 @@ poc/
     └── test.md                         # Sample document for markdown panel testing
 ```
 
-## Legacy tree (preserved at `legacy/avalonia-final`)
+## Legacy tree (removed from `develop`, preserved at tag)
 
-The `.NET 8 + Avalonia` codebase under `src/DevDash/` is **frozen**: it no
-longer builds in `develop` (CI disabled, NuGet packages still resolvable but
-unused). To inspect: `git checkout legacy/avalonia-final`. To remove from
-`develop`: dedicated cleanup branch (tracked in `CURRENT-STATUS.md`).
+The `.NET 8 + Avalonia` codebase that previously lived under `src/DevDash/`
+was removed from `develop` on 2026-05-10. The frozen state is preserved at the
+git tag `legacy/avalonia-final` — recover with `git checkout legacy/avalonia-final`.
 
 ---
 
