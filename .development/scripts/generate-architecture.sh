@@ -22,33 +22,33 @@ NC='\033[0m'
 # Modify this section for each project.
 
 PROJECT_NAME="DevDash"
-FILE_GLOB="*.cs"
-SKIP_FILES=("AssemblyInfo.cs")
-EXCLUDE_DIRS=("obj" "bin")
+FILE_GLOBS=("*.cpp" "*.cc" "*.cxx" "*.h" "*.hpp" "*.hxx")
+SKIP_FILES=()
+EXCLUDE_DIRS=("obj" "bin" "build" "external" "cpm-cache" ".git")
 EXTRACT_CMD="$SCRIPT_DIR/extract-summary.sh"
 MAX_DESC_LENGTH=200
 DOCS_REF="\`docs/\`"
 
-# Source directories to scan
-SOURCE_DIRS=("$PROJECT_ROOT/src")
-# Base for relative path calculation
-REL_BASE="$PROJECT_ROOT/src"
+# Source directories to scan. The current C++ PoC lives under poc/src/; once
+# the real project lands under app/src/, add it (or replace this entry).
+SOURCE_DIRS=("$PROJECT_ROOT/poc/src")
+# Base for relative path calculation (the printed "### dirname" headers).
+REL_BASE="$PROJECT_ROOT"
 
-# Project-specific header content
+# Project-specific header content (Layer Overview block).
 generate_project_header() {
     cat << 'EOF'
-## Layer Overview
+## Layer Overview (current PoC under `poc/`)
 
-| Layer | Directory | Purpose |
-|-------|-----------|---------|
-| **Models** | `DevDash/Models/` | Domain entities, enums, records |
-| **ViewModels** | `DevDash/ViewModels/` | MVVM ViewModels with CommunityToolkit.Mvvm |
-| **Views** | `DevDash/Views/` | Avalonia AXAML views and controls |
-| **Services** | `DevDash/Services/` | Business logic, filesystem access, scaffold |
-| **Converters** | `DevDash/Converters/` | XAML value converters |
-| **Styles** | `DevDash/Styles/` | XAML style dictionaries |
+| Layer | Path | Purpose |
+|-------|------|---------|
+| Entry point | `poc/src/main.cpp` | `int main` → `Renderer::Run()` |
+| Application (god class) | `poc/src/renderer.{h,cpp}` | SDL3 init, Vulkan setup chain, ImGui init, main loop, markdown panel state, `OpenPanel`, `RenderMarkdownWindow`, `PreprocessImports`. Slated for split in ADR-010. |
+| Markdown rendering | `poc/src/rendering/markdown_r.{h,cpp}` | `Rendering::MarkdownRenderer` deriving from `imgui_md`. |
+| RAII utility | `poc/src/deletion_queue.h` | LIFO stack of cleanup callbacks (adapted from Germen Pulchrum). |
+| External deps (managed) | `poc/external/CMakeLists.txt` | CPM packages + ImGui static lib targets. Excluded from the auto-generated tree below. |
 
-**Pattern**: MVVM — Views bind to ViewModels, Services injected via constructor.
+**Pattern note**: the PoC is intentionally monolithic (single `Renderer` class) to validate the stack. The real project will split responsibilities into `core/`, `services/`, `ui/`, `platform/`, `app/` — see ADR-010 and `api-design.md`.
 EOF
 }
 
@@ -70,6 +70,20 @@ is_skipped_file() {
     return 1
 }
 
+# Build a `find` -name argument list with -o between each pattern.
+# Usage: find ... \( $(build_find_name_args) \) ...
+build_find_name_args() {
+    local first=1
+    for glob in "${FILE_GLOBS[@]}"; do
+        if [ $first -eq 1 ]; then
+            printf -- '-name %s ' "$glob"
+            first=0
+        else
+            printf -- '-o -name %s ' "$glob"
+        fi
+    done
+}
+
 generate_adr_list() {
     if [[ ! -d "$ADR_DIR" ]]; then
         echo "- See \`reference/decisions/\` for architecture decisions"
@@ -78,7 +92,8 @@ generate_adr_list() {
 
     for adr in "$ADR_DIR"/[0-9]*.md; do
         [[ -f "$adr" ]] || continue
-        local filename=$(basename "$adr" .md)
+        local filename
+        filename=$(basename "$adr" .md)
         local number="${filename%%-*}"
         local title="${filename#*-}"
         title=$(echo "$title" | sed 's/-/ /g' | sed 's/\b\(.\)/\u\1/g')
@@ -113,16 +128,19 @@ process_directory() {
     local dir="$1"
     local reldir="${dir#$REL_BASE/}"
 
-    # Get files directly in this directory
+    # Get files directly in this directory matching any of FILE_GLOBS.
     local files=()
+    local find_args
+    find_args=$(build_find_name_args)
     while IFS= read -r -d '' file; do
         files+=("$file")
-    done < <(find "$dir" -maxdepth 1 -name "$FILE_GLOB" -type f -print0 2>/dev/null | sort -z)
+    done < <(eval "find \"$dir\" -maxdepth 1 -type f \\( $find_args \\) -print0 2>/dev/null" | sort -z)
 
     # Filter out skipped files
     local filtered=()
     for filepath in "${files[@]}"; do
-        local filename=$(basename "$filepath")
+        local filename
+        filename=$(basename "$filepath")
         is_skipped_file "$filename" || filtered+=("$filepath")
     done
 
@@ -132,8 +150,10 @@ process_directory() {
         echo "### $reldir"
 
         for filepath in "${filtered[@]}"; do
-            local file=$(basename "$filepath")
-            local desc=$($EXTRACT_CMD "$filepath" 2>/dev/null || true)
+            local file
+            file=$(basename "$filepath")
+            local desc
+            desc=$($EXTRACT_CMD "$filepath" 2>/dev/null || true)
 
             if [[ -z "$desc" ]]; then
                 echo "- \`$file\`"
@@ -152,7 +172,8 @@ process_directory() {
     done < <(find "$dir" -maxdepth 1 -mindepth 1 -type d -print0 2>/dev/null | sort -z)
 
     for subdir in "${subdirs[@]}"; do
-        local dirname=$(basename "$subdir")
+        local dirname
+        dirname=$(basename "$subdir")
         is_excluded_dir "$dirname" && continue
         process_directory "$subdir"
     done
@@ -172,6 +193,37 @@ generate_footer() {
     echo "*Auto-generated by \`.development/scripts/generate-architecture.sh\`*"
 }
 
+count_stats() {
+    local total=0
+    local missing=0
+    local find_args
+    find_args=$(build_find_name_args)
+
+    for source_dir in "${SOURCE_DIRS[@]}"; do
+        [[ -d "$source_dir" ]] || continue
+
+        # Build excluded-dirs prune args
+        local prune_args=""
+        for excl in "${EXCLUDE_DIRS[@]}"; do
+            prune_args+=" -path '*/${excl}/*' -prune -o"
+        done
+
+        while IFS= read -r -d '' filepath; do
+            local filename
+            filename=$(basename "$filepath")
+            is_skipped_file "$filename" && continue
+            ((total++)) || true
+            local desc
+            desc=$($EXTRACT_CMD "$filepath" 2>/dev/null || true)
+            if [[ -z "$desc" ]]; then
+                ((missing++)) || true
+            fi
+        done < <(eval "find \"$source_dir\" $prune_args \\( $find_args \\) -type f -print0 2>/dev/null")
+    done
+
+    echo "$total $missing"
+}
+
 main() {
     echo "Generating architecture reference..."
 
@@ -183,30 +235,16 @@ main() {
 
     echo -e "${GREEN}Generated:${NC} $OUTPUT_FILE"
 
-    # Stats
-    local total=0
-    local missing=0
-
-    for source_dir in "${SOURCE_DIRS[@]}"; do
-        [[ -d "$source_dir" ]] || continue
-        while IFS= read -r -d '' filepath; do
-            local filename=$(basename "$filepath")
-            is_skipped_file "$filename" && continue
-            ((total++)) || true
-            local desc=$($EXTRACT_CMD "$filepath" 2>/dev/null || true)
-            if [[ -z "$desc" ]]; then
-                ((missing++)) || true
-            fi
-        done < <(find "$source_dir" -name "$FILE_GLOB" -type f \
-            $(printf "! -path '*/%s/*' " "${EXCLUDE_DIRS[@]}") \
-            -print0 2>/dev/null)
-    done
+    local stats
+    stats=$(count_stats)
+    local total="${stats% *}"
+    local missing="${stats#* }"
 
     echo ""
     echo "Stats: $total files, $missing without summary"
 
     if [[ $missing -gt 0 ]]; then
-        echo -e "${YELLOW}Tip:${NC} Add /// <summary> comments to describe your types"
+        echo -e "${YELLOW}Tip:${NC} Add a top-of-file // comment block to describe the file/class purpose"
     fi
 }
 

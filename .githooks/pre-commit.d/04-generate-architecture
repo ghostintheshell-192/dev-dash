@@ -22,8 +22,9 @@ fi
 
 echo -e "${BLUE}[04] Architecture Reference${NC}"
 
-# Check if any source files are staged (C#, or extend as needed)
-if ! git diff --cached --name-only | grep -qE '\.(cs|py|ts|rs)$'; then
+# Check if any source files are staged. Patterns must match the FILE_GLOBS
+# in generate-architecture.sh (currently: C++).
+if ! git diff --cached --name-only | grep -qE '\.(cs|py|ts|rs|cpp|cc|cxx|h|hpp|hxx)$'; then
     echo -e "  ${GREEN}✓${NC} No source files changed, skipping"
     exit 0
 fi

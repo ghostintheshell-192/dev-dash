@@ -1,27 +1,3 @@
-# Visual Studio leftover files
-*.suo
-*.ncb
-*.user
-*.ccscc
-*.cache
-
-# Compiled files
-src/*/[Bb]in
-src/*/[Oo]bj
-tests/*/[Bb]in
-tests/*/[Oo]bj
-bin/
-obj/
-*.dll
-*.exe
-*.pdb
-
-# Editor leftovers
-*.bak
-
-# Visual Studio temp folder
-.vs
-
 # IDE
 .idea/
 .vscode/
@@ -30,12 +6,9 @@ obj/
 .DS_Store
 Thumbs.db
 
-# NuGet
-*.nupkg
-**/[Pp]ackages/*
-
-# Build artifacts
-**/[Aa]rtifacts/*
+# Editor leftovers / backups
+*.bak
+backups/
 
 # Logs
 *.log
@@ -47,10 +20,6 @@ logs/
 *.key
 *.pfx
 *.p12
-
-# Backups
-backups/
-*.bak
 
 # Sample files / test data
 samples/
@@ -70,3 +39,17 @@ samples/
 **/temp-todos*.md
 .claude/settings.local.json
 .claude/*.local.md
+
+# C++ build artifacts
+# poc/.gitignore already handles poc/build/; these patterns catch stragglers
+# anywhere else in the tree (e.g., out-of-tree CMake builds, IDE-driven builds).
+build/
+*.o
+*.a
+*.so
+*.dylib
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CTestTestfile.cmake
+compile_commands.json

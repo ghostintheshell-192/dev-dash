@@ -213,6 +213,24 @@ riutilizzabili"
   o lo eliminiamo del tutto (l'utente customizza il file dopo l'apply)?
   Inclinazione: **eliminarlo** per coerenza con "trasparenza, no magic".
 
+- **Permessi `Bash(...)` per stack** (emerso 2026-05-10 nel cleanup post-pivot):
+  i progetti reali hanno bisogno di permessi diversi a seconda dello stack
+  (es. `Bash(cmake:*)` per C++, `Bash(dotnet build:*)` per .NET,
+  `Bash(cargo:*)` per Rust). Lo scaffold corrente in `rsrc/project-scaffold/`
+  contiene solo permessi language-agnostic (`find`, `grep`, `gh*`, `WebSearch`).
+  Tre opzioni:
+  - **A**: scaffold per-stack — `~/.devdash/scaffolds/coding-cpp/`,
+    `coding-csharp/`, ecc. — ognuno con i propri permessi di default.
+    Più scaffold, ma ogni stack è esplicito.
+  - **B**: scaffold "intelligente" che rileva lo stack del progetto target
+    all'apply (presenza di `CMakeLists.txt`, `*.csproj`, `Cargo.toml`) e
+    aggiunge i permessi appropriati. Più magia, meno scaffold da gestire.
+  - **C**: lo scaffold contiene un superset di permessi commentati;
+    l'utente decommenta quelli rilevanti dopo l'apply. Trasparente ma
+    manuale.
+  Inclinazione iniziale: **A**, coerente con la filosofia "scaffold come
+  artefatto utente esplicito, no magic".
+
 ## Related
 
 - `feature-effective-config-view.md`: parte 1/3 (prerequisito concettuale).
