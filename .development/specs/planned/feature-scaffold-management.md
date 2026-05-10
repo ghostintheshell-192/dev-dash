@@ -5,7 +5,7 @@ status: planned
 category: core
 part_of: wedge
 related: [feature-effective-config-view, feature-snapshot-history]
-depends_on: [feature-effective-config-view]
+depends_on: [feature-effective-config-view][../../reference/technical/resource-model.md]
 created: 2026-05-10
 ---
 

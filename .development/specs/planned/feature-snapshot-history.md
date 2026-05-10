@@ -5,7 +5,7 @@ status: planned
 category: core
 part_of: wedge
 related: [feature-effective-config-view, feature-scaffold-management]
-depends_on: [feature-scaffold-management]
+depends_on: [feature-scaffold-management][../../reference/technical/resource-model.md]
 created: 2026-05-10
 ---
 

@@ -58,6 +58,10 @@ namespace dev_dash::ui
 
     void EffectiveConfigPanel::Render()
     {
+        // Reset per-frame flags before any button can re-raise them.
+        _wantsBack         = false;
+        _wantsScaffoldDiff = false;
+
         const ImGuiIO& io = ImGui::GetIO();
         ImGui::SetNextWindowPos(ImVec2(0, 0));
         ImGui::SetNextWindowSize(io.DisplaySize);
@@ -73,7 +77,11 @@ namespace dev_dash::ui
         ImGui::SameLine();
         ImGui::TextDisabled("%s", _project.path.string().c_str());
 
-        ImGui::SameLine(ImGui::GetContentRegionAvail().x - 70.0f + ImGui::GetCursorPosX());
+        ImGui::SameLine(ImGui::GetContentRegionAvail().x - 160.0f + ImGui::GetCursorPosX());
+        if (ImGui::Button("Scaffold..."))
+            _wantsScaffoldDiff = true;
+
+        ImGui::SameLine();
         if (ImGui::Button("Refresh"))
             Refresh();
 
