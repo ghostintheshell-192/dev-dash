@@ -104,12 +104,15 @@ When analyzing tech-debt, bugs, or investigating issues:
 ## Quick Commands
 
 ```bash
-# Build and run
-dotnet build && dotnet run --project src/DevDash
+# Configure + build (Linux Debug)
+cmake --preset linux-debug -S poc
+cmake --build --preset linux-debug
 
-# Run tests
-dotnet test
+# Run the PoC
+./poc/build/linux-debug/src/dev-dash-poc
 
-# Format check
-dotnet format --verify-no-changes
+# Tests: TBD (no test target yet; will arrive once core/services land in app/)
+
+# Format check: TBD (no .clang-format at root yet; the 02-clang-format hook
+# is dormant until the config file is added)
 ```
