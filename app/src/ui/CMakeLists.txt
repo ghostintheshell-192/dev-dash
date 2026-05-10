@@ -6,4 +6,8 @@ target_sources(dev-dash
         markdown_renderer.cpp
         document_panel_host.h
         document_panel_host.cpp
+        project_selector_panel.h
+        project_selector_panel.cpp
+        effective_config_panel.h
+        effective_config_panel.cpp
 )

@@ -2,6 +2,10 @@ target_sources(dev-dash
     PRIVATE
         document_loader.h
         document_loader.cpp
+        config_file_scanner.h
+        config_file_scanner.cpp
+        settings_parser.h
+        settings_parser.cpp
         config_resolver.h
         config_resolver.cpp
         diff_engine.h

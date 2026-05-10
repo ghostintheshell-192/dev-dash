@@ -1,5 +1,6 @@
 #pragma once
 
+#include <filesystem>
 #include <memory>
 
 namespace dev_dash::platform
@@ -17,15 +18,20 @@ namespace dev_dash::ui
     class FontLibrary;
     class MarkdownRenderer;
     class DocumentPanelHost;
+    class ProjectSelectorPanel;
+    class EffectiveConfigPanel;
 }
 
 namespace dev_dash::services
 {
     class DocumentLoader;
+    class ConfigResolver;
 }
 
 namespace dev_dash::app
 {
+    enum class AppState { kSelectingProject, kViewingConfig };
+
     class App
     {
     public:
@@ -40,6 +46,7 @@ namespace dev_dash::app
     private:
         bool Init();
         bool MainLoop();
+        void OnProjectSelected(const std::filesystem::path& path);
 
         // ----- Construction order (in Init body) -----
         // 1. _sdlSession
@@ -53,9 +60,13 @@ namespace dev_dash::app
         // 9. _documentLoader
         // 10. _markdownRenderer (needs fonts)
         // 11. _documentPanelHost (needs loader + renderer; registers LinkHandler)
+        // 12. _configResolver
+        // 13. _projectSelectorPanel (needs window handle)
         //
         // ----- Declaration order (drives LIFO destruction) -----
-        // Reverse the callback dependency: renderer must die before its host.
+        // Last declared = first destroyed.
+        // _effectiveConfigPanel holds refs to _configResolver + _documentPanelHost
+        // → must be declared AFTER both (destroyed before both).
 
         std::unique_ptr<platform::SdlSession>     _sdlSession;
         std::unique_ptr<platform::Window>         _window;
@@ -66,12 +77,17 @@ namespace dev_dash::app
         std::unique_ptr<ui::FontLibrary>          _fonts;
         std::unique_ptr<services::DocumentLoader> _documentLoader;
 
-        // CRITICAL: _documentPanelHost MUST be declared before _markdownRenderer.
-        // The host registers a LinkHandler lambda capturing [this] on the renderer.
-        // C++ destroys members in REVERSE declaration order, so _markdownRenderer
-        // is destroyed first → its LinkHandler (capturing host) is released →
-        // _documentPanelHost destroyed safely after.
+        // _documentPanelHost before _markdownRenderer: renderer destroyed first,
+        // releasing the LinkHandler lambda before the host that owns the panels.
         std::unique_ptr<ui::DocumentPanelHost>    _documentPanelHost;
         std::unique_ptr<ui::MarkdownRenderer>     _markdownRenderer;
+
+        std::unique_ptr<services::ConfigResolver>  _configResolver;
+        std::unique_ptr<ui::ProjectSelectorPanel>  _projectSelectorPanel;
+        // _effectiveConfigPanel last → destroyed first, before _configResolver
+        // and _documentPanelHost whose references it holds.
+        std::unique_ptr<ui::EffectiveConfigPanel>  _effectiveConfigPanel;
+
+        AppState _appState = AppState::kSelectingProject;
     };
 }

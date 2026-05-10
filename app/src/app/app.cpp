@@ -16,7 +16,11 @@
 #include "../ui/font_library.h"
 #include "../ui/markdown_renderer.h"
 #include "../ui/document_panel_host.h"
+#include "../ui/project_selector_panel.h"
+#include "../ui/effective_config_panel.h"
 #include "../services/document_loader.h"
+#include "../services/config_resolver.h"
+#include "../core/project.h"
 
 namespace dev_dash::app
 {
@@ -67,12 +71,20 @@ namespace dev_dash::app
         _markdownRenderer  = std::make_unique<ui::MarkdownRenderer>(*_fonts);
         _documentPanelHost = std::make_unique<ui::DocumentPanelHost>(*_documentLoader, *_markdownRenderer);
 
-        if (const char* home = std::getenv("HOME"))
-            _documentPanelHost->OpenPanel(std::filesystem::path(home) / ".claude/CLAUDE.md");
-        _documentPanelHost->OpenPanel("/data/repos/dev-dash/.claude/CLAUDE.md");
+        _configResolver       = std::make_unique<services::ConfigResolver>();
+        _projectSelectorPanel = std::make_unique<ui::ProjectSelectorPanel>(
+            _window->Handle(),
+            [this](const std::filesystem::path& path) { OnProjectSelected(path); });
 
         _window->Show();
         return true;
+    }
+
+    void App::OnProjectSelected(const std::filesystem::path& path)
+    {
+        _effectiveConfigPanel = std::make_unique<ui::EffectiveConfigPanel>(
+            *_configResolver, *_documentPanelHost, core::Project{path});
+        _appState = AppState::kViewingConfig;
     }
 
     bool App::MainLoop()
@@ -94,8 +106,22 @@ namespace dev_dash::app
 
             _imguiBackend->NewFrame();
 
-            ImGui::ShowDemoWindow();
-            _documentPanelHost->Render();
+            switch (_appState)
+            {
+            case AppState::kSelectingProject:
+                _projectSelectorPanel->Render();
+                break;
+
+            case AppState::kViewingConfig:
+                _effectiveConfigPanel->Render();
+                _documentPanelHost->Render();
+                if (_effectiveConfigPanel->WantsBack())
+                {
+                    _effectiveConfigPanel.reset();
+                    _appState = AppState::kSelectingProject;
+                }
+                break;
+            }
 
             // Store fence handle locally: InFlightFence() returns by value and
             // vkWaitForFences / vkResetFences need a pointer.
