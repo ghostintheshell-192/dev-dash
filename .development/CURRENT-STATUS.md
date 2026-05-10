@@ -17,20 +17,33 @@ Stato attuale del codebase:
   libreria markdown). Render markdown con navigazione cross-file via
   `@`-import, font system IBM Plex Sans + DejaVu fallback, Vulkan via
   vk-bootstrap, SDL3 windowing.
-- `src/DevDash/` — codebase legacy `.NET 8 + Avalonia`, preservato sotto
-  il tag `legacy/avalonia-final`. Da rimuovere da `develop` con branch
-  dedicato quando il progetto vero parte.
+- Architettura del progetto vero **decisa** in [ADR-010](reference/decisions/010-architecture-design.md)
+  + [api-design.md](api-design.md): split layered `core/services/ui/platform/app/`
+  sotto `app/src/` (rinomina di `poc/src/`). Implementazione in sessione separata.
+- Legacy `.NET 8 + Avalonia` (precedentemente in `src/DevDash/`) **rimosso da
+  `develop`** il 2026-05-10. Stato preservato al tag `legacy/avalonia-final`.
 - `.github/workflows/ci.yml.disabled` — CI .NET disabilitata pre-pivot.
   Da rimpiazzare con workflow CMake/GCC.
 
 ## Recent Work
 
-### 2026-05-10: Documentazione del pivot (questa sessione)
+### 2026-05-10: Pivot documentation + wedge spec + architecture design + legacy cleanup
 
-- `CURRENT-STATUS.md` riallineato (era fermo al 2026-01-01).
-- Scritti **ADR-008** (pivot dello stack a C++/Dear ImGui, supersede ADR-001)
-  e **ADR-009** (scelta libreria markdown: `imgui_md` + MD4C).
-- ADR-001 marcato `Superseded by ADR-008`; index del README aggiornato.
+- **CURRENT-STATUS.md** riallineato (era fermo al 2026-01-01).
+- **ADR-008** (pivot stack C++/Dear ImGui, supersede ADR-001) e **ADR-009**
+  (libreria markdown `imgui_md` + MD4C). ADR-001 marcato `Superseded by ADR-008`.
+- **Wedge feature** formalizzata in 3 spec planned + 1 backlog
+  (`feature-effective-config-view`, `feature-scaffold-management`,
+  `feature-snapshot-history`, e `backlog/feature-runtime-view-of-truth`).
+- **ADR-010 + api-design.md** — split layered del progetto vero
+  (`core/services/ui/platform/app/`), 9 decisioni con rationale, `.h` signatures
+  per ogni classe del target tree. Pattern callback per `MarkdownRenderer` con
+  declaration-order trick, `FontLibrary` come risorsa app-wide, concrete services
+  no virtual interfaces, `camelCase` per public struct fields.
+- **Legacy `.NET/Avalonia` rimosso da `develop`**: `src/DevDash/`,
+  `dev-dash.sln`, `Directory.Build.props`, `Directory.Packages.props`,
+  `global.json`, `nuget.config`. Tech-debt `contentcontrol-binding-multisidebar`
+  archiviato come `closed` per obsoletizzazione.
 
 ### 2026-05-09: Migrazione libreria markdown — `imgui_markdown` → `imgui_md`
 
@@ -103,20 +116,26 @@ Le sessioni 2025-12 / 2026-01 hanno costruito la v0.2.x in Avalonia
 
 ### Immediato (prossima sessione)
 
-1. **Iniziare il progetto vero**. Decisione architettonica grossa:
-   - Promozione `poc/` → `app/` (o equivalente).
-   - Rimozione di `src/DevDash/` da `develop` (preservando il tag
-     `legacy/avalonia-final`).
-   - Struttura cartelle definitiva, equivalente MVVM in C++ (separazione
-     domain / view / service o pattern alternativo da decidere).
-   - CMake definitivo: targets, install rules, packaging, eventuale
-     workflow CI Linux.
-   - Potrebbe meritare un **ADR-010** sulla struttura del progetto vero.
+1. **Implementazione skeleton del progetto vero**. Architettura già fissata in
+   [ADR-010](reference/decisions/010-architecture-design.md) e
+   [api-design.md](api-design.md). Sequenza:
+   - Rinomina `poc/` → `app/`.
+   - Refactor di `Renderer` nei 5 layer (`platform::Window`, `VulkanContext`,
+     `Swapchain`, `FrameResources`, `ImGuiBackend`).
+   - Estrazione di `ui::FontLibrary`, `ui::MarkdownRenderer` (refactor da
+     `Rendering::`), `ui::DocumentPanelHost`.
+   - Estrazione di `services::DocumentLoader` (refactor di `PreprocessImports`).
+   - Composition root `app::App` con declaration-order corretto.
+   - PCH `app/src/pch.h` + `target_precompile_headers`.
+   - Verifica build su Linux Debug, smoke-test del frame loop.
+   - Possibile branch: `refactor/skeleton-layered`.
 
-### Pulizia post-pivot (bassa-media priorità, da fare durante avvio progetto vero)
+2. **`docs/architecture.md` rewrite** — solo *dopo* lo skeleton, in modo che la
+   doc pubblica descriva cosa esiste. Il file attuale parla ancora di Avalonia,
+   workspace come unit primaria, Vault@Obsidian come componente architetturale,
+   link agli ADR su path vecchio (`.personal/reference/decisions/`).
 
-2. **Rimuovere `src/DevDash/` da `develop`** in branch dedicato dopo aver
-   verificato che il tag `legacy/avalonia-final` punti allo stato corretto.
+### Pulizia post-pivot (bassa-media priorità)
 
 3. **Sostituire hook `02-dotnet-format`** con `clang-format` (o equivalente
    per il PoC Linux-only).
@@ -127,12 +146,20 @@ Le sessioni 2025-12 / 2026-01 hanno costruito la v0.2.x in Avalonia
 
 5. **Aggiornare hook `04-generate-architecture`** — il pattern grep oggi è
    `\.(cs|py|ts|rs)$`, va esteso ad `cpp|hpp|h` perché altrimenti
-   `ARCHITECTURE.md` non si rigenera mai dopo modifiche al codice C++.
+   `ARCHITECTURE.md` non si rigenera mai dopo modifiche al codice C++. Anche
+   `extract-summary.sh` va esteso per riconoscere commenti C++.
 
 6. **Aggiornare `coding-standards.md`** auto-generato: lo script
    `generate-claude-config.sh` ha template C#-specifico hard-coded. Da
    estendere per C++ o svuotare il file finché non c'è un template
    equivalente.
+
+7. **`.gitignore`**: contiene ancora pattern .NET (`*.suo`, `*.dll`, `bin/`,
+   `obj/`, NuGet) — pulizia opzionale, oggi non causa problemi.
+
+8. **`docs/SETUP.md` e quick-commands in `.claude/rules/workflow.md`**:
+   referenziano ancora `src/DevDash` + `dotnet build`. Da aggiornare durante
+   il rewrite di `docs/architecture.md`.
 
 ### Verifica reattiva (solo se serve)
 
@@ -199,10 +226,8 @@ poc/
 ## Blockers / Attention
 
 - **Nessun blocker attivo.**
-- **Stack legacy ancora presente** in `src/DevDash/` (non più builda,
-  ma ingombra il tree). Da rimuovere all'avvio del progetto vero.
 - **Hook e settings pre-pivot** lentamente invecchiano (vedi Next Steps
-  punti 3-6). Non rompono nulla oggi (sono `allow`-pattern, non `deny`).
+  punti 3-8). Non rompono nulla oggi (sono `allow`-pattern, non `deny`).
 
 ## Build Status
 
@@ -210,15 +235,17 @@ poc/
 | ------ | ----- |
 | `poc/` (C++/CMake) | ✅ Compila e linka su Debian 12 (GCC, Ninja) |
 | `poc/` runtime | ✅ Apre finestra Vulkan/SDL3 con pannelli markdown navigabili |
-| `src/DevDash/` (.NET/Avalonia) | ⚠️ Non più rilevante (legacy, snapshot in `legacy/avalonia-final`) |
+| Legacy `.NET/Avalonia` | 🗑️ Rimosso da `develop` 2026-05-10; recover via `git checkout legacy/avalonia-final` |
 | CI | ⏸️ Disabilitata pre-pivot (`ci.yml.disabled`); da riattivare per CMake |
 
 ## Quick Links
 
 - [ADR-008: pivot a C++/Dear ImGui](reference/decisions/008-pivot-to-cpp-imgui.md)
 - [ADR-009: libreria markdown imgui_md + MD4C](reference/decisions/009-markdown-library-imgui-md.md)
+- [ADR-010: architettura del progetto vero](reference/decisions/010-architecture-design.md)
+- [api-design.md: design definitivo](api-design.md) — companion operativo di ADR-010
 - [Tech-debt index](tech-debt/README.md)
 - [Spec planned/in-progress/implemented](specs/)
 - [Memory-bank handoff](../.memory-bank/) — diari di sessione
-- Tag legacy: `git checkout legacy/avalonia-final` per ispezionare lo stato
-  pre-pivot.
+- Tag legacy: `git checkout legacy/avalonia-final` per recuperare lo stato
+  `.NET/Avalonia` pre-pivot.
