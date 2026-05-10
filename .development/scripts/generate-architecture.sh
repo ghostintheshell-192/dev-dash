@@ -29,26 +29,27 @@ EXTRACT_CMD="$SCRIPT_DIR/extract-summary.sh"
 MAX_DESC_LENGTH=200
 DOCS_REF="\`docs/\`"
 
-# Source directories to scan. The current C++ PoC lives under poc/src/; once
-# the real project lands under app/src/, add it (or replace this entry).
-SOURCE_DIRS=("$PROJECT_ROOT/poc/src")
+# Source directories to scan.
+# poc/src/ — original PoC (reference, kept intact post-refactor)
+# app/src/ — layered skeleton (real project, post ADR-010 split)
+SOURCE_DIRS=("$PROJECT_ROOT/poc/src" "$PROJECT_ROOT/app/src")
 # Base for relative path calculation (the printed "### dirname" headers).
 REL_BASE="$PROJECT_ROOT"
 
 # Project-specific header content (Layer Overview block).
 generate_project_header() {
     cat << 'EOF'
-## Layer Overview (current PoC under `poc/`)
+## Layer Overview (`app/src/` — layered architecture, ADR-010)
 
 | Layer | Path | Purpose |
 |-------|------|---------|
-| Entry point | `poc/src/main.cpp` | `int main` → `Renderer::Run()` |
-| Application (god class) | `poc/src/renderer.{h,cpp}` | SDL3 init, Vulkan setup chain, ImGui init, main loop, markdown panel state, `OpenPanel`, `RenderMarkdownWindow`, `PreprocessImports`. Slated for split in ADR-010. |
-| Markdown rendering | `poc/src/rendering/markdown_r.{h,cpp}` | `Rendering::MarkdownRenderer` deriving from `imgui_md`. |
-| RAII utility | `poc/src/deletion_queue.h` | LIFO stack of cleanup callbacks (adapted from Germen Pulchrum). |
-| External deps (managed) | `poc/external/CMakeLists.txt` | CPM packages + ImGui static lib targets. Excluded from the auto-generated tree below. |
-
-**Pattern note**: the PoC is intentionally monolithic (single `Renderer` class) to validate the stack. The real project will split responsibilities into `core/`, `services/`, `ui/`, `platform/`, `app/` — see ADR-010 and `api-design.md`.
+| Entry point | `app/src/main.cpp` | `int main` → `dev_dash::app::App().Run()` |
+| Composition root | `app/src/app/app.{h,cpp}` | `App` owns all layers via `unique_ptr`; wires construction order and main loop. |
+| Platform | `app/src/platform/` | SDL3/Vulkan/ImGui plumbing: `SdlSession`, `Window`, `VulkanContext`, `Swapchain`, `FrameResources`, `ImGuiBackend`, `DeletionQueue`. |
+| UI | `app/src/ui/` | `FontLibrary`, `MarkdownRenderer` (derives `imgui_md`), `DocumentPanelHost`. |
+| Services | `app/src/services/` | Domain logic: `DocumentLoader` (fully implemented); stubs for `ConfigResolver`, `DiffEngine`, `ApplyEngine`, `SnapshotService`, `ScaffoldRepository`. |
+| Core | `app/src/core/` | Pure value types (header-only): `Project`, `ConfigLayer`, `EffectiveConfig`, `Scaffold`, `Snapshot`, `DiffEntry`. |
+| PoC (reference) | `poc/src/` | Original monolithic `Renderer` class — kept as reference pre-refactor. |
 EOF
 }
 

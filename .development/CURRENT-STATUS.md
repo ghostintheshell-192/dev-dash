@@ -4,7 +4,7 @@
 
 ## Project Phase
 
-**Phase**: PoC C++/Dear ImGui completato — pre-avvio del progetto vero.
+**Phase**: Skeleton layered architecture in progress (`refactor/skeleton-layered`).
 
 Il pivot dallo stack originale (.NET 8 + Avalonia, [ADR-001](reference/decisions/001-stack-tecnologico.md))
 a **C++20 + Dear ImGui + SDL3 + Vulkan** è validato. Vedi
@@ -13,13 +13,14 @@ e il rationale completi.
 
 Stato attuale del codebase:
 
+- `app/` — skeleton layered in corso (branch `refactor/skeleton-layered`).
+  Directory tree completo: `core/`, `services/`, `ui/`, `platform/`, `app/`.
+  `DocumentLoader` implementato; altri service stub. Build da verificare.
 - `poc/` — PoC C++/ImGui funzionalmente completo (4 step + migrazione
-  libreria markdown). Render markdown con navigazione cross-file via
-  `@`-import, font system IBM Plex Sans + DejaVu fallback, Vulkan via
-  vk-bootstrap, SDL3 windowing.
+  libreria markdown). Tenuto come riferimento pre-refactor.
 - Architettura del progetto vero **decisa** in [ADR-010](reference/decisions/010-architecture-design.md)
   + [api-design.md](api-design.md): split layered `core/services/ui/platform/app/`
-  sotto `app/src/` (rinomina di `poc/src/`). Implementazione in sessione separata.
+  sotto `app/src/`.
 - Legacy `.NET 8 + Avalonia` (precedentemente in `src/DevDash/`) **rimosso da
   `develop`** il 2026-05-10. Stato preservato al tag `legacy/avalonia-final`.
 - `.github/workflows/ci.yml.disabled` — CI .NET disabilitata pre-pivot.
@@ -114,21 +115,16 @@ Le sessioni 2025-12 / 2026-01 hanno costruito la v0.2.x in Avalonia
 
 ## Next Steps
 
-### Immediato (prossima sessione)
+### Immediato
 
-1. **Implementazione skeleton del progetto vero**. Architettura già fissata in
-   [ADR-010](reference/decisions/010-architecture-design.md) e
-   [api-design.md](api-design.md). Sequenza:
-   - Rinomina `poc/` → `app/`.
-   - Refactor di `Renderer` nei 5 layer (`platform::Window`, `VulkanContext`,
-     `Swapchain`, `FrameResources`, `ImGuiBackend`).
-   - Estrazione di `ui::FontLibrary`, `ui::MarkdownRenderer` (refactor da
-     `Rendering::`), `ui::DocumentPanelHost`.
-   - Estrazione di `services::DocumentLoader` (refactor di `PreprocessImports`).
-   - Composition root `app::App` con declaration-order corretto.
-   - PCH `app/src/pch.h` + `target_precompile_headers`.
-   - Verifica build su Linux Debug, smoke-test del frame loop.
-   - Possibile branch: `refactor/skeleton-layered`.
+1. **Verifica build `app/`** (`refactor/skeleton-layered` in corso):
+   ```bash
+   cmake --preset linux-debug -S app
+   cmake --build --preset linux-debug
+   ./app/build/linux-debug/src/dev-dash
+   ```
+   Smoke-test: si apre finestra Vulkan/SDL3, pannelli markdown navigabili,
+   comportamento identico al PoC.
 
 2. **`docs/architecture.md` rewrite** — solo *dopo* lo skeleton, in modo che la
    doc pubblica descriva cosa esiste. Il file attuale parla ancora di Avalonia,
@@ -177,7 +173,7 @@ Pendente:
 
 Vedi `ARCHITECTURE.md` per il tree completo (auto-generato).
 
-### Stack runtime (PoC `poc/`)
+### Stack runtime (`app/` + `poc/`)
 
 | Componente | Versione | Note |
 | ---------- | -------- | ---- |
@@ -234,7 +230,8 @@ poc/
 
 | Target | Stato |
 | ------ | ----- |
-| `poc/` (C++/CMake) | ✅ Compila e linka su Debian 12 (GCC, Ninja) |
+| `app/` (C++/CMake, layered) | ⏳ Skeleton scritto, build da verificare |
+| `poc/` (C++/CMake, monolitico) | ✅ Compila e linka su Debian 12 (GCC, Ninja) |
 | `poc/` runtime | ✅ Apre finestra Vulkan/SDL3 con pannelli markdown navigabili |
 | Legacy `.NET/Avalonia` | 🗑️ Rimosso da `develop` 2026-05-10; recover via `git checkout legacy/avalonia-final` |
 | CI | ⏸️ Disabilitata pre-pivot (`ci.yml.disabled`); da riattivare per CMake |

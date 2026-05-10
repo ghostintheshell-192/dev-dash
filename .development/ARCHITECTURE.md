@@ -3,17 +3,17 @@
 Quick reference for navigating the DevDash codebase.
 For detailed documentation, see `docs/`.
 
-## Layer Overview (current PoC under `poc/`)
+## Layer Overview (`app/src/` — layered architecture, ADR-010)
 
 | Layer | Path | Purpose |
 |-------|------|---------|
-| Entry point | `poc/src/main.cpp` | `int main` → `Renderer::Run()` |
-| Application (god class) | `poc/src/renderer.{h,cpp}` | SDL3 init, Vulkan setup chain, ImGui init, main loop, markdown panel state, `OpenPanel`, `RenderMarkdownWindow`, `PreprocessImports`. Slated for split in ADR-010. |
-| Markdown rendering | `poc/src/rendering/markdown_r.{h,cpp}` | `Rendering::MarkdownRenderer` deriving from `imgui_md`. |
-| RAII utility | `poc/src/deletion_queue.h` | LIFO stack of cleanup callbacks (adapted from Germen Pulchrum). |
-| External deps (managed) | `poc/external/CMakeLists.txt` | CPM packages + ImGui static lib targets. Excluded from the auto-generated tree below. |
-
-**Pattern note**: the PoC is intentionally monolithic (single `Renderer` class) to validate the stack. The real project will split responsibilities into `core/`, `services/`, `ui/`, `platform/`, `app/` — see ADR-010 and `api-design.md`.
+| Entry point | `app/src/main.cpp` | `int main` → `dev_dash::app::App().Run()` |
+| Composition root | `app/src/app/app.{h,cpp}` | `App` owns all layers via `unique_ptr`; wires construction order and main loop. |
+| Platform | `app/src/platform/` | SDL3/Vulkan/ImGui plumbing: `SdlSession`, `Window`, `VulkanContext`, `Swapchain`, `FrameResources`, `ImGuiBackend`, `DeletionQueue`. |
+| UI | `app/src/ui/` | `FontLibrary`, `MarkdownRenderer` (derives `imgui_md`), `DocumentPanelHost`. |
+| Services | `app/src/services/` | Domain logic: `DocumentLoader` (fully implemented); stubs for `ConfigResolver`, `DiffEngine`, `ApplyEngine`, `SnapshotService`, `ScaffoldRepository`. |
+| Core | `app/src/core/` | Pure value types (header-only): `Project`, `ConfigLayer`, `EffectiveConfig`, `Scaffold`, `Snapshot`, `DiffEntry`. |
+| PoC (reference) | `poc/src/` | Original monolithic `Renderer` class — kept as reference pre-refactor. |
 
 ## Key Decisions
 
@@ -41,6 +41,59 @@ For detailed documentation, see `docs/`.
 ### poc/src/rendering
 - `markdown_r.cpp`
 - `markdown_r.h`
+
+### app/src
+- `main.cpp`
+- `pch.h`
+
+### app/src/app
+- `app.cpp`
+- `app.h`
+
+### app/src/core
+- `config_layer.h`
+- `diff_entry.h`
+- `effective_config.h`
+- `project.h`
+- `scaffold.h`
+- `snapshot.h`
+
+### app/src/platform
+- `deletion_queue.h` — Adapted from Germen Pulchrum (DPD85/Germen, MIT) — `CodaCancellazione`. See app/THIRD_PARTY_NOTICES.md for attribution.
+- `frame_resources.cpp`
+- `frame_resources.h`
+- `imgui_backend.cpp`
+- `imgui_backend.h`
+- `sdl_session.cpp`
+- `sdl_session.h`
+- `swapchain.cpp`
+- `swapchain.h`
+- `vulkan_context.cpp`
+- `vulkan_context.h`
+- `window.cpp`
+- `window.h`
+
+### app/src/services
+- `apply_engine.cpp`
+- `apply_engine.h`
+- `config_resolver.cpp`
+- `config_resolver.h`
+- `diff_engine.cpp`
+- `diff_engine.h`
+- `document_loader.cpp`
+- `document_loader.h`
+- `scaffold_repository.cpp`
+- `scaffold_repository.h`
+- `snapshot_service.cpp`
+- `snapshot_service.h`
+
+### app/src/ui
+- `document_panel_host.cpp`
+- `document_panel_host.h`
+- `font_library.cpp`
+- `font_library.h`
+- `markdown_renderer.cpp`
+- `markdown_renderer.h`
 
 ---
 
