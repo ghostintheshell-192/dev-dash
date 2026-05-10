@@ -1,7 +1,8 @@
 ---
 type: feature
 priority: must-have
-status: planned
+status: implemented
+implemented: 2026-05-10
 category: core
 part_of: wedge
 related: [feature-scaffold-management, feature-snapshot-history]

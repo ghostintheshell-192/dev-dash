@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-05-10 19:58*
+*Auto-generated: 2026-05-10 20:02*
 
 ---
 
@@ -19,9 +19,9 @@
 
 ### (root)/ (5 files)
 
+- [CURRENT-STATUS.md](CURRENT-STATUS.md) (12KB, 2026-05-10) **RECENT**
 - [INDEX.md](INDEX.md) (4KB, 2026-05-10) **RECENT**
 - [ARCHITECTURE.md](ARCHITECTURE.md) (3KB, 2026-05-10) **RECENT**
-- [CURRENT-STATUS.md](CURRENT-STATUS.md) (11KB, 2026-05-10) **RECENT**
 - [api-design.md](api-design.md) (39KB, 2026-05-10) **RECENT**
 - [README.md](README.md) (2KB, 2026-04-26)
 
@@ -42,14 +42,18 @@
 - [feature-code-graph.md](specs/backlog/feature-code-graph.md) (8KB, 2026-05-10) **RECENT**
 - [feature-runtime-view-of-truth.md](specs/backlog/feature-runtime-view-of-truth.md) (2KB, 2026-05-10) **RECENT**
 
-### specs/planned/ (3 files)
+### specs/implemented/ (1 files)
+
+- [feature-effective-config-view.md](specs/implemented/feature-effective-config-view.md) (6KB, 2026-05-10) **RECENT**
+
+### specs/planned/ (2 files)
 
 - [feature-scaffold-management.md](specs/planned/feature-scaffold-management.md) (10KB, 2026-05-10) **RECENT**
-- [feature-effective-config-view.md](specs/planned/feature-effective-config-view.md) (6KB, 2026-05-10) **RECENT**
 - [feature-snapshot-history.md](specs/planned/feature-snapshot-history.md) (8KB, 2026-05-10) **RECENT**
 
-### tech-debt/ (6 files)
+### tech-debt/ (7 files)
 
+- [spec-workflow-hook-silent-fail.md](tech-debt/spec-workflow-hook-silent-fail.md) (2KB, 2026-05-10) **RECENT**
 - [README.md](tech-debt/README.md) (2KB, 2026-05-10) **RECENT**
 - [markdown-code-block-styling.md](tech-debt/markdown-code-block-styling.md) (3KB, 2026-05-09) **RECENT**
 - [preprocess-imports-indented-fences.md](tech-debt/preprocess-imports-indented-fences.md) (2KB, 2026-05-09) **RECENT**
@@ -98,16 +102,16 @@
 
 ## Recently Modified (last 7 days)
 
-1. [INDEX.md](INDEX.md) (today)
-2. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
-3. [CURRENT-STATUS.md](CURRENT-STATUS.md) (today)
-4. [README.md](tech-debt/README.md) (today)
-5. [feature-scaffold-management.md](specs/planned/feature-scaffold-management.md) (today)
-6. [2026-05-10_contentcontrol-binding-multisidebar.md](archive/completed/2026-05-10_contentcontrol-binding-multisidebar.md) (today)
-7. [api-design.md](api-design.md) (today)
-8. [010-architecture-design.md](reference/decisions/010-architecture-design.md) (today)
-9. [README.md](reference/decisions/README.md) (today)
-10. [feature-claude-context.md](specs/archived/feature-claude-context.md) (today)
+1. [spec-workflow-hook-silent-fail.md](tech-debt/spec-workflow-hook-silent-fail.md) (today)
+2. [CURRENT-STATUS.md](CURRENT-STATUS.md) (today)
+3. [feature-effective-config-view.md](specs/implemented/feature-effective-config-view.md) (today)
+4. [INDEX.md](INDEX.md) (today)
+5. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
+6. [README.md](tech-debt/README.md) (today)
+7. [feature-scaffold-management.md](specs/planned/feature-scaffold-management.md) (today)
+8. [2026-05-10_contentcontrol-binding-multisidebar.md](archive/completed/2026-05-10_contentcontrol-binding-multisidebar.md) (today)
+9. [api-design.md](api-design.md) (today)
+10. [010-architecture-design.md](reference/decisions/010-architecture-design.md) (today)
 
 ---
 
