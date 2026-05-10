@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-05-10 15:28*
+*Auto-generated: 2026-05-10 15:29*
 
 ---
 
@@ -98,8 +98,8 @@
 
 ## Recently Modified (last 7 days)
 
-1. [feature-scaffold-management.md](specs/planned/feature-scaffold-management.md) (today)
-2. [INDEX.md](INDEX.md) (today)
+1. [INDEX.md](INDEX.md) (today)
+2. [feature-scaffold-management.md](specs/planned/feature-scaffold-management.md) (today)
 3. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
 4. [CURRENT-STATUS.md](CURRENT-STATUS.md) (today)
 5. [2026-05-10_contentcontrol-binding-multisidebar.md](archive/completed/2026-05-10_contentcontrol-binding-multisidebar.md) (today)
