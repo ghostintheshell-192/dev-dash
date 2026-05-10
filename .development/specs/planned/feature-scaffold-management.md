@@ -1,7 +1,7 @@
 ---
 type: feature
 priority: must-have
-status: planned
+status: in-progress
 category: core
 part_of: wedge
 related: [feature-effective-config-view, feature-snapshot-history]
@@ -125,16 +125,16 @@ riutilizzabili"
 
 ### Funzionali
 
-- [ ] **Discovery scaffold**: scansiona `~/.devdash/scaffolds/` (path
+- [x] **Discovery scaffold**: scansiona `~/.devdash/scaffolds/` (path
   configurabile) e tratta ogni sottocartella come uno scaffold indipendente.
-- [ ] **Diff engine**: confronto file-by-file fra due alberi di filesystem
+- [x] **Diff engine**: confronto file-by-file fra due alberi di filesystem
   (project ↔ scaffold). Output strutturato consumabile dalla UI.
 - [ ] **Apply engine**: scrittura transazionale di un sotto-set selezionato
   di file dallo scaffold al progetto. Backup pre-scrittura (autosnapshot)
   obbligatorio per ogni apply.
-- [ ] **Promote engine**: copia di un sotto-set di file dal progetto allo
+- [x] **Promote engine**: copia di un sotto-set di file dal progetto allo
   scaffold (existing) o a una nuova cartella scaffold (new).
-- [ ] **Path configuration**: `~/.devdash/scaffolds/` è il default,
+- [x] **Path configuration**: `~/.devdash/scaffolds/` è il default,
   l'utente può override-arlo via config.
 
 ### Non funzionali
@@ -149,15 +149,15 @@ riutilizzabili"
 
 ## Acceptance Criteria
 
-- [ ] Aprire un progetto già scaffold-ato → mostra zero drift se non ci
+- [x] Aprire un progetto già scaffold-ato → mostra zero drift se non ci
   sono modifiche locali, drift puntuale se ci sono.
 - [ ] Applicare uno scaffold a un progetto vergine → l'output è
   bit-identical a una copia diretta di `~/.devdash/scaffolds/<name>/` nel
   progetto (modulo file marcati `.gitkeep` o equivalenti).
-- [ ] Modificare un file nel progetto, poi promuoverlo allo scaffold →
+- [x] Modificare un file nel progetto, poi promuoverlo allo scaffold →
   ri-aprire un altro progetto vergine e applicare lo scaffold → la modifica
   è presente.
-- [ ] Cancellare il path `~/.devdash/scaffolds/` → la lista scaffold è
+- [x] Cancellare il path `~/.devdash/scaffolds/` → la lista scaffold è
   vuota, le US 1-4 mostrano stato "no scaffold available". La feature
   parte 1 (effective config view) funziona comunque.
 - [ ] Apply a un progetto già configurato → un autosnapshot `pre-apply-...`
