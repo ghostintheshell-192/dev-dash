@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-05-10 12:05*
+*Auto-generated: 2026-05-10 12:32*
 
 ---
 
@@ -19,8 +19,8 @@
 
 ### (root)/ (4 files)
 
-- [CURRENT-STATUS.md](CURRENT-STATUS.md) (10KB, 2026-05-10) **RECENT**
 - [INDEX.md](INDEX.md) (4KB, 2026-05-10) **RECENT**
+- [CURRENT-STATUS.md](CURRENT-STATUS.md) (10KB, 2026-05-10) **RECENT**
 - [ARCHITECTURE.md](ARCHITECTURE.md) (4KB, 2026-04-28)
 - [README.md](README.md) (2KB, 2026-04-26)
 
@@ -42,7 +42,7 @@
 
 ### specs/planned/ (1 files)
 
-- [feature-effective-config-and-scaffolds.md](specs/planned/feature-effective-config-and-scaffolds.md) (12KB, 2026-05-10) **RECENT**
+- [feature-effective-config-and-scaffolds.md](specs/planned/feature-effective-config-and-scaffolds.md) (15KB, 2026-05-10) **RECENT**
 
 ### tech-debt/ (7 files)
 
@@ -91,8 +91,8 @@
 ## Recently Modified (last 7 days)
 
 1. [feature-effective-config-and-scaffolds.md](specs/planned/feature-effective-config-and-scaffolds.md) (today)
-2. [CURRENT-STATUS.md](CURRENT-STATUS.md) (today)
-3. [INDEX.md](INDEX.md) (today)
+2. [INDEX.md](INDEX.md) (today)
+3. [CURRENT-STATUS.md](CURRENT-STATUS.md) (today)
 4. [001-stack-tecnologico.md](reference/decisions/001-stack-tecnologico.md) (today)
 5. [008-pivot-to-cpp-imgui.md](reference/decisions/008-pivot-to-cpp-imgui.md) (today)
 6. [009-markdown-library-imgui-md.md](reference/decisions/009-markdown-library-imgui-md.md) (today)

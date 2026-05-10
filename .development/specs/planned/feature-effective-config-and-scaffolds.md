@@ -50,7 +50,11 @@ dicembre è archiviata; questa la rimpiazza.
 2. **Scaffold Management** — gestione di uno o più scaffold dell'utente
    come cartelle indipendenti, applicazione su un progetto, diff
    bidirezionale (project ↔ scaffold), promote-to-scaffold.
-3. **Project-as-context** — la dashboard lavora su un singolo progetto
+3. **Snapshot & History** — salvataggio di stati intermedi della config
+   del progetto corrente (espliciti dell'utente + automatici prima di
+   ops distruttive), con restore. Distinto dagli scaffold: snapshot è
+   project-scoped, scaffold è cross-project.
+4. **Project-as-context** — la dashboard lavora su un singolo progetto
    alla volta. Quale progetto sia "corrente" è impostato fuori da questa
    feature (oggi: argomento o config; futuro: workspace switcher).
 
@@ -161,6 +165,59 @@ prima dover applicare uno scaffold**
 - US-1 funziona da subito, anche su progetti vergini.
 - US-2/3/4 sono azioni opzionali, mai prerequisito di US-1.
 
+### US-7 — Salvare snapshot della config corrente
+
+**Come** utente che ha tweakato la config del progetto e vuole un punto
+di ritorno
+**Voglio** salvare uno snapshot nominato dello stato attuale
+**Per** poter riprovare modifiche diverse senza paura di perdere il lavoro.
+
+**Acceptance:**
+
+- L'utente clicca "Save snapshot" → inserisce nome + descrizione opzionale.
+- Lo snapshot è una copia della cartella `.claude/` (e degli altri pezzi
+  scaffold-relevant del progetto, vedi "Modello di dominio") salvata sotto
+  `~/.devdash/snapshots/<project-slug>/<timestamp>-<slug>/`.
+- Lo snapshot è visibile nella "History" del progetto corrente.
+- Lo snapshot è specifico al progetto: non appare nella lista degli
+  scaffold riutilizzabili (US-5).
+
+### US-8 — Ripristinare da snapshot
+
+**Come** utente
+**Voglio** ripristinare uno snapshot precedente del progetto corrente
+**Per** tornare a uno stato salvato.
+
+**Acceptance:**
+
+- L'utente seleziona uno snapshot dalla History → "Restore".
+- Il restore è un apply forzato (sovrascrittura): default è ripristinare
+  *tutto* lo snapshot, con la possibilità di selezione granulare come
+  per US-3.
+- Prima del restore, DevDash crea automaticamente un autosnapshot
+  (`pre-restore-...`) per garantire che anche il restore sia reversibile.
+
+### US-9 — Autosnapshot prima di operazioni distruttive
+
+**Come** utente
+**Voglio** che DevDash crei automaticamente uno snapshot prima di
+operazioni che sovrascrivono file (apply scaffold, promote-overwriting,
+restore)
+**Per** avere sempre un punto di ritorno anche quando non ho ricordato
+di farlo manualmente.
+
+**Acceptance:**
+
+- Prima di ogni apply/promote/restore, DevDash crea uno snapshot con
+  marker `auto-` e nome che descrive l'azione (`auto-pre-apply-scaffold-coding`,
+  `auto-pre-restore-2026-04-30-1500`).
+- Gli autosnapshot sono visibili in History, marcati visualmente come
+  automatici.
+- Politica di pruning: gli ultimi N autosnapshot per project sono
+  preservati (default N=10, configurabile); i più vecchi vengono
+  cancellati. Gli snapshot espliciti (US-7) **non** vengono mai pruned
+  automaticamente.
+
 ## Requirements
 
 ### Funzionali
@@ -177,8 +234,16 @@ prima dover applicare uno scaffold**
   di file dallo scaffold al progetto. Backup pre-scrittura raccomandato.
 - [ ] **Promote engine**: copia di un sotto-set di file dal progetto allo
   scaffold (existing) o a una nuova cartella scaffold (new).
-- [ ] **Path configuration**: `~/.devdash/scaffolds/` è il default, l'utente
-  può override-arlo via config.
+- [ ] **Snapshot engine**: salvataggio della config corrente del project
+  in `~/.devdash/snapshots/<project-slug>/<timestamp>-<slug>/`. Trigger
+  espliciti (US-7) e automatici prima di apply/promote/restore (US-9).
+  Pruning automatico solo per autosnapshot (last N preservati).
+- [ ] **Restore engine**: apply forzato di uno snapshot al project di
+  origine (US-8). Tecnicamente è una variante dell'apply engine con
+  default conflict-resolution = overwrite invece di skip-with-confirmation.
+- [ ] **Path configuration**: `~/.devdash/scaffolds/` e
+  `~/.devdash/snapshots/` sono i default, l'utente può override-arli via
+  config.
 
 ### Non funzionali
 
@@ -207,6 +272,14 @@ prima dover applicare uno scaffold**
 - [ ] Cancellare il path `~/.devdash/scaffolds/` → la lista scaffold è
   vuota, US-3/4/5 mostrano stato "no scaffold available", US-1 funziona
   comunque.
+- [ ] Salvare snapshot manuale, fare modifiche, salvare un secondo snapshot,
+  restore al primo → il progetto torna allo stato del primo snapshot e un
+  autosnapshot `pre-restore-...` appare nella history.
+- [ ] Applicare uno scaffold a un progetto già configurato → un autosnapshot
+  `pre-apply-...` appare nella history e contiene la config pre-apply
+  intatta.
+- [ ] Lasciare accumulare > N autosnapshot (default N=10) → i più vecchi
+  vengono pruned, gli snapshot espliciti restano.
 
 ## Technical Notes
 
@@ -221,6 +294,11 @@ per il rendering dei file `.md` dentro la vista.
 - `Project` — path assoluto + metadata derivati (presenza `.claude/`,
   `.git/`, ecc.).
 - `Scaffold` — path assoluto a `~/.devdash/scaffolds/<name>/` + metadata.
+- `Snapshot` — path assoluto a `~/.devdash/snapshots/<project-slug>/<timestamp>-<slug>/`
+  + metadata (tipo: explicit/auto, descrizione, timestamp, riferimento al
+  project di origine). Strutturalmente identico a uno scaffold; differisce
+  solo per intent (project-scoped) e per UI (esposto come "History" del
+  project, non come "library").
 - `ConfigLayer` — uno fra Global / Workspace / Project. Astrazione che
   punta a un albero filesystem.
 - `EffectiveConfig` — risultato del merge dei layer; ogni nodo ha un
