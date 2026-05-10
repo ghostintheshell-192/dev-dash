@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-05-10 12:38*
+*Auto-generated: 2026-05-10 14:59*
 
 ---
 
@@ -17,11 +17,12 @@
 
 *Specs, tech-debt, decisions*
 
-### (root)/ (4 files)
+### (root)/ (5 files)
 
 - [INDEX.md](INDEX.md) (4KB, 2026-05-10) **RECENT**
+- [ARCHITECTURE.md](ARCHITECTURE.md) (5KB, 2026-05-10) **RECENT**
+- [api-design.md](api-design.md) (39KB, 2026-05-10) **RECENT**
 - [CURRENT-STATUS.md](CURRENT-STATUS.md) (10KB, 2026-05-10) **RECENT**
-- [ARCHITECTURE.md](ARCHITECTURE.md) (4KB, 2026-04-28)
 - [README.md](README.md) (2KB, 2026-04-26)
 
 ### specs/ (1 files)
@@ -30,22 +31,22 @@
 
 ### specs/archived/ (5 files)
 
-- [feature-claude-context.md](specs/archived/feature-claude-context.md) (11KB, 2026-04-26)
+- [feature-claude-context.md](specs/archived/feature-claude-context.md) (11KB, 2026-05-10) **RECENT**
+- [feature-issue-management.md](specs/archived/feature-issue-management.md) (18KB, 2026-05-10) **RECENT**
+- [feature-markdown-rendering.md](specs/archived/feature-markdown-rendering.md) (10KB, 2026-05-10) **RECENT**
+- [roadmap.md](specs/archived/roadmap.md) (3KB, 2026-05-10) **RECENT**
 - [feature-embedded-terminal.md](specs/archived/feature-embedded-terminal.md) (5KB, 2026-04-26)
-- [feature-issue-management.md](specs/archived/feature-issue-management.md) (18KB, 2026-04-26)
-- [feature-markdown-rendering.md](specs/archived/feature-markdown-rendering.md) (10KB, 2026-04-26)
-- [roadmap.md](specs/archived/roadmap.md) (3KB, 2026-02-10)
 
 ### specs/backlog/ (2 files)
 
+- [feature-code-graph.md](specs/backlog/feature-code-graph.md) (8KB, 2026-05-10) **RECENT**
 - [feature-runtime-view-of-truth.md](specs/backlog/feature-runtime-view-of-truth.md) (2KB, 2026-05-10) **RECENT**
-- [feature-code-graph.md](specs/backlog/feature-code-graph.md) (8KB, 2026-04-27)
 
 ### specs/planned/ (3 files)
 
-- [feature-snapshot-history.md](specs/planned/feature-snapshot-history.md) (8KB, 2026-05-10) **RECENT**
-- [feature-scaffold-management.md](specs/planned/feature-scaffold-management.md) (9KB, 2026-05-10) **RECENT**
 - [feature-effective-config-view.md](specs/planned/feature-effective-config-view.md) (6KB, 2026-05-10) **RECENT**
+- [feature-scaffold-management.md](specs/planned/feature-scaffold-management.md) (9KB, 2026-05-10) **RECENT**
+- [feature-snapshot-history.md](specs/planned/feature-snapshot-history.md) (8KB, 2026-05-10) **RECENT**
 
 ### tech-debt/ (7 files)
 
@@ -57,12 +58,13 @@
 - [_TEMPLATE.md](tech-debt/_TEMPLATE.md) (1KB, 2026-04-26)
 - [contentcontrol-binding-multisidebar.md](tech-debt/contentcontrol-binding-multisidebar.md) (2KB, 2026-02-10)
 
-### reference/decisions/ (8 files)
+### reference/decisions/ (9 files)
 
+- [README.md](reference/decisions/README.md) (1KB, 2026-05-10) **RECENT**
+- [010-architecture-design.md](reference/decisions/010-architecture-design.md) (12KB, 2026-05-10) **RECENT**
 - [001-stack-tecnologico.md](reference/decisions/001-stack-tecnologico.md) (3KB, 2026-05-10) **RECENT**
 - [008-pivot-to-cpp-imgui.md](reference/decisions/008-pivot-to-cpp-imgui.md) (12KB, 2026-05-10) **RECENT**
 - [009-markdown-library-imgui-md.md](reference/decisions/009-markdown-library-imgui-md.md) (9KB, 2026-05-10) **RECENT**
-- [README.md](reference/decisions/README.md) (1KB, 2026-05-10) **RECENT**
 - [002-symlink-vs-copy.md](reference/decisions/002-symlink-vs-copy.md) (1KB, 2026-02-10)
 - [003-issue-tracking-locale.md](reference/decisions/003-issue-tracking-locale.md) (1KB, 2026-02-10)
 - [006-desktop-vs-vscode-extension.md](reference/decisions/006-desktop-vs-vscode-extension.md) (3KB, 2026-02-10)
@@ -93,16 +95,16 @@
 
 ## Recently Modified (last 7 days)
 
-1. [feature-runtime-view-of-truth.md](specs/backlog/feature-runtime-view-of-truth.md) (today)
-2. [feature-snapshot-history.md](specs/planned/feature-snapshot-history.md) (today)
-3. [feature-scaffold-management.md](specs/planned/feature-scaffold-management.md) (today)
-4. [feature-effective-config-view.md](specs/planned/feature-effective-config-view.md) (today)
-5. [INDEX.md](INDEX.md) (today)
-6. [CURRENT-STATUS.md](CURRENT-STATUS.md) (today)
-7. [001-stack-tecnologico.md](reference/decisions/001-stack-tecnologico.md) (today)
-8. [008-pivot-to-cpp-imgui.md](reference/decisions/008-pivot-to-cpp-imgui.md) (today)
-9. [009-markdown-library-imgui-md.md](reference/decisions/009-markdown-library-imgui-md.md) (today)
-10. [README.md](reference/decisions/README.md) (today)
+1. [INDEX.md](INDEX.md) (today)
+2. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
+3. [api-design.md](api-design.md) (today)
+4. [README.md](reference/decisions/README.md) (today)
+5. [010-architecture-design.md](reference/decisions/010-architecture-design.md) (today)
+6. [README.md](tech-debt/README.md) (today)
+7. [feature-claude-context.md](specs/archived/feature-claude-context.md) (today)
+8. [feature-issue-management.md](specs/archived/feature-issue-management.md) (today)
+9. [feature-markdown-rendering.md](specs/archived/feature-markdown-rendering.md) (today)
+10. [roadmap.md](specs/archived/roadmap.md) (today)
 
 ---
 

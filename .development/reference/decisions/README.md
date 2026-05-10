@@ -32,3 +32,4 @@ Example: `001-error-handling-philosophy.md`
 | [007](007-rimozione-terminale-embedded.md) | Rimozione del Terminale Embedded | Active |
 | [008](008-pivot-to-cpp-imgui.md) | Pivot dello stack — da C#/Avalonia a C++/Dear ImGui | Active |
 | [009](009-markdown-library-imgui-md.md) | Libreria markdown — imgui_md + MD4C | Active |
+| [010](010-architecture-design.md) | Architettura del progetto vero — split layered | Active |
