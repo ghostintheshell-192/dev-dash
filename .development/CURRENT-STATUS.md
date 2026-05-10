@@ -135,31 +135,32 @@ Le sessioni 2025-12 / 2026-01 hanno costruito la v0.2.x in Avalonia
    workspace come unit primaria, Vault@Obsidian come componente architetturale,
    link agli ADR su path vecchio (`.personal/reference/decisions/`).
 
-### Pulizia post-pivot (bassa-media priorità)
+### Pulizia post-pivot
 
-3. **Sostituire hook `02-dotnet-format`** con `clang-format` (o equivalente
-   per il PoC Linux-only).
+Cleanup items completati 2026-05-10 (branch `chore/post-pivot-cleanup`):
 
-4. **Aggiornare `.claude/settings.json` permissions**: rimuovere
-   `Bash(dotnet build:*)` e `Bash(dotnet test:*)`, aggiungere `Bash(cmake:*)`,
-   `Bash(ninja:*)`, `Bash(make:*)`.
+- ✅ Hook `02-dotnet-format` → `02-clang-format`. Dormiente finché non
+  esiste un `.clang-format` al root; quando lo aggiungi, si attiva.
+- ✅ `.claude/settings.json` (live config): rimossi
+  `Bash(dotnet build:*)`/`Bash(dotnet test:*)`, aggiunti `Bash(cmake:*)`,
+  `Bash(ninja:*)`, `Bash(make:*)`, `Bash(ctest:*)`.
+- ✅ Hook `04-generate-architecture` + `generate-architecture.sh` +
+  `extract-summary.sh`: riscritti per C++/ImGui (FILE_GLOBS array,
+  SOURCE_DIRS=poc/src/, generate_project_header riscritto, extract-summary
+  con branch C++ per primi `//` block top-of-file/class).
+- ✅ `generate-claude-config.sh`: rimossa heredoc-generation di
+  `coding-standards.md` (clobberava il file hand-maintained con template
+  C#). Il file resta hand-maintained.
+- ✅ `.gitignore`: rimossi pattern .NET (Visual Studio, NuGet, `*.dll`,
+  `bin/`, `obj/`, ecc.), aggiunti pattern C++/CMake (`build/`, `*.o`,
+  `CMakeCache.txt`, `compile_commands.json`).
+- ✅ `.claude/rules/workflow.md` Quick Commands: aggiornati a CMake/Ninja.
 
-5. **Aggiornare hook `04-generate-architecture`** — il pattern grep oggi è
-   `\.(cs|py|ts|rs)$`, va esteso ad `cpp|hpp|h` perché altrimenti
-   `ARCHITECTURE.md` non si rigenera mai dopo modifiche al codice C++. Anche
-   `extract-summary.sh` va esteso per riconoscere commenti C++.
+Pendente:
 
-6. **Aggiornare `coding-standards.md`** auto-generato: lo script
-   `generate-claude-config.sh` ha template C#-specifico hard-coded. Da
-   estendere per C++ o svuotare il file finché non c'è un template
-   equivalente.
-
-7. **`.gitignore`**: contiene ancora pattern .NET (`*.suo`, `*.dll`, `bin/`,
-   `obj/`, NuGet) — pulizia opzionale, oggi non causa problemi.
-
-8. **`docs/SETUP.md` e quick-commands in `.claude/rules/workflow.md`**:
-   referenziano ancora `src/DevDash` + `dotnet build`. Da aggiornare durante
-   il rewrite di `docs/architecture.md`.
+- 🔲 **`docs/SETUP.md`**: ancora referenzia `src/DevDash` + `dotnet build`.
+  Da aggiornare durante il rewrite di `docs/architecture.md` (dopo lo skeleton),
+  così descrivono cosa esiste, non cosa è progettato.
 
 ### Verifica reattiva (solo se serve)
 
