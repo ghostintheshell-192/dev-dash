@@ -12,4 +12,6 @@ target_sources(dev-dash
         effective_config_panel.cpp
         scaffold_diff_panel.h
         scaffold_diff_panel.cpp
+        file_diff_panel.h
+        file_diff_panel.cpp
 )

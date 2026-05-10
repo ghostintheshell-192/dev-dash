@@ -318,10 +318,24 @@ namespace dev_dash::ui
                     ImGui::TextDisabled("—");
                 }
 
-                // Centre cell — status badge
+                // Centre cell — status badge; Modified is clickable → diff viewer
                 ImGui::TableSetColumnIndex(1);
                 ImGui::PushStyleColor(ImGuiCol_Text, KindColor(entry.kind));
-                ImGui::TextUnformatted(KindLabel(entry.kind));
+                if (entry.kind == core::DiffKind::kModified)
+                {
+                    ImGui::PushID(rowId * 3 + 2);
+                    if (ImGui::Selectable(KindLabel(entry.kind)))
+                        _diffViewer.Open(
+                            scaffold.path / entry.relativePath, scaffold.name,
+                            _project.path / entry.relativePath, "Project");
+                    ImGui::PopID();
+                    if (ImGui::IsItemHovered())
+                        ImGui::SetTooltip("Click to view diff");
+                }
+                else
+                {
+                    ImGui::TextUnformatted(KindLabel(entry.kind));
+                }
                 ImGui::PopStyleColor();
 
                 // Right cell — project side
@@ -362,6 +376,8 @@ namespace dev_dash::ui
         RenderPromoteConfirmModal();
 
         ImGui::End();
+
+        _diffViewer.Render();
     }
 
     // ── Promote confirm modal ─────────────────────────────────────────────────
