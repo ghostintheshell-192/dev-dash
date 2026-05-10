@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-05-10 15:13*
+*Auto-generated: 2026-05-10 15:20*
 
 ---
 
@@ -19,9 +19,9 @@
 
 ### (root)/ (5 files)
 
-- [ARCHITECTURE.md](ARCHITECTURE.md) (5KB, 2026-05-10) **RECENT**
-- [INDEX.md](INDEX.md) (4KB, 2026-05-10) **RECENT**
+- [ARCHITECTURE.md](ARCHITECTURE.md) (2KB, 2026-05-10) **RECENT**
 - [CURRENT-STATUS.md](CURRENT-STATUS.md) (11KB, 2026-05-10) **RECENT**
+- [INDEX.md](INDEX.md) (4KB, 2026-05-10) **RECENT**
 - [api-design.md](api-design.md) (39KB, 2026-05-10) **RECENT**
 - [README.md](README.md) (2KB, 2026-04-26)
 
@@ -99,8 +99,8 @@
 ## Recently Modified (last 7 days)
 
 1. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
-2. [INDEX.md](INDEX.md) (today)
-3. [CURRENT-STATUS.md](CURRENT-STATUS.md) (today)
+2. [CURRENT-STATUS.md](CURRENT-STATUS.md) (today)
+3. [INDEX.md](INDEX.md) (today)
 4. [2026-05-10_contentcontrol-binding-multisidebar.md](archive/completed/2026-05-10_contentcontrol-binding-multisidebar.md) (today)
 5. [api-design.md](api-design.md) (today)
 6. [010-architecture-design.md](reference/decisions/010-architecture-design.md) (today)
