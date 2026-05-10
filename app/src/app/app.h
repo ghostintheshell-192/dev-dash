@@ -29,6 +29,7 @@ namespace dev_dash::services
     class ConfigResolver;
     class ScaffoldRepository;
     class DiffEngine;
+    class PromoteEngine;
 }
 
 namespace dev_dash::app
@@ -84,9 +85,10 @@ namespace dev_dash::app
         std::unique_ptr<ui::DocumentPanelHost>    _documentPanelHost;
         std::unique_ptr<ui::MarkdownRenderer>     _markdownRenderer;
 
-        std::unique_ptr<services::ConfigResolver>    _configResolver;
+        std::unique_ptr<services::ConfigResolver>     _configResolver;
         std::unique_ptr<services::ScaffoldRepository> _scaffoldRepository;
-        std::unique_ptr<services::DiffEngine>          _diffEngine;
+        std::unique_ptr<services::DiffEngine>         _diffEngine;
+        std::unique_ptr<services::PromoteEngine>      _promoteEngine;
         std::unique_ptr<ui::ProjectSelectorPanel>    _projectSelectorPanel;
         // Panels declared last → destroyed first, before the services they reference.
         std::unique_ptr<ui::EffectiveConfigPanel>    _effectiveConfigPanel;

@@ -2,6 +2,7 @@
 #include "document_panel_host.h"
 #include "../services/scaffold_repository.h"
 #include "../services/diff_engine.h"
+#include "../services/promote_engine.h"
 
 #include <algorithm>
 #include <imgui.h>
@@ -86,20 +87,23 @@ namespace dev_dash::ui
             return {1.0f, 1.0f, 1.0f, 1.0f};
         }
 
+        bool IsPromotable(core::DiffKind kind)
+        {
+            return kind == core::DiffKind::kModified || kind == core::DiffKind::kCustom;
+        }
+
         // Section header row spanning all columns.
         void RenderSectionHeader(const char* label)
         {
             ImGui::TableNextRow();
+            for (int col = 0; col < 4; ++col)
+            {
+                ImGui::TableSetColumnIndex(col);
+                ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, IM_COL32(45, 45, 55, 255));
+                ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg1, IM_COL32(45, 45, 55, 255));
+            }
             ImGui::TableSetColumnIndex(0);
-            ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, IM_COL32(45, 45, 55, 255));
-            ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg1, IM_COL32(45, 45, 55, 255));
             ImGui::TextDisabled("%s", label);
-            ImGui::TableSetColumnIndex(1);
-            ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, IM_COL32(45, 45, 55, 255));
-            ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg1, IM_COL32(45, 45, 55, 255));
-            ImGui::TableSetColumnIndex(2);
-            ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, IM_COL32(45, 45, 55, 255));
-            ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg1, IM_COL32(45, 45, 55, 255));
         }
 
         // Render a single selectable file path cell; returns true if clicked.
@@ -119,10 +123,12 @@ namespace dev_dash::ui
 
     ScaffoldDiffPanel::ScaffoldDiffPanel(services::ScaffoldRepository& repo,
                                          services::DiffEngine&         diffEngine,
+                                         services::PromoteEngine&      promoteEngine,
                                          DocumentPanelHost&            docHost,
                                          const core::Project&          project)
         : _repo(repo)
         , _diffEngine(diffEngine)
+        , _promoteEngine(promoteEngine)
         , _docHost(docHost)
         , _project(project)
     {
@@ -181,6 +187,7 @@ namespace dev_dash::ui
                 if (ImGui::Selectable(_scaffolds[i].name.c_str(), i == _selectedIdx))
                 {
                     _selectedIdx = i;
+                    _selectedForPromote.clear();
                     RunDiff();
                 }
                 if (i == _selectedIdx)
@@ -194,14 +201,38 @@ namespace dev_dash::ui
         ImGui::SameLine();
         ImGui::TextDisabled("%s", _project.path.string().c_str());
 
-        ImGui::SameLine(ImGui::GetContentRegionAvail().x - 70.0f + ImGui::GetCursorPosX());
+        // Promote button — right-aligned, visible only when something is selected
+        const float rightEdge = ImGui::GetContentRegionAvail().x + ImGui::GetCursorPosX();
+        const float refreshW  = 70.0f;
+        const float promoteW  = _selectedForPromote.empty() ? 0.0f : 160.0f;
+        const float spacing   = _selectedForPromote.empty() ? 0.0f : 8.0f;
+
+        ImGui::SameLine(rightEdge - refreshW - spacing - promoteW);
+
+        if (!_selectedForPromote.empty())
+        {
+            const std::string promoteLabel =
+                "Promote (" + std::to_string(_selectedForPromote.size()) + ")";
+            if (ImGui::Button(promoteLabel.c_str()))
+                _showPromoteConfirm = true;
+            ImGui::SameLine();
+        }
+
         if (ImGui::Button("Refresh"))
         {
             _repo.Refresh();
+            _selectedForPromote.clear();
             _needsRefresh = true;
         }
 
         ImGui::Separator();
+
+        // ── Status message ────────────────────────────────────────────────────
+        if (!_promoteStatusMsg.empty())
+        {
+            ImGui::Spacing();
+            ImGui::TextUnformatted(_promoteStatusMsg.c_str());
+        }
 
         // ── Summary bar ───────────────────────────────────────────────────────
         int counts[4] = {};
@@ -226,13 +257,13 @@ namespace dev_dash::ui
         if (!anyStat) ImGui::TextDisabled("No config files found in scaffold.");
         ImGui::Spacing();
 
-        // ── Three-column table ────────────────────────────────────────────────
-        // Scaffold (left) | Status (centre, fixed) | Project (right)
+        // ── Four-column table ─────────────────────────────────────────────────
+        // Scaffold (left) | Status (centre, fixed) | Project (right) | Promote (fixed)
         const ImGuiTableFlags tableFlags =
             ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_RowBg
             | ImGuiTableFlags_ScrollY | ImGuiTableFlags_SizingStretchProp;
 
-        if (!ImGui::BeginTable("##diff3", 3, tableFlags,
+        if (!ImGui::BeginTable("##diff4", 4, tableFlags,
                                ImVec2(0.0f, ImGui::GetContentRegionAvail().y)))
         {
             ImGui::End();
@@ -243,11 +274,11 @@ namespace dev_dash::ui
         ImGui::TableSetupColumn("Scaffold", ImGuiTableColumnFlags_WidthStretch);
         ImGui::TableSetupColumn("Status",   ImGuiTableColumnFlags_WidthFixed, 120.0f);
         ImGui::TableSetupColumn("Project",  ImGuiTableColumnFlags_WidthStretch);
+        ImGui::TableSetupColumn("##promo",  ImGuiTableColumnFlags_WidthFixed, 24.0f);
         ImGui::TableHeadersRow();
 
         const auto& scaffold = _scaffolds[_selectedIdx];
 
-        // Group entries by section and render each group.
         constexpr ScaffoldSection kAllSections[] = {
             ScaffoldSection::kClaudeMd,
             ScaffoldSection::kRules,
@@ -261,7 +292,6 @@ namespace dev_dash::ui
         int rowId = 0;
         for (ScaffoldSection sec : kAllSections)
         {
-            // Collect entries for this section.
             bool headerShown = false;
             for (const auto& entry : _diff)
             {
@@ -278,8 +308,7 @@ namespace dev_dash::ui
 
                 // Left cell — scaffold side
                 ImGui::TableSetColumnIndex(0);
-                const bool hasScaffold = (entry.kind != core::DiffKind::kCustom);
-                if (hasScaffold)
+                if (entry.kind != core::DiffKind::kCustom)
                 {
                     if (FileCell(rowId * 3, entry.relativePath.c_str(), dimmed))
                         _docHost.OpenPanel(scaffold.path / entry.relativePath);
@@ -297,8 +326,7 @@ namespace dev_dash::ui
 
                 // Right cell — project side
                 ImGui::TableSetColumnIndex(2);
-                const bool hasProject = (entry.kind != core::DiffKind::kMissing);
-                if (hasProject)
+                if (entry.kind != core::DiffKind::kMissing)
                 {
                     if (FileCell(rowId * 3 + 1, entry.relativePath.c_str(), dimmed))
                         _docHost.OpenPanel(_project.path / entry.relativePath);
@@ -308,12 +336,96 @@ namespace dev_dash::ui
                     ImGui::TextDisabled("—");
                 }
 
+                // Promote column — checkbox for promotable entries
+                ImGui::TableSetColumnIndex(3);
+                if (IsPromotable(entry.kind))
+                {
+                    bool checked = _selectedForPromote.count(entry.relativePath) > 0;
+                    ImGui::PushID(rowId);
+                    if (ImGui::Checkbox("##p", &checked))
+                    {
+                        _promoteStatusMsg.clear();
+                        if (checked)
+                            _selectedForPromote.insert(entry.relativePath);
+                        else
+                            _selectedForPromote.erase(entry.relativePath);
+                    }
+                    ImGui::PopID();
+                }
+
                 ++rowId;
             }
         }
 
         ImGui::EndTable();
+
+        RenderPromoteConfirmModal();
+
         ImGui::End();
+    }
+
+    // ── Promote confirm modal ─────────────────────────────────────────────────
+
+    void ScaffoldDiffPanel::RenderPromoteConfirmModal()
+    {
+        if (_showPromoteConfirm)
+        {
+            ImGui::OpenPopup("Promote to scaffold?");
+            _showPromoteConfirm = false;
+        }
+
+        const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+
+        if (ImGui::BeginPopupModal("Promote to scaffold?", nullptr,
+                                   ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            const auto& scaffold = _scaffolds[_selectedIdx];
+            ImGui::Text("Copy %d file(s) from project to scaffold:",
+                        static_cast<int>(_selectedForPromote.size()));
+            ImGui::TextDisabled("  %s", scaffold.path.string().c_str());
+            ImGui::Spacing();
+
+            for (const auto& rel : _selectedForPromote)
+                ImGui::BulletText("%s", rel.c_str());
+
+            ImGui::Spacing();
+            ImGui::TextColored({1.0f, 0.8f, 0.2f, 1.0f},
+                               "Existing scaffold files will be overwritten.");
+            ImGui::Spacing();
+
+            if (ImGui::Button("Promote", ImVec2(120, 0)))
+            {
+                const std::vector<std::string> paths(
+                    _selectedForPromote.begin(), _selectedForPromote.end());
+
+                const auto result = _promoteEngine.Promote(
+                    _project.path, scaffold.path, paths);
+
+                if (result.Ok())
+                {
+                    _promoteStatusMsg = "Promoted " + std::to_string(result.copiedCount)
+                                        + " file(s) to scaffold.";
+                }
+                else
+                {
+                    _promoteStatusMsg = "Promote completed with errors:";
+                    for (const auto& e : result.errors)
+                        _promoteStatusMsg += "\n  " + e;
+                }
+
+                _selectedForPromote.clear();
+                RunDiff();
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::SameLine();
+
+            if (ImGui::Button("Cancel", ImVec2(120, 0)))
+                ImGui::CloseCurrentPopup();
+
+            ImGui::EndPopup();
+        }
     }
 
     // ── Private ───────────────────────────────────────────────────────────────
@@ -324,6 +436,7 @@ namespace dev_dash::ui
         if (_selectedIdx >= static_cast<int>(_scaffolds.size()))
             _selectedIdx = 0;
         _diff.clear();
+        _selectedForPromote.clear();
         if (!_scaffolds.empty())
             RunDiff();
     }

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <set>
+#include <string>
 #include <vector>
 
 #include "../core/diff_entry.h"
@@ -10,6 +12,7 @@ namespace dev_dash::services
 {
     class ScaffoldRepository;
     class DiffEngine;
+    class PromoteEngine;
 }
 
 namespace dev_dash::ui { class DocumentPanelHost; }
@@ -21,6 +24,7 @@ namespace dev_dash::ui
     public:
         ScaffoldDiffPanel(services::ScaffoldRepository& repo,
                           services::DiffEngine&         diffEngine,
+                          services::PromoteEngine&      promoteEngine,
                           DocumentPanelHost&            docHost,
                           const core::Project&          project);
 
@@ -30,9 +34,11 @@ namespace dev_dash::ui
     private:
         void Refresh();
         void RunDiff();
+        void RenderPromoteConfirmModal();
 
         services::ScaffoldRepository& _repo;
         services::DiffEngine&         _diffEngine;
+        services::PromoteEngine&      _promoteEngine;
         DocumentPanelHost&            _docHost;
         core::Project                 _project;
 
@@ -40,7 +46,11 @@ namespace dev_dash::ui
         int                           _selectedIdx = 0;
         std::vector<core::DiffEntry>  _diff;
 
-        bool _wantsBack     = false;
-        bool _needsRefresh  = true;
+        std::set<std::string>         _selectedForPromote;
+        bool                          _showPromoteConfirm = false;
+        std::string                   _promoteStatusMsg;
+
+        bool _wantsBack    = false;
+        bool _needsRefresh = true;
     };
 }
