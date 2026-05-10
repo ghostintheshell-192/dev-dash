@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-05-10 21:48*
+*Auto-generated: 2026-05-10 22:04*
 
 ---
 
@@ -51,8 +51,9 @@
 - [feature-scaffold-management.md](specs/planned/feature-scaffold-management.md) (10KB, 2026-05-10) **RECENT**
 - [feature-snapshot-history.md](specs/planned/feature-snapshot-history.md) (8KB, 2026-05-10) **RECENT**
 
-### tech-debt/ (8 files)
+### tech-debt/ (9 files)
 
+- [line-level-promote.md](tech-debt/line-level-promote.md) (1KB, 2026-05-10) **RECENT**
 - [imgui-backend-shutdown-order.md](tech-debt/imgui-backend-shutdown-order.md) (1KB, 2026-05-10) **RECENT**
 - [spec-workflow-hook-silent-fail.md](tech-debt/spec-workflow-hook-silent-fail.md) (2KB, 2026-05-10) **RECENT**
 - [README.md](tech-debt/README.md) (2KB, 2026-05-10) **RECENT**
@@ -103,16 +104,16 @@
 
 ## Recently Modified (last 7 days)
 
-1. [INDEX.md](INDEX.md) (today)
-2. [imgui-backend-shutdown-order.md](tech-debt/imgui-backend-shutdown-order.md) (today)
-3. [feature-scaffold-management.md](specs/planned/feature-scaffold-management.md) (today)
-4. [feature-snapshot-history.md](specs/planned/feature-snapshot-history.md) (today)
-5. [CURRENT-STATUS.md](CURRENT-STATUS.md) (today)
-6. [feature-effective-config-view.md](specs/implemented/feature-effective-config-view.md) (today)
-7. [spec-workflow-hook-silent-fail.md](tech-debt/spec-workflow-hook-silent-fail.md) (today)
-8. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
-9. [README.md](tech-debt/README.md) (today)
-10. [2026-05-10_contentcontrol-binding-multisidebar.md](archive/completed/2026-05-10_contentcontrol-binding-multisidebar.md) (today)
+1. [line-level-promote.md](tech-debt/line-level-promote.md) (today)
+2. [INDEX.md](INDEX.md) (today)
+3. [imgui-backend-shutdown-order.md](tech-debt/imgui-backend-shutdown-order.md) (today)
+4. [feature-scaffold-management.md](specs/planned/feature-scaffold-management.md) (today)
+5. [feature-snapshot-history.md](specs/planned/feature-snapshot-history.md) (today)
+6. [CURRENT-STATUS.md](CURRENT-STATUS.md) (today)
+7. [feature-effective-config-view.md](specs/implemented/feature-effective-config-view.md) (today)
+8. [spec-workflow-hook-silent-fail.md](tech-debt/spec-workflow-hook-silent-fail.md) (today)
+9. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
+10. [README.md](tech-debt/README.md) (today)
 
 ---
 
