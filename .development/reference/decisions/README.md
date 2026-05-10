@@ -23,10 +23,12 @@ Example: `001-error-handling-philosophy.md`
 
 | ADR | Title | Status |
 |-----|-------|--------|
-| [001](001-stack-tecnologico.md) | Stack tecnologico - C# + Avalonia | Active |
+| [001](001-stack-tecnologico.md) | Stack tecnologico - C# + Avalonia | **Superseded by [008](008-pivot-to-cpp-imgui.md)** |
 | [002](002-symlink-vs-copy.md) | Symlink vs Copy | Active |
 | [003](003-issue-tracking-locale.md) | Issue tracking locale | Active |
 | 004 | Claude Integration (read-only per config native) | *Pending* |
 | 005 | Path configurabili | *Pending* |
 | [006](006-desktop-vs-vscode-extension.md) | DevDash Desktop vs VS Code Extension | Active |
 | [007](007-rimozione-terminale-embedded.md) | Rimozione del Terminale Embedded | Active |
+| [008](008-pivot-to-cpp-imgui.md) | Pivot dello stack — da C#/Avalonia a C++/Dear ImGui | Active |
+| [009](009-markdown-library-imgui-md.md) | Libreria markdown — imgui_md + MD4C | Active |

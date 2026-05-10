@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-05-09 22:59*
+*Auto-generated: 2026-05-10 09:53*
 
 ---
 
@@ -19,10 +19,10 @@
 
 ### (root)/ (4 files)
 
-- [INDEX.md](INDEX.md) (2KB, 2026-05-07) **RECENT**
+- [INDEX.md](INDEX.md) (4KB, 2026-05-10) **RECENT**
+- [CURRENT-STATUS.md](CURRENT-STATUS.md) (10KB, 2026-05-10) **RECENT**
 - [ARCHITECTURE.md](ARCHITECTURE.md) (4KB, 2026-04-28)
 - [README.md](README.md) (2KB, 2026-04-26)
-- [CURRENT-STATUS.md](CURRENT-STATUS.md) (8KB, 2026-02-10)
 
 ### specs/ (2 files)
 
@@ -42,22 +42,24 @@
 
 ### tech-debt/ (7 files)
 
+- [README.md](tech-debt/README.md) (2KB, 2026-05-10) **RECENT**
 - [markdown-code-block-styling.md](tech-debt/markdown-code-block-styling.md) (3KB, 2026-05-09) **RECENT**
 - [preprocess-imports-indented-fences.md](tech-debt/preprocess-imports-indented-fences.md) (2KB, 2026-05-09) **RECENT**
-- [README.md](tech-debt/README.md) (2KB, 2026-05-07) **RECENT**
 - [scaffold-architecture-scripts.md](tech-debt/scaffold-architecture-scripts.md) (<1KB, 2026-04-28)
 - [session-handoff-skill-note.md](tech-debt/session-handoff-skill-note.md) (<1KB, 2026-04-28)
 - [_TEMPLATE.md](tech-debt/_TEMPLATE.md) (1KB, 2026-04-26)
 - [contentcontrol-binding-multisidebar.md](tech-debt/contentcontrol-binding-multisidebar.md) (2KB, 2026-02-10)
 
-### reference/decisions/ (6 files)
+### reference/decisions/ (8 files)
 
-- [001-stack-tecnologico.md](reference/decisions/001-stack-tecnologico.md) (2KB, 2026-02-10)
+- [README.md](reference/decisions/README.md) (1KB, 2026-05-10) **RECENT**
+- [001-stack-tecnologico.md](reference/decisions/001-stack-tecnologico.md) (3KB, 2026-05-10) **RECENT**
+- [009-markdown-library-imgui-md.md](reference/decisions/009-markdown-library-imgui-md.md) (9KB, 2026-05-10) **RECENT**
+- [008-pivot-to-cpp-imgui.md](reference/decisions/008-pivot-to-cpp-imgui.md) (12KB, 2026-05-10) **RECENT**
 - [002-symlink-vs-copy.md](reference/decisions/002-symlink-vs-copy.md) (1KB, 2026-02-10)
 - [003-issue-tracking-locale.md](reference/decisions/003-issue-tracking-locale.md) (1KB, 2026-02-10)
 - [006-desktop-vs-vscode-extension.md](reference/decisions/006-desktop-vs-vscode-extension.md) (3KB, 2026-02-10)
 - [007-rimozione-terminale-embedded.md](reference/decisions/007-rimozione-terminale-embedded.md) (6KB, 2026-02-10)
-- [README.md](reference/decisions/README.md) (1KB, 2026-02-10)
 
 ### reference/technical/ (1 files)
 
@@ -84,10 +86,15 @@
 
 ## Recently Modified (last 7 days)
 
-1. [markdown-code-block-styling.md](tech-debt/markdown-code-block-styling.md) (today)
-2. [preprocess-imports-indented-fences.md](tech-debt/preprocess-imports-indented-fences.md) (today)
-3. [INDEX.md](INDEX.md) (2d ago)
-4. [README.md](tech-debt/README.md) (2d ago)
+1. [INDEX.md](INDEX.md) (today)
+2. [CURRENT-STATUS.md](CURRENT-STATUS.md) (today)
+3. [README.md](reference/decisions/README.md) (today)
+4. [001-stack-tecnologico.md](reference/decisions/001-stack-tecnologico.md) (today)
+5. [009-markdown-library-imgui-md.md](reference/decisions/009-markdown-library-imgui-md.md) (today)
+6. [008-pivot-to-cpp-imgui.md](reference/decisions/008-pivot-to-cpp-imgui.md) (today)
+7. [README.md](tech-debt/README.md) (today)
+8. [markdown-code-block-styling.md](tech-debt/markdown-code-block-styling.md) (today)
+9. [preprocess-imports-indented-fences.md](tech-debt/preprocess-imports-indented-fences.md) (today)
 
 ---
 
