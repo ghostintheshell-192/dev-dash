@@ -4,29 +4,40 @@
 
 ## Project Phase
 
-**Phase**: Skeleton layered architecture in progress (`refactor/skeleton-layered`).
+**Phase**: Wedge feature in corso — effective config view implementata (1/3).
 
-Il pivot dallo stack originale (.NET 8 + Avalonia, [ADR-001](reference/decisions/001-stack-tecnologico.md))
-a **C++20 + Dear ImGui + SDL3 + Vulkan** è validato. Vedi
-[ADR-008](reference/decisions/008-pivot-to-cpp-imgui.md) per la decisione
-e il rationale completi.
+Il pivot a **C++20 + Dear ImGui + SDL3 + Vulkan** è validato e lo skeleton
+layered (`core/services/ui/platform/app/`) è in produzione. La prima wedge
+feature è live: project selector all'avvio + vista effective config con sezioni
+per tipo (CLAUDE.md, Rules, Memory, Skills, Agents, MCP, Hooks).
 
 Stato attuale del codebase:
 
-- `app/` — skeleton layered in corso (branch `refactor/skeleton-layered`).
-  Directory tree completo: `core/`, `services/`, `ui/`, `platform/`, `app/`.
-  `DocumentLoader` implementato; altri service stub. Build da verificare.
-- `poc/` — PoC C++/ImGui funzionalmente completo (4 step + migrazione
-  libreria markdown). Tenuto come riferimento pre-refactor.
-- Architettura del progetto vero **decisa** in [ADR-010](reference/decisions/010-architecture-design.md)
-  + [api-design.md](api-design.md): split layered `core/services/ui/platform/app/`
-  sotto `app/src/`.
-- Legacy `.NET 8 + Avalonia` (precedentemente in `src/DevDash/`) **rimosso da
-  `develop`** il 2026-05-10. Stato preservato al tag `legacy/avalonia-final`.
+- `app/` — build funzionante. Skeleton layered completo + feature-effective-config-view implementata.
+- `poc/` — PoC C++/ImGui funzionalmente completo. Tenuto come riferimento pre-refactor.
+- Architettura decisa in [ADR-010](reference/decisions/010-architecture-design.md)
+  + [api-design.md](api-design.md).
+- Legacy `.NET 8 + Avalonia` rimosso da `develop` il 2026-05-10. Recover via `git checkout legacy/avalonia-final`.
 - `.github/workflows/ci.yml.disabled` — CI .NET disabilitata pre-pivot.
   Da rimpiazzare con workflow CMake/GCC.
 
 ## Recent Work
+
+### 2026-05-10: feature/effective-config-view implementata
+
+- **Project selector** all'avvio: `ProjectSelectorPanel` con SDL3 native folder
+  dialog (`SDL_ShowOpenFolderDialog`) e validazione path.
+- **Effective config view**: `EffectiveConfigPanel` con tabella raggruppata per
+  sezione — CLAUDE.md (+ @includes transitivi, max 5 hop), Rules, Memory,
+  Skills, Agents, MCP Servers, Hooks. Badge layer (Global/Workspace/Project)
+  con colori per ogni riga. Sezioni "on demand" marcate.
+- **ConfigFileScanner**: scanner generico directory + resolver transitivo
+  degli `@path` in file markdown.
+- **SettingsParser**: lettura `settings.json` (nlohmann/json 3.11.3 via CPM)
+  per MCP server e hook entries.
+- **ConfigResolver**: section-aware, un resolver per tipo.
+- **App state machine**: `kSelectingProject` → `kViewingConfig` → back.
+- Merge `feature/effective-config-view` → `develop` (`b12126c`).
 
 ### 2026-05-10: Pivot documentation + wedge spec + architecture design + legacy cleanup
 
@@ -117,19 +128,14 @@ Le sessioni 2025-12 / 2026-01 hanno costruito la v0.2.x in Avalonia
 
 ### Immediato
 
-1. **Verifica build `app/`** (`refactor/skeleton-layered` in corso):
-   ```bash
-   cmake --preset linux-debug -S app
-   cmake --build --preset linux-debug
-   ./app/build/linux-debug/src/dev-dash
-   ```
-   Smoke-test: si apre finestra Vulkan/SDL3, pannelli markdown navigabili,
-   comportamento identico al PoC.
+1. **`feature-scaffold-management`** (parte 2/3 wedge) — vedi spec in `planned/`.
+   Mostrare la lista degli scaffold disponibili in `~/.devdash/scaffolds/`,
+   applicarli a un progetto, vedere il diff bidirezionale progetto ↔ scaffold.
+   Prerequisiti soddisfatti: effective-config-view implementata, `DiffEngine`
+   e `ApplyEngine` stub pronti per essere riempiti.
 
-2. **`docs/architecture.md` rewrite** — solo *dopo* lo skeleton, in modo che la
-   doc pubblica descriva cosa esiste. Il file attuale parla ancora di Avalonia,
-   workspace come unit primaria, Vault@Obsidian come componente architetturale,
-   link agli ADR su path vecchio (`.personal/reference/decisions/`).
+2. **`docs/architecture.md` rewrite** — il file pubblico parla ancora di Avalonia.
+   Da aggiornare dopo che la wedge è completa, così descrive cosa esiste davvero.
 
 ### Pulizia post-pivot
 
