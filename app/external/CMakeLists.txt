@@ -151,25 +151,32 @@ CPMAddPackage(
         "BUILD_SHARED_LIBS OFF"
 )
 
-# ----- imgui_md (vendored bridge: MD4C events → ImGui rendering) -----
+# ----- imgui_md (bridge: MD4C events → ImGui rendering) -----
 #
-# Vendored from mekhontsev/imgui_md @ main (MIT, by Dmitry Mekhontsev). The
-# upstream is inactive since 2022 but the heavy lifting (parsing) is delegated
-# to MD4C, which is actively maintained — so the bridge code is small and
-# unlikely to need frequent changes. Local patch applied: PushFont call updated
-# for the ImGui 1.92.x signature change (now requires an explicit size argument).
+# Fork of mekhontsev/imgui_md (MIT, by Dmitry Mekhontsev) maintained at
+# DPD85/imgui_md. Upstream is inactive since 2022; the fork tracks ImGui
+# API changes (PushFont signature in 1.92.x) and any dev-dash-specific
+# extensions. No CMakeLists.txt in the repo — pulled DOWNLOAD_ONLY and
+# built manually, same pattern as ImGui above.
+
+CPMAddPackage(
+    NAME imgui_md
+    GITHUB_REPOSITORY DPD85/imgui_md
+    GIT_TAG 06290f0ce7468d4b72569ac4797c55c6d77fe048
+    DOWNLOAD_ONLY ON
+)
 
 add_library(ImGui-MD STATIC)
 
 target_sources(ImGui-MD
     PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/imgui_md/imgui_md.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/imgui_md/imgui_md.h
+        ${imgui_md_SOURCE_DIR}/imgui_md.cpp
+        ${imgui_md_SOURCE_DIR}/imgui_md.h
 )
 
 target_include_directories(ImGui-MD
     PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/imgui_md
+        ${imgui_md_SOURCE_DIR}
 )
 
 target_link_libraries(ImGui-MD
