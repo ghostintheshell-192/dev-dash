@@ -1,33 +1,29 @@
 # Third-Party Notices
 
-The dev-dash PoC includes or depends on the following third-party components.
+The dev-dash app includes or depends on the following third-party components.
 This file is updated as components are added.
 
 ## Germen Pulchrum
 
-The build setup *and* the renderer code (`src/renderer.{h,cpp}`,
-`src/deletion_queue.h`) of this PoC are **derived** from [Germen Pulchrum] by
-Dario Passet (`DPD85/Germen`, MIT license).
+The original build setup and parts of the platform layer of dev-dash are
+**derived** from [Germen Pulchrum] by Dario Passet (`DPD85/Germen`, MIT
+license). The monolithic `Renderer` class adapted from Germen during the
+PoC phase has since been refactored into the layered architecture under
+`app/src/` (see ADR-010); the residual derived code is the deletion queue.
 
 - Source: <https://github.com/DPD85/Germen>
 - Pinned baseline: commit `037827b` (2026-04-29)
 - License: MIT (see upstream `LICENSE`)
-- Adapted in `poc/src/`:
-  - `Disegnatore.cpp` → `renderer.cpp` (translated to English; restructured into
-    a `Renderer` class; stripped of custom font loading, theme system, ImPlot,
-    DPI scaling, and i18n).
+- Adapted in `app/src/platform/`:
   - `CodaCancellazione.{h,cpp}` → `deletion_queue.h` (header-only; same RAII
     stack-of-deleters pattern, English identifiers).
 
 The build setup itself is also adapted: Linux-only for now, Conan removed,
 internationalization removed.
 
-Strategy of consumption (PoC phase): copy with attribution. Adopted code is
-re-styled to dev-dash conventions on the way in (see
-`.claude/rules/coding-standards.md` § "C++ Conventions"). If Germen continues
-to evolve actively post-PoC, we may switch to a `git subtree` model so we can
-pull upstream improvements; this decision is deferred until the PoC is
-validated.
+Strategy of consumption: copy with attribution. Adopted code is re-styled
+to dev-dash conventions on the way in (see
+`.claude/rules/coding-standards.md` § "C++ Conventions").
 
 [Germen Pulchrum]: https://github.com/DPD85/Germen
 
