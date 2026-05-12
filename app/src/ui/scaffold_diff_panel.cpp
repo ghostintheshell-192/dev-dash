@@ -3,6 +3,8 @@
 #include "../services/scaffold_repository.h"
 #include "../services/diff_engine.h"
 #include "../services/promote_engine.h"
+#include "../services/apply_engine.h"
+#include "../services/snapshot_service.h"
 
 #include <algorithm>
 #include <imgui.h>
@@ -124,11 +126,15 @@ namespace dev_dash::ui
     ScaffoldDiffPanel::ScaffoldDiffPanel(services::ScaffoldRepository& repo,
                                          services::DiffEngine&         diffEngine,
                                          services::PromoteEngine&      promoteEngine,
+                                         services::ApplyEngine&        applyEngine,
+                                         services::SnapshotService&    snapshotService,
                                          DocumentPanelHost&            docHost,
                                          const core::Project&          project)
         : _repo(repo)
         , _diffEngine(diffEngine)
         , _promoteEngine(promoteEngine)
+        , _applyEngine(applyEngine)
+        , _snapshotService(snapshotService)
         , _docHost(docHost)
         , _project(project)
     {
@@ -213,13 +219,29 @@ namespace dev_dash::ui
         ImGui::SameLine();
         ImGui::TextDisabled("%s", _project.path.string().c_str());
 
-        // Right-aligned: Promote + Refresh
+        // Right-aligned: Apply + Promote + Refresh
         const float rightEdge = ImGui::GetContentRegionAvail().x + ImGui::GetCursorPosX();
         const float refreshW  = 70.0f;
         const float promoteW  = _selectedForPromote.empty() ? 0.0f : 160.0f;
-        const float spacing   = _selectedForPromote.empty() ? 0.0f : 8.0f;
+        const float promoteSpacing = _selectedForPromote.empty() ? 0.0f : 8.0f;
 
-        ImGui::SameLine(rightEdge - refreshW - spacing - promoteW);
+        // Count applyable files (missing + modified)
+        int applyableCount = 0;
+        for (const auto& e : _diff)
+            if (e.kind == core::DiffKind::kMissing || e.kind == core::DiffKind::kModified)
+                ++applyableCount;
+        const float applyW       = applyableCount ? 80.0f : 0.0f;
+        const float applySpacing = applyableCount ? 8.0f  : 0.0f;
+
+        ImGui::SameLine(rightEdge - refreshW - promoteSpacing - promoteW
+                                  - applySpacing - applyW);
+
+        if (applyableCount)
+        {
+            if (ImGui::Button("Apply..."))
+                _showApplyConfirm = true;
+            ImGui::SameLine();
+        }
 
         if (!_selectedForPromote.empty())
         {
@@ -387,6 +409,7 @@ namespace dev_dash::ui
         ImGui::EndTable();
 
         RenderPromoteConfirmModal();
+        RenderApplyConfirmModal();
         RenderNewScaffoldModal();
         RenderDeleteConfirmModal();
 
@@ -452,6 +475,73 @@ namespace dev_dash::ui
 
             ImGui::SameLine();
 
+            if (ImGui::Button("Cancel", ImVec2(120, 0)))
+                ImGui::CloseCurrentPopup();
+
+            ImGui::EndPopup();
+        }
+    }
+
+    // ── Apply confirm modal ───────────────────────────────────────────────────
+
+    void ScaffoldDiffPanel::RenderApplyConfirmModal()
+    {
+        if (_showApplyConfirm)
+        {
+            ImGui::OpenPopup("Apply scaffold to project?");
+            _showApplyConfirm = false;
+        }
+
+        const ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+
+        if (ImGui::BeginPopupModal("Apply scaffold to project?", nullptr,
+                                   ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            const auto& scaffold = _scaffolds[_selectedIdx];
+            ImGui::Text("Apply scaffold \"%s\" to project:", scaffold.name.c_str());
+            ImGui::TextDisabled("  %s", _project.path.string().c_str());
+            ImGui::Spacing();
+
+            int count = 0;
+            for (const auto& e : _diff)
+            {
+                if (e.kind != core::DiffKind::kMissing
+                    && e.kind != core::DiffKind::kModified) continue;
+                ImGui::BulletText("%s  (%s)", e.relativePath.c_str(),
+                    e.kind == core::DiffKind::kMissing ? "new" : "overwrite");
+                ++count;
+            }
+
+            ImGui::Spacing();
+            ImGui::TextColored({0.45f, 0.75f, 1.0f, 1.0f},
+                               "A pre-apply autosnapshot will be created first.");
+            ImGui::TextDisabled("Existing project files not in scaffold are untouched.");
+            ImGui::Spacing();
+
+            if (ImGui::Button("Apply", ImVec2(120, 0)))
+            {
+                services::ApplyEngine::ApplyConfig cfg;
+                cfg.forceOverwrite     = true;
+                cfg.createAutosnapshot = true;
+                cfg.autosnaphotAction  = "pre-apply-" + scaffold.name;
+
+                for (const auto& e : _diff)
+                    if (e.kind == core::DiffKind::kMissing
+                        || e.kind == core::DiffKind::kModified)
+                        cfg.filesToApply.push_back(e.relativePath);
+
+                const bool ok = _applyEngine.Apply(
+                    scaffold.path, _project.path, cfg, &_snapshotService);
+
+                _statusMsg = ok
+                    ? "Applied " + std::to_string(cfg.filesToApply.size())
+                          + " file(s) from scaffold."
+                    : "Apply completed with errors.";
+                RunDiff();
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::SameLine();
             if (ImGui::Button("Cancel", ImVec2(120, 0)))
                 ImGui::CloseCurrentPopup();
 

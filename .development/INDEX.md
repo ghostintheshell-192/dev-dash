@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-05-12 23:12*
+*Auto-generated: 2026-05-12 23:14*
 
 ---
 
@@ -104,8 +104,8 @@
 
 ## Recently Modified (last 7 days)
 
-1. [009-markdown-library-imgui-md.md](reference/decisions/009-markdown-library-imgui-md.md) (today)
-2. [INDEX.md](INDEX.md) (today)
+1. [INDEX.md](INDEX.md) (today)
+2. [009-markdown-library-imgui-md.md](reference/decisions/009-markdown-library-imgui-md.md) (today)
 3. [feature-scaffold-management.md](specs/planned/feature-scaffold-management.md) (today)
 4. [feature-snapshot-history.md](specs/planned/feature-snapshot-history.md) (today)
 5. [README.md](tech-debt/README.md) (today)
