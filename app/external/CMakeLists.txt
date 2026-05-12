@@ -156,31 +156,19 @@ CPMAddPackage(
 # Fork of mekhontsev/imgui_md (MIT, by Dmitry Mekhontsev) maintained at
 # DPD85/imgui_md. Upstream is inactive since 2022; the fork tracks ImGui
 # API changes (PushFont signature in 1.92.x) and any dev-dash-specific
-# extensions. No CMakeLists.txt in the repo — pulled DOWNLOAD_ONLY and
-# built manually, same pattern as ImGui above.
+# extensions. The fork ships its own CMakeLists.txt that defines the
+# `imgui_md` target and skips the ImGui/md4c CPM blocks when the consumer
+# already provides those targets (see `if(NOT TARGET ImGui)` in the fork).
 
+# Stable form (to be restored once the fork PRs are merged upstream):
+# CPMAddPackage(
+#     NAME imgui_md
+#     GITHUB_REPOSITORY DPD85/imgui_md
+#     GIT_TAG <SHA of DPD85/imgui_md main post-merge>
+# )
+
+# Dev-only override: points to local clone for co-development of the fork.
 CPMAddPackage(
     NAME imgui_md
-    GITHUB_REPOSITORY DPD85/imgui_md
-    GIT_TAG 06290f0ce7468d4b72569ac4797c55c6d77fe048
-    DOWNLOAD_ONLY ON
-)
-
-add_library(ImGui-MD STATIC)
-
-target_sources(ImGui-MD
-    PRIVATE
-        ${imgui_md_SOURCE_DIR}/imgui_md.cpp
-        ${imgui_md_SOURCE_DIR}/imgui_md.h
-)
-
-target_include_directories(ImGui-MD
-    PUBLIC
-        ${imgui_md_SOURCE_DIR}
-)
-
-target_link_libraries(ImGui-MD
-    PUBLIC
-        ImGui
-        md4c
+    SOURCE_DIR /data/repos/imgui_md
 )
