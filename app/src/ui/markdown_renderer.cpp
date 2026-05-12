@@ -25,23 +25,24 @@ namespace dev_dash::ui
         _linkHandler = std::move(handler);
     }
 
-    ImFont* MarkdownRenderer::get_font() const
+    void MarkdownRenderer::get_font(font_info& info) const
     {
+        info.font = nullptr;
+        info.size = 0.0f;
+
         switch (m_hlevel)
         {
-        case 1: return _fonts.BoldH1();
-        case 2: return _fonts.BoldH2();
+        case 1: info.font = _fonts.BoldH1(); return;
+        case 2: info.font = _fonts.BoldH2(); return;
         case 3:
         case 4:
         case 5:
-        case 6: return _fonts.BoldH3();
+        case 6: info.font = _fonts.BoldH3(); return;
         default: break;
         }
 
-        if (m_is_strong) return _fonts.Bold();
-        if (m_is_em)     return _fonts.Italic();
-
-        return nullptr;
+        if (m_is_strong) { info.font = _fonts.Bold();   return; }
+        if (m_is_em)     { info.font = _fonts.Italic();  return; }
     }
 
     void MarkdownRenderer::open_url() const

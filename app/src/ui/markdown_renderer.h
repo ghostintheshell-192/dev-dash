@@ -24,7 +24,7 @@ namespace dev_dash::ui
         void SetLinkHandler(LinkHandler handler);
 
     protected:
-        ImFont* get_font() const override;
+        void get_font(font_info& info) const override;
         void open_url() const override;
         bool get_image(image_info&) const override { return false; }
         void SPAN_CODE(bool e) override;

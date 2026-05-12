@@ -13,7 +13,7 @@ add_subdirectory(app)
 target_link_libraries(dev-dash
     PRIVATE
         ImGui
-        ImGui-MD
+        imgui_md
         ImGui-SDL3
         ImGui-Vulkan
         vk-bootstrap::vk-bootstrap
