@@ -1,7 +1,7 @@
 ---
 type: feature
 priority: must-have
-status: planned
+status: in-progress
 category: core
 part_of: wedge
 related: [feature-effective-config-view, feature-scaffold-management]
@@ -116,21 +116,19 @@ di farlo manualmente.
 
 ### Funzionali
 
-- [ ] **Snapshot engine**: salvataggio della config corrente del project
+- [x] **Snapshot engine**: salvataggio della config corrente del project
   in `~/.devdash/snapshots/<project-slug>/<timestamp>-<slug>/`. Trigger
   espliciti (US-1) e automatici prima di apply/promote/restore (US-3).
-- [ ] **Restore engine**: apply forzato di uno snapshot al project di
+- [x] **Restore engine**: apply forzato di uno snapshot al project di
   origine (US-2). Tecnicamente è una variante dell'apply engine della
   parte 2/3 con default conflict-resolution = overwrite invece di
   skip-with-confirmation.
-- [ ] **Pruning**: cancellazione automatica degli autosnapshot oltre il
+- [x] **Pruning**: cancellazione automatica degli autosnapshot oltre il
   threshold N (default 10, configurabile). Mai applicato a snapshot
   espliciti.
-- [ ] **Project-slug resolution**: meccanismo per derivare il
-  `<project-slug>` univoco a partire da un project path. Da decidere se
-  usare hash del path, basename del path, o un identifier salvato come
-  metadata nel project stesso.
-- [ ] **Path configuration**: `~/.devdash/snapshots/` è il default,
+- [x] **Project-slug resolution**: basename del path sanitizzato (MVP;
+  nota: collisioni possibili se due progetti hanno lo stesso nome).
+- [x] **Path configuration**: `~/.devdash/snapshots/` è il default,
   l'utente può override-arlo via config.
 
 ### Non funzionali
@@ -145,15 +143,15 @@ di farlo manualmente.
 
 ## Acceptance Criteria
 
-- [ ] Salvare snapshot manuale, fare modifiche, salvare un secondo snapshot,
+- [x] Salvare snapshot manuale, fare modifiche, salvare un secondo snapshot,
   restore al primo → il progetto torna allo stato del primo snapshot e un
   autosnapshot `auto-pre-restore-...` appare nella history.
-- [ ] Applicare uno scaffold a un progetto già configurato → un autosnapshot
+- [x] Applicare uno scaffold a un progetto già configurato → un autosnapshot
   `auto-pre-apply-...` appare nella history e contiene la config pre-apply
   intatta.
-- [ ] Lasciare accumulare > N autosnapshot (default N=10) → i più vecchi
+- [x] Lasciare accumulare > N autosnapshot (default N=10) → i più vecchi
   vengono pruned, gli snapshot espliciti restano.
-- [ ] Modificare un file nel progetto con un editor esterno → **nessun**
+- [x] Modificare un file nel progetto con un editor esterno → **nessun**
   autosnapshot viene creato. (Editing fuori da DevDash è coperto da git.)
 
 ## Technical Notes

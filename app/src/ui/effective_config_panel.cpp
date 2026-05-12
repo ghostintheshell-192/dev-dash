@@ -61,6 +61,7 @@ namespace dev_dash::ui
         // Reset per-frame flags before any button can re-raise them.
         _wantsBack         = false;
         _wantsScaffoldDiff = false;
+        _wantsHistory      = false;
 
         const ImGuiIO& io = ImGui::GetIO();
         ImGui::SetNextWindowPos(ImVec2(0, 0));
@@ -77,7 +78,11 @@ namespace dev_dash::ui
         ImGui::SameLine();
         ImGui::TextDisabled("%s", _project.path.string().c_str());
 
-        ImGui::SameLine(ImGui::GetContentRegionAvail().x - 160.0f + ImGui::GetCursorPosX());
+        ImGui::SameLine(ImGui::GetContentRegionAvail().x - 245.0f + ImGui::GetCursorPosX());
+        if (ImGui::Button("History..."))
+            _wantsHistory = true;
+
+        ImGui::SameLine();
         if (ImGui::Button("Scaffold..."))
             _wantsScaffoldDiff = true;
 

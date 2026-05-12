@@ -16,6 +16,7 @@ namespace dev_dash::services
             std::vector<std::string> filesToApply;
             bool createAutosnapshot = true;
             bool forceOverwrite     = false;
+            std::string autosnaphotAction = "pre-apply";
         };
 
         ApplyEngine() = default;

@@ -21,6 +21,7 @@ namespace dev_dash::ui
     class ProjectSelectorPanel;
     class EffectiveConfigPanel;
     class ScaffoldDiffPanel;
+    class SnapshotHistoryPanel;
 }
 
 namespace dev_dash::services
@@ -30,11 +31,13 @@ namespace dev_dash::services
     class ScaffoldRepository;
     class DiffEngine;
     class PromoteEngine;
+    class ApplyEngine;
+    class SnapshotService;
 }
 
 namespace dev_dash::app
 {
-    enum class AppState { kSelectingProject, kViewingConfig, kScaffoldDiff };
+    enum class AppState { kSelectingProject, kViewingConfig, kScaffoldDiff, kSnapshotHistory };
 
     class App
     {
@@ -64,7 +67,8 @@ namespace dev_dash::app
         // 9. _documentLoader
         // 10. _markdownRenderer (needs fonts)
         // 11. _documentPanelHost (needs loader + renderer; registers LinkHandler)
-        // 12. _configResolver, _diffEngine, _scaffoldRepository
+        // 12. _configResolver, _diffEngine, _promoteEngine, _applyEngine,
+        //     _snapshotService, _scaffoldRepository
         // 13. _projectSelectorPanel (needs window handle)
         //
         // ----- Declaration order (drives LIFO destruction) -----
@@ -89,10 +93,14 @@ namespace dev_dash::app
         std::unique_ptr<services::ScaffoldRepository> _scaffoldRepository;
         std::unique_ptr<services::DiffEngine>         _diffEngine;
         std::unique_ptr<services::PromoteEngine>      _promoteEngine;
+        // ApplyEngine before SnapshotService: SnapshotService holds a ref to it.
+        std::unique_ptr<services::ApplyEngine>        _applyEngine;
+        std::unique_ptr<services::SnapshotService>    _snapshotService;
         std::unique_ptr<ui::ProjectSelectorPanel>    _projectSelectorPanel;
         // Panels declared last → destroyed first, before the services they reference.
         std::unique_ptr<ui::EffectiveConfigPanel>    _effectiveConfigPanel;
         std::unique_ptr<ui::ScaffoldDiffPanel>       _scaffoldDiffPanel;
+        std::unique_ptr<ui::SnapshotHistoryPanel>    _snapshotHistoryPanel;
 
         AppState _appState = AppState::kSelectingProject;
     };
