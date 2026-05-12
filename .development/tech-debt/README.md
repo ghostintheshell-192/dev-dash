@@ -52,17 +52,20 @@ report: null  # Optional: link to archive/analysis/YYYY-MM-DD_report_agent-name.
 
 ## Current Issues by Priority
 
-*Auto-updated: 2026-05-10 15:48*
+*Auto-updated: 2026-05-11 20:16*
 
-**High Priority:** None currently
+**High Priority:**
+- `imgui-backend-shutdown-order.md` - ImGui assertion on exit: backend non spento prima di DestroyContext
 
 **Medium Priority:**
+- `line-level-promote.md` - Promote e Apply operano solo sull'intero file
 - `scaffold-architecture-scripts.md` - Include architecture scripts in project scaffold
 
 **Low Priority:**
 - `markdown-code-block-styling.md` - Fenced code blocks rendered as flat yellow text — no syntax highlighting
 - `preprocess-imports-indented-fences.md` - PreprocessImports does not recognise indented fenced code blocks
 - `session-handoff-skill-note.md` - Current Working Notes
+- `spec-workflow-hook-silent-fail.md` - Hook 05 spec-workflow non sposta le spec al merge
 
 ## Integration with Reference Documentation
 

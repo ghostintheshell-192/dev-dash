@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-05-12 22:32*
+*Auto-generated: 2026-05-12 23:16*
 
 ---
 
@@ -53,7 +53,7 @@
 
 ### tech-debt/ (9 files)
 
-- [README.md](tech-debt/README.md) (2KB, 2026-05-12) **RECENT**
+- [README.md](tech-debt/README.md) (3KB, 2026-05-12) **RECENT**
 - [line-level-promote.md](tech-debt/line-level-promote.md) (1KB, 2026-05-10) **RECENT**
 - [imgui-backend-shutdown-order.md](tech-debt/imgui-backend-shutdown-order.md) (1KB, 2026-05-10) **RECENT**
 - [spec-workflow-hook-silent-fail.md](tech-debt/spec-workflow-hook-silent-fail.md) (2KB, 2026-05-10) **RECENT**
@@ -104,11 +104,11 @@
 
 ## Recently Modified (last 7 days)
 
-1. [INDEX.md](INDEX.md) (today)
-2. [009-markdown-library-imgui-md.md](reference/decisions/009-markdown-library-imgui-md.md) (today)
+1. [README.md](tech-debt/README.md) (today)
+2. [INDEX.md](INDEX.md) (today)
 3. [feature-scaffold-management.md](specs/planned/feature-scaffold-management.md) (today)
 4. [feature-snapshot-history.md](specs/planned/feature-snapshot-history.md) (today)
-5. [README.md](tech-debt/README.md) (today)
+5. [009-markdown-library-imgui-md.md](reference/decisions/009-markdown-library-imgui-md.md) (today)
 6. [line-level-promote.md](tech-debt/line-level-promote.md) (2d ago)
 7. [imgui-backend-shutdown-order.md](tech-debt/imgui-backend-shutdown-order.md) (2d ago)
 8. [CURRENT-STATUS.md](CURRENT-STATUS.md) (2d ago)
