@@ -14,7 +14,6 @@ per tipo (CLAUDE.md, Rules, Memory, Skills, Agents, MCP, Hooks).
 Stato attuale del codebase:
 
 - `app/` — build funzionante. Skeleton layered completo + feature-effective-config-view implementata.
-- `poc/` — PoC C++/ImGui funzionalmente completo. Tenuto come riferimento pre-refactor.
 - Architettura decisa in [ADR-010](reference/decisions/010-architecture-design.md)
   + [api-design.md](api-design.md).
 - Legacy `.NET 8 + Avalonia` rimosso da `develop` il 2026-05-10. Recover via `git checkout legacy/avalonia-final`.
@@ -179,7 +178,7 @@ Pendente:
 
 Vedi `ARCHITECTURE.md` per il tree completo (auto-generato).
 
-### Stack runtime (`app/` + `poc/`)
+### Stack runtime (`app/`)
 
 | Componente | Versione | Note |
 | ---------- | -------- | ---- |
@@ -192,39 +191,10 @@ Vedi `ARCHITECTURE.md` per il tree completo (auto-generato).
 | imgui_md | vendored (mekhontsev) | Bridge MD4C → ImGui, MIT, in `external/imgui_md/` |
 | CMake | ≥3.28 | + Ninja generator |
 
-### Layout `poc/`
+### Layout `app/`
 
-```
-poc/
-├── CMakeLists.txt
-├── CMakePresets.json
-├── cmake/                           # compiler dispatch + CPM bootstrap
-├── external/
-│   ├── CMakeLists.txt              # CPM dependencies + ImGui static libs
-│   ├── imgui-config.h              # IMGUI_USER_CONFIG locale
-│   └── imgui_md/                   # vendored bridge
-├── src/
-│   ├── main.cpp
-│   ├── renderer.{h,cpp}            # Vulkan + SDL3 + ImGui frame loop
-│   ├── deletion_queue.h
-│   └── rendering/
-│       └── markdown_r.{h,cpp}      # MarkdownRenderer : imgui_md
-├── assets/
-│   ├── fonts/                      # IBM Plex Sans (SIL OFL 1.1)
-│   └── ...
-└── THIRD_PARTY_NOTICES.md
-```
-
-### Patterns in uso (PoC)
-
-- **Bridge override**: `Rendering::MarkdownRenderer` deriva da `imgui_md::md`
-  e override `get_font()`, `open_url()`, `get_image()`, `SPAN_CODE`, `BLOCK_CODE`.
-- **Lifecycle dei pannelli markdown**: gestita da `Renderer` (`OpenPanel`,
-  `RenderMarkdownWindow`, `_panels`, `_pendingPanels`). `MarkdownRenderer`
-  riceve `_pendingPanels` per `&` e ci pusha solo i path dei `claudeimport://`
-  link cliccati. Separation of concerns clean.
-- **Nested type private**: `MarkdownPanel` come nested type di `Renderer` —
-  segnala dettaglio implementativo.
+Vedi `ARCHITECTURE.md` per il tree dettagliato e ADR-010 per il rationale
+della suddivisione `core/services/ui/platform/app/`.
 
 ## Blockers / Attention
 
@@ -236,9 +206,7 @@ poc/
 
 | Target | Stato |
 | ------ | ----- |
-| `app/` (C++/CMake, layered) | ⏳ Skeleton scritto, build da verificare |
-| `poc/` (C++/CMake, monolitico) | ✅ Compila e linka su Debian 12 (GCC, Ninja) |
-| `poc/` runtime | ✅ Apre finestra Vulkan/SDL3 con pannelli markdown navigabili |
+| `app/` (C++/CMake, layered) | ✅ Build + runtime su Debian 12 (GCC, Ninja, SDL3/Vulkan/ImGui) |
 | Legacy `.NET/Avalonia` | 🗑️ Rimosso da `develop` 2026-05-10; recover via `git checkout legacy/avalonia-final` |
 | CI | ⏸️ Disabilitata pre-pivot (`ci.yml.disabled`); da riattivare per CMake |
 

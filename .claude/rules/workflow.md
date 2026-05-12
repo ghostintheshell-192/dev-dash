@@ -105,13 +105,13 @@ When analyzing tech-debt, bugs, or investigating issues:
 
 ```bash
 # Configure + build (Linux Debug)
-cmake --preset linux-debug -S poc
+cmake --preset linux-debug -S app
 cmake --build --preset linux-debug
 
-# Run the PoC
-./poc/build/linux-debug/src/dev-dash-poc
+# Run the app
+./app/build/linux-debug/src/dev-dash
 
-# Tests: TBD (no test target yet; will arrive once core/services land in app/)
+# Tests: TBD (no test target yet)
 
 # Format check: TBD (no .clang-format at root yet; the 02-clang-format hook
 # is dormant until the config file is added)

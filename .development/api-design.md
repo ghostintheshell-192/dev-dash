@@ -1139,5 +1139,4 @@ aperte; nessuna è bloccante per il refactor strutturale.
 - ADR-010: [reference/decisions/010-architecture-design.md](reference/decisions/010-architecture-design.md)
 - Spec wedge: `specs/planned/feature-{effective-config-view,scaffold-management,snapshot-history}.md`
 - Coding standards: [.claude/rules/coding-standards.md](../.claude/rules/coding-standards.md), sezione **C++ Conventions**
-- Codice PoC pre-refactor: `poc/src/` (origine del refactor)
 

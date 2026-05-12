@@ -2,7 +2,7 @@
 
 ## C++ Conventions
 
-Applies to all C++ code under `app/` and `poc/`, including code ported from
+Applies to all C++ code under `app/`, including code ported from
 external sources (Germen Pulchrum). Borrowed code is translated to these
 conventions on the way in — the source project's style is not preserved.
 
