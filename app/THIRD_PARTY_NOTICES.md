@@ -34,26 +34,47 @@ to dev-dash conventions on the way in (see
 - License: MIT
 - Pulled in at configure time via CPM (see `external/CMakeLists.txt`).
 
-## imgui_markdown
+## MD4C
 
-A single-header markdown renderer for Dear ImGui.
+CommonMark / Markdown parser written in C. Drives the parse-event
+stream that `imgui_md` consumes to render Markdown via Dear ImGui.
 
-- Base library: <https://github.com/enkisoftware/imgui_markdown> by
-  Juliette Foucaut & Doug Binks.
-- License: zlib (see header inline).
-- Vendored at: `external/imgui_markdown/imgui_markdown.h`.
-- Pinned source: `mgerhardy/imgui_markdown` @ `214a836c` (the head of
-  PR <https://github.com/enkisoftware/imgui_markdown/pull/43>,
-  "extend markdown syntax support (tables and code)"). We follow the
-  PR branch instead of upstream main because the PR adds fenced code
-  blocks and tables — features needed to render typical CLAUDE.md /
-  ADR / spec content. The PR has been open without maintainer review
-  since 2026-01-22; if it lands upstream, switch the pin back to
-  `enkisoftware/imgui_markdown` main.
+- Source: <https://github.com/mity/md4c>
+- Version: 0.5.3 (tag `release-0.5.3`)
+- License: MIT
+- Pulled in at configure time via CPM as a static library. The
+  companion targets `md2html` (executable) and `md4c-html` (HTML
+  renderer) are disabled — we only need the parser core.
 
-The integration pattern (callback shape, `MarkdownConfig` setup, link
-handler routed through `SDL_OpenURL`) was informed by Germen Pulchrum's
-own markdown integration in PR <https://github.com/DPD85/Germen/pull/4>.
+## imgui_md
+
+Bridge library that renders Markdown via Dear ImGui by consuming MD4C
+parser events. Replaces the previous `imgui_markdown` integration (the
+single-header `enkisoftware/imgui_markdown` library plus `mgerhardy`'s
+fork for tables and fenced code blocks), dropped because MD4C is a
+better-maintained CommonMark parser and gives proper table support
+out of the box.
+
+- Base library: <https://github.com/mekhontsev/imgui_md> by
+  Dmitry Mekhontsev (upstream, inactive since 2022).
+- Active fork: <https://github.com/DPD85/imgui_md> by Dario Passet —
+  tracks Dear ImGui API changes (e.g. the `PushFont(size)` signature
+  in 1.92.x) and ships a standalone `CMakeLists.txt` that defines the
+  `imgui_md` target and gates ImGui/MD4C build blocks behind
+  `if(NOT TARGET ...)` so consumers that already provide those
+  targets aren't duplicated.
+- License: MIT (same as upstream).
+- Pulled in at configure time via CPM (see `external/CMakeLists.txt`).
+  During co-development of the fork the CPM block points at a local
+  clone (`SOURCE_DIR /data/repos/imgui_md`); the stable form using
+  `GITHUB_REPOSITORY DPD85/imgui_md` + `GIT_TAG <SHA>` is committed
+  out alongside as a reference and is restored once fork PRs land.
+
+The integration pattern (callback shape, link handler routed through
+`SDL_OpenURL`) was originally informed by Germen Pulchrum's own
+markdown integration in PR <https://github.com/DPD85/Germen/pull/4>,
+and the `MarkdownRenderer` class in `app/src/ui/` derives `imgui_md`
+to customize fonts and link handling.
 
 ## vk-bootstrap
 
@@ -84,3 +105,14 @@ own markdown integration in PR <https://github.com/DPD85/Germen/pull/4>.
 Provided by the host system (`libvulkan-dev` on Debian/Ubuntu). Not
 redistributed in this repo. The Vulkan loader is dynamically linked at
 runtime as usual.
+
+## nlohmann/json
+
+Header-only JSON library. Used by `SettingsParser` to read Claude
+Code's `settings.json` (MCP servers and hooks configuration).
+
+- Source: <https://github.com/nlohmann/json>
+- Version: 3.11.3
+- License: MIT
+- Pulled in at configure time via CPM. `JSON_BuildTests` and
+  `JSON_Install` disabled.
