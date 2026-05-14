@@ -6,7 +6,7 @@
 
 namespace dev_dash::services
 {
-    bool ApplyEngine::Apply(
+    ApplyEngine::ApplyResult ApplyEngine::Apply(
         const std::filesystem::path& sourceRoot,
         const std::filesystem::path& targetRoot,
         const ApplyConfig& config,
@@ -18,25 +18,28 @@ namespace dev_dash::services
             snapshotService->SaveAuto(targetProject, config.autosnapshotAction);
         }
 
-        bool allOk = true;
+        ApplyResult result;
         for (const auto& rel : config.filesToApply)
         {
             const auto src  = sourceRoot / rel;
             const auto dest = targetRoot / rel;
 
-            if (!std::filesystem::exists(src)) continue;
-
-            // MVP: skip existing unless forcing
-            if (!config.forceOverwrite && std::filesystem::exists(dest)) continue;
+            if (!std::filesystem::exists(src)) { ++result.skipped; continue; }
+            if (!config.forceOverwrite && std::filesystem::exists(dest))
+            {
+                ++result.skipped;
+                continue;
+            }
 
             std::error_code ec;
             std::filesystem::create_directories(dest.parent_path(), ec);
-            if (ec) { allOk = false; continue; }
+            if (ec) { ++result.failed; continue; }
 
             std::filesystem::copy_file(src, dest,
                 std::filesystem::copy_options::overwrite_existing, ec);
-            if (ec) allOk = false;
+            if (ec) ++result.failed;
+            else    ++result.applied;
         }
-        return allOk;
+        return result;
     }
 }

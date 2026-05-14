@@ -531,13 +531,12 @@ namespace dev_dash::ui
                         || e.kind == core::DiffKind::kModified)
                         cfg.filesToApply.push_back(e.relativePath);
 
-                const bool ok = _applyEngine.Apply(
+                const auto result = _applyEngine.Apply(
                     scaffold.path, _project.path, cfg, &_snapshotService);
 
-                _statusMsg = ok
-                    ? "Applied " + std::to_string(cfg.filesToApply.size())
-                          + " file(s) from scaffold."
-                    : "Apply completed with errors.";
+                _statusMsg = "Applied " + std::to_string(result.applied)
+                           + ", skipped " + std::to_string(result.skipped)
+                           + ", failed " + std::to_string(result.failed) + ".";
                 RunDiff();
                 ImGui::CloseCurrentPopup();
             }

@@ -199,7 +199,8 @@ namespace dev_dash::services
         if(cfg.filesToApply.empty())
             return false;
 
-        return _applyEngine.Apply(snapshot.path, target.path, cfg);
+        const auto result = _applyEngine.Apply(snapshot.path, target.path, cfg);
+        return result.failed == 0 && result.applied > 0;
     }
 
     int SnapshotService::PruneAuto(std::string_view projectSlug, int maxAutoSnapshots)
