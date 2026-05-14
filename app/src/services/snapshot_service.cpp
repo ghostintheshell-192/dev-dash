@@ -5,6 +5,7 @@
 #include <cctype>
 #include <ctime>
 #include <fstream>
+#include <optional>
 #include <string>
 
 namespace dev_dash::services
@@ -70,13 +71,13 @@ namespace dev_dash::services
                        core::SnapshotKind kind,
                        std::string_view name,
                        std::string_view description,
-                       std::string_view action)
+                       const std::optional<std::string>& action)
         {
             std::ofstream f(snapshotDir / ".devdash-snapshot");
             f << "kind=" << (kind == core::SnapshotKind::kAuto ? "auto" : "explicit") << '\n';
             f << "name=" << name << '\n';
             f << "description=" << description << '\n';
-            f << "action=" << action << '\n';
+            if (action) f << "action=" << *action << '\n';
         }
 
         core::Snapshot ParseSnapshotDir(const std::filesystem::path& dir,
@@ -128,7 +129,7 @@ namespace dev_dash::services
                        / (NowTimestamp() + "-" + NameToSlug(name));
 
         if (!CopyConfigFiles(project.path, dir)) return {};
-        WriteMeta(dir, core::SnapshotKind::kExplicit, name, description, "");
+        WriteMeta(dir, core::SnapshotKind::kExplicit, name, description, std::nullopt);
         return ParseSnapshotDir(dir, slug);
     }
 
