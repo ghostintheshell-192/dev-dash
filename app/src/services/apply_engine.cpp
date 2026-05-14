@@ -15,7 +15,7 @@ namespace dev_dash::services
         if (config.createAutosnapshot && snapshotService)
         {
             const core::Project targetProject{targetRoot};
-            snapshotService->SaveAuto(targetProject, config.autosnaphotAction);
+            snapshotService->SaveAuto(targetProject, config.autosnapshotAction);
         }
 
         bool allOk = true;

@@ -524,7 +524,7 @@ namespace dev_dash::ui
                 services::ApplyEngine::ApplyConfig cfg;
                 cfg.forceOverwrite     = true;
                 cfg.createAutosnapshot = true;
-                cfg.autosnaphotAction  = "pre-apply-" + scaffold.name;
+                cfg.autosnapshotAction  = "pre-apply-" + scaffold.name;
 
                 for (const auto& e : _diff)
                     if (e.kind == core::DiffKind::kMissing
