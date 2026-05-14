@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-05-14 22:29*
+*Auto-generated: 2026-05-14 23:04*
 
 ---
 
@@ -48,8 +48,8 @@
 
 ### specs/planned/ (2 files)
 
-- [feature-scaffold-management.md](specs/planned/feature-scaffold-management.md) (10KB, 2026-05-12) **RECENT**
-- [feature-snapshot-history.md](specs/planned/feature-snapshot-history.md) (8KB, 2026-05-12) **RECENT**
+- [feature-scaffold-management.md](specs/planned/feature-scaffold-management.md) (10KB, 2026-05-14) **RECENT**
+- [feature-snapshot-history.md](specs/planned/feature-snapshot-history.md) (8KB, 2026-05-14) **RECENT**
 
 ### tech-debt/ (9 files)
 
@@ -105,9 +105,9 @@
 ## Recently Modified (last 7 days)
 
 1. [INDEX.md](INDEX.md) (today)
-2. [README.md](tech-debt/README.md) (today)
-3. [feature-scaffold-management.md](specs/planned/feature-scaffold-management.md) (1d ago)
-4. [feature-snapshot-history.md](specs/planned/feature-snapshot-history.md) (1d ago)
+2. [feature-scaffold-management.md](specs/planned/feature-scaffold-management.md) (today)
+3. [feature-snapshot-history.md](specs/planned/feature-snapshot-history.md) (today)
+4. [README.md](tech-debt/README.md) (today)
 5. [CURRENT-STATUS.md](CURRENT-STATUS.md) (1d ago)
 6. [api-design.md](api-design.md) (1d ago)
 7. [009-markdown-library-imgui-md.md](reference/decisions/009-markdown-library-imgui-md.md) (1d ago)
