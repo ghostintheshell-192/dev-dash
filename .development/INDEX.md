@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-05-14 22:04*
+*Auto-generated: 2026-05-14 22:27*
 
 ---
 
@@ -111,7 +111,7 @@
 5. [CURRENT-STATUS.md](CURRENT-STATUS.md) (1d ago)
 6. [api-design.md](api-design.md) (1d ago)
 7. [009-markdown-library-imgui-md.md](reference/decisions/009-markdown-library-imgui-md.md) (1d ago)
-8. [line-level-promote.md](tech-debt/line-level-promote.md) (3d ago)
+8. [line-level-promote.md](tech-debt/line-level-promote.md) (4d ago)
 9. [imgui-backend-shutdown-order.md](tech-debt/imgui-backend-shutdown-order.md) (4d ago)
 10. [feature-effective-config-view.md](specs/implemented/feature-effective-config-view.md) (4d ago)
 

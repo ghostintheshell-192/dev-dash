@@ -1,7 +1,6 @@
 #include "snapshot_history_panel.h"
 #include "../services/snapshot_service.h"
 
-#include <cctype>
 #include <imgui.h>
 
 namespace dev_dash::ui
@@ -15,24 +14,13 @@ namespace dev_dash::ui
             return ts.substr(0, 4) + "-" + ts.substr(4, 2) + "-" + ts.substr(6, 2)
                  + " " + ts.substr(9, 2) + ":" + ts.substr(11, 2) + ":" + ts.substr(13, 2);
         }
-
-        // Derive project slug: last path component, non-alnum → '-'
-        std::string SlugFrom(const std::filesystem::path& path)
-        {
-            std::string s = path.filename().string();
-            for (char& c : s)
-                if (!std::isalnum(static_cast<unsigned char>(c))
-                    && c != '-' && c != '_')
-                    c = '-';
-            return s;
-        }
     }
 
     SnapshotHistoryPanel::SnapshotHistoryPanel(services::SnapshotService& service,
                                                const core::Project&        project)
         : _service(service)
         , _project(project)
-        , _projectSlug(SlugFrom(project.path))
+        , _projectSlug(core::MakeProjectSlug(project.path))
     {
     }
 

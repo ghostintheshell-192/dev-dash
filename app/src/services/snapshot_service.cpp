@@ -11,17 +11,6 @@ namespace dev_dash::services
 {
     namespace
     {
-        // Derive a filesystem-safe slug from the project's last path component.
-        std::string MakeProjectSlug(const std::filesystem::path& projectPath)
-        {
-            std::string s = projectPath.filename().string();
-            for (char& c : s)
-                if (!std::isalnum(static_cast<unsigned char>(c))
-                    && c != '-' && c != '_')
-                    c = '-';
-            return s;
-        }
-
         // Current local time as "YYYYMMDD-HHMMSS" — sortable lexicographically.
         std::string NowTimestamp()
         {
@@ -134,7 +123,7 @@ namespace dev_dash::services
         std::string_view description)
     {
         if (_snapshotRoot.empty()) return {};
-        const std::string slug = MakeProjectSlug(project.path);
+        const std::string slug = core::MakeProjectSlug(project.path);
         const auto dir = _snapshotRoot / slug
                        / (NowTimestamp() + "-" + NameToSlug(name));
 
@@ -148,7 +137,7 @@ namespace dev_dash::services
         std::string_view action)
     {
         if (_snapshotRoot.empty()) return {};
-        const std::string slug = MakeProjectSlug(project.path);
+        const std::string slug = core::MakeProjectSlug(project.path);
         const auto dir = _snapshotRoot / slug
                        / (NowTimestamp() + "-auto-" + NameToSlug(action));
 
