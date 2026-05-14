@@ -5,6 +5,7 @@
 #include <cctype>
 #include <ctime>
 #include <fstream>
+#include <iostream>
 #include <optional>
 #include <string>
 
@@ -62,6 +63,9 @@ namespace dev_dash::services
                     std::filesystem::copy_file(src, dst,
                         std::filesystem::copy_options::overwrite_existing, ec);
                 }
+                if (ec)
+                    std::cerr << "[snapshot] copy failed: " << rel
+                              << " (" << ec.message() << ")\n";
                 ec.clear();
             }
             return true;
