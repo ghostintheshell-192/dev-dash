@@ -20,6 +20,7 @@ namespace dev_dash::ui
         void Render();
         bool WantsBack()         const { return _wantsBack; }
         bool WantsScaffoldDiff() const { return _wantsScaffoldDiff; }
+        bool WantsHistory()      const { return _wantsHistory; }
         const core::Project& Project() const { return _project; }
 
     private:
@@ -31,5 +32,6 @@ namespace dev_dash::ui
         core::EffectiveConfig     _config;
         bool                      _wantsBack         = false;
         bool                      _wantsScaffoldDiff = false;
+        bool                      _wantsHistory      = false;
     };
 }

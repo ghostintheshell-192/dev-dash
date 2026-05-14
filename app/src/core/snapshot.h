@@ -1,6 +1,7 @@
 #pragma once
 
 #include <filesystem>
+#include <optional>
 #include <string>
 
 namespace dev_dash::core
@@ -19,6 +20,8 @@ namespace dev_dash::core
         std::filesystem::path path;
         std::string timestamp;
         std::string description;
-        std::string originatingAction;
+        // Populated only for kAuto snapshots — the action that triggered the auto-save
+        // (e.g. "pre-apply", "pre-restore"). Always nullopt for kExplicit.
+        std::optional<std::string> originatingAction;
     };
 }

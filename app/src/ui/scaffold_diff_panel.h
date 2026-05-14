@@ -14,6 +14,8 @@ namespace dev_dash::services
     class ScaffoldRepository;
     class DiffEngine;
     class PromoteEngine;
+    class ApplyEngine;
+    class SnapshotService;
 }
 
 namespace dev_dash::ui { class DocumentPanelHost; }
@@ -26,6 +28,8 @@ namespace dev_dash::ui
         ScaffoldDiffPanel(services::ScaffoldRepository& repo,
                           services::DiffEngine&         diffEngine,
                           services::PromoteEngine&      promoteEngine,
+                          services::ApplyEngine&        applyEngine,
+                          services::SnapshotService&    snapshotService,
                           DocumentPanelHost&            docHost,
                           const core::Project&          project);
 
@@ -36,12 +40,15 @@ namespace dev_dash::ui
         void Refresh();
         void RunDiff();
         void RenderPromoteConfirmModal();
+        void RenderApplyConfirmModal();
         void RenderNewScaffoldModal();
         void RenderDeleteConfirmModal();
 
         services::ScaffoldRepository& _repo;
         services::DiffEngine&         _diffEngine;
         services::PromoteEngine&      _promoteEngine;
+        services::ApplyEngine&        _applyEngine;
+        services::SnapshotService&    _snapshotService;
         DocumentPanelHost&            _docHost;
         core::Project                 _project;
 
@@ -51,6 +58,7 @@ namespace dev_dash::ui
 
         std::set<std::string>         _selectedForPromote;
         bool                          _showPromoteConfirm  = false;
+        bool                          _showApplyConfirm    = false;
         bool                          _showNewModal        = false;
         bool                          _showDeleteConfirm   = false;
         char                          _newName[128]        = {};

@@ -19,11 +19,14 @@
 #include "../ui/project_selector_panel.h"
 #include "../ui/effective_config_panel.h"
 #include "../ui/scaffold_diff_panel.h"
+#include "../ui/snapshot_history_panel.h"
 #include "../services/document_loader.h"
 #include "../services/config_resolver.h"
 #include "../services/scaffold_repository.h"
 #include "../services/diff_engine.h"
 #include "../services/promote_engine.h"
+#include "../services/apply_engine.h"
+#include "../services/snapshot_service.h"
 #include "../core/project.h"
 
 namespace dev_dash::app
@@ -80,10 +83,15 @@ namespace dev_dash::app
         _configResolver     = std::make_unique<services::ConfigResolver>();
         _diffEngine         = std::make_unique<services::DiffEngine>();
         _promoteEngine      = std::make_unique<services::PromoteEngine>();
+        _applyEngine        = std::make_unique<services::ApplyEngine>();
+        _snapshotService    = std::make_unique<services::SnapshotService>(*_applyEngine);
         _scaffoldRepository = std::make_unique<services::ScaffoldRepository>();
         if (const char* home = std::getenv("HOME"))
-            _scaffoldRepository->SetScaffoldRoot(
-                std::filesystem::path(home) / ".devdash" / "scaffolds");
+        {
+            const std::filesystem::path devdash{std::string(home) + "/.devdash"};
+            _scaffoldRepository->SetScaffoldRoot(devdash / "scaffolds");
+            _snapshotService->SetSnapshotRoot(devdash / "snapshots");
+        }
 
         _projectSelectorPanel = std::make_unique<ui::ProjectSelectorPanel>(
             _window->Handle(),
@@ -96,6 +104,7 @@ namespace dev_dash::app
     void App::OnProjectSelected(const std::filesystem::path& path)
     {
         _scaffoldDiffPanel.reset();
+        _snapshotHistoryPanel.reset();
         _effectiveConfigPanel = std::make_unique<ui::EffectiveConfigPanel>(
             *_configResolver, *_documentPanelHost, core::Project{path});
         _appState = AppState::kViewingConfig;
@@ -129,10 +138,17 @@ namespace dev_dash::app
             case AppState::kViewingConfig:
                 _effectiveConfigPanel->Render();
                 _documentPanelHost->Render();
-                if (_effectiveConfigPanel->WantsScaffoldDiff())
+                if (_effectiveConfigPanel->WantsHistory())
+                {
+                    _snapshotHistoryPanel = std::make_unique<ui::SnapshotHistoryPanel>(
+                        *_snapshotService, _effectiveConfigPanel->Project());
+                    _appState = AppState::kSnapshotHistory;
+                }
+                else if (_effectiveConfigPanel->WantsScaffoldDiff())
                 {
                     _scaffoldDiffPanel = std::make_unique<ui::ScaffoldDiffPanel>(
                         *_scaffoldRepository, *_diffEngine, *_promoteEngine,
+                        *_applyEngine, *_snapshotService,
                         *_documentPanelHost, _effectiveConfigPanel->Project());
                     _appState = AppState::kScaffoldDiff;
                 }
@@ -149,6 +165,15 @@ namespace dev_dash::app
                 if (_scaffoldDiffPanel->WantsBack())
                 {
                     _scaffoldDiffPanel.reset();
+                    _appState = AppState::kViewingConfig;
+                }
+                break;
+
+            case AppState::kSnapshotHistory:
+                _snapshotHistoryPanel->Render();
+                if (_snapshotHistoryPanel->WantsBack())
+                {
+                    _snapshotHistoryPanel.reset();
                     _appState = AppState::kViewingConfig;
                 }
                 break;

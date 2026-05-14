@@ -1,6 +1,8 @@
 #pragma once
 
+#include <cctype>
 #include <filesystem>
+#include <string>
 
 namespace dev_dash::core
 {
@@ -28,5 +30,16 @@ namespace dev_dash::core
         hasClaudeDir = std::filesystem::exists(path / ".claude");
         hasGit       = std::filesystem::exists(path / ".git");
         hasClaudeMd  = std::filesystem::exists(path / "CLAUDE.md");
+    }
+
+    // Derive a filesystem-safe slug from the project's last path component.
+    inline std::string MakeProjectSlug(const std::filesystem::path& projectPath)
+    {
+        std::string s = projectPath.filename().string();
+        for (char& c : s)
+            if (!std::isalnum(static_cast<unsigned char>(c))
+                && c != '-' && c != '_')
+                c = '-';
+        return s;
     }
 }

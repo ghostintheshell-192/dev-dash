@@ -14,4 +14,6 @@ target_sources(dev-dash
         scaffold_diff_panel.cpp
         file_diff_panel.h
         file_diff_panel.cpp
+        snapshot_history_panel.h
+        snapshot_history_panel.cpp
 )

@@ -129,7 +129,7 @@ riutilizzabili"
   configurabile) e tratta ogni sottocartella come uno scaffold indipendente.
 - [x] **Diff engine**: confronto file-by-file fra due alberi di filesystem
   (project ↔ scaffold). Output strutturato consumabile dalla UI.
-- [ ] **Apply engine**: scrittura transazionale di un sotto-set selezionato
+- [x] **Apply engine**: scrittura transazionale di un sotto-set selezionato
   di file dallo scaffold al progetto. Backup pre-scrittura (autosnapshot)
   obbligatorio per ogni apply.
 - [x] **Promote engine**: copia di un sotto-set di file dal progetto allo
@@ -151,7 +151,7 @@ riutilizzabili"
 
 - [x] Aprire un progetto già scaffold-ato → mostra zero drift se non ci
   sono modifiche locali, drift puntuale se ci sono.
-- [ ] Applicare uno scaffold a un progetto vergine → l'output è
+- [x] Applicare uno scaffold a un progetto vergine → l'output è
   bit-identical a una copia diretta di `~/.devdash/scaffolds/<name>/` nel
   progetto (modulo file marcati `.gitkeep` o equivalenti).
 - [x] Modificare un file nel progetto, poi promuoverlo allo scaffold →
@@ -160,7 +160,7 @@ riutilizzabili"
 - [x] Cancellare il path `~/.devdash/scaffolds/` → la lista scaffold è
   vuota, le US 1-4 mostrano stato "no scaffold available". La feature
   parte 1 (effective config view) funziona comunque.
-- [ ] Apply a un progetto già configurato → un autosnapshot `pre-apply-...`
+- [x] Apply a un progetto già configurato → un autosnapshot `pre-apply-...`
   appare nella history (vedi parte 3) e contiene la config pre-apply intatta.
 
 ## Technical Notes
