@@ -157,18 +157,19 @@ CPMAddPackage(
 # DPD85/imgui_md. Upstream is inactive since 2022; the fork tracks ImGui
 # API changes (PushFont signature in 1.92.x) and any dev-dash-specific
 # extensions. The fork ships its own CMakeLists.txt that defines the
-# `imgui_md` target and skips the ImGui/md4c CPM blocks when the consumer
-# already provides those targets (see `if(NOT TARGET ImGui)` in the fork).
+# `imgui_md` target. It builds ImGui/md4c internally by default; we already
+# provide both targets above, so we opt out via BUILD_IMGUI/BUILD_MD4C OFF.
+# (The target names ImGui/md4c match the fork's IMGUI_TARGET/MD4C_TARGET
+# defaults, so those need no overriding.)
 
-# Stable form (to be restored once the fork PRs are merged upstream):
-# CPMAddPackage(
-#     NAME imgui_md
-#     GITHUB_REPOSITORY DPD85/imgui_md
-#     GIT_TAG <SHA of DPD85/imgui_md main post-merge>
-# )
-
-# Dev-only override: points to local clone for co-development of the fork.
+# Pinned to DPD85/imgui_md main after PR #2 (standalone CMakeLists) merged.
+# For co-development of the fork, temporarily swap GITHUB_REPOSITORY/GIT_TAG
+# with: SOURCE_DIR /data/repos/imgui_md
 CPMAddPackage(
     NAME imgui_md
-    SOURCE_DIR /data/repos/imgui_md
+    GITHUB_REPOSITORY DPD85/imgui_md
+    GIT_TAG 11832f47e0218d15cd1d222b2034e8d0aecc9e6e
+    OPTIONS
+        "BUILD_IMGUI OFF"
+        "BUILD_MD4C OFF"
 )

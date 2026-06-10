@@ -23,13 +23,28 @@ BRANCH_PREFIXES = ("feature/", "fix/", "docs/", "experiment/", "refactor/")
 
 
 def find_spec(name: str) -> Path | None:
-    """Find a spec file by name across all status directories."""
+    """Find a spec file by name across all status directories.
+
+    Tries the exact name first, then falls back to prefixed filenames:
+    hooks derive the name from the branch with the prefix stripped
+    (feature/snapshot-history -> snapshot-history), but spec files keep
+    the prefix folded in (feature-snapshot-history.md). The fallback only
+    matches when exactly one candidate exists, to avoid ambiguous moves.
+    """
     if not name.endswith(".md"):
         name = f"{name}.md"
     for status_dir in STATUS_DIRS:
         path = SPECS_DIR / status_dir / name
         if path.exists():
             return path
+    candidates = [
+        SPECS_DIR / status_dir / f"{prefix.rstrip('/')}-{name}"
+        for status_dir in STATUS_DIRS
+        for prefix in BRANCH_PREFIXES
+    ]
+    matches = [path for path in candidates if path.exists()]
+    if len(matches) == 1:
+        return matches[0]
     return None
 
 
@@ -50,16 +65,25 @@ def move_spec(spec_path: Path, target_status: str) -> Path | None:
     target_dir.mkdir(parents=True, exist_ok=True)
     new_path = target_dir / spec_path.name
 
-    # Update frontmatter status field
+    # Update status field: YAML frontmatter (`status:`) or legacy
+    # markdown (`**Status**:`), whichever the spec uses.
     text = spec_path.read_text(encoding="utf-8")
     status_label = "implemented" if target_status == "implemented" else target_status
-    text = re.sub(
-        r"^(\*\*Status\*\*:\s*).+$",
+    text, count = re.subn(
+        r"^(status:\s*).+$",
         rf"\g<1>{status_label}",
         text,
         count=1,
         flags=re.MULTILINE,
     )
+    if count == 0:
+        text = re.sub(
+            r"^(\*\*Status\*\*:\s*).+$",
+            rf"\g<1>{status_label}",
+            text,
+            count=1,
+            flags=re.MULTILINE,
+        )
     new_path.write_text(text, encoding="utf-8")
 
     # Remove original
