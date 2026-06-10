@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-06-10 22:12*
+*Auto-generated: 2026-06-10 23:11*
 
 ---
 
@@ -19,9 +19,9 @@
 
 ### (root)/ (5 files)
 
+- [ARCHITECTURE.md](ARCHITECTURE.md) (3KB, 2026-06-10) **RECENT**
 - [CURRENT-STATUS.md](CURRENT-STATUS.md) (14KB, 2026-06-10) **RECENT**
 - [INDEX.md](INDEX.md) (4KB, 2026-06-10) **RECENT**
-- [ARCHITECTURE.md](ARCHITECTURE.md) (3KB, 2026-06-10) **RECENT**
 - [api-design.md](api-design.md) (39KB, 2026-05-12)
 - [README.md](README.md) (2KB, 2026-04-26)
 
@@ -48,6 +48,11 @@
 - [feature-snapshot-history.md](specs/implemented/feature-snapshot-history.md) (8KB, 2026-06-10) **RECENT**
 - [feature-effective-config-view.md](specs/implemented/feature-effective-config-view.md) (6KB, 2026-05-10)
 
+### specs/planned/ (2 files)
+
+- [feature-agnostic-automation.md](specs/planned/feature-agnostic-automation.md) (3KB, 2026-06-10) **RECENT**
+- [feature-release-readiness.md](specs/planned/feature-release-readiness.md) (3KB, 2026-06-10) **RECENT**
+
 ### tech-debt/ (10 files)
 
 - [README.md](tech-debt/README.md) (3KB, 2026-06-10) **RECENT**
@@ -61,8 +66,10 @@
 - [session-handoff-skill-note.md](tech-debt/session-handoff-skill-note.md) (<1KB, 2026-04-28)
 - [_TEMPLATE.md](tech-debt/_TEMPLATE.md) (1KB, 2026-04-26)
 
-### reference/decisions/ (9 files)
+### reference/decisions/ (11 files)
 
+- [012-codebase-agnostic-automation.md](reference/decisions/012-codebase-agnostic-automation.md) (6KB, 2026-06-10) **RECENT**
+- [011-release-and-distribution.md](reference/decisions/011-release-and-distribution.md) (6KB, 2026-06-10) **RECENT**
 - [009-markdown-library-imgui-md.md](reference/decisions/009-markdown-library-imgui-md.md) (9KB, 2026-05-12)
 - [010-architecture-design.md](reference/decisions/010-architecture-design.md) (12KB, 2026-05-10)
 - [README.md](reference/decisions/README.md) (1KB, 2026-05-10)
@@ -102,14 +109,16 @@
 
 ## Recently Modified (last 7 days)
 
-1. [CURRENT-STATUS.md](CURRENT-STATUS.md) (today)
-2. [INDEX.md](INDEX.md) (today)
-3. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
-4. [README.md](tech-debt/README.md) (today)
-5. [project-githooks-not-active.md](tech-debt/project-githooks-not-active.md) (today)
-6. [spec-workflow-hook-silent-fail.md](tech-debt/spec-workflow-hook-silent-fail.md) (today)
-7. [feature-scaffold-management.md](specs/implemented/feature-scaffold-management.md) (today)
-8. [feature-snapshot-history.md](specs/implemented/feature-snapshot-history.md) (today)
+1. [012-codebase-agnostic-automation.md](reference/decisions/012-codebase-agnostic-automation.md) (today)
+2. [011-release-and-distribution.md](reference/decisions/011-release-and-distribution.md) (today)
+3. [feature-agnostic-automation.md](specs/planned/feature-agnostic-automation.md) (today)
+4. [feature-release-readiness.md](specs/planned/feature-release-readiness.md) (today)
+5. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
+6. [CURRENT-STATUS.md](CURRENT-STATUS.md) (today)
+7. [INDEX.md](INDEX.md) (today)
+8. [feature-scaffold-management.md](specs/implemented/feature-scaffold-management.md) (today)
+9. [feature-snapshot-history.md](specs/implemented/feature-snapshot-history.md) (today)
+10. [README.md](tech-debt/README.md) (today)
 
 ---
 
