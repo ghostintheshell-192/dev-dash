@@ -52,14 +52,13 @@ report: null  # Optional: link to archive/analysis/YYYY-MM-DD_report_agent-name.
 
 ## Current Issues by Priority
 
-*Auto-updated: 2026-06-10 23:50*
+*Auto-updated: 2026-06-10 23:56*
 
 **High Priority:**
 - `imgui-backend-shutdown-order.md` - ImGui assertion on exit: backend non spento prima di DestroyContext
 
 **Medium Priority:**
 - `line-level-promote.md` - Promote e Apply operano solo sull'intero file
-- `project-githooks-not-active.md` - Hook di progetto (.githooks/) mai attivi: hooksPath globale li bypassa
 - `scaffold-architecture-scripts.md` - Include architecture scripts in project scaffold
 
 **Low Priority:**
