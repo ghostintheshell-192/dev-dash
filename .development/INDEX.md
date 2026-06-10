@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-06-11 00:30*
+*Auto-generated: 2026-06-11 00:39*
 
 ---
 
@@ -44,15 +44,12 @@
 - [feature-code-graph.md](specs/backlog/feature-code-graph.md) (8KB, 2026-05-10)
 - [feature-runtime-view-of-truth.md](specs/backlog/feature-runtime-view-of-truth.md) (2KB, 2026-05-10)
 
-### specs/implemented/ (3 files)
+### specs/implemented/ (4 files)
 
+- [feature-agnostic-automation.md](specs/implemented/feature-agnostic-automation.md) (3KB, 2026-06-11) **RECENT**
 - [feature-scaffold-management.md](specs/implemented/feature-scaffold-management.md) (10KB, 2026-06-10) **RECENT**
 - [feature-snapshot-history.md](specs/implemented/feature-snapshot-history.md) (8KB, 2026-06-10) **RECENT**
 - [feature-effective-config-view.md](specs/implemented/feature-effective-config-view.md) (6KB, 2026-05-10)
-
-### specs/in-progress/ (1 files)
-
-- [feature-agnostic-automation.md](specs/in-progress/feature-agnostic-automation.md) (3KB, 2026-06-10) **RECENT**
 
 ### specs/planned/ (1 files)
 
@@ -116,11 +113,11 @@
 ## Recently Modified (last 7 days)
 
 1. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
-2. [INDEX.md](INDEX.md) (today)
-3. [2026-06-11_spec-workflow-hook-silent-fail.md](archive/completed/2026-06-11_spec-workflow-hook-silent-fail.md) (today)
+2. [feature-agnostic-automation.md](specs/implemented/feature-agnostic-automation.md) (today)
+3. [INDEX.md](INDEX.md) (today)
 4. [README.md](tech-debt/README.md) (today)
-5. [2026-06-10_project-githooks-not-active.md](archive/completed/2026-06-10_project-githooks-not-active.md) (today)
-6. [feature-agnostic-automation.md](specs/in-progress/feature-agnostic-automation.md) (today)
+5. [2026-06-11_spec-workflow-hook-silent-fail.md](archive/completed/2026-06-11_spec-workflow-hook-silent-fail.md) (today)
+6. [2026-06-10_project-githooks-not-active.md](archive/completed/2026-06-10_project-githooks-not-active.md) (today)
 7. [scanner-directory-include-silent.md](tech-debt/scanner-directory-include-silent.md) (today)
 8. [006-desktop-vs-vscode-extension.md](reference/decisions/006-desktop-vs-vscode-extension.md) (today)
 9. [feature-global-settings-coverage.md](specs/backlog/feature-global-settings-coverage.md) (today)
