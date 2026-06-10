@@ -1,7 +1,7 @@
 ---
 type: feature
 priority: must-have
-status: in-progress
+status: implemented
 category: infrastructure
 part_of: release
 related: [feature-release-readiness]
@@ -52,13 +52,13 @@ progetti non sono migrati.
 - [x] `.development/automation/bootstrap.sh`: setta `core.hooksPath .githooks`
       locale, verifica prerequisiti (python3, clang-format se richiesto),
       stampa cosa ha attivato
-- [ ] Eseguire bootstrap su questo clone → branch protection torna effettiva
+- [x] Eseguire bootstrap su questo clone → branch protection torna effettiva
 - [x] Aggiornare `.claude/rules/workflow.md` (sezione hooks + bootstrap)
-- [ ] Chiudere tech-debt `project-githooks-not-active`
+- [x] Chiudere tech-debt `project-githooks-not-active`
 
 ### Fase 4 — Scaffold di riferimento
 
-- [ ] Aggiornare lo scaffold DevDash in `~/.devdash/scaffolds/` con la nuova
+- [x] Aggiornare lo scaffold DevDash in `~/.devdash/scaffolds/` con la nuova
       struttura (`.githooks/` orchestratori + `automation/` placeholder), così
       i progetti futuri la ricevono via apply
 
