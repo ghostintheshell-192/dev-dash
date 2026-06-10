@@ -22,6 +22,10 @@ namespace dev_dash::ui
             if (rel == "CLAUDE.md" || rel == "CLAUDE.local.md") return true;
             if (rel.size() > 7  && rel.compare(0, 7,  ".claude")  == 0) return true;
             if (rel.size() > 9  && rel.compare(0, 9,  ".githooks") == 0) return true;
+            // Standard automation entry points (ADR-012): part of the
+            // project's configuration identity, carried by scaffolds.
+            if (rel.size() > 23
+                && rel.compare(0, 23, ".development/automation") == 0) return true;
             return false;
         }
 

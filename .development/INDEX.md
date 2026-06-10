@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-06-11 00:05*
+*Auto-generated: 2026-06-11 00:30*
 
 ---
 
@@ -20,7 +20,7 @@
 ### (root)/ (5 files)
 
 - [ARCHITECTURE.md](ARCHITECTURE.md) (3KB, 2026-06-11) **RECENT**
-- [INDEX.md](INDEX.md) (6KB, 2026-06-10) **RECENT**
+- [INDEX.md](INDEX.md) (6KB, 2026-06-11) **RECENT**
 - [CURRENT-STATUS.md](CURRENT-STATUS.md) (14KB, 2026-06-10) **RECENT**
 - [api-design.md](api-design.md) (39KB, 2026-05-12)
 - [README.md](README.md) (2KB, 2026-04-26)
@@ -60,7 +60,7 @@
 
 ### tech-debt/ (9 files)
 
-- [README.md](tech-debt/README.md) (3KB, 2026-06-10) **RECENT**
+- [README.md](tech-debt/README.md) (3KB, 2026-06-11) **RECENT**
 - [scanner-directory-include-silent.md](tech-debt/scanner-directory-include-silent.md) (1KB, 2026-06-10) **RECENT**
 - [line-level-promote.md](tech-debt/line-level-promote.md) (1KB, 2026-05-10)
 - [imgui-backend-shutdown-order.md](tech-debt/imgui-backend-shutdown-order.md) (1KB, 2026-05-10)
@@ -94,7 +94,7 @@
 
 ### archive/completed/ (3 files)
 
-- [2026-06-11_spec-workflow-hook-silent-fail.md](archive/completed/2026-06-11_spec-workflow-hook-silent-fail.md) (4KB, 2026-06-10) **RECENT**
+- [2026-06-11_spec-workflow-hook-silent-fail.md](archive/completed/2026-06-11_spec-workflow-hook-silent-fail.md) (4KB, 2026-06-11) **RECENT**
 - [2026-06-10_project-githooks-not-active.md](archive/completed/2026-06-10_project-githooks-not-active.md) (2KB, 2026-06-10) **RECENT**
 - [2026-05-10_contentcontrol-binding-multisidebar.md](archive/completed/2026-05-10_contentcontrol-binding-multisidebar.md) (2KB, 2026-05-10)
 
@@ -116,11 +116,11 @@
 ## Recently Modified (last 7 days)
 
 1. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
-2. [2026-06-11_spec-workflow-hook-silent-fail.md](archive/completed/2026-06-11_spec-workflow-hook-silent-fail.md) (today)
-3. [INDEX.md](INDEX.md) (today)
-4. [2026-06-10_project-githooks-not-active.md](archive/completed/2026-06-10_project-githooks-not-active.md) (today)
-5. [feature-agnostic-automation.md](specs/in-progress/feature-agnostic-automation.md) (today)
-6. [README.md](tech-debt/README.md) (today)
+2. [INDEX.md](INDEX.md) (today)
+3. [2026-06-11_spec-workflow-hook-silent-fail.md](archive/completed/2026-06-11_spec-workflow-hook-silent-fail.md) (today)
+4. [README.md](tech-debt/README.md) (today)
+5. [2026-06-10_project-githooks-not-active.md](archive/completed/2026-06-10_project-githooks-not-active.md) (today)
+6. [feature-agnostic-automation.md](specs/in-progress/feature-agnostic-automation.md) (today)
 7. [scanner-directory-include-silent.md](tech-debt/scanner-directory-include-silent.md) (today)
 8. [006-desktop-vs-vscode-extension.md](reference/decisions/006-desktop-vs-vscode-extension.md) (today)
 9. [feature-global-settings-coverage.md](specs/backlog/feature-global-settings-coverage.md) (today)
