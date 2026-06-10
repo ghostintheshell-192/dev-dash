@@ -1,0 +1,41 @@
+#!/bin/bash
+# Pre-commit hook module: derived-docs regeneration (generic orchestrator,
+# ADR-012). Delegates to the project's docs-update entry point and stages
+# whatever generated files changed. No knowledge of generators or stack.
+
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
+ENTRY_POINT="$PROJECT_ROOT/.development/automation/docs-update.sh"
+
+if [[ ! -x "$ENTRY_POINT" ]]; then
+    exit 0
+fi
+
+echo -e "${BLUE}[04] Derived Docs${NC}"
+
+(cd "$PROJECT_ROOT" && "$ENTRY_POINT") | sed 's/^/  /'
+
+# Stage regenerated files that actually changed.
+GENERATED=(
+    ".development/ARCHITECTURE.md"
+    ".development/INDEX.md"
+    ".development/tech-debt/README.md"
+)
+STAGED_ANY=0
+for file in "${GENERATED[@]}"; do
+    if ! git diff --quiet "$PROJECT_ROOT/$file" 2>/dev/null; then
+        git add "$PROJECT_ROOT/$file"
+        STAGED_ANY=1
+    fi
+done
+
+if [[ $STAGED_ANY -eq 1 ]]; then
+    echo -e "  ${GREEN}✓${NC} Regenerated docs staged"
+else
+    echo -e "  ${GREEN}✓${NC} Derived docs already current"
+fi
+
+exit 0

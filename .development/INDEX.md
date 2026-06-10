@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-06-10 23:47*
+*Auto-generated: 2026-06-10 23:53*
 
 ---
 
@@ -19,7 +19,7 @@
 
 ### (root)/ (5 files)
 
-- [INDEX.md](INDEX.md) (5KB, 2026-06-10) **RECENT**
+- [INDEX.md](INDEX.md) (6KB, 2026-06-10) **RECENT**
 - [ARCHITECTURE.md](ARCHITECTURE.md) (3KB, 2026-06-10) **RECENT**
 - [CURRENT-STATUS.md](CURRENT-STATUS.md) (14KB, 2026-06-10) **RECENT**
 - [api-design.md](api-design.md) (39KB, 2026-05-12)
@@ -50,9 +50,12 @@
 - [feature-snapshot-history.md](specs/implemented/feature-snapshot-history.md) (8KB, 2026-06-10) **RECENT**
 - [feature-effective-config-view.md](specs/implemented/feature-effective-config-view.md) (6KB, 2026-05-10)
 
-### specs/planned/ (2 files)
+### specs/in-progress/ (1 files)
 
-- [feature-agnostic-automation.md](specs/planned/feature-agnostic-automation.md) (3KB, 2026-06-10) **RECENT**
+- [feature-agnostic-automation.md](specs/in-progress/feature-agnostic-automation.md) (3KB, 2026-06-10) **RECENT**
+
+### specs/planned/ (1 files)
+
 - [feature-release-readiness.md](specs/planned/feature-release-readiness.md) (3KB, 2026-06-10) **RECENT**
 
 ### tech-debt/ (11 files)
@@ -112,16 +115,16 @@
 
 ## Recently Modified (last 7 days)
 
-1. [README.md](tech-debt/README.md) (today)
-2. [scanner-directory-include-silent.md](tech-debt/scanner-directory-include-silent.md) (today)
+1. [feature-agnostic-automation.md](specs/in-progress/feature-agnostic-automation.md) (today)
+2. [README.md](tech-debt/README.md) (today)
 3. [INDEX.md](INDEX.md) (today)
-4. [006-desktop-vs-vscode-extension.md](reference/decisions/006-desktop-vs-vscode-extension.md) (today)
-5. [feature-global-settings-coverage.md](specs/backlog/feature-global-settings-coverage.md) (today)
-6. [feature-plugins-keybindings-coverage.md](specs/backlog/feature-plugins-keybindings-coverage.md) (today)
-7. [011-release-and-distribution.md](reference/decisions/011-release-and-distribution.md) (today)
-8. [012-codebase-agnostic-automation.md](reference/decisions/012-codebase-agnostic-automation.md) (today)
-9. [feature-agnostic-automation.md](specs/planned/feature-agnostic-automation.md) (today)
-10. [feature-release-readiness.md](specs/planned/feature-release-readiness.md) (today)
+4. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
+5. [scanner-directory-include-silent.md](tech-debt/scanner-directory-include-silent.md) (today)
+6. [006-desktop-vs-vscode-extension.md](reference/decisions/006-desktop-vs-vscode-extension.md) (today)
+7. [feature-global-settings-coverage.md](specs/backlog/feature-global-settings-coverage.md) (today)
+8. [feature-plugins-keybindings-coverage.md](specs/backlog/feature-plugins-keybindings-coverage.md) (today)
+9. [011-release-and-distribution.md](reference/decisions/011-release-and-distribution.md) (today)
+10. [012-codebase-agnostic-automation.md](reference/decisions/012-codebase-agnostic-automation.md) (today)
 
 ---
 
