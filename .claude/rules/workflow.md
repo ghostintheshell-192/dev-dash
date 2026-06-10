@@ -78,10 +78,17 @@ based on git activity:
 
 - **`post-checkout`**: on `git checkout -b {feature,fix,docs,refactor,experiment}/<name>`,
   the matching spec in `specs/planned/<name>.md` is moved to `specs/in-progress/`
-  and its frontmatter `**Status**` field is updated.
-- **`pre-commit.d/05-spec-workflow`**: on merge commits into `develop`, the branch
-  name is parsed and the matching spec is moved to `specs/implemented/` and
-  staged as part of the merge commit.
+  and its frontmatter `status` field is updated.
+- **`post-merge`**: on no-conflict merges into `develop` (the normal case —
+  git creates those commits directly and pre-commit does NOT run), the merged
+  branch is parsed from the merge commit subject and the matching spec is
+  moved to `specs/implemented/` and staged. The hook then prints the
+  one-liner to fold it in (`git commit --amend --no-edit`) — run it right
+  after the merge; amending from inside the hook is impossible because git
+  still holds MERGE_HEAD while post-merge runs.
+- **`pre-commit.d/05-spec-workflow`**: covers the complementary case only —
+  conflicted merges concluded manually via `git commit`, where `MERGE_HEAD`
+  still exists and pre-commit does run.
 
 The script at `.development/scripts/spec-workflow.py` is the shared backend;
 missing specs, unknown branch prefixes, and non-merge commits all exit silently.

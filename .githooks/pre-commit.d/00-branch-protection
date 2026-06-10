@@ -20,6 +20,17 @@ if [ -f "$GIT_DIR/MERGE_HEAD" ]; then
     exit 0
 fi
 
+# Allow the spec-bookkeeping amend that post-merge asks for: HEAD is a
+# merge commit not yet on any remote, and the staged changes touch ONLY
+# .development/specs/. Anything else stays blocked.
+if [ "$(git rev-list --parents -n 1 HEAD 2>/dev/null | wc -w)" -ge 3 ] \
+    && [ -z "$(git branch -r --contains HEAD 2>/dev/null)" ] \
+    && [ -n "$(git diff --cached --name-only)" ] \
+    && [ -z "$(git diff --cached --name-only | grep -v '^\.development/specs/')" ]; then
+    echo -e "${GREEN}✓ Spec bookkeeping on unpushed merge commit allowed${NC}"
+    exit 0
+fi
+
 if [ "$BRANCH" = "main" ] || [ "$BRANCH" = "develop" ]; then
     echo ""
     echo -e "${RED}═══════════════════════════════════════════════${NC}"
