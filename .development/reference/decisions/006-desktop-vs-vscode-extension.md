@@ -1,7 +1,7 @@
 # ADR-006: DevDash Desktop vs VS Code Extension
 
 **Data**: 2025-12-25
-**Status**: Accettata
+**Status**: Accettata (addendum 2026-06-10: trigger di ri-decisione sulla forma di distribuzione)
 
 ## Contesto
 
@@ -93,3 +93,36 @@ workspace/
 │   └── planning/
 └── .claude/               # Read-only (gestito da Claude Code)
 ```
+
+---
+
+## Addendum 2026-06-10: trigger di ri-decisione sulla forma di distribuzione
+
+Rilettura post-pivot (lo "C#" della tabella sopra è oggi C++20/ImGui, ADR-008)
+e post-wedge, alla luce dell'ambizione di distribuzione emersa nella revisione
+della visione (vedi ADR-011).
+
+La tensione: per la distribuzione, un'estensione VS Code avrebbe vantaggi
+strutturali (marketplace, niente problema di install, Claude Code già "vive"
+in VS Code con la sua estensione — niente da integrare). Per l'esplorazione,
+il desktop nativo ha libertà che un'estensione non ha (filesystem pieno,
+processi, renderer proprio) — e DevDash è anche il laboratorio del filone
+"progetto che migliora se stesso".
+
+**Decisione: non si ri-decide ora.** Rideciderlo oggi significherebbe farlo
+senza informazioni nuove rispetto al 2025-12. La questione si riapre — con un
+ADR dedicato — al verificarsi di un trigger concreto:
+
+- primo utente esterno reale interessato a usare DevDash, oppure
+- intenzione concreta di pubblicare (store, marketplace, release pubblica).
+
+Fino ad allora il desktop resta la forma del laboratorio. Cosa resta vero in
+entrambi gli esiti (ed è quindi investimento sicuro): il resource model, la
+semantica della effective config, scaffold/snapshot come concetti, le spec e
+gli ADR — l'integrazione è filesystem-based, la conoscenza di dominio è
+identica nelle due forme. Cosa non si trasferisce: la UI ImGui — che è anche
+la parte oggi dichiaratamente provvisoria ("tutta da rifare", 2026-05-14).
+
+Resta confermato ADR-007: nessun terminale embedded in nessuna delle due
+forme. Il modello a due finestre (Claude nel terminale + DevDash) è validato
+dall'uso reale quotidiano.

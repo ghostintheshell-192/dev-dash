@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-06-10 23:11*
+*Auto-generated: 2026-06-10 23:32*
 
 ---
 
@@ -19,9 +19,9 @@
 
 ### (root)/ (5 files)
 
+- [INDEX.md](INDEX.md) (5KB, 2026-06-10) **RECENT**
 - [ARCHITECTURE.md](ARCHITECTURE.md) (3KB, 2026-06-10) **RECENT**
 - [CURRENT-STATUS.md](CURRENT-STATUS.md) (14KB, 2026-06-10) **RECENT**
-- [INDEX.md](INDEX.md) (4KB, 2026-06-10) **RECENT**
 - [api-design.md](api-design.md) (39KB, 2026-05-12)
 - [README.md](README.md) (2KB, 2026-04-26)
 
@@ -37,8 +37,10 @@
 - [roadmap.md](specs/archived/roadmap.md) (3KB, 2026-05-10)
 - [feature-embedded-terminal.md](specs/archived/feature-embedded-terminal.md) (5KB, 2026-04-26)
 
-### specs/backlog/ (2 files)
+### specs/backlog/ (4 files)
 
+- [feature-plugins-keybindings-coverage.md](specs/backlog/feature-plugins-keybindings-coverage.md) (1KB, 2026-06-10) **RECENT**
+- [feature-global-settings-coverage.md](specs/backlog/feature-global-settings-coverage.md) (2KB, 2026-06-10) **RECENT**
 - [feature-code-graph.md](specs/backlog/feature-code-graph.md) (8KB, 2026-05-10)
 - [feature-runtime-view-of-truth.md](specs/backlog/feature-runtime-view-of-truth.md) (2KB, 2026-05-10)
 
@@ -68,8 +70,9 @@
 
 ### reference/decisions/ (11 files)
 
-- [012-codebase-agnostic-automation.md](reference/decisions/012-codebase-agnostic-automation.md) (6KB, 2026-06-10) **RECENT**
+- [006-desktop-vs-vscode-extension.md](reference/decisions/006-desktop-vs-vscode-extension.md) (5KB, 2026-06-10) **RECENT**
 - [011-release-and-distribution.md](reference/decisions/011-release-and-distribution.md) (6KB, 2026-06-10) **RECENT**
+- [012-codebase-agnostic-automation.md](reference/decisions/012-codebase-agnostic-automation.md) (6KB, 2026-06-10) **RECENT**
 - [009-markdown-library-imgui-md.md](reference/decisions/009-markdown-library-imgui-md.md) (9KB, 2026-05-12)
 - [010-architecture-design.md](reference/decisions/010-architecture-design.md) (12KB, 2026-05-10)
 - [README.md](reference/decisions/README.md) (1KB, 2026-05-10)
@@ -77,7 +80,6 @@
 - [008-pivot-to-cpp-imgui.md](reference/decisions/008-pivot-to-cpp-imgui.md) (12KB, 2026-05-10)
 - [002-symlink-vs-copy.md](reference/decisions/002-symlink-vs-copy.md) (1KB, 2026-02-10)
 - [003-issue-tracking-locale.md](reference/decisions/003-issue-tracking-locale.md) (1KB, 2026-02-10)
-- [006-desktop-vs-vscode-extension.md](reference/decisions/006-desktop-vs-vscode-extension.md) (3KB, 2026-02-10)
 - [007-rimozione-terminale-embedded.md](reference/decisions/007-rimozione-terminale-embedded.md) (6KB, 2026-02-10)
 
 ### reference/technical/ (1 files)
@@ -109,16 +111,16 @@
 
 ## Recently Modified (last 7 days)
 
-1. [012-codebase-agnostic-automation.md](reference/decisions/012-codebase-agnostic-automation.md) (today)
-2. [011-release-and-distribution.md](reference/decisions/011-release-and-distribution.md) (today)
-3. [feature-agnostic-automation.md](specs/planned/feature-agnostic-automation.md) (today)
-4. [feature-release-readiness.md](specs/planned/feature-release-readiness.md) (today)
-5. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
-6. [CURRENT-STATUS.md](CURRENT-STATUS.md) (today)
-7. [INDEX.md](INDEX.md) (today)
-8. [feature-scaffold-management.md](specs/implemented/feature-scaffold-management.md) (today)
-9. [feature-snapshot-history.md](specs/implemented/feature-snapshot-history.md) (today)
-10. [README.md](tech-debt/README.md) (today)
+1. [feature-plugins-keybindings-coverage.md](specs/backlog/feature-plugins-keybindings-coverage.md) (today)
+2. [feature-global-settings-coverage.md](specs/backlog/feature-global-settings-coverage.md) (today)
+3. [006-desktop-vs-vscode-extension.md](reference/decisions/006-desktop-vs-vscode-extension.md) (today)
+4. [INDEX.md](INDEX.md) (today)
+5. [011-release-and-distribution.md](reference/decisions/011-release-and-distribution.md) (today)
+6. [012-codebase-agnostic-automation.md](reference/decisions/012-codebase-agnostic-automation.md) (today)
+7. [feature-agnostic-automation.md](specs/planned/feature-agnostic-automation.md) (today)
+8. [feature-release-readiness.md](specs/planned/feature-release-readiness.md) (today)
+9. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
+10. [CURRENT-STATUS.md](CURRENT-STATUS.md) (today)
 
 ---
 
