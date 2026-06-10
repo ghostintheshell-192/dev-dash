@@ -1,7 +1,7 @@
 ---
 type: feature
 priority: must-have
-status: planned
+status: in-progress
 category: infrastructure
 part_of: release
 related: [feature-release-readiness]
@@ -26,34 +26,34 @@ progetti non sono migrati.
 
 ### Fase 1 — Entry point standard
 
-- [ ] `.development/automation/build.sh` (cmake --build, preset parametrico)
-- [ ] `.development/automation/test.sh` (ctest; "no tests yet" exit 0 finché
+- [x] `.development/automation/build.sh` (cmake --build, preset parametrico)
+- [x] `.development/automation/test.sh` (ctest; "no tests yet" exit 0 finché
       la fase 1 di release-readiness non è fatta)
-- [ ] `.development/automation/format-check.sh` (clang-format; no-op
+- [x] `.development/automation/format-check.sh` (clang-format; no-op
       dichiarato finché manca `.clang-format`)
-- [ ] `.development/automation/docs-update.sh` (aggrega generate-architecture,
+- [x] `.development/automation/docs-update.sh` (aggrega generate-architecture,
       generate-index, update-tech-debt-index)
 
 ### Fase 2 — Hook orchestratori
 
-- [ ] Ridurre `.githooks/pre-commit.d/02-clang-format` a chiamata di
+- [x] Ridurre `.githooks/pre-commit.d/02-clang-format` a chiamata di
       `format-check.sh`
-- [ ] `04-generate-architecture` + nuovo modulo index → chiamano
+- [x] `04-generate-architecture` + nuovo modulo index → chiamano
       `docs-update.sh` (porta nel progetto l'equivalente del `07-generate-index`
       workspace, oggi assente)
-- [ ] Decidere il destino di `05-generate-readme-status` (workspace): lo
+- [x] Decidere il destino di `05-generate-readme-status` (workspace): lo
       script che invoca non è mai esistito — NON portarlo, registrare la
       decisione
-- [ ] Verificare che 00-branch-protection, 01-security, 05-spec-workflow
+- [x] Verificare che 00-branch-protection, 01-security, 05-spec-workflow
       restino agnostici (lo sono già)
 
 ### Fase 3 — Attivazione
 
-- [ ] `.development/automation/bootstrap.sh`: setta `core.hooksPath .githooks`
+- [x] `.development/automation/bootstrap.sh`: setta `core.hooksPath .githooks`
       locale, verifica prerequisiti (python3, clang-format se richiesto),
       stampa cosa ha attivato
 - [ ] Eseguire bootstrap su questo clone → branch protection torna effettiva
-- [ ] Aggiornare `.claude/rules/workflow.md` (sezione hooks + bootstrap)
+- [x] Aggiornare `.claude/rules/workflow.md` (sezione hooks + bootstrap)
 - [ ] Chiudere tech-debt `project-githooks-not-active`
 
 ### Fase 4 — Scaffold di riferimento

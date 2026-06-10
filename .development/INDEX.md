@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-06-10 23:47*
+*Auto-generated: 2026-06-10 23:56*
 
 ---
 
@@ -19,8 +19,8 @@
 
 ### (root)/ (5 files)
 
-- [INDEX.md](INDEX.md) (5KB, 2026-06-10) **RECENT**
 - [ARCHITECTURE.md](ARCHITECTURE.md) (3KB, 2026-06-10) **RECENT**
+- [INDEX.md](INDEX.md) (6KB, 2026-06-10) **RECENT**
 - [CURRENT-STATUS.md](CURRENT-STATUS.md) (14KB, 2026-06-10) **RECENT**
 - [api-design.md](api-design.md) (39KB, 2026-05-12)
 - [README.md](README.md) (2KB, 2026-04-26)
@@ -50,16 +50,18 @@
 - [feature-snapshot-history.md](specs/implemented/feature-snapshot-history.md) (8KB, 2026-06-10) **RECENT**
 - [feature-effective-config-view.md](specs/implemented/feature-effective-config-view.md) (6KB, 2026-05-10)
 
-### specs/planned/ (2 files)
+### specs/in-progress/ (1 files)
 
-- [feature-agnostic-automation.md](specs/planned/feature-agnostic-automation.md) (3KB, 2026-06-10) **RECENT**
+- [feature-agnostic-automation.md](specs/in-progress/feature-agnostic-automation.md) (3KB, 2026-06-10) **RECENT**
+
+### specs/planned/ (1 files)
+
 - [feature-release-readiness.md](specs/planned/feature-release-readiness.md) (3KB, 2026-06-10) **RECENT**
 
-### tech-debt/ (11 files)
+### tech-debt/ (10 files)
 
 - [README.md](tech-debt/README.md) (3KB, 2026-06-10) **RECENT**
 - [scanner-directory-include-silent.md](tech-debt/scanner-directory-include-silent.md) (1KB, 2026-06-10) **RECENT**
-- [project-githooks-not-active.md](tech-debt/project-githooks-not-active.md) (2KB, 2026-06-10) **RECENT**
 - [spec-workflow-hook-silent-fail.md](tech-debt/spec-workflow-hook-silent-fail.md) (3KB, 2026-06-10) **RECENT**
 - [line-level-promote.md](tech-debt/line-level-promote.md) (1KB, 2026-05-10)
 - [imgui-backend-shutdown-order.md](tech-debt/imgui-backend-shutdown-order.md) (1KB, 2026-05-10)
@@ -91,8 +93,9 @@
 
 - [2025-12-11_report_code-reviewer.md](archive/analysis/2025-12-11_report_code-reviewer.md) (8KB, 2026-02-10)
 
-### archive/completed/ (1 files)
+### archive/completed/ (2 files)
 
+- [2026-06-10_project-githooks-not-active.md](archive/completed/2026-06-10_project-githooks-not-active.md) (2KB, 2026-06-10) **RECENT**
 - [2026-05-10_contentcontrol-binding-multisidebar.md](archive/completed/2026-05-10_contentcontrol-binding-multisidebar.md) (2KB, 2026-05-10)
 
 ---
@@ -112,16 +115,16 @@
 
 ## Recently Modified (last 7 days)
 
-1. [README.md](tech-debt/README.md) (today)
-2. [scanner-directory-include-silent.md](tech-debt/scanner-directory-include-silent.md) (today)
+1. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
+2. [2026-06-10_project-githooks-not-active.md](archive/completed/2026-06-10_project-githooks-not-active.md) (today)
 3. [INDEX.md](INDEX.md) (today)
-4. [006-desktop-vs-vscode-extension.md](reference/decisions/006-desktop-vs-vscode-extension.md) (today)
-5. [feature-global-settings-coverage.md](specs/backlog/feature-global-settings-coverage.md) (today)
-6. [feature-plugins-keybindings-coverage.md](specs/backlog/feature-plugins-keybindings-coverage.md) (today)
-7. [011-release-and-distribution.md](reference/decisions/011-release-and-distribution.md) (today)
-8. [012-codebase-agnostic-automation.md](reference/decisions/012-codebase-agnostic-automation.md) (today)
-9. [feature-agnostic-automation.md](specs/planned/feature-agnostic-automation.md) (today)
-10. [feature-release-readiness.md](specs/planned/feature-release-readiness.md) (today)
+4. [feature-agnostic-automation.md](specs/in-progress/feature-agnostic-automation.md) (today)
+5. [README.md](tech-debt/README.md) (today)
+6. [scanner-directory-include-silent.md](tech-debt/scanner-directory-include-silent.md) (today)
+7. [006-desktop-vs-vscode-extension.md](reference/decisions/006-desktop-vs-vscode-extension.md) (today)
+8. [feature-global-settings-coverage.md](specs/backlog/feature-global-settings-coverage.md) (today)
+9. [feature-plugins-keybindings-coverage.md](specs/backlog/feature-plugins-keybindings-coverage.md) (today)
+10. [011-release-and-distribution.md](reference/decisions/011-release-and-distribution.md) (today)
 
 ---
 

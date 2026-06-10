@@ -25,6 +25,8 @@ For detailed documentation, see `docs/`.
 - [ADR-008: Pivot To Cpp Imgui](reference/decisions/008-pivot-to-cpp-imgui.md)
 - [ADR-009: Markdown Library Imgui Md](reference/decisions/009-markdown-library-imgui-md.md)
 - [ADR-010: Architecture Design](reference/decisions/010-architecture-design.md)
+- [ADR-011: Release And Distribution](reference/decisions/011-release-and-distribution.md)
+- [ADR-012: Codebase Agnostic Automation](reference/decisions/012-codebase-agnostic-automation.md)
 
 ## Project Tree
 

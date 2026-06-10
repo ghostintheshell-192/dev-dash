@@ -85,7 +85,35 @@ based on git activity:
 
 The script at `.development/scripts/spec-workflow.py` is the shared backend;
 missing specs, unknown branch prefixes, and non-merge commits all exit silently.
-Activation requires `git config core.hooksPath .githooks` (done once per clone).
+Spec filenames may carry the branch prefix folded in (`feature/x` matches
+`feature-x.md`).
+
+### Automation entry points (ADR-012)
+
+Hooks and CI are **generic orchestrators**: they contain no stack-specific
+commands. All stack knowledge (CMake, ctest, clang-format) lives in standard
+entry points under `.development/automation/`:
+
+| Entry point | Contract |
+| ----------- | -------- |
+| `build.sh [preset]` | Build the project; exit != 0 on failure |
+| `test.sh [preset]` | Run tests; "no tests yet" is a declared no-op |
+| `format-check.sh [files...]` | Verify formatting; no-op without `.clang-format` |
+| `format-fix.sh [files...]` | Apply formatting |
+| `docs-update.sh` | Regenerate ARCHITECTURE.md, INDEX.md, tech-debt index |
+
+No args = act on everything. Multi-stack knowledge (which command for which
+part of the tree) belongs *inside* the entry point, never in hooks or CI.
+
+### Hook activation (once per clone)
+
+```bash
+bash .development/automation/bootstrap.sh
+```
+
+Sets `core.hooksPath .githooks` locally (overrides any global hooksPath),
+verifies prerequisites, and makes hooks/entry points executable. Without
+this, branch protection and the project hooks are NOT active.
 
 ## Investigation & Analysis Workflow
 
@@ -104,15 +132,15 @@ When analyzing tech-debt, bugs, or investigating issues:
 ## Quick Commands
 
 ```bash
-# Configure + build (Linux Debug)
-cmake --preset linux-debug -S app
-cmake --build --preset linux-debug
+# Build (entry point — preferred; defaults to linux-debug preset)
+.development/automation/build.sh
 
 # Run the app
 ./app/build/linux-debug/src/dev-dash
 
-# Tests: TBD (no test target yet)
+# Tests (no-op until the test target lands, feature-release-readiness)
+.development/automation/test.sh
 
-# Format check: TBD (no .clang-format at root yet; the 02-clang-format hook
-# is dormant until the config file is added)
+# Format check (no-op until .clang-format exists at root)
+.development/automation/format-check.sh
 ```
