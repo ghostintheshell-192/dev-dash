@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-06-10 23:56*
+*Auto-generated: 2026-06-11 00:05*
 
 ---
 
@@ -19,7 +19,7 @@
 
 ### (root)/ (5 files)
 
-- [ARCHITECTURE.md](ARCHITECTURE.md) (3KB, 2026-06-10) **RECENT**
+- [ARCHITECTURE.md](ARCHITECTURE.md) (3KB, 2026-06-11) **RECENT**
 - [INDEX.md](INDEX.md) (6KB, 2026-06-10) **RECENT**
 - [CURRENT-STATUS.md](CURRENT-STATUS.md) (14KB, 2026-06-10) **RECENT**
 - [api-design.md](api-design.md) (39KB, 2026-05-12)
@@ -58,11 +58,10 @@
 
 - [feature-release-readiness.md](specs/planned/feature-release-readiness.md) (3KB, 2026-06-10) **RECENT**
 
-### tech-debt/ (10 files)
+### tech-debt/ (9 files)
 
 - [README.md](tech-debt/README.md) (3KB, 2026-06-10) **RECENT**
 - [scanner-directory-include-silent.md](tech-debt/scanner-directory-include-silent.md) (1KB, 2026-06-10) **RECENT**
-- [spec-workflow-hook-silent-fail.md](tech-debt/spec-workflow-hook-silent-fail.md) (3KB, 2026-06-10) **RECENT**
 - [line-level-promote.md](tech-debt/line-level-promote.md) (1KB, 2026-05-10)
 - [imgui-backend-shutdown-order.md](tech-debt/imgui-backend-shutdown-order.md) (1KB, 2026-05-10)
 - [markdown-code-block-styling.md](tech-debt/markdown-code-block-styling.md) (3KB, 2026-05-09)
@@ -93,8 +92,9 @@
 
 - [2025-12-11_report_code-reviewer.md](archive/analysis/2025-12-11_report_code-reviewer.md) (8KB, 2026-02-10)
 
-### archive/completed/ (2 files)
+### archive/completed/ (3 files)
 
+- [2026-06-11_spec-workflow-hook-silent-fail.md](archive/completed/2026-06-11_spec-workflow-hook-silent-fail.md) (4KB, 2026-06-10) **RECENT**
 - [2026-06-10_project-githooks-not-active.md](archive/completed/2026-06-10_project-githooks-not-active.md) (2KB, 2026-06-10) **RECENT**
 - [2026-05-10_contentcontrol-binding-multisidebar.md](archive/completed/2026-05-10_contentcontrol-binding-multisidebar.md) (2KB, 2026-05-10)
 
@@ -116,15 +116,15 @@
 ## Recently Modified (last 7 days)
 
 1. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
-2. [2026-06-10_project-githooks-not-active.md](archive/completed/2026-06-10_project-githooks-not-active.md) (today)
+2. [2026-06-11_spec-workflow-hook-silent-fail.md](archive/completed/2026-06-11_spec-workflow-hook-silent-fail.md) (today)
 3. [INDEX.md](INDEX.md) (today)
-4. [feature-agnostic-automation.md](specs/in-progress/feature-agnostic-automation.md) (today)
-5. [README.md](tech-debt/README.md) (today)
-6. [scanner-directory-include-silent.md](tech-debt/scanner-directory-include-silent.md) (today)
-7. [006-desktop-vs-vscode-extension.md](reference/decisions/006-desktop-vs-vscode-extension.md) (today)
-8. [feature-global-settings-coverage.md](specs/backlog/feature-global-settings-coverage.md) (today)
-9. [feature-plugins-keybindings-coverage.md](specs/backlog/feature-plugins-keybindings-coverage.md) (today)
-10. [011-release-and-distribution.md](reference/decisions/011-release-and-distribution.md) (today)
+4. [2026-06-10_project-githooks-not-active.md](archive/completed/2026-06-10_project-githooks-not-active.md) (today)
+5. [feature-agnostic-automation.md](specs/in-progress/feature-agnostic-automation.md) (today)
+6. [README.md](tech-debt/README.md) (today)
+7. [scanner-directory-include-silent.md](tech-debt/scanner-directory-include-silent.md) (today)
+8. [006-desktop-vs-vscode-extension.md](reference/decisions/006-desktop-vs-vscode-extension.md) (today)
+9. [feature-global-settings-coverage.md](specs/backlog/feature-global-settings-coverage.md) (today)
+10. [feature-plugins-keybindings-coverage.md](specs/backlog/feature-plugins-keybindings-coverage.md) (today)
 
 ---
 

@@ -52,7 +52,7 @@ report: null  # Optional: link to archive/analysis/YYYY-MM-DD_report_agent-name.
 
 ## Current Issues by Priority
 
-*Auto-updated: 2026-06-10 23:56*
+*Auto-updated: 2026-06-11 00:05*
 
 **High Priority:**
 - `imgui-backend-shutdown-order.md` - ImGui assertion on exit: backend non spento prima di DestroyContext
@@ -66,7 +66,6 @@ report: null  # Optional: link to archive/analysis/YYYY-MM-DD_report_agent-name.
 - `preprocess-imports-indented-fences.md` - PreprocessImports does not recognise indented fenced code blocks
 - `scanner-directory-include-silent.md` - ConfigFileScanner: @include verso directory accettato e poi fallisce in silenzio
 - `session-handoff-skill-note.md` - Current Working Notes
-- `spec-workflow-hook-silent-fail.md` - Hook 05 spec-workflow non sposta le spec al merge
 
 ## Integration with Reference Documentation
 

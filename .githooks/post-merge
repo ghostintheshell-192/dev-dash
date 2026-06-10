@@ -1,0 +1,67 @@
+#!/bin/bash
+# Post-merge hook: move the merged branch's spec to implemented/.
+#
+# Why post-merge and not pre-commit: git creates no-conflict merge commits
+# directly, WITHOUT running pre-commit (that only fires on `git commit`,
+# i.e. conflicted merges concluded manually). MERGE_HEAD is already gone
+# here, so the merged branch is parsed from the merge commit subject.
+#
+# The spec move is staged here. Folding it into the merge commit with
+# `--amend` from inside this hook is impossible: git still keeps
+# MERGE_HEAD around while post-merge runs, and `commit --amend` refuses
+# during a merge. Deleting MERGE_HEAD ourselves would mean depending on
+# git's internal cleanup ordering — not worth it. So: stage + tell the
+# operator to amend (one command, right after the merge).
+
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
+SCRIPT_PATH="$PROJECT_ROOT/.development/scripts/spec-workflow.py"
+
+[[ -f "$SCRIPT_PATH" ]] || exit 0
+
+# Only act on merges into develop.
+CURRENT_BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null)
+[[ "$CURRENT_BRANCH" == "develop" ]] || exit 0
+
+# Only act if HEAD is a merge commit (two or more parents).
+PARENTS=$(git rev-list --parents -n 1 HEAD | wc -w)
+[[ "$PARENTS" -ge 3 ]] || exit 0
+
+# Extract the merged branch from the merge commit subject.
+SUBJECT=$(git log -1 --format='%s')
+MERGED_BRANCH=$(echo "$SUBJECT" | sed -n "s/.*Merge branch '\([^']*\)'.*/\1/p")
+[[ -n "$MERGED_BRANCH" ]] || exit 0
+
+case "$MERGED_BRANCH" in
+    feature/*|fix/*|docs/*|experiment/*|refactor/*)
+        SPEC_NAME="${MERGED_BRANCH#*/}"
+        ;;
+    *)
+        exit 0
+        ;;
+esac
+
+OUTPUT=$(python3 "$SCRIPT_PATH" done "$SPEC_NAME" 2>/dev/null)
+[[ -n "$OUTPUT" ]] || exit 0
+
+echo -e "${BLUE}[post-merge] Spec Workflow${NC}"
+echo -e "$OUTPUT"
+git add "$PROJECT_ROOT/.development/specs/"
+
+# Amend is impossible while MERGE_HEAD exists (see header). If a future
+# git version runs post-merge after state cleanup, fold automatically;
+# otherwise hand the one-liner to the operator.
+if [[ ! -e "$PROJECT_ROOT/.git/MERGE_HEAD" ]] \
+    && [[ -z "$(git branch -r --contains HEAD 2>/dev/null)" ]] \
+    && git commit --amend --no-edit --no-verify --quiet 2>/dev/null; then
+    echo -e "  ${GREEN}✓${NC} Spec move folded into the merge commit"
+else
+    echo -e "  ${YELLOW}→${NC} Spec move staged. Fold it into the merge with:"
+    echo -e "      git commit --amend --no-edit"
+fi
+
+exit 0
