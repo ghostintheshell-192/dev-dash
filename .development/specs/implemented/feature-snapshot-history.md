@@ -1,7 +1,7 @@
 ---
 type: feature
 priority: must-have
-status: in-progress
+status: implemented
 category: core
 part_of: wedge
 related: [feature-effective-config-view, feature-scaffold-management]

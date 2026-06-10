@@ -32,16 +32,6 @@ For detailed documentation, see `docs/`.
 > Run `.development/scripts/generate-architecture.sh` to update.
 
 
-### poc/src
-- `deletion_queue.h` — Adapted from Germen Pulchrum (DPD85/Germen @ 037827b, MIT) — `CodaCancellazione`. See poc/THIRD_PARTY_NOTICES.md for attribution details.
-- `main.cpp`
-- `renderer.cpp` — Adapted from Germen Pulchrum (DPD85/Germen @ 037827b, MIT) — `Disegnatore.cpp`. Translated to English, restructured into a class, and stripped of: theme system, ImPlot, DPI scaling, and i18n. See poc/...
-- `renderer.h`
-
-### poc/src/rendering
-- `markdown_r.cpp`
-- `markdown_r.h`
-
 ### app/src
 - `main.cpp`
 - `pch.h`
@@ -54,6 +44,7 @@ For detailed documentation, see `docs/`.
 - `config_layer.h`
 - `diff_entry.h`
 - `effective_config.h`
+- `line_diff.h`
 - `project.h`
 - `scaffold.h`
 - `snapshot.h`
@@ -74,26 +65,57 @@ For detailed documentation, see `docs/`.
 - `window.h`
 
 ### app/src/services
+- `adapter_utils.h`
+- `agents_adapter.cpp`
+- `agents_adapter.h`
 - `apply_engine.cpp`
 - `apply_engine.h`
+- `claude_md_adapter.cpp`
+- `claude_md_adapter.h`
+- `config_file_scanner.cpp`
+- `config_file_scanner.h`
 - `config_resolver.cpp`
 - `config_resolver.h`
 - `diff_engine.cpp`
 - `diff_engine.h`
 - `document_loader.cpp`
 - `document_loader.h`
+- `hooks_adapter.cpp`
+- `hooks_adapter.h`
+- `mcp_adapter.cpp`
+- `mcp_adapter.h`
+- `memory_adapter.cpp`
+- `memory_adapter.h`
+- `promote_engine.cpp`
+- `promote_engine.h`
+- `rules_adapter.cpp`
+- `rules_adapter.h`
 - `scaffold_repository.cpp`
 - `scaffold_repository.h`
+- `settings_parser.cpp`
+- `settings_parser.h`
+- `skills_adapter.cpp`
+- `skills_adapter.h`
 - `snapshot_service.cpp`
 - `snapshot_service.h`
 
 ### app/src/ui
 - `document_panel_host.cpp`
 - `document_panel_host.h`
+- `effective_config_panel.cpp`
+- `effective_config_panel.h`
+- `file_diff_panel.cpp`
+- `file_diff_panel.h`
 - `font_library.cpp`
 - `font_library.h`
 - `markdown_renderer.cpp`
 - `markdown_renderer.h`
+- `project_selector_panel.cpp`
+- `project_selector_panel.h`
+- `scaffold_diff_panel.cpp`
+- `scaffold_diff_panel.h`
+- `snapshot_history_panel.cpp`
+- `snapshot_history_panel.h`
 
 ---
 
