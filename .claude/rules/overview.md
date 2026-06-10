@@ -4,7 +4,7 @@
 
 **DevDash** is a personal documentation-first project dashboard that collaborates with Claude Code. It manages documentation and context (project + Claude configuration) without duplicating Claude Code's execution capabilities.
 
-- **Type**: Personal tool (closed source, single-user)
+- **Type**: Personal-first tool, built to be distributable (the multi-OS-portable stack is a deliberate choice; see ADR-011 for the growth path)
 - **Platform**: Desktop (C++20 + Dear ImGui + SDL3 + Vulkan, Linux-first)
 - **Status**: Layered skeleton implemented; wedge features next
 
