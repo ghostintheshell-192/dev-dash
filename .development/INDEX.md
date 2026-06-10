@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-06-10 21:59*
+*Auto-generated: 2026-06-10 22:12*
 
 ---
 
@@ -19,9 +19,9 @@
 
 ### (root)/ (5 files)
 
+- [CURRENT-STATUS.md](CURRENT-STATUS.md) (14KB, 2026-06-10) **RECENT**
 - [INDEX.md](INDEX.md) (4KB, 2026-06-10) **RECENT**
 - [ARCHITECTURE.md](ARCHITECTURE.md) (3KB, 2026-06-10) **RECENT**
-- [CURRENT-STATUS.md](CURRENT-STATUS.md) (14KB, 2026-06-10) **RECENT**
 - [api-design.md](api-design.md) (39KB, 2026-05-12)
 - [README.md](README.md) (2KB, 2026-04-26)
 
@@ -102,10 +102,10 @@
 
 ## Recently Modified (last 7 days)
 
-1. [INDEX.md](INDEX.md) (today)
-2. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
-3. [README.md](tech-debt/README.md) (today)
-4. [CURRENT-STATUS.md](CURRENT-STATUS.md) (today)
+1. [CURRENT-STATUS.md](CURRENT-STATUS.md) (today)
+2. [INDEX.md](INDEX.md) (today)
+3. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
+4. [README.md](tech-debt/README.md) (today)
 5. [project-githooks-not-active.md](tech-debt/project-githooks-not-active.md) (today)
 6. [spec-workflow-hook-silent-fail.md](tech-debt/spec-workflow-hook-silent-fail.md) (today)
 7. [feature-scaffold-management.md](specs/implemented/feature-scaffold-management.md) (today)

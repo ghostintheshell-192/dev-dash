@@ -21,8 +21,9 @@ Stato attuale del codebase:
   `app/assets/fonts/`).
 - Architettura decisa in [ADR-010](reference/decisions/010-architecture-design.md)
   + [api-design.md](api-design.md).
-- `imgui_md` consumato via CPM dal fork `DPD85/imgui_md` (override dev-only
-  `SOURCE_DIR /data/repos/imgui_md` finché le PR del fork non sono stabili).
+- `imgui_md` consumato via CPM dal fork `DPD85/imgui_md`, pinnato a main
+  post-merge PR #2 (`11832f4`). PR1 (word wrap) e PR2 (CMakeLists standalone
+  con `BUILD_*` options + `*_TARGET` cache vars) entrambe mergiate da Dario.
 - Legacy `.NET 8 + Avalonia` rimosso da `develop` il 2026-05-10. Recover via `git checkout legacy/avalonia-final`.
 - `.github/workflows/ci.yml.disabled` — CI .NET disabilitata pre-pivot.
   Da rimpiazzare con workflow CMake/GCC.
@@ -43,7 +44,9 @@ Stato attuale del codebase:
   di progetto — inclusa la branch protection — non gira affatto su questo
   clone.
 - `app/external/CMakeLists.txt`: adottate le option `BUILD_IMGUI OFF` /
-  `BUILD_MD4C OFF` dell'interfaccia CMakeLists del fork imgui_md (PR2).
+  `BUILD_MD4C OFF` dell'interfaccia CMakeLists del fork imgui_md (PR2,
+  mergiata da Dario) e rimosso l'override dev-only `SOURCE_DIR`: ora
+  pinnato a `DPD85/imgui_md` main (`11832f4`).
 
 ### 2026-05-14: Refactor snapshot-history + merge + third-party notices
 
@@ -179,26 +182,19 @@ Le sessioni 2025-12 / 2026-01 hanno costruito la v0.2.x in Avalonia
 
 ### Immediato
 
-1. **Chiudere il loop sulla PR2 imgui_md** — in attesa di Dario sulla
-   controproposta (`IMGUI_TARGET`/`MD4C_TARGET` cache vars + alias MD4C).
-   Al merge: sostituire l'override dev-only `SOURCE_DIR /data/repos/imgui_md`
-   con `GITHUB_REPOSITORY DPD85/imgui_md` + `GIT_TAG <SHA>` in
-   `app/external/CMakeLists.txt` (il blocco commentato "Stable form" fa da
-   reminder).
-
-2. **Primo test target del progetto** — sblocca i test unit di
+1. **Primo test target del progetto** — sblocca i test unit di
    `SnapshotService` (fixture su tmpdir: save/list/restore/prune), il modulo
    più testabile del codebase.
 
-3. **UX/UI snapshot-history + scaffold-manage** — funzionante sopra le
+2. **UX/UI snapshot-history + scaffold-manage** — funzionante sopra le
    primitive ma "tutta da rifare" (Valentina, 2026-05-14). Non prioritaria
    finché il progetto resta single-user.
 
-4. **`docs/architecture.md` + `docs/SETUP.md` rewrite** — i file pubblici
+3. **`docs/architecture.md` + `docs/SETUP.md` rewrite** — i file pubblici
    parlano ancora di Avalonia/.NET. La wedge è completa: ora possono
    descrivere cosa esiste davvero.
 
-5. **Tech-debt `project-githooks-not-active`** — decidere la strategia
+4. **Tech-debt `project-githooks-not-active`** — decidere la strategia
    hooksPath (hook progetto vs workspace); finché aperto, la branch
    protection su `main`/`develop` è solo convenzionale.
 
