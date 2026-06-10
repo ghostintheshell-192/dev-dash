@@ -1,26 +1,78 @@
 # DevDash - Current Status
 
-*Last updated: 2026-05-10*
+*Last updated: 2026-06-10*
 
 ## Project Phase
 
-**Phase**: Wedge feature in corso — effective config view implementata (1/3).
+**Phase**: Wedge completa (3/3) — effective config view, scaffold management
+e snapshot & history implementate e mergiate in `develop`.
 
 Il pivot a **C++20 + Dear ImGui + SDL3 + Vulkan** è validato e lo skeleton
-layered (`core/services/ui/platform/app/`) è in produzione. La prima wedge
-feature è live: project selector all'avvio + vista effective config con sezioni
-per tipo (CLAUDE.md, Rules, Memory, Skills, Agents, MCP, Hooks).
+layered (`core/services/ui/platform/app/`) è in produzione. Le tre wedge
+feature sono live: project selector + effective config view, scaffold
+list/diff/apply, snapshot save/restore con History panel e autosnapshot
+pre-apply. Flow apply/restore testato end-to-end (dogfooding sul repo stesso,
+2026-05-14).
 
 Stato attuale del codebase:
 
-- `app/` — build funzionante. Skeleton layered completo + feature-effective-config-view implementata.
+- `app/` — build funzionante. Skeleton layered completo + 3 wedge feature.
+- `poc/` — **rimosso** il 2026-05-12 (PoC concluso; font migrati in
+  `app/assets/fonts/`).
 - Architettura decisa in [ADR-010](reference/decisions/010-architecture-design.md)
   + [api-design.md](api-design.md).
+- `imgui_md` consumato via CPM dal fork `DPD85/imgui_md` (override dev-only
+  `SOURCE_DIR /data/repos/imgui_md` finché le PR del fork non sono stabili).
 - Legacy `.NET 8 + Avalonia` rimosso da `develop` il 2026-05-10. Recover via `git checkout legacy/avalonia-final`.
 - `.github/workflows/ci.yml.disabled` — CI .NET disabilitata pre-pivot.
   Da rimpiazzare con workflow CMake/GCC.
 
 ## Recent Work
+
+### 2026-06-10: Spec workflow fix + sync documentazione
+
+- **Root cause del tech-debt `spec-workflow-hook-silent-fail`** trovata e
+  fixata: mismatch di naming branch→spec (`feature/x` → cercava `x.md`, i
+  file sono `feature-x.md`) + regex status su markdown invece che YAML
+  frontmatter. Fix in `spec-workflow.py` (fallback prefissato univoco +
+  subn YAML-first). Tech-debt chiuso.
+- **Le 3 spec wedge spostate in `specs/implemented/`** con frontmatter
+  allineato.
+- **Nuovo tech-debt `project-githooks-not-active`** (medium): scoperto che
+  `core.hooksPath` globale punta agli hook workspace, quindi `.githooks/`
+  di progetto — inclusa la branch protection — non gira affatto su questo
+  clone.
+- `app/external/CMakeLists.txt`: adottate le option `BUILD_IMGUI OFF` /
+  `BUILD_MD4C OFF` dell'interfaccia CMakeLists del fork imgui_md (PR2).
+
+### 2026-05-14: Refactor snapshot-history + merge + third-party notices
+
+- **4 refactor commit** dalla code review di `feature/snapshot-history`:
+  dedupe `MakeProjectSlug` in `core/project.h`, `originatingAction` come
+  `std::optional`, `ApplyEngine::Apply` → `ApplyResult {applied; skipped;
+  failed;}` con status message ricco in UI, errori per-file di
+  `CopyConfigFiles` loggati su stderr.
+- **Merge `feature/snapshot-history` → `develop`** (`abb0abc`); test
+  end-to-end apply/restore riuscito.
+- **Refresh `app/THIRD_PARTY_NOTICES.md`**: sezione imgui_md (upstream +
+  fork DPD85), aggiunte MD4C e nlohmann/json (`3afeb02`).
+- Pulizia dei 14 branch locali mergiati; restano `develop` e `main`.
+- Diagnosi warning lock `.git/config`: bind mount RO del sandbox Claude
+  Code, **cosmetico e atteso** — non investigare più.
+
+### 2026-05-12: snapshot-history + scaffold apply + PR2 fork + rimozione poc/
+
+- **Feature snapshot-history implementata** (`727d2e3`): SnapshotService
+  (save explicit/auto, list, restore, pruning), History panel, wiring in
+  EffectiveConfigPanel.
+- **Apply path scaffold-management completato** (`a7c6359`): bottone
+  "Apply..." in ScaffoldDiffPanel via `ApplyEngine` + autosnapshot
+  pre-apply. Chiude la parte 2/3 della wedge.
+- **PR2 sul fork `DPD85/imgui_md`** (CMakeLists standalone) aperta; PR1
+  (word wrap) mergiata da Dario il 2026-05-11. Migrazione
+  vendoring → CPM in `app/external/CMakeLists.txt`.
+- **`poc/` rimosso** (22 file); font IBM Plex migrati in
+  `app/assets/fonts/`.
 
 ### 2026-05-10: feature/effective-config-view implementata
 
@@ -127,14 +179,28 @@ Le sessioni 2025-12 / 2026-01 hanno costruito la v0.2.x in Avalonia
 
 ### Immediato
 
-1. **`feature-scaffold-management`** (parte 2/3 wedge) — vedi spec in `planned/`.
-   Mostrare la lista degli scaffold disponibili in `~/.devdash/scaffolds/`,
-   applicarli a un progetto, vedere il diff bidirezionale progetto ↔ scaffold.
-   Prerequisiti soddisfatti: effective-config-view implementata, `DiffEngine`
-   e `ApplyEngine` stub pronti per essere riempiti.
+1. **Chiudere il loop sulla PR2 imgui_md** — in attesa di Dario sulla
+   controproposta (`IMGUI_TARGET`/`MD4C_TARGET` cache vars + alias MD4C).
+   Al merge: sostituire l'override dev-only `SOURCE_DIR /data/repos/imgui_md`
+   con `GITHUB_REPOSITORY DPD85/imgui_md` + `GIT_TAG <SHA>` in
+   `app/external/CMakeLists.txt` (il blocco commentato "Stable form" fa da
+   reminder).
 
-2. **`docs/architecture.md` rewrite** — il file pubblico parla ancora di Avalonia.
-   Da aggiornare dopo che la wedge è completa, così descrive cosa esiste davvero.
+2. **Primo test target del progetto** — sblocca i test unit di
+   `SnapshotService` (fixture su tmpdir: save/list/restore/prune), il modulo
+   più testabile del codebase.
+
+3. **UX/UI snapshot-history + scaffold-manage** — funzionante sopra le
+   primitive ma "tutta da rifare" (Valentina, 2026-05-14). Non prioritaria
+   finché il progetto resta single-user.
+
+4. **`docs/architecture.md` + `docs/SETUP.md` rewrite** — i file pubblici
+   parlano ancora di Avalonia/.NET. La wedge è completa: ora possono
+   descrivere cosa esiste davvero.
+
+5. **Tech-debt `project-githooks-not-active`** — decidere la strategia
+   hooksPath (hook progetto vs workspace); finché aperto, la branch
+   protection su `main`/`develop` è solo convenzionale.
 
 ### Pulizia post-pivot
 
@@ -199,8 +265,12 @@ della suddivisione `core/services/ui/platform/app/`.
 ## Blockers / Attention
 
 - **Nessun blocker attivo.**
-- **Hook e settings pre-pivot** lentamente invecchiano (vedi Next Steps
-  punti 3-8). Non rompono nulla oggi (sono `allow`-pattern, non `deny`).
+- **Branch protection non effettiva** su questo clone: gli hook di progetto
+  `.githooks/` sono bypassati dal `core.hooksPath` globale (vedi tech-debt
+  `project-githooks-not-active`). Attenzione ai commit diretti su
+  `main`/`develop`.
+- **Warning lock `.git/config`** durante operazioni git: cosmetici, causati
+  dai bind mount RO del sandbox Claude Code. Non investigare.
 
 ## Build Status
 
