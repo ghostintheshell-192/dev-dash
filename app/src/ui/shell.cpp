@@ -126,6 +126,16 @@ namespace dev_dash::ui
             _historyView->Render(&_historyOpen);
         }
 
+        // The file diff viewer renders every frame, independently of the
+        // scaffold diff panel that opened it: if it only rendered while
+        // that panel was visible, docking the viewer over the panel would
+        // make the two windows starve each other (tab flicker).
+        if (_diffView->DiffViewer().IsOpen())
+        {
+            ImGui::SetNextWindowDockID(_dockspaceId, ImGuiCond_FirstUseEver);
+            _diffView->DiffViewer().Render();
+        }
+
         _docHost.Render(_dockspaceId);
     }
 

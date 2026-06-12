@@ -443,8 +443,6 @@ namespace dev_dash::ui
         RenderApplyConfirmModal();
 
         ImGui::End();
-
-        _diffViewer.Render();
     }
 
     // ── Promote confirm modal ─────────────────────────────────────────────────

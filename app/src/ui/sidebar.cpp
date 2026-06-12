@@ -148,38 +148,16 @@ namespace dev_dash::ui
         {
             ImGui::PushID(s.name.c_str());
 
-            const bool nodeOpen = ImGui::TreeNode("##scaffold", "%s", s.name.c_str());
+            const bool nodeOpen = ImGui::TreeNodeEx(
+                "##scaffold", ImGuiTreeNodeFlags_AllowOverlap,
+                "%s", s.name.c_str());
 
-            // Context menu: actions on this scaffold.
-            if (ImGui::BeginPopupContextItem("##scaffold_ctx"))
+            // Same action menu, two ways in: right-click on the entry, or
+            // the explicit "..." button — the menu must be discoverable,
+            // not a secret handshake.
+            if (ImGui::BeginPopupContextItem("scaffold_menu"))
             {
-                if (ImGui::MenuItem("Compare with project..."))
-                    _callbacks.compareScaffold(s.name);
-                if (ImGui::MenuItem("Set as default", nullptr, false, !s.isDefault))
-                {
-                    if (_scaffoldRepo.SetDefault(s.path))
-                    {
-                        _status.Set(StatusSink::Level::kSuccess,
-                                    "\"" + s.name + "\" is now the default scaffold.");
-                        _needsRefresh = true;
-                    }
-                    else
-                        _status.Set(StatusSink::Level::kError,
-                                    "Failed to set \"" + s.name + "\" as default.");
-                }
-                ImGui::Separator();
-                if (ImGui::MenuItem("New scaffold..."))
-                {
-                    _newName[0]        = '\0';
-                    _newMode           = 0;
-                    _modalScaffoldName = s.name;
-                    _showNewModal      = true;
-                }
-                if (ImGui::MenuItem("Delete..."))
-                {
-                    _modalScaffoldName = s.name;
-                    _showDeleteConfirm = true;
-                }
+                RenderScaffoldMenu(s);
                 ImGui::EndPopup();
             }
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort))
@@ -190,6 +168,9 @@ namespace dev_dash::ui
                 ImGui::SameLine();
                 ImGui::TextColored(CurrentTheme().accent, "(default)");
             }
+
+            if (HeaderButton("..."))
+                ImGui::OpenPopup("scaffold_menu");
 
             if (nodeOpen)
             {
@@ -206,6 +187,37 @@ namespace dev_dash::ui
             }
 
             ImGui::PopID();
+        }
+    }
+
+    void Sidebar::RenderScaffoldMenu(const core::Scaffold& s)
+    {
+        if (ImGui::MenuItem("Compare with project..."))
+            _callbacks.compareScaffold(s.name);
+        if (ImGui::MenuItem("Set as default", nullptr, false, !s.isDefault))
+        {
+            if (_scaffoldRepo.SetDefault(s.path))
+            {
+                _status.Set(StatusSink::Level::kSuccess,
+                            "\"" + s.name + "\" is now the default scaffold.");
+                _needsRefresh = true;
+            }
+            else
+                _status.Set(StatusSink::Level::kError,
+                            "Failed to set \"" + s.name + "\" as default.");
+        }
+        ImGui::Separator();
+        if (ImGui::MenuItem("New scaffold..."))
+        {
+            _newName[0]        = '\0';
+            _newMode           = 0;
+            _modalScaffoldName = s.name;
+            _showNewModal      = true;
+        }
+        if (ImGui::MenuItem("Delete..."))
+        {
+            _modalScaffoldName = s.name;
+            _showDeleteConfirm = true;
         }
     }
 

@@ -59,23 +59,12 @@ namespace dev_dash::ui
             return;
         }
 
-        // ── Header ────────────────────────────────────────────────────────────
+        // ── Header: a legend in words, not just git jargon ────────────────────
         const Theme& theme = CurrentTheme();
+        const float  sw    = ImGui::GetTextLineHeight();
+        constexpr ImGuiColorEditFlags kSwatchFlags =
+            ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoDragDrop;
 
-        ImGui::PushStyleColor(ImGuiCol_Text, theme.removed);
-        ImGui::Text("- %s", _labelA.c_str());
-        ImGui::PopStyleColor();
-        ImGui::SameLine();
-        ImGui::TextDisabled("%s", _pathA.string().c_str());
-
-        ImGui::PushStyleColor(ImGuiCol_Text, theme.added);
-        ImGui::Text("+ %s", _labelB.c_str());
-        ImGui::PopStyleColor();
-        ImGui::SameLine();
-        ImGui::TextDisabled("%s", _pathB.string().c_str());
-
-        // ── Summary ───────────────────────────────────────────────────────────
-        ImGui::Spacing();
         if (_tooLarge)
         {
             ImGui::TextDisabled("File too large for inline diff (> 2000 lines each).");
@@ -89,42 +78,79 @@ namespace dev_dash::ui
             return;
         }
 
-        ImGui::PushStyleColor(ImGuiCol_Text, theme.removed);
-        ImGui::Text("-%d", _removedCount);
-        ImGui::PopStyleColor();
+        ImGui::ColorButton("##sw_removed", theme.removed, kSwatchFlags,
+                           ImVec2(sw, sw));
         ImGui::SameLine();
-        ImGui::PushStyleColor(ImGuiCol_Text, theme.added);
-        ImGui::Text("+%d", _addedCount);
-        ImGui::PopStyleColor();
+        ImGui::Text("%d line(s) only in %s", _removedCount, _labelA.c_str());
+        ImGui::SameLine();
+        ImGui::TextDisabled("%s", _pathA.string().c_str());
 
+        ImGui::ColorButton("##sw_added", theme.added, kSwatchFlags,
+                           ImVec2(sw, sw));
+        ImGui::SameLine();
+        ImGui::Text("%d line(s) only in %s", _addedCount, _labelB.c_str());
+        ImGui::SameLine();
+        ImGui::TextDisabled("%s", _pathB.string().c_str());
+
+        ImGui::Spacing();
         ImGui::Separator();
 
-        // ── Diff lines ────────────────────────────────────────────────────────
-        ImGui::BeginChild("##diff_lines", ImVec2(0, 0), false,
+        // ── Diff lines: full-row background tint does the talking, the
+        //    -/+ gutter stays for the git-trained eye ──────────────────────────
+        ImGui::BeginChild("##diff_lines", ImVec2(0, 0), ImGuiChildFlags_None,
                           ImGuiWindowFlags_HorizontalScrollbar);
 
-        for (const auto& line : _diff)
+        const ImU32 removedBg =
+            ImGui::GetColorU32({theme.removed.x, theme.removed.y,
+                                theme.removed.z, 0.16f});
+        const ImU32 addedBg =
+            ImGui::GetColorU32({theme.added.x, theme.added.y,
+                                theme.added.z, 0.16f});
+
+        const ImGuiTableFlags tableFlags =
+            ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_NoPadOuterX;
+
+        if (ImGui::BeginTable("##diff_table", 2, tableFlags))
         {
-            switch (line.kind)
+            ImGui::TableSetupColumn("##sign", ImGuiTableColumnFlags_WidthFixed,
+                                    ImGui::CalcTextSize("+").x + 8.0f);
+            ImGui::TableSetupColumn("##text", ImGuiTableColumnFlags_WidthStretch);
+
+            for (const auto& line : _diff)
             {
-            case core::DiffLineKind::kRemoved:
-                ImGui::PushStyleColor(ImGuiCol_Text, theme.removed);
-                ImGui::TextUnformatted(("- " + line.text).c_str());
-                ImGui::PopStyleColor();
-                break;
+                ImGui::TableNextRow();
 
-            case core::DiffLineKind::kAdded:
-                ImGui::PushStyleColor(ImGuiCol_Text, theme.added);
-                ImGui::TextUnformatted(("+ " + line.text).c_str());
-                ImGui::PopStyleColor();
-                break;
+                const char* sign  = " ";
+                ImVec4      color = theme.textDim;
+                switch (line.kind)
+                {
+                case core::DiffLineKind::kRemoved:
+                    ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, removedBg);
+                    sign  = "-";
+                    color = theme.removed;
+                    break;
+                case core::DiffLineKind::kAdded:
+                    ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, addedBg);
+                    sign  = "+";
+                    color = theme.added;
+                    break;
+                case core::DiffLineKind::kContext:
+                    break;
+                }
 
-            case core::DiffLineKind::kContext:
-                ImGui::PushStyleColor(ImGuiCol_Text, theme.textDim);
-                ImGui::TextUnformatted(("  " + line.text).c_str());
+                ImGui::TableSetColumnIndex(0);
+                ImGui::TextColored(color, "%s", sign);
+
+                ImGui::TableSetColumnIndex(1);
+                ImGui::PushStyleColor(ImGuiCol_Text,
+                                      line.kind == core::DiffLineKind::kContext
+                                          ? theme.textDim
+                                          : theme.text);
+                ImGui::TextUnformatted(line.text.c_str());
                 ImGui::PopStyleColor();
-                break;
             }
+
+            ImGui::EndTable();
         }
 
         ImGui::EndChild();

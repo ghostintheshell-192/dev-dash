@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-06-12 23:44*
+*Auto-generated: 2026-06-12 23:55*
 
 ---
 
@@ -125,7 +125,7 @@
 6. [feature-agnostic-automation.md](specs/implemented/feature-agnostic-automation.md) (1d ago)
 7. [2026-06-11_spec-workflow-hook-silent-fail.md](archive/completed/2026-06-11_spec-workflow-hook-silent-fail.md) (1d ago)
 8. [2026-06-10_project-githooks-not-active.md](archive/completed/2026-06-10_project-githooks-not-active.md) (1d ago)
-9. [scanner-directory-include-silent.md](tech-debt/scanner-directory-include-silent.md) (1d ago)
+9. [scanner-directory-include-silent.md](tech-debt/scanner-directory-include-silent.md) (2d ago)
 10. [006-desktop-vs-vscode-extension.md](reference/decisions/006-desktop-vs-vscode-extension.md) (2d ago)
 
 ---

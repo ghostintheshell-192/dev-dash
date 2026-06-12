@@ -40,9 +40,14 @@ namespace dev_dash::ui
 
         void Render(bool* open);
 
-        // Select the comparison scaffold by name (e.g. launched from
-        // ScaffoldsView). Unknown names keep the current selection.
+        // Select the comparison scaffold by name (e.g. launched from the
+        // sidebar). Unknown names keep the current selection.
         void SelectScaffold(const std::string& name);
+
+        // The per-file diff viewer. Rendered by the shell every frame: its
+        // lifetime must not depend on this panel's visibility, or docking
+        // the viewer over the panel makes the two windows starve each other.
+        FileDiffPanel& DiffViewer() { return _diffViewer; }
 
     private:
         void Refresh();

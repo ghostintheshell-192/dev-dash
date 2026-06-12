@@ -58,6 +58,7 @@ namespace dev_dash::ui
 
         void RenderConfigSection();
         void RenderScaffoldsSection();
+        void RenderScaffoldMenu(const core::Scaffold& scaffold);
         void RenderHistorySection();
         void RenderFileTree(const FileTree&              node,
                             const std::filesystem::path& root,
