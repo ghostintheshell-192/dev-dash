@@ -1,6 +1,7 @@
 #include "scaffold_repository.h"
 
 #include <algorithm>
+#include <cctype>
 #include <fstream>
 #include <string>
 
@@ -75,9 +76,18 @@ namespace dev_dash::services
             _cache.push_back(std::move(scaffold));
         }
 
+        // Case-insensitive: "PROVA1" must not sort before "dev-dash-standard"
+        // just because of an uppercase initial.
         std::sort(_cache.begin(), _cache.end(),
             [](const core::Scaffold& a, const core::Scaffold& b)
-            { return a.name < b.name; });
+            {
+                const auto lower = [](unsigned char ch)
+                { return static_cast<char>(std::tolower(ch)); };
+                return std::lexicographical_compare(
+                    a.name.begin(), a.name.end(),
+                    b.name.begin(), b.name.end(),
+                    [&](char x, char y) { return lower(x) < lower(y); });
+            });
     }
 
     bool ScaffoldRepository::CreateEmpty(const std::string& name)

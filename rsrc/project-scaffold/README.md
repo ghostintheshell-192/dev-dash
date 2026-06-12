@@ -47,6 +47,9 @@ Claude Code configuration.
 .memory-bank/                       # Session continuity
 ├── ideas/                          # Tangential idea notes (idea-capture rule)
 └── sessions/                       # JSONL transcripts (auto-archived)
+
+.devdash-default                    # Marks this scaffold as DevDash's default
+                                    # (preselected in UI; never copied to projects)
 ```
 
 ## Usage
