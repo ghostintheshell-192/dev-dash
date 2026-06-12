@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-06-12 22:22*
+*Auto-generated: 2026-06-12 22:31*
 
 ---
 
@@ -114,9 +114,9 @@
 ## Recently Modified (last 7 days)
 
 1. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
-2. [013-scaffold-source-of-truth.md](reference/decisions/013-scaffold-source-of-truth.md) (today)
-3. [README.md](tech-debt/README.md) (today)
-4. [INDEX.md](INDEX.md) (today)
+2. [README.md](tech-debt/README.md) (today)
+3. [INDEX.md](INDEX.md) (today)
+4. [013-scaffold-source-of-truth.md](reference/decisions/013-scaffold-source-of-truth.md) (today)
 5. [feature-agnostic-automation.md](specs/implemented/feature-agnostic-automation.md) (1d ago)
 6. [2026-06-11_spec-workflow-hook-silent-fail.md](archive/completed/2026-06-11_spec-workflow-hook-silent-fail.md) (1d ago)
 7. [2026-06-10_project-githooks-not-active.md](archive/completed/2026-06-10_project-githooks-not-active.md) (1d ago)
