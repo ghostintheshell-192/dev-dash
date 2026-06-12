@@ -117,8 +117,13 @@ For detailed documentation, see `docs/`.
 - `project_selector_panel.h`
 - `scaffold_diff_panel.cpp`
 - `scaffold_diff_panel.h`
+- `shell.cpp`
+- `shell.h`
+- `sidebar.cpp`
+- `sidebar.h`
 - `snapshot_history_panel.cpp`
 - `snapshot_history_panel.h`
+- `status_sink.h`
 - `theme.cpp`
 - `theme.h`
 

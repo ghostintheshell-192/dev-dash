@@ -52,7 +52,7 @@ report: null  # Optional: link to archive/analysis/YYYY-MM-DD_report_agent-name.
 
 ## Current Issues by Priority
 
-*Auto-updated: 2026-06-12 23:04*
+*Auto-updated: 2026-06-12 23:44*
 
 **High Priority:**
 - `imgui-backend-shutdown-order.md` - ImGui assertion on exit: backend non spento prima di DestroyContext

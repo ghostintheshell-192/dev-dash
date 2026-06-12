@@ -120,4 +120,49 @@ namespace dev_dash::services
         _cached = false;
         return true;
     }
+
+    bool ScaffoldRepository::SetDefault(const std::filesystem::path& scaffoldPath)
+    {
+        std::error_code ec;
+        for (const auto& entry :
+             std::filesystem::directory_iterator(_scaffoldRoot, ec))
+        {
+            if (ec) break;
+            if (!entry.is_directory(ec) || ec)
+            {
+                ec.clear();
+                continue;
+            }
+            std::filesystem::remove(entry.path() / ".devdash-default", ec);
+            ec.clear();
+        }
+
+        std::ofstream marker(scaffoldPath / ".devdash-default");
+        marker << "DevDash default-scaffold marker. The scaffold directory "
+                  "containing this file\nis preselected in the scaffold UI.\n";
+        _cached = false;
+        return marker.good();
+    }
+
+    std::vector<std::string> ScaffoldRepository::ListFiles(
+        const std::filesystem::path& scaffoldPath) const
+    {
+        std::vector<std::string> files;
+        std::error_code ec;
+        for (const auto& entry : std::filesystem::recursive_directory_iterator(
+                 scaffoldPath, ec))
+        {
+            if (ec) break;
+            if (!entry.is_regular_file(ec) || ec)
+            {
+                ec.clear();
+                continue;
+            }
+            files.push_back(
+                std::filesystem::relative(entry.path(), scaffoldPath, ec)
+                    .generic_string());
+        }
+        std::sort(files.begin(), files.end());
+        return files;
+    }
 }
