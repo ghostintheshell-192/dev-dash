@@ -8,7 +8,7 @@
 
 namespace dev_dash::ui
 {
-    FontLibrary::FontLibrary()
+    FontLibrary::FontLibrary(float uiScale)
     {
         std::string fontsDir;
         if (const char* base = SDL_GetBasePath())
@@ -16,7 +16,7 @@ namespace dev_dash::ui
         fontsDir += "assets/fonts/";
 
         ImFontAtlas* atlas = ImGui::GetIO().Fonts;
-        constexpr float kBodySize = 16.0f;
+        const float kBodySize = 17.0f * uiScale;
 
         static constexpr ImWchar kPrimaryRanges[] = {
             0x0020, 0x00FF,
@@ -50,8 +50,8 @@ namespace dev_dash::ui
         _regular = load("IBMPlexSans-Regular.ttf", kBodySize);
         _italic  = load("IBMPlexSans-Italic.ttf",  kBodySize);
         _bold    = load("IBMPlexSans-Bold.ttf",    kBodySize);
-        _boldH1  = load("IBMPlexSans-Bold.ttf",    30.0f);
-        _boldH2  = load("IBMPlexSans-Bold.ttf",    22.5f);
-        _boldH3  = load("IBMPlexSans-Bold.ttf",    17.55f);
+        _boldH1  = load("IBMPlexSans-Bold.ttf",    30.0f * uiScale);
+        _boldH2  = load("IBMPlexSans-Bold.ttf",    22.5f * uiScale);
+        _boldH3  = load("IBMPlexSans-Bold.ttf",    18.0f * uiScale);
     }
 }

@@ -54,7 +54,9 @@ namespace dev_dash::ui
     const Theme& GrafiteAmbraTheme();
 
     // Applies the theme to ImGui::GetStyle() and makes it CurrentTheme().
-    void ApplyTheme(const Theme& theme);
+    // uiScale multiplies every metric (display content scale, ≥ 1) so
+    // paddings and roundings keep pace with the DPI-scaled fonts.
+    void ApplyTheme(const Theme& theme, float uiScale = 1.0f);
 
     // The theme last applied. Valid after the first ApplyTheme() call.
     const Theme& CurrentTheme();

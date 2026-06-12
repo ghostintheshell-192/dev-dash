@@ -72,12 +72,18 @@ namespace dev_dash::app
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
 
-        _fonts        = std::make_unique<ui::FontLibrary>();
+        // Fonts and style metrics scale with the display content scale
+        // (1.0 on classic 96-dpi, >1 on hi-dpi/2K+ screens).
+        float uiScale = SDL_GetWindowDisplayScale(_window->Handle());
+        if (uiScale <= 0.0f)
+            uiScale = 1.0f;
+
+        _fonts        = std::make_unique<ui::FontLibrary>(uiScale);
         _imguiBackend = std::make_unique<platform::ImGuiBackend>(*_window, *_vulkanContext, *_swapchain);
 
         // After ImGuiBackend: its init sets the stock dark style as a
         // baseline, the theme overrides it with our visual identity.
-        ui::ApplyTheme(ui::GrafiteAmbraTheme());
+        ui::ApplyTheme(ui::GrafiteAmbraTheme(), uiScale);
 
         _documentLoader    = std::make_unique<services::DocumentLoader>();
         _markdownRenderer  = std::make_unique<ui::MarkdownRenderer>(*_fonts);

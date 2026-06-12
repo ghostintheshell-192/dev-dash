@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-06-12 23:55*
+*Auto-generated: 2026-06-13 00:19*
 
 ---
 
@@ -19,7 +19,7 @@
 
 ### (root)/ (5 files)
 
-- [ARCHITECTURE.md](ARCHITECTURE.md) (4KB, 2026-06-12) **RECENT**
+- [ARCHITECTURE.md](ARCHITECTURE.md) (4KB, 2026-06-13) **RECENT**
 - [INDEX.md](INDEX.md) (6KB, 2026-06-12) **RECENT**
 - [CURRENT-STATUS.md](CURRENT-STATUS.md) (14KB, 2026-06-10) **RECENT**
 - [api-design.md](api-design.md) (39KB, 2026-05-12)
@@ -123,8 +123,8 @@
 4. [feature-ui-overhaul.md](specs/in-progress/feature-ui-overhaul.md) (today)
 5. [013-scaffold-source-of-truth.md](reference/decisions/013-scaffold-source-of-truth.md) (today)
 6. [feature-agnostic-automation.md](specs/implemented/feature-agnostic-automation.md) (1d ago)
-7. [2026-06-11_spec-workflow-hook-silent-fail.md](archive/completed/2026-06-11_spec-workflow-hook-silent-fail.md) (1d ago)
-8. [2026-06-10_project-githooks-not-active.md](archive/completed/2026-06-10_project-githooks-not-active.md) (1d ago)
+7. [2026-06-11_spec-workflow-hook-silent-fail.md](archive/completed/2026-06-11_spec-workflow-hook-silent-fail.md) (2d ago)
+8. [2026-06-10_project-githooks-not-active.md](archive/completed/2026-06-10_project-githooks-not-active.md) (2d ago)
 9. [scanner-directory-include-silent.md](tech-debt/scanner-directory-include-silent.md) (2d ago)
 10. [006-desktop-vs-vscode-extension.md](reference/decisions/006-desktop-vs-vscode-extension.md) (2d ago)
 

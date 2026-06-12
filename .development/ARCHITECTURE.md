@@ -126,6 +126,8 @@ For detailed documentation, see `docs/`.
 - `status_sink.h`
 - `theme.cpp`
 - `theme.h`
+- `widgets.cpp`
+- `widgets.h`
 
 ---
 

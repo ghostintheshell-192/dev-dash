@@ -60,7 +60,7 @@ namespace dev_dash::ui
         return theme;
     }
 
-    void ApplyTheme(const Theme& t)
+    void ApplyTheme(const Theme& t, float uiScale)
     {
         g_current = t;
 
@@ -155,6 +155,9 @@ namespace dev_dash::ui
         c[ImGuiCol_PlotLinesHovered]     = t.accentHover;
         c[ImGuiCol_PlotHistogram]        = t.accent;
         c[ImGuiCol_PlotHistogramHovered] = t.accentHover;
+
+        if (uiScale != 1.0f)
+            style.ScaleAllSizes(uiScale);
     }
 
     const Theme& CurrentTheme()
