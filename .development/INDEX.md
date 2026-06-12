@@ -19,7 +19,7 @@
 
 ### (root)/ (5 files)
 
-- [ARCHITECTURE.md](ARCHITECTURE.md) (3KB, 2026-06-12) **RECENT**
+- [ARCHITECTURE.md](ARCHITECTURE.md) (4KB, 2026-06-12) **RECENT**
 - [INDEX.md](INDEX.md) (6KB, 2026-06-12) **RECENT**
 - [CURRENT-STATUS.md](CURRENT-STATUS.md) (14KB, 2026-06-10) **RECENT**
 - [api-design.md](api-design.md) (39KB, 2026-05-12)
@@ -67,8 +67,9 @@
 - [session-handoff-skill-note.md](tech-debt/session-handoff-skill-note.md) (<1KB, 2026-04-28)
 - [_TEMPLATE.md](tech-debt/_TEMPLATE.md) (1KB, 2026-04-26)
 
-### reference/decisions/ (11 files)
+### reference/decisions/ (12 files)
 
+- [013-scaffold-source-of-truth.md](reference/decisions/013-scaffold-source-of-truth.md) (2KB, 2026-06-12) **RECENT**
 - [006-desktop-vs-vscode-extension.md](reference/decisions/006-desktop-vs-vscode-extension.md) (5KB, 2026-06-10) **RECENT**
 - [011-release-and-distribution.md](reference/decisions/011-release-and-distribution.md) (6KB, 2026-06-10) **RECENT**
 - [012-codebase-agnostic-automation.md](reference/decisions/012-codebase-agnostic-automation.md) (6KB, 2026-06-10) **RECENT**
@@ -113,15 +114,15 @@
 ## Recently Modified (last 7 days)
 
 1. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
-2. [README.md](tech-debt/README.md) (today)
-3. [INDEX.md](INDEX.md) (today)
-4. [feature-agnostic-automation.md](specs/implemented/feature-agnostic-automation.md) (1d ago)
-5. [2026-06-11_spec-workflow-hook-silent-fail.md](archive/completed/2026-06-11_spec-workflow-hook-silent-fail.md) (1d ago)
-6. [2026-06-10_project-githooks-not-active.md](archive/completed/2026-06-10_project-githooks-not-active.md) (1d ago)
-7. [scanner-directory-include-silent.md](tech-debt/scanner-directory-include-silent.md) (1d ago)
-8. [006-desktop-vs-vscode-extension.md](reference/decisions/006-desktop-vs-vscode-extension.md) (1d ago)
-9. [feature-global-settings-coverage.md](specs/backlog/feature-global-settings-coverage.md) (1d ago)
-10. [feature-plugins-keybindings-coverage.md](specs/backlog/feature-plugins-keybindings-coverage.md) (1d ago)
+2. [013-scaffold-source-of-truth.md](reference/decisions/013-scaffold-source-of-truth.md) (today)
+3. [README.md](tech-debt/README.md) (today)
+4. [INDEX.md](INDEX.md) (today)
+5. [feature-agnostic-automation.md](specs/implemented/feature-agnostic-automation.md) (1d ago)
+6. [2026-06-11_spec-workflow-hook-silent-fail.md](archive/completed/2026-06-11_spec-workflow-hook-silent-fail.md) (1d ago)
+7. [2026-06-10_project-githooks-not-active.md](archive/completed/2026-06-10_project-githooks-not-active.md) (1d ago)
+8. [scanner-directory-include-silent.md](tech-debt/scanner-directory-include-silent.md) (1d ago)
+9. [006-desktop-vs-vscode-extension.md](reference/decisions/006-desktop-vs-vscode-extension.md) (1d ago)
+10. [feature-global-settings-coverage.md](specs/backlog/feature-global-settings-coverage.md) (1d ago)
 
 ---
 
