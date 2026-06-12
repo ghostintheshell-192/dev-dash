@@ -53,7 +53,7 @@
 
 ### specs/in-progress/ (1 files)
 
-- [feature-ui-overhaul.md](specs/in-progress/feature-ui-overhaul.md) (2KB, 2026-06-12) **RECENT**
+- [feature-ui-overhaul.md](specs/in-progress/feature-ui-overhaul.md) (3KB, 2026-06-13) **RECENT**
 
 ### specs/planned/ (1 files)
 
@@ -118,9 +118,9 @@
 ## Recently Modified (last 7 days)
 
 1. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
-2. [README.md](tech-debt/README.md) (today)
-3. [INDEX.md](INDEX.md) (today)
-4. [feature-ui-overhaul.md](specs/in-progress/feature-ui-overhaul.md) (today)
+2. [feature-ui-overhaul.md](specs/in-progress/feature-ui-overhaul.md) (today)
+3. [README.md](tech-debt/README.md) (today)
+4. [INDEX.md](INDEX.md) (today)
 5. [013-scaffold-source-of-truth.md](reference/decisions/013-scaffold-source-of-truth.md) (today)
 6. [feature-agnostic-automation.md](specs/implemented/feature-agnostic-automation.md) (1d ago)
 7. [2026-06-11_spec-workflow-hook-silent-fail.md](archive/completed/2026-06-11_spec-workflow-hook-silent-fail.md) (2d ago)
