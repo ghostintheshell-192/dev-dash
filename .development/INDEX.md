@@ -20,7 +20,7 @@
 ### (root)/ (5 files)
 
 - [ARCHITECTURE.md](ARCHITECTURE.md) (4KB, 2026-06-13) **RECENT**
-- [INDEX.md](INDEX.md) (6KB, 2026-06-12) **RECENT**
+- [INDEX.md](INDEX.md) (6KB, 2026-06-13) **RECENT**
 - [CURRENT-STATUS.md](CURRENT-STATUS.md) (14KB, 2026-06-10) **RECENT**
 - [api-design.md](api-design.md) (39KB, 2026-05-12)
 - [README.md](README.md) (2KB, 2026-04-26)
@@ -61,7 +61,7 @@
 
 ### tech-debt/ (9 files)
 
-- [README.md](tech-debt/README.md) (3KB, 2026-06-12) **RECENT**
+- [README.md](tech-debt/README.md) (3KB, 2026-06-13) **RECENT**
 - [scanner-directory-include-silent.md](tech-debt/scanner-directory-include-silent.md) (1KB, 2026-06-10) **RECENT**
 - [line-level-promote.md](tech-debt/line-level-promote.md) (1KB, 2026-05-10)
 - [imgui-backend-shutdown-order.md](tech-debt/imgui-backend-shutdown-order.md) (1KB, 2026-05-10)

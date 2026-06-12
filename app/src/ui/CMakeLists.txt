@@ -3,6 +3,8 @@ target_sources(dev-dash
         theme.h
         theme.cpp
         status_sink.h
+        widgets.h
+        widgets.cpp
         shell.h
         shell.cpp
         sidebar.h

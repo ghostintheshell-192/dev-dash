@@ -46,7 +46,7 @@ namespace dev_dash::ui
         {
             _diffOpen = true;
             _diffView->SelectScaffold(scaffoldName);
-            ImGui::SetWindowFocus("Scaffold diff");
+            ImGui::SetWindowFocus("Compare");
         };
         callbacks.openConfigView = [this]
         {

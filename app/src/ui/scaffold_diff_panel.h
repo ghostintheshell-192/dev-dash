@@ -71,6 +71,7 @@ namespace dev_dash::ui
         std::set<std::string>         _selectedForPromote;
         bool                          _showPromoteConfirm  = false;
         bool                          _showApplyConfirm    = false;
+        bool                          _showUnchanged       = false;
         FileDiffPanel                 _diffViewer;
 
         bool _needsRefresh = true;
