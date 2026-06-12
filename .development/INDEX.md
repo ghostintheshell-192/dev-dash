@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-06-12 22:31*
+*Auto-generated: 2026-06-12 23:04*
 
 ---
 
@@ -50,6 +50,10 @@
 - [feature-scaffold-management.md](specs/implemented/feature-scaffold-management.md) (10KB, 2026-06-10) **RECENT**
 - [feature-snapshot-history.md](specs/implemented/feature-snapshot-history.md) (8KB, 2026-06-10) **RECENT**
 - [feature-effective-config-view.md](specs/implemented/feature-effective-config-view.md) (6KB, 2026-05-10)
+
+### specs/in-progress/ (1 files)
+
+- [feature-ui-overhaul.md](specs/in-progress/feature-ui-overhaul.md) (2KB, 2026-06-12) **RECENT**
 
 ### specs/planned/ (1 files)
 
@@ -114,15 +118,15 @@
 ## Recently Modified (last 7 days)
 
 1. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
-2. [README.md](tech-debt/README.md) (today)
+2. [feature-ui-overhaul.md](specs/in-progress/feature-ui-overhaul.md) (today)
 3. [INDEX.md](INDEX.md) (today)
 4. [013-scaffold-source-of-truth.md](reference/decisions/013-scaffold-source-of-truth.md) (today)
-5. [feature-agnostic-automation.md](specs/implemented/feature-agnostic-automation.md) (1d ago)
-6. [2026-06-11_spec-workflow-hook-silent-fail.md](archive/completed/2026-06-11_spec-workflow-hook-silent-fail.md) (1d ago)
-7. [2026-06-10_project-githooks-not-active.md](archive/completed/2026-06-10_project-githooks-not-active.md) (1d ago)
-8. [scanner-directory-include-silent.md](tech-debt/scanner-directory-include-silent.md) (1d ago)
-9. [006-desktop-vs-vscode-extension.md](reference/decisions/006-desktop-vs-vscode-extension.md) (1d ago)
-10. [feature-global-settings-coverage.md](specs/backlog/feature-global-settings-coverage.md) (1d ago)
+5. [README.md](tech-debt/README.md) (today)
+6. [feature-agnostic-automation.md](specs/implemented/feature-agnostic-automation.md) (1d ago)
+7. [2026-06-11_spec-workflow-hook-silent-fail.md](archive/completed/2026-06-11_spec-workflow-hook-silent-fail.md) (1d ago)
+8. [2026-06-10_project-githooks-not-active.md](archive/completed/2026-06-10_project-githooks-not-active.md) (1d ago)
+9. [scanner-directory-include-silent.md](tech-debt/scanner-directory-include-silent.md) (1d ago)
+10. [006-desktop-vs-vscode-extension.md](reference/decisions/006-desktop-vs-vscode-extension.md) (1d ago)
 
 ---
 

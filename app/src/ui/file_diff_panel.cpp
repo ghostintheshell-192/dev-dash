@@ -1,4 +1,5 @@
 #include "file_diff_panel.h"
+#include "theme.h"
 
 #include <fstream>
 #include <sstream>
@@ -59,13 +60,15 @@ namespace dev_dash::ui
         }
 
         // ── Header ────────────────────────────────────────────────────────────
-        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.45f, 0.45f, 1.0f));
+        const Theme& theme = CurrentTheme();
+
+        ImGui::PushStyleColor(ImGuiCol_Text, theme.removed);
         ImGui::Text("- %s", _labelA.c_str());
         ImGui::PopStyleColor();
         ImGui::SameLine();
         ImGui::TextDisabled("%s", _pathA.string().c_str());
 
-        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.45f, 0.90f, 0.45f, 1.0f));
+        ImGui::PushStyleColor(ImGuiCol_Text, theme.added);
         ImGui::Text("+ %s", _labelB.c_str());
         ImGui::PopStyleColor();
         ImGui::SameLine();
@@ -86,11 +89,11 @@ namespace dev_dash::ui
             return;
         }
 
-        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.45f, 0.45f, 1.0f));
+        ImGui::PushStyleColor(ImGuiCol_Text, theme.removed);
         ImGui::Text("-%d", _removedCount);
         ImGui::PopStyleColor();
         ImGui::SameLine();
-        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.45f, 0.90f, 0.45f, 1.0f));
+        ImGui::PushStyleColor(ImGuiCol_Text, theme.added);
         ImGui::Text("+%d", _addedCount);
         ImGui::PopStyleColor();
 
@@ -100,28 +103,24 @@ namespace dev_dash::ui
         ImGui::BeginChild("##diff_lines", ImVec2(0, 0), false,
                           ImGuiWindowFlags_HorizontalScrollbar);
 
-        constexpr ImVec4 kColorRemoved = {1.00f, 0.40f, 0.40f, 1.0f};
-        constexpr ImVec4 kColorAdded   = {0.40f, 0.88f, 0.40f, 1.0f};
-        constexpr ImVec4 kColorContext = {0.55f, 0.55f, 0.55f, 1.0f};
-
         for (const auto& line : _diff)
         {
             switch (line.kind)
             {
             case core::DiffLineKind::kRemoved:
-                ImGui::PushStyleColor(ImGuiCol_Text, kColorRemoved);
+                ImGui::PushStyleColor(ImGuiCol_Text, theme.removed);
                 ImGui::TextUnformatted(("- " + line.text).c_str());
                 ImGui::PopStyleColor();
                 break;
 
             case core::DiffLineKind::kAdded:
-                ImGui::PushStyleColor(ImGuiCol_Text, kColorAdded);
+                ImGui::PushStyleColor(ImGuiCol_Text, theme.added);
                 ImGui::TextUnformatted(("+ " + line.text).c_str());
                 ImGui::PopStyleColor();
                 break;
 
             case core::DiffLineKind::kContext:
-                ImGui::PushStyleColor(ImGuiCol_Text, kColorContext);
+                ImGui::PushStyleColor(ImGuiCol_Text, theme.textDim);
                 ImGui::TextUnformatted(("  " + line.text).c_str());
                 ImGui::PopStyleColor();
                 break;

@@ -119,6 +119,8 @@ For detailed documentation, see `docs/`.
 - `scaffold_diff_panel.h`
 - `snapshot_history_panel.cpp`
 - `snapshot_history_panel.h`
+- `theme.cpp`
+- `theme.h`
 
 ---
 

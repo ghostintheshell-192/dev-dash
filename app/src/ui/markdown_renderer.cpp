@@ -1,5 +1,6 @@
 #include "markdown_renderer.h"
 #include "font_library.h"
+#include "theme.h"
 
 #include <iostream>
 
@@ -54,7 +55,7 @@ namespace dev_dash::ui
     void MarkdownRenderer::SPAN_CODE(bool e)
     {
         if (e)
-            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.85f, 0.40f, 1.0f));
+            ImGui::PushStyleColor(ImGuiCol_Text, CurrentTheme().accentHover);
         else
             ImGui::PopStyleColor();
     }
@@ -63,7 +64,7 @@ namespace dev_dash::ui
     {
         m_is_code = e;
         if (e)
-            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.85f, 0.40f, 1.0f));
+            ImGui::PushStyleColor(ImGuiCol_Text, CurrentTheme().accentHover);
         else
             ImGui::PopStyleColor();
     }

@@ -13,6 +13,7 @@
 #include "../platform/swapchain.h"
 #include "../platform/frame_resources.h"
 #include "../platform/imgui_backend.h"
+#include "../ui/theme.h"
 #include "../ui/font_library.h"
 #include "../ui/markdown_renderer.h"
 #include "../ui/document_panel_host.h"
@@ -75,6 +76,10 @@ namespace dev_dash::app
 
         _fonts        = std::make_unique<ui::FontLibrary>();
         _imguiBackend = std::make_unique<platform::ImGuiBackend>(*_window, *_vulkanContext, *_swapchain);
+
+        // After ImGuiBackend: its init sets the stock dark style as a
+        // baseline, the theme overrides it with our visual identity.
+        ui::ApplyTheme(ui::GrafiteAmbraTheme());
 
         _documentLoader    = std::make_unique<services::DocumentLoader>();
         _markdownRenderer  = std::make_unique<ui::MarkdownRenderer>(*_fonts);
@@ -228,7 +233,8 @@ namespace dev_dash::app
                 return false;
             }
 
-            constexpr VkClearValue clearColor = {.color = {.float32 = {0.06f, 0.06f, 0.06f, 1.0f}}};
+            const ImVec4 bg = ui::CurrentTheme().windowBg;
+            const VkClearValue clearColor = {.color = {.float32 = {bg.x, bg.y, bg.z, 1.0f}}};
 
             VkRenderPassBeginInfo rpBegin = {};
             rpBegin.sType             = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;

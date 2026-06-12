@@ -1,4 +1,5 @@
 #include "snapshot_history_panel.h"
+#include "theme.h"
 #include "../services/snapshot_service.h"
 
 #include <imgui.h>
@@ -112,7 +113,7 @@ namespace dev_dash::ui
             ImGui::PushID(i);
 
             if (isAuto)
-                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.6f, 0.6f, 0.6f, 1.0f));
+                ImGui::PushStyleColor(ImGuiCol_Text, CurrentTheme().textDim);
 
             ImGui::TableSetColumnIndex(0);
             ImGui::TextUnformatted(FormatTimestamp(snap.timestamp).c_str());
@@ -121,7 +122,7 @@ namespace dev_dash::ui
             if (isAuto)
                 ImGui::TextDisabled("auto");
             else
-                ImGui::TextColored({0.45f, 0.85f, 0.55f, 1.0f}, "explicit");
+                ImGui::TextColored(CurrentTheme().added, "explicit");
 
             ImGui::TableSetColumnIndex(2);
             ImGui::TextUnformatted(snap.name.c_str());
@@ -229,11 +230,11 @@ namespace dev_dash::ui
 
             const auto& snap = _snapshots[_selectedIdx];
             ImGui::Text("Restore snapshot:");
-            ImGui::TextColored({0.45f, 0.85f, 0.55f, 1.0f}, "  %s", snap.name.c_str());
+            ImGui::TextColored(CurrentTheme().added, "  %s", snap.name.c_str());
             ImGui::TextDisabled("  %s", FormatTimestamp(snap.timestamp).c_str());
             ImGui::Spacing();
             ImGui::TextWrapped("This overwrites the current project config.");
-            ImGui::TextColored({0.45f, 0.75f, 1.0f, 1.0f},
+            ImGui::TextColored(CurrentTheme().info,
                                "A pre-restore autosnapshot will be created first.");
             ImGui::Spacing();
 

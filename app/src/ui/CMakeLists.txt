@@ -1,5 +1,7 @@
 target_sources(dev-dash
     PRIVATE
+        theme.h
+        theme.cpp
         font_library.h
         font_library.cpp
         markdown_renderer.h
