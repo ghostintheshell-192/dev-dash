@@ -36,6 +36,15 @@ namespace dev_dash::services
         // Permanently remove the scaffold directory at scaffoldPath.
         bool Delete(const std::filesystem::path& scaffoldPath);
 
+        // All regular files under scaffoldPath as sorted relative paths
+        // (generic format). Standalone scaffold browsing, no diff involved.
+        std::vector<std::string> ListFiles(
+            const std::filesystem::path& scaffoldPath) const;
+
+        // Make scaffoldPath the default scaffold: writes its
+        // .devdash-default marker and removes the marker from all siblings.
+        bool SetDefault(const std::filesystem::path& scaffoldPath);
+
     private:
         std::filesystem::path       _scaffoldRoot;
         std::vector<core::Scaffold> _cache;

@@ -8,7 +8,8 @@ namespace dev_dash::ui
     {
     public:
         // Must be called after ImGui::CreateContext() and before ImGui_ImplVulkan_Init().
-        FontLibrary();
+        // uiScale multiplies every font size (display content scale, ≥ 1).
+        explicit FontLibrary(float uiScale = 1.0f);
         ~FontLibrary() = default;
 
         FontLibrary(const FontLibrary&)            = delete;

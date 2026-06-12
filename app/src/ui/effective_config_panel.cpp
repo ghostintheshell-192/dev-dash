@@ -1,5 +1,6 @@
 #include "effective_config_panel.h"
 #include "document_panel_host.h"
+#include "theme.h"
 #include "../services/config_resolver.h"
 
 #include <imgui.h>
@@ -21,13 +22,14 @@ namespace dev_dash::ui
 
         ImVec4 LayerColor(core::ConfigLayerKind kind)
         {
+            const Theme& t = CurrentTheme();
             switch (kind)
             {
-            case core::ConfigLayerKind::kGlobal:    return {0.45f, 0.65f, 1.00f, 1.0f};
-            case core::ConfigLayerKind::kWorkspace: return {0.45f, 0.85f, 0.45f, 1.0f};
-            case core::ConfigLayerKind::kProject:   return {1.00f, 0.70f, 0.25f, 1.0f};
+            case core::ConfigLayerKind::kGlobal:    return t.info;
+            case core::ConfigLayerKind::kWorkspace: return t.external;
+            case core::ConfigLayerKind::kProject:   return t.accent;
             }
-            return {1.0f, 1.0f, 1.0f, 1.0f};
+            return t.text;
         }
 
         const char* SectionIcon(core::ConfigSectionKind kind)
@@ -56,37 +58,18 @@ namespace dev_dash::ui
         Refresh();
     }
 
-    void EffectiveConfigPanel::Render()
+    void EffectiveConfigPanel::Render(bool* open)
     {
-        // Reset per-frame flags before any button can re-raise them.
-        _wantsBack         = false;
-        _wantsScaffoldDiff = false;
-        _wantsHistory      = false;
-
-        const ImGuiIO& io = ImGui::GetIO();
-        ImGui::SetNextWindowPos(ImVec2(0, 0));
-        ImGui::SetNextWindowSize(io.DisplaySize);
-        ImGui::Begin("##effective_config",
-                     nullptr,
-                     ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize
-                         | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus);
+        if (!ImGui::Begin("Config", open))
+        {
+            ImGui::End();
+            return;
+        }
 
         // Toolbar
-        if (ImGui::Button("<- Back"))
-            _wantsBack = true;
-
-        ImGui::SameLine();
-        ImGui::TextDisabled("%s", _project.path.string().c_str());
-
-        ImGui::SameLine(ImGui::GetContentRegionAvail().x - 245.0f + ImGui::GetCursorPosX());
-        if (ImGui::Button("History..."))
-            _wantsHistory = true;
-
-        ImGui::SameLine();
-        if (ImGui::Button("Scaffold..."))
-            _wantsScaffoldDiff = true;
-
-        ImGui::SameLine();
+        ImGui::TextDisabled("Effective Claude Code configuration");
+        ImGui::SameLine(ImGui::GetContentRegionAvail().x - 70.0f
+                        + ImGui::GetCursorPosX());
         if (ImGui::Button("Refresh"))
             Refresh();
 
@@ -115,19 +98,16 @@ namespace dev_dash::ui
                 anyNode = true;
 
                 // Section header row
+                const ImU32 sectionBg = ImGui::GetColorU32(CurrentTheme().sectionBg);
                 ImGui::TableNextRow();
                 ImGui::TableSetColumnIndex(0);
-                ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0,
-                                       IM_COL32(45, 45, 55, 255));
-                ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg1,
-                                       IM_COL32(45, 45, 55, 255));
+                ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, sectionBg);
+                ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg1, sectionBg);
                 ImGui::TextDisabled("%s", SectionIcon(section.kind));
 
                 ImGui::TableSetColumnIndex(1);
-                ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0,
-                                       IM_COL32(45, 45, 55, 255));
-                ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg1,
-                                       IM_COL32(45, 45, 55, 255));
+                ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, sectionBg);
+                ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg1, sectionBg);
                 if (!section.alwaysInContext)
                     ImGui::TextDisabled("(on demand)");
 

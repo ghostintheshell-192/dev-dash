@@ -1,0 +1,3 @@
+DevDash default-scaffold marker. The scaffold directory containing this file
+is preselected in the scaffold UI. The marker itself is never copied into
+projects (apply only copies config-relevant diff entries).

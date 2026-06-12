@@ -1,4 +1,5 @@
 #include "project_selector_panel.h"
+#include "theme.h"
 
 #include <cstring>
 #include <filesystem>
@@ -80,7 +81,7 @@ namespace dev_dash::ui
         if (!_errorMessage.empty())
         {
             ImGui::Spacing();
-            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.4f, 0.4f, 1.0f));
+            ImGui::PushStyleColor(ImGuiCol_Text, CurrentTheme().removed);
             ImGui::TextWrapped("%s", _errorMessage.c_str());
             ImGui::PopStyleColor();
         }

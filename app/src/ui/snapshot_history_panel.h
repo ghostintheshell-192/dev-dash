@@ -13,14 +13,16 @@ namespace dev_dash::services
 
 namespace dev_dash::ui
 {
+    class StatusSink;
+
     class SnapshotHistoryPanel
     {
     public:
         SnapshotHistoryPanel(services::SnapshotService& service,
+                             StatusSink&                 status,
                              const core::Project&        project);
 
-        void Render();
-        bool WantsBack() const { return _wantsBack; }
+        void Render(bool* open);
 
     private:
         void Refresh();
@@ -28,6 +30,7 @@ namespace dev_dash::ui
         void RenderRestoreConfirmModal();
 
         services::SnapshotService& _service;
+        StatusSink&                _status;
         core::Project              _project;
         std::string                _projectSlug;
         std::vector<core::Snapshot> _snapshots;
@@ -36,8 +39,6 @@ namespace dev_dash::ui
         bool                       _showRestoreConfirm = false;
         char                       _newName[128]     = {};
         char                       _newDesc[256]     = {};
-        std::string                _statusMsg;
-        bool                       _wantsBack        = false;
         bool                       _needsRefresh     = true;
     };
 }

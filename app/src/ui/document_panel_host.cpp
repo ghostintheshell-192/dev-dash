@@ -1,5 +1,6 @@
 #include "document_panel_host.h"
 #include "markdown_renderer.h"
+#include "theme.h"
 #include "../services/document_loader.h"
 
 #include <algorithm>
@@ -38,7 +39,7 @@ namespace dev_dash::ui
         _panels.push_back({title, path, std::move(result.content), true});
     }
 
-    void DocumentPanelHost::Render()
+    void DocumentPanelHost::Render(unsigned int dockId)
     {
         DrainPendingImports();
 
@@ -46,10 +47,16 @@ namespace dev_dash::ui
         {
             if (!panel.open)
                 continue;
+            if (dockId != 0)
+                ImGui::SetNextWindowDockID(dockId, ImGuiCond_FirstUseEver);
             ImGui::SetNextWindowSize(ImVec2(700, 900), ImGuiCond_FirstUseEver);
+            // Reading panes are airy: wider padding than the data-dense panels.
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding,
+                                CurrentTheme().readingPadding);
             if (ImGui::Begin(panel.title.c_str(), &panel.open))
                 _renderer.print(panel.content.data(), panel.content.data() + panel.content.size());
             ImGui::End();
+            ImGui::PopStyleVar();
         }
 
         std::erase_if(_panels, [](const Panel& p) { return !p.open; });

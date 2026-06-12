@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-06-12 22:31*
+*Auto-generated: 2026-06-13 00:20*
 
 ---
 
@@ -19,8 +19,8 @@
 
 ### (root)/ (5 files)
 
-- [ARCHITECTURE.md](ARCHITECTURE.md) (4KB, 2026-06-12) **RECENT**
-- [INDEX.md](INDEX.md) (6KB, 2026-06-12) **RECENT**
+- [ARCHITECTURE.md](ARCHITECTURE.md) (4KB, 2026-06-13) **RECENT**
+- [INDEX.md](INDEX.md) (6KB, 2026-06-13) **RECENT**
 - [CURRENT-STATUS.md](CURRENT-STATUS.md) (14KB, 2026-06-10) **RECENT**
 - [api-design.md](api-design.md) (39KB, 2026-05-12)
 - [README.md](README.md) (2KB, 2026-04-26)
@@ -44,8 +44,9 @@
 - [feature-code-graph.md](specs/backlog/feature-code-graph.md) (8KB, 2026-05-10)
 - [feature-runtime-view-of-truth.md](specs/backlog/feature-runtime-view-of-truth.md) (2KB, 2026-05-10)
 
-### specs/implemented/ (4 files)
+### specs/implemented/ (5 files)
 
+- [feature-ui-overhaul.md](specs/implemented/feature-ui-overhaul.md) (3KB, 2026-06-13) **RECENT**
 - [feature-agnostic-automation.md](specs/implemented/feature-agnostic-automation.md) (3KB, 2026-06-11) **RECENT**
 - [feature-scaffold-management.md](specs/implemented/feature-scaffold-management.md) (10KB, 2026-06-10) **RECENT**
 - [feature-snapshot-history.md](specs/implemented/feature-snapshot-history.md) (8KB, 2026-06-10) **RECENT**
@@ -57,7 +58,7 @@
 
 ### tech-debt/ (9 files)
 
-- [README.md](tech-debt/README.md) (3KB, 2026-06-12) **RECENT**
+- [README.md](tech-debt/README.md) (3KB, 2026-06-13) **RECENT**
 - [scanner-directory-include-silent.md](tech-debt/scanner-directory-include-silent.md) (1KB, 2026-06-10) **RECENT**
 - [line-level-promote.md](tech-debt/line-level-promote.md) (1KB, 2026-05-10)
 - [imgui-backend-shutdown-order.md](tech-debt/imgui-backend-shutdown-order.md) (1KB, 2026-05-10)
@@ -114,15 +115,15 @@
 ## Recently Modified (last 7 days)
 
 1. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
-2. [README.md](tech-debt/README.md) (today)
+2. [feature-ui-overhaul.md](specs/implemented/feature-ui-overhaul.md) (today)
 3. [INDEX.md](INDEX.md) (today)
-4. [013-scaffold-source-of-truth.md](reference/decisions/013-scaffold-source-of-truth.md) (today)
-5. [feature-agnostic-automation.md](specs/implemented/feature-agnostic-automation.md) (1d ago)
-6. [2026-06-11_spec-workflow-hook-silent-fail.md](archive/completed/2026-06-11_spec-workflow-hook-silent-fail.md) (1d ago)
-7. [2026-06-10_project-githooks-not-active.md](archive/completed/2026-06-10_project-githooks-not-active.md) (1d ago)
-8. [scanner-directory-include-silent.md](tech-debt/scanner-directory-include-silent.md) (1d ago)
-9. [006-desktop-vs-vscode-extension.md](reference/decisions/006-desktop-vs-vscode-extension.md) (1d ago)
-10. [feature-global-settings-coverage.md](specs/backlog/feature-global-settings-coverage.md) (1d ago)
+4. [README.md](tech-debt/README.md) (today)
+5. [013-scaffold-source-of-truth.md](reference/decisions/013-scaffold-source-of-truth.md) (today)
+6. [feature-agnostic-automation.md](specs/implemented/feature-agnostic-automation.md) (1d ago)
+7. [2026-06-11_spec-workflow-hook-silent-fail.md](archive/completed/2026-06-11_spec-workflow-hook-silent-fail.md) (2d ago)
+8. [2026-06-10_project-githooks-not-active.md](archive/completed/2026-06-10_project-githooks-not-active.md) (2d ago)
+9. [scanner-directory-include-silent.md](tech-debt/scanner-directory-include-silent.md) (2d ago)
+10. [006-desktop-vs-vscode-extension.md](reference/decisions/006-desktop-vs-vscode-extension.md) (2d ago)
 
 ---
 

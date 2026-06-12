@@ -1,4 +1,6 @@
 #include "snapshot_history_panel.h"
+#include "status_sink.h"
+#include "theme.h"
 #include "../services/snapshot_service.h"
 
 #include <imgui.h>
@@ -17,37 +19,31 @@ namespace dev_dash::ui
     }
 
     SnapshotHistoryPanel::SnapshotHistoryPanel(services::SnapshotService& service,
+                                               StatusSink&                 status,
                                                const core::Project&        project)
         : _service(service)
+        , _status(status)
         , _project(project)
         , _projectSlug(core::MakeProjectSlug(project.path))
     {
     }
 
-    void SnapshotHistoryPanel::Render()
+    void SnapshotHistoryPanel::Render(bool* open)
     {
-        _wantsBack = false;
-
         if (_needsRefresh)
         {
             Refresh();
             _needsRefresh = false;
         }
 
-        const ImGuiIO& io = ImGui::GetIO();
-        ImGui::SetNextWindowPos(ImVec2(0, 0));
-        ImGui::SetNextWindowSize(io.DisplaySize);
-        ImGui::Begin("##snapshot_history",
-                     nullptr,
-                     ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize
-                         | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus);
+        if (!ImGui::Begin("History", open))
+        {
+            ImGui::End();
+            return;
+        }
 
         // ── Toolbar ───────────────────────────────────────────────────────────
-        if (ImGui::Button("<- Back"))
-            _wantsBack = true;
-
-        ImGui::SameLine();
-        ImGui::TextDisabled("History: %s", _project.path.string().c_str());
+        ImGui::TextDisabled("Config snapshots of this project");
 
         const float rightEdge = ImGui::GetContentRegionAvail().x + ImGui::GetCursorPosX();
         ImGui::SameLine(rightEdge - 185.0f);
@@ -62,13 +58,6 @@ namespace dev_dash::ui
             _needsRefresh = true;
 
         ImGui::Separator();
-
-        if (!_statusMsg.empty())
-        {
-            ImGui::Spacing();
-            ImGui::TextUnformatted(_statusMsg.c_str());
-        }
-
         ImGui::Spacing();
 
         if (_snapshots.empty())
@@ -112,7 +101,7 @@ namespace dev_dash::ui
             ImGui::PushID(i);
 
             if (isAuto)
-                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.6f, 0.6f, 0.6f, 1.0f));
+                ImGui::PushStyleColor(ImGuiCol_Text, CurrentTheme().textDim);
 
             ImGui::TableSetColumnIndex(0);
             ImGui::TextUnformatted(FormatTimestamp(snap.timestamp).c_str());
@@ -121,7 +110,7 @@ namespace dev_dash::ui
             if (isAuto)
                 ImGui::TextDisabled("auto");
             else
-                ImGui::TextColored({0.45f, 0.85f, 0.55f, 1.0f}, "explicit");
+                ImGui::TextColored(CurrentTheme().added, "explicit");
 
             ImGui::TableSetColumnIndex(2);
             ImGui::TextUnformatted(snap.name.c_str());
@@ -185,12 +174,14 @@ namespace dev_dash::ui
                 const auto snap = _service.SaveExplicit(_project, _newName, _newDesc);
                 if (!snap.path.empty())
                 {
-                    _statusMsg = "Snapshot \"" + snap.name + "\" saved.";
+                    _status.Set(StatusSink::Level::kSuccess,
+                                "Snapshot \"" + snap.name + "\" saved.");
                     _needsRefresh = true;
                 }
                 else
                 {
-                    _statusMsg = "Failed to save snapshot.";
+                    _status.Set(StatusSink::Level::kError,
+                                "Failed to save snapshot.");
                 }
                 ImGui::CloseCurrentPopup();
             }
@@ -229,20 +220,21 @@ namespace dev_dash::ui
 
             const auto& snap = _snapshots[_selectedIdx];
             ImGui::Text("Restore snapshot:");
-            ImGui::TextColored({0.45f, 0.85f, 0.55f, 1.0f}, "  %s", snap.name.c_str());
+            ImGui::TextColored(CurrentTheme().added, "  %s", snap.name.c_str());
             ImGui::TextDisabled("  %s", FormatTimestamp(snap.timestamp).c_str());
             ImGui::Spacing();
             ImGui::TextWrapped("This overwrites the current project config.");
-            ImGui::TextColored({0.45f, 0.75f, 1.0f, 1.0f},
+            ImGui::TextColored(CurrentTheme().info,
                                "A pre-restore autosnapshot will be created first.");
             ImGui::Spacing();
 
             if (ImGui::Button("Restore", ImVec2(120, 0)))
             {
                 const bool ok = _service.Restore(snap, _project);
-                _statusMsg = ok
-                    ? "Restored to \"" + snap.name + "\"."
-                    : "Restore failed.";
+                _status.Set(ok ? StatusSink::Level::kSuccess
+                               : StatusSink::Level::kError,
+                            ok ? "Restored to \"" + snap.name + "\"."
+                               : "Restore failed.");
                 _needsRefresh = true;
                 ImGui::CloseCurrentPopup();
             }

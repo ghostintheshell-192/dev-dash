@@ -24,7 +24,9 @@ namespace dev_dash::ui
         void OpenPanel(const std::filesystem::path& path);
 
         // Called once per frame between ImGui::NewFrame() and ImGui::Render().
-        void Render();
+        // With a non-zero dockId, new documents dock there as tabs instead
+        // of floating free.
+        void Render(unsigned int dockId = 0);
 
     private:
         struct Panel

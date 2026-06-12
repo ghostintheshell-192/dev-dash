@@ -6,7 +6,9 @@ set -euo pipefail
 
 PRESET="${1:-linux-debug}"
 
+# --build --preset resolves CMakePresets.json from the CWD, and ours lives
+# in app/ — so the build step must run from there.
 cmake --preset "$PRESET" -S app
-cmake --build --preset "$PRESET"
+(cd app && cmake --build --preset "$PRESET")
 
 echo "build: OK (preset $PRESET)"

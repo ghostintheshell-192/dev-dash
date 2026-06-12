@@ -1,5 +1,14 @@
 target_sources(dev-dash
     PRIVATE
+        theme.h
+        theme.cpp
+        status_sink.h
+        widgets.h
+        widgets.cpp
+        shell.h
+        shell.cpp
+        sidebar.h
+        sidebar.cpp
         font_library.h
         font_library.cpp
         markdown_renderer.h
