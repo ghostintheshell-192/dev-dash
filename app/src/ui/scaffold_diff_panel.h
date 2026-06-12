@@ -56,6 +56,8 @@ namespace dev_dash::ui
         int                           _selectedIdx = 0;
         std::vector<core::DiffEntry>  _diff;
 
+        enum class StatusLevel { kInfo, kSuccess, kError };
+
         std::set<std::string>         _selectedForPromote;
         bool                          _showPromoteConfirm  = false;
         bool                          _showApplyConfirm    = false;
@@ -64,6 +66,7 @@ namespace dev_dash::ui
         char                          _newName[128]        = {};
         int                           _newMode             = 0;  // 0=empty, 1=copy
         std::string                   _statusMsg;
+        StatusLevel                   _statusLevel = StatusLevel::kInfo;
         FileDiffPanel                 _diffViewer;
 
         bool _wantsBack    = false;

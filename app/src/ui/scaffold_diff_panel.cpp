@@ -1,5 +1,6 @@
 #include "scaffold_diff_panel.h"
 #include "document_panel_host.h"
+#include "theme.h"
 #include "../services/scaffold_repository.h"
 #include "../services/diff_engine.h"
 #include "../services/promote_engine.h"
@@ -32,24 +33,29 @@ namespace dev_dash::ui
         // ── Section grouping ─────────────────────────────────────────────────
         enum class ScaffoldSection
         {
-            kClaudeMd, kRules, kSkills, kAgents, kSettings, kHooks, kOther
+            kClaudeMd, kRules, kSkills, kCommands, kAgents, kSettings,
+            kHooks, kAutomation, kOther
         };
 
         ScaffoldSection ClassifyPath(const std::string& rel)
         {
-            if (rel == "CLAUDE.md" || rel == "CLAUDE.local.md")
+            if (rel == "CLAUDE.md" || rel == "CLAUDE.local.md"
+                || rel == ".claude/CLAUDE.md")
                 return ScaffoldSection::kClaudeMd;
             if (rel.size() > 14 && rel.compare(0, 14, ".claude/rules/")  == 0)
                 return ScaffoldSection::kRules;
             if (rel.size() > 15 && rel.compare(0, 15, ".claude/skills/") == 0)
                 return ScaffoldSection::kSkills;
+            if (rel.size() > 17 && rel.compare(0, 17, ".claude/commands/") == 0)
+                return ScaffoldSection::kCommands;
             if (rel.size() > 15 && rel.compare(0, 15, ".claude/agents/") == 0)
                 return ScaffoldSection::kAgents;
-            if (rel == ".claude/settings.json" || rel == ".claude/settings.local.json"
-                || rel == ".claude/CLAUDE.md"  || rel.compare(0, 7, ".claude") == 0)
-                return ScaffoldSection::kOther;
+            if (rel == ".claude/settings.json" || rel == ".claude/settings.local.json")
+                return ScaffoldSection::kSettings;
             if (rel.size() > 10 && rel.compare(0, 10, ".githooks/") == 0)
                 return ScaffoldSection::kHooks;
+            if (rel.size() > 24 && rel.compare(0, 24, ".development/automation/") == 0)
+                return ScaffoldSection::kAutomation;
             return ScaffoldSection::kOther;
         }
 
@@ -57,13 +63,15 @@ namespace dev_dash::ui
         {
             switch (s)
             {
-            case ScaffoldSection::kClaudeMd: return "CLAUDE.md";
-            case ScaffoldSection::kRules:    return "Rules";
-            case ScaffoldSection::kSkills:   return "Skills";
-            case ScaffoldSection::kAgents:   return "Agents";
-            case ScaffoldSection::kSettings: return "Settings";
-            case ScaffoldSection::kHooks:    return "Hooks";
-            case ScaffoldSection::kOther:    return ".claude/ (other)";
+            case ScaffoldSection::kClaudeMd:   return "CLAUDE.md";
+            case ScaffoldSection::kRules:      return "Rules";
+            case ScaffoldSection::kSkills:     return "Skills";
+            case ScaffoldSection::kCommands:   return "Commands";
+            case ScaffoldSection::kAgents:     return "Agents";
+            case ScaffoldSection::kSettings:   return "Settings";
+            case ScaffoldSection::kHooks:      return "Git hooks";
+            case ScaffoldSection::kAutomation: return "Automation entry points";
+            case ScaffoldSection::kOther:      return "Other";
             }
             return "?";
         }
@@ -83,14 +91,15 @@ namespace dev_dash::ui
 
         ImVec4 KindColor(core::DiffKind kind)
         {
+            const Theme& t = CurrentTheme();
             switch (kind)
             {
-            case core::DiffKind::kMissing:   return {1.00f, 0.40f, 0.40f, 1.0f};
-            case core::DiffKind::kModified:  return {1.00f, 0.80f, 0.20f, 1.0f};
-            case core::DiffKind::kUnchanged: return {0.50f, 0.50f, 0.50f, 1.0f};
-            case core::DiffKind::kCustom:    return {0.45f, 0.75f, 1.00f, 1.0f};
+            case core::DiffKind::kMissing:   return t.external;
+            case core::DiffKind::kModified:  return t.modified;
+            case core::DiffKind::kUnchanged: return t.textDim;
+            case core::DiffKind::kCustom:    return t.info;
             }
-            return {1.0f, 1.0f, 1.0f, 1.0f};
+            return t.text;
         }
 
         bool IsPromotable(core::DiffKind kind)
@@ -101,25 +110,31 @@ namespace dev_dash::ui
         // Section header row spanning all columns.
         void RenderSectionHeader(const char* label)
         {
+            const ImU32 bg = ImGui::GetColorU32(CurrentTheme().sectionBg);
             ImGui::TableNextRow();
             for (int col = 0; col < 4; ++col)
             {
                 ImGui::TableSetColumnIndex(col);
-                ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, IM_COL32(45, 45, 55, 255));
-                ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg1, IM_COL32(45, 45, 55, 255));
+                ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, bg);
+                ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg1, bg);
             }
             ImGui::TableSetColumnIndex(0);
             ImGui::TextDisabled("%s", label);
         }
 
         // Render a single selectable file path cell; returns true if clicked.
-        bool FileCell(int id, const char* label, bool dim)
+        // The tooltip shows the absolute path, so every row says where the
+        // file physically lives (scaffold dir vs project dir).
+        bool FileCell(int id, const char* label, bool dim,
+                      const std::filesystem::path& fullPath)
         {
             bool clicked = false;
             ImGui::PushID(id);
-            if (dim) ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
+            if (dim) ImGui::PushStyleColor(ImGuiCol_Text, CurrentTheme().textDim);
             clicked = ImGui::Selectable(label, false, ImGuiSelectableFlags_None);
             if (dim) ImGui::PopStyleColor();
+            if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort))
+                ImGui::SetTooltip("%s", fullPath.string().c_str());
             ImGui::PopID();
             return clicked;
         }
@@ -188,9 +203,15 @@ namespace dev_dash::ui
             return;
         }
 
-        // Scaffold picker
-        ImGui::SetNextItemWidth(200.0f);
-        if (ImGui::BeginCombo("##scaffold_pick", _scaffolds[_selectedIdx].name.c_str()))
+        // Scaffold picker. Labelled and width-bounded so it reads as a
+        // selector, not as a static caption (2026-06-11 dogfooding finding).
+        ImGui::TextUnformatted("Scaffold:");
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(240.0f);
+        const std::string comboPreview = _scaffolds[_selectedIdx].isDefault
+            ? _scaffolds[_selectedIdx].name + "  (default)"
+            : _scaffolds[_selectedIdx].name;
+        if (ImGui::BeginCombo("##scaffold_pick", comboPreview.c_str()))
         {
             for (int i = 0; i < static_cast<int>(_scaffolds.size()); ++i)
             {
@@ -201,11 +222,20 @@ namespace dev_dash::ui
                     _statusMsg.clear();
                     RunDiff();
                 }
+                if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort))
+                    ImGui::SetTooltip("%s", _scaffolds[i].path.string().c_str());
+                if (_scaffolds[i].isDefault)
+                {
+                    ImGui::SameLine();
+                    ImGui::TextColored(CurrentTheme().accent, "(default)");
+                }
                 if (i == _selectedIdx)
                     ImGui::SetItemDefaultFocus();
             }
             ImGui::EndCombo();
         }
+        if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort))
+            ImGui::SetTooltip("%s", _scaffolds[_selectedIdx].path.string().c_str());
 
         ImGui::SameLine();
         if (ImGui::SmallButton("New..."))
@@ -267,10 +297,19 @@ namespace dev_dash::ui
         ImGui::Separator();
 
         // ── Status message ────────────────────────────────────────────────────
+        // Errors stay loud (2026-06-11 dogfooding finding: promote/apply
+        // failures were easy to miss).
         if (!_statusMsg.empty())
         {
+            const Theme& t = CurrentTheme();
+            const ImVec4 statusColor =
+                _statusLevel == StatusLevel::kError   ? t.removed
+              : _statusLevel == StatusLevel::kSuccess ? t.added
+                                                      : t.text;
             ImGui::Spacing();
-            ImGui::TextUnformatted(_statusMsg.c_str());
+            ImGui::PushStyleColor(ImGuiCol_Text, statusColor);
+            ImGui::TextWrapped("%s", _statusMsg.c_str());
+            ImGui::PopStyleColor();
         }
 
         // ── Summary bar ───────────────────────────────────────────────────────
@@ -309,22 +348,31 @@ namespace dev_dash::ui
             return;
         }
 
+        const auto& scaffold = _scaffolds[_selectedIdx];
+
+        // Column headers name the actual locations, so each side of a row
+        // says where the file physically lives (2026-06-11 dogfooding
+        // finding: scaffold vs project was ambiguous).
+        const std::string scaffoldHeader = "Scaffold: " + scaffold.name;
+        const std::string projectHeader  =
+            "Project: " + _project.path.filename().string();
+
         ImGui::TableSetupScrollFreeze(0, 1);
-        ImGui::TableSetupColumn("Scaffold", ImGuiTableColumnFlags_WidthStretch);
+        ImGui::TableSetupColumn(scaffoldHeader.c_str(), ImGuiTableColumnFlags_WidthStretch);
         ImGui::TableSetupColumn("Status",   ImGuiTableColumnFlags_WidthFixed, 120.0f);
-        ImGui::TableSetupColumn("Project",  ImGuiTableColumnFlags_WidthStretch);
+        ImGui::TableSetupColumn(projectHeader.c_str(), ImGuiTableColumnFlags_WidthStretch);
         ImGui::TableSetupColumn("##promo",  ImGuiTableColumnFlags_WidthFixed, 24.0f);
         ImGui::TableHeadersRow();
-
-        const auto& scaffold = _scaffolds[_selectedIdx];
 
         constexpr ScaffoldSection kAllSections[] = {
             ScaffoldSection::kClaudeMd,
             ScaffoldSection::kRules,
             ScaffoldSection::kSkills,
+            ScaffoldSection::kCommands,
             ScaffoldSection::kAgents,
             ScaffoldSection::kSettings,
             ScaffoldSection::kHooks,
+            ScaffoldSection::kAutomation,
             ScaffoldSection::kOther,
         };
 
@@ -349,7 +397,8 @@ namespace dev_dash::ui
                 ImGui::TableSetColumnIndex(0);
                 if (entry.kind != core::DiffKind::kCustom)
                 {
-                    if (FileCell(rowId * 3, entry.relativePath.c_str(), dimmed))
+                    if (FileCell(rowId * 3, entry.relativePath.c_str(), dimmed,
+                                 scaffold.path / entry.relativePath))
                         _docHost.OpenPanel(scaffold.path / entry.relativePath);
                 }
                 else
@@ -381,7 +430,8 @@ namespace dev_dash::ui
                 ImGui::TableSetColumnIndex(2);
                 if (entry.kind != core::DiffKind::kMissing)
                 {
-                    if (FileCell(rowId * 3 + 1, entry.relativePath.c_str(), dimmed))
+                    if (FileCell(rowId * 3 + 1, entry.relativePath.c_str(), dimmed,
+                                 _project.path / entry.relativePath))
                         _docHost.OpenPanel(_project.path / entry.relativePath);
                 }
                 else
@@ -439,8 +489,20 @@ namespace dev_dash::ui
                                    ImGuiWindowFlags_AlwaysAutoResize))
         {
             const auto& scaffold = _scaffolds[_selectedIdx];
-            ImGui::Text("Copy %d file(s) from project to scaffold:",
+            const Theme& t = CurrentTheme();
+
+            // The destination scaffold is the decision being confirmed —
+            // name it loudly (2026-06-11 dogfooding finding: two promotes
+            // landed on the wrong scaffold unnoticed).
+            ImGui::Text("Copy %d file(s) from project to scaffold",
                         static_cast<int>(_selectedForPromote.size()));
+            ImGui::SameLine();
+            ImGui::TextColored(t.accent, "%s", scaffold.name.c_str());
+            if (scaffold.isDefault)
+            {
+                ImGui::SameLine();
+                ImGui::TextDisabled("(default)");
+            }
             ImGui::TextDisabled("  %s", scaffold.path.string().c_str());
             ImGui::Spacing();
 
@@ -448,7 +510,7 @@ namespace dev_dash::ui
                 ImGui::BulletText("%s", rel.c_str());
 
             ImGui::Spacing();
-            ImGui::TextColored({1.0f, 0.8f, 0.2f, 1.0f},
+            ImGui::TextColored(t.modified,
                                "Existing scaffold files will be overwritten.");
             ImGui::Spacing();
 
@@ -463,13 +525,16 @@ namespace dev_dash::ui
                 if (result.Ok())
                 {
                     _statusMsg = "Promoted " + std::to_string(result.copiedCount)
-                                        + " file(s) to scaffold.";
+                                        + " file(s) to scaffold \"" + scaffold.name + "\".";
+                    _statusLevel = StatusLevel::kSuccess;
                 }
                 else
                 {
-                    _statusMsg = "Promote completed with errors:";
+                    _statusMsg = "Promote to \"" + scaffold.name
+                               + "\" completed with errors:";
                     for (const auto& e : result.errors)
                         _statusMsg += "\n  " + e;
+                    _statusLevel = StatusLevel::kError;
                 }
 
                 _selectedForPromote.clear();
@@ -518,7 +583,7 @@ namespace dev_dash::ui
             }
 
             ImGui::Spacing();
-            ImGui::TextColored({0.45f, 0.75f, 1.0f, 1.0f},
+            ImGui::TextColored(CurrentTheme().info,
                                "A pre-apply autosnapshot will be created first.");
             ImGui::TextDisabled("Existing project files not in scaffold are untouched.");
             ImGui::Spacing();
@@ -541,6 +606,8 @@ namespace dev_dash::ui
                 _statusMsg = "Applied " + std::to_string(result.applied)
                            + ", skipped " + std::to_string(result.skipped)
                            + ", failed " + std::to_string(result.failed) + ".";
+                _statusLevel = result.failed > 0 ? StatusLevel::kError
+                                                 : StatusLevel::kSuccess;
                 RunDiff();
                 ImGui::CloseCurrentPopup();
             }
@@ -604,12 +671,14 @@ namespace dev_dash::ui
                 if (ok)
                 {
                     _statusMsg = std::string("Scaffold \"") + _newName + "\" created.";
+                    _statusLevel  = StatusLevel::kSuccess;
                     _needsRefresh = true;
                 }
                 else
                 {
                     _statusMsg = std::string("Failed to create scaffold \"")
                                  + _newName + "\".";
+                    _statusLevel = StatusLevel::kError;
                 }
                 ImGui::CloseCurrentPopup();
             }
@@ -624,7 +693,7 @@ namespace dev_dash::ui
                 && std::filesystem::exists(_repo.ScaffoldRoot() / _newName))
             {
                 ImGui::Spacing();
-                ImGui::TextColored({1.0f, 0.4f, 0.4f, 1.0f},
+                ImGui::TextColored(CurrentTheme().removed,
                                    "A scaffold with that name already exists.");
             }
 
@@ -657,11 +726,11 @@ namespace dev_dash::ui
 
             const auto& scaffold = _scaffolds[_selectedIdx];
             ImGui::Text("Permanently delete scaffold:");
-            ImGui::TextColored({1.0f, 0.4f, 0.4f, 1.0f},
+            ImGui::TextColored(CurrentTheme().removed,
                                "  %s", scaffold.name.c_str());
             ImGui::TextDisabled("  %s", scaffold.path.string().c_str());
             ImGui::Spacing();
-            ImGui::TextColored({1.0f, 0.8f, 0.2f, 1.0f},
+            ImGui::TextColored(CurrentTheme().modified,
                                "This cannot be undone.");
             ImGui::Spacing();
 
@@ -671,6 +740,7 @@ namespace dev_dash::ui
                 _statusMsg = ok
                     ? "Scaffold \"" + scaffold.name + "\" deleted."
                     : "Failed to delete scaffold \"" + scaffold.name + "\".";
+                _statusLevel = ok ? StatusLevel::kSuccess : StatusLevel::kError;
                 _selectedIdx  = 0;
                 _selectedForPromote.clear();
                 _needsRefresh = true;
@@ -686,9 +756,21 @@ namespace dev_dash::ui
 
     void ScaffoldDiffPanel::Refresh()
     {
+        const bool firstLoad = _scaffolds.empty();
         _scaffolds = _repo.List();
         if (_selectedIdx >= static_cast<int>(_scaffolds.size()))
             _selectedIdx = 0;
+
+        // On first load, start from the default scaffold instead of
+        // whatever sorts first (PROVA1 used to win over dev-dash-standard).
+        if (firstLoad)
+            for (int i = 0; i < static_cast<int>(_scaffolds.size()); ++i)
+                if (_scaffolds[i].isDefault)
+                {
+                    _selectedIdx = i;
+                    break;
+                }
+
         _diff.clear();
         _selectedForPromote.clear();
         if (!_scaffolds.empty())

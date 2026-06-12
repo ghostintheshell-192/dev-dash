@@ -118,10 +118,10 @@
 ## Recently Modified (last 7 days)
 
 1. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
-2. [feature-ui-overhaul.md](specs/in-progress/feature-ui-overhaul.md) (today)
+2. [README.md](tech-debt/README.md) (today)
 3. [INDEX.md](INDEX.md) (today)
-4. [013-scaffold-source-of-truth.md](reference/decisions/013-scaffold-source-of-truth.md) (today)
-5. [README.md](tech-debt/README.md) (today)
+4. [feature-ui-overhaul.md](specs/in-progress/feature-ui-overhaul.md) (today)
+5. [013-scaffold-source-of-truth.md](reference/decisions/013-scaffold-source-of-truth.md) (today)
 6. [feature-agnostic-automation.md](specs/implemented/feature-agnostic-automation.md) (1d ago)
 7. [2026-06-11_spec-workflow-hook-silent-fail.md](archive/completed/2026-06-11_spec-workflow-hook-silent-fail.md) (1d ago)
 8. [2026-06-10_project-githooks-not-active.md](archive/completed/2026-06-10_project-githooks-not-active.md) (1d ago)
