@@ -1,6 +1,11 @@
 #!/bin/bash
 # Git Pre-Commit Hook - Security Scanner
 # Blocks commit of secrets and sensitive files
+# Created: 2025-10-10
+# Copied from: /data/repos/.git-hooks/pre-commit.d/01-security
+#
+# Location: .githooks/pre-commit.d/01-security
+# Configured via: git config core.hooksPath .githooks
 
 set -e
 
@@ -151,7 +156,7 @@ if [ $BLOCKED -eq 1 ]; then
     echo -e "${YELLOW}To fix:${NC}"
     echo "  1. Remove sensitive data from files"
     echo "  2. Add file patterns to .gitignore"
-    echo "  3. Store credentials outside the repo"
+    echo "  3. Use /data/secrets/ for storing credentials"
     echo "  4. Reference secrets via environment variables"
     echo ""
     echo -e "${YELLOW}To bypass (NOT RECOMMENDED):${NC}"

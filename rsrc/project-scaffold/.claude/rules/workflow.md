@@ -78,12 +78,49 @@ If `.githooks/` ships the spec-workflow hooks, spec files are moved between
 
 - **`post-checkout`**: on `git checkout -b {feature,fix,docs,refactor,experiment}/<name>`,
   the matching spec in `specs/planned/<name>.md` is moved to `specs/in-progress/`
-  and its frontmatter `**Status**` field is updated.
-- **`pre-commit.d/05-spec-workflow`**: on merge commits into `develop`, the
-  branch name is parsed and the matching spec is moved to `specs/implemented/`
-  and staged as part of the merge commit.
+  and its frontmatter `status` field is updated.
+- **`post-merge`**: on no-conflict merges into `develop` (the normal case —
+  git creates those commits directly and pre-commit does NOT run), the merged
+  branch is parsed from the merge commit subject and the matching spec is
+  moved to `specs/implemented/` and staged. The hook then prints the
+  one-liner to fold it in (`git commit --amend --no-edit`) — run it right
+  after the merge; amending from inside the hook is impossible because git
+  still holds MERGE_HEAD while post-merge runs.
+- **`pre-commit.d/05-spec-workflow`**: covers the complementary case only —
+  conflicted merges concluded manually via `git commit`, where `MERGE_HEAD`
+  still exists and pre-commit does run.
 
-Activation requires `git config core.hooksPath .githooks` (done once per clone).
+The script at `.development/scripts/spec-workflow.py` is the shared backend;
+missing specs, unknown branch prefixes, and non-merge commits all exit silently.
+Spec filenames may carry the branch prefix folded in (`feature/x` matches
+`feature-x.md`).
+
+### Automation entry points
+
+Hooks and CI are **generic orchestrators**: they contain no stack-specific
+commands. All stack knowledge lives in standard entry points under
+`.development/automation/`:
+
+| Entry point | Contract |
+| ----------- | -------- |
+| `build.sh [preset]` | Build the project; exit != 0 on failure |
+| `test.sh [preset]` | Run tests; "no tests yet" is a declared no-op |
+| `format-check.sh [files...]` | Verify formatting; no-op without a formatter config |
+| `format-fix.sh [files...]` | Apply formatting |
+| `docs-update.sh` | Regenerate ARCHITECTURE.md, INDEX.md, tech-debt index |
+
+No args = act on everything. Multi-stack knowledge (which command for which
+part of the tree) belongs *inside* the entry point, never in hooks or CI.
+
+### Hook activation (once per clone)
+
+```bash
+bash .development/automation/bootstrap.sh
+```
+
+Sets `core.hooksPath .githooks` locally (overrides any global hooksPath),
+verifies prerequisites, and makes hooks/entry points executable. Without
+this, branch protection and the project hooks are NOT active.
 
 ## Investigation & Analysis Workflow
 
@@ -102,12 +139,15 @@ When analyzing tech-debt, bugs, or investigating issues:
 ## Quick Commands
 
 ```bash
-# Build and run
-{BUILD_COMMAND}
+# Build (entry point — stack knowledge lives inside the script)
+.development/automation/build.sh
 
-# Run tests
-{TEST_COMMAND}
+# Run the app
+{RUN_COMMAND}
+
+# Tests
+.development/automation/test.sh
 
 # Format check
-{FORMAT_COMMAND}
+.development/automation/format-check.sh
 ```

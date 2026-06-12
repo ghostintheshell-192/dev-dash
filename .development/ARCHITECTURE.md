@@ -27,6 +27,7 @@ For detailed documentation, see `docs/`.
 - [ADR-010: Architecture Design](reference/decisions/010-architecture-design.md)
 - [ADR-011: Release And Distribution](reference/decisions/011-release-and-distribution.md)
 - [ADR-012: Codebase Agnostic Automation](reference/decisions/012-codebase-agnostic-automation.md)
+- [ADR-013: Scaffold Source Of Truth](reference/decisions/013-scaffold-source-of-truth.md)
 
 ## Project Tree
 
