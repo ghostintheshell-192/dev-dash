@@ -17,10 +17,7 @@ namespace dev_dash::ui
                              DocumentPanelHost& docHost,
                              const core::Project& project);
 
-        void Render();
-        bool WantsBack()         const { return _wantsBack; }
-        bool WantsScaffoldDiff() const { return _wantsScaffoldDiff; }
-        bool WantsHistory()      const { return _wantsHistory; }
+        void Render(bool* open);
         const core::Project& Project() const { return _project; }
 
     private:
@@ -30,8 +27,5 @@ namespace dev_dash::ui
         DocumentPanelHost&        _docHost;
         core::Project             _project;
         core::EffectiveConfig     _config;
-        bool                      _wantsBack         = false;
-        bool                      _wantsScaffoldDiff = false;
-        bool                      _wantsHistory      = false;
     };
 }

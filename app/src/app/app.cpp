@@ -18,9 +18,7 @@
 #include "../ui/markdown_renderer.h"
 #include "../ui/document_panel_host.h"
 #include "../ui/project_selector_panel.h"
-#include "../ui/effective_config_panel.h"
-#include "../ui/scaffold_diff_panel.h"
-#include "../ui/snapshot_history_panel.h"
+#include "../ui/shell.h"
 #include "../services/document_loader.h"
 #include "../services/config_resolver.h"
 #include "../services/scaffold_repository.h"
@@ -108,11 +106,11 @@ namespace dev_dash::app
 
     void App::OnProjectSelected(const std::filesystem::path& path)
     {
-        _scaffoldDiffPanel.reset();
-        _snapshotHistoryPanel.reset();
-        _effectiveConfigPanel = std::make_unique<ui::EffectiveConfigPanel>(
-            *_configResolver, *_documentPanelHost, core::Project{path});
-        _appState = AppState::kViewingConfig;
+        _shell = std::make_unique<ui::Shell>(
+            *_configResolver, *_scaffoldRepository, *_diffEngine,
+            *_promoteEngine, *_applyEngine, *_snapshotService,
+            *_documentPanelHost, core::Project{path});
+        _appState = AppState::kWorkspace;
     }
 
     bool App::MainLoop()
@@ -140,46 +138,12 @@ namespace dev_dash::app
                 _projectSelectorPanel->Render();
                 break;
 
-            case AppState::kViewingConfig:
-                _effectiveConfigPanel->Render();
-                _documentPanelHost->Render();
-                if (_effectiveConfigPanel->WantsHistory())
+            case AppState::kWorkspace:
+                _shell->Render();
+                if (_shell->WantsProjectSwitch())
                 {
-                    _snapshotHistoryPanel = std::make_unique<ui::SnapshotHistoryPanel>(
-                        *_snapshotService, _effectiveConfigPanel->Project());
-                    _appState = AppState::kSnapshotHistory;
-                }
-                else if (_effectiveConfigPanel->WantsScaffoldDiff())
-                {
-                    _scaffoldDiffPanel = std::make_unique<ui::ScaffoldDiffPanel>(
-                        *_scaffoldRepository, *_diffEngine, *_promoteEngine,
-                        *_applyEngine, *_snapshotService,
-                        *_documentPanelHost, _effectiveConfigPanel->Project());
-                    _appState = AppState::kScaffoldDiff;
-                }
-                else if (_effectiveConfigPanel->WantsBack())
-                {
-                    _effectiveConfigPanel.reset();
+                    _shell.reset();
                     _appState = AppState::kSelectingProject;
-                }
-                break;
-
-            case AppState::kScaffoldDiff:
-                _scaffoldDiffPanel->Render();
-                _documentPanelHost->Render();
-                if (_scaffoldDiffPanel->WantsBack())
-                {
-                    _scaffoldDiffPanel.reset();
-                    _appState = AppState::kViewingConfig;
-                }
-                break;
-
-            case AppState::kSnapshotHistory:
-                _snapshotHistoryPanel->Render();
-                if (_snapshotHistoryPanel->WantsBack())
-                {
-                    _snapshotHistoryPanel.reset();
-                    _appState = AppState::kViewingConfig;
                 }
                 break;
             }

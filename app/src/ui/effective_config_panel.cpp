@@ -58,37 +58,18 @@ namespace dev_dash::ui
         Refresh();
     }
 
-    void EffectiveConfigPanel::Render()
+    void EffectiveConfigPanel::Render(bool* open)
     {
-        // Reset per-frame flags before any button can re-raise them.
-        _wantsBack         = false;
-        _wantsScaffoldDiff = false;
-        _wantsHistory      = false;
-
-        const ImGuiIO& io = ImGui::GetIO();
-        ImGui::SetNextWindowPos(ImVec2(0, 0));
-        ImGui::SetNextWindowSize(io.DisplaySize);
-        ImGui::Begin("##effective_config",
-                     nullptr,
-                     ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize
-                         | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus);
+        if (!ImGui::Begin("Config", open))
+        {
+            ImGui::End();
+            return;
+        }
 
         // Toolbar
-        if (ImGui::Button("<- Back"))
-            _wantsBack = true;
-
-        ImGui::SameLine();
-        ImGui::TextDisabled("%s", _project.path.string().c_str());
-
-        ImGui::SameLine(ImGui::GetContentRegionAvail().x - 245.0f + ImGui::GetCursorPosX());
-        if (ImGui::Button("History..."))
-            _wantsHistory = true;
-
-        ImGui::SameLine();
-        if (ImGui::Button("Scaffold..."))
-            _wantsScaffoldDiff = true;
-
-        ImGui::SameLine();
+        ImGui::TextDisabled("Effective Claude Code configuration");
+        ImGui::SameLine(ImGui::GetContentRegionAvail().x - 70.0f
+                        + ImGui::GetCursorPosX());
         if (ImGui::Button("Refresh"))
             Refresh();
 

@@ -39,7 +39,7 @@ namespace dev_dash::ui
         _panels.push_back({title, path, std::move(result.content), true});
     }
 
-    void DocumentPanelHost::Render()
+    void DocumentPanelHost::Render(unsigned int dockId)
     {
         DrainPendingImports();
 
@@ -47,6 +47,8 @@ namespace dev_dash::ui
         {
             if (!panel.open)
                 continue;
+            if (dockId != 0)
+                ImGui::SetNextWindowDockID(dockId, ImGuiCond_FirstUseEver);
             ImGui::SetNextWindowSize(ImVec2(700, 900), ImGuiCond_FirstUseEver);
             // Reading panes are airy: wider padding than the data-dense panels.
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding,

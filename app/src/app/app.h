@@ -19,9 +19,7 @@ namespace dev_dash::ui
     class MarkdownRenderer;
     class DocumentPanelHost;
     class ProjectSelectorPanel;
-    class EffectiveConfigPanel;
-    class ScaffoldDiffPanel;
-    class SnapshotHistoryPanel;
+    class Shell;
 }
 
 namespace dev_dash::services
@@ -37,7 +35,7 @@ namespace dev_dash::services
 
 namespace dev_dash::app
 {
-    enum class AppState { kSelectingProject, kViewingConfig, kScaffoldDiff, kSnapshotHistory };
+    enum class AppState { kSelectingProject, kWorkspace };
 
     class App
     {
@@ -97,10 +95,9 @@ namespace dev_dash::app
         std::unique_ptr<services::ApplyEngine>        _applyEngine;
         std::unique_ptr<services::SnapshotService>    _snapshotService;
         std::unique_ptr<ui::ProjectSelectorPanel>    _projectSelectorPanel;
-        // Panels declared last → destroyed first, before the services they reference.
-        std::unique_ptr<ui::EffectiveConfigPanel>    _effectiveConfigPanel;
-        std::unique_ptr<ui::ScaffoldDiffPanel>       _scaffoldDiffPanel;
-        std::unique_ptr<ui::SnapshotHistoryPanel>    _snapshotHistoryPanel;
+        // Shell declared last → destroyed first, before the services its
+        // views reference.
+        std::unique_ptr<ui::Shell>                   _shell;
 
         AppState _appState = AppState::kSelectingProject;
     };
