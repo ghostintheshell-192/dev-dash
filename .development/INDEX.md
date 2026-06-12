@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-06-12 22:17*
+*Auto-generated: 2026-06-12 22:22*
 
 ---
 
@@ -113,8 +113,8 @@
 ## Recently Modified (last 7 days)
 
 1. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
-2. [INDEX.md](INDEX.md) (today)
-3. [README.md](tech-debt/README.md) (today)
+2. [README.md](tech-debt/README.md) (today)
+3. [INDEX.md](INDEX.md) (today)
 4. [feature-agnostic-automation.md](specs/implemented/feature-agnostic-automation.md) (1d ago)
 5. [2026-06-11_spec-workflow-hook-silent-fail.md](archive/completed/2026-06-11_spec-workflow-hook-silent-fail.md) (1d ago)
 6. [2026-06-10_project-githooks-not-active.md](archive/completed/2026-06-10_project-githooks-not-active.md) (1d ago)

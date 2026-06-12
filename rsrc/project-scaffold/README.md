@@ -22,8 +22,27 @@ Claude Code configuration.
     └── workflow.md                 # Git workflow
 
 .development/                       # Operational documentation
+├── automation/                     # Standard entry points (ADR-012 pattern)
+│   ├── bootstrap.sh                # Once-per-clone activation (hooksPath, exec bits)
+│   ├── build.sh                    # Build the project (stack knowledge lives here)
+│   ├── test.sh                     # Run tests
+│   ├── format-check.sh             # Verify formatting
+│   ├── format-fix.sh               # Apply formatting
+│   └── docs-update.sh              # Regenerate derived docs
 └── scripts/
-    └── session-archive.py          # SessionEnd hook target
+    ├── generate-claude-config.sh   # Regenerates .claude/critical-rules.md from ADRs
+    ├── generate-index.py           # INDEX.md generator
+    ├── session-archive.py          # SessionEnd hook target
+    ├── spec-workflow.py            # Spec lifecycle backend (planned → in-progress → implemented)
+    └── update-tech-debt-index.py   # tech-debt/README.md generator
+
+.githooks/                          # Generic orchestrator hooks (no stack commands)
+├── pre-commit                      # Runs pre-commit.d/* in order
+├── pre-commit.d/                   # 00-branch-protection, 01-security,
+│                                   # 02-format-check, 03-archive-resolved-issues,
+│                                   # 04-docs-update, 05-spec-workflow
+├── post-checkout                   # Spec planned → in-progress on branch creation
+└── post-merge                      # Spec → implemented on merge into develop
 
 .memory-bank/                       # Session continuity
 ├── ideas/                          # Tangential idea notes (idea-capture rule)
@@ -45,6 +64,11 @@ When initializing a project with DevDash:
    and the empty subfolders `specs/`, `tech-debt/`, `reference/decisions/`
 4. **Create `.personal/`** for private notes (untracked)
 5. **Create `docs/`** for public documentation
+6. **Run `bash .development/automation/bootstrap.sh`** once per clone to
+   activate the git hooks (sets `core.hooksPath`, fixes exec bits). The
+   entry points under `.development/automation/` ship with this scaffold's
+   stack defaults — adapt their internals to the project's stack; hooks
+   never need touching (ADR-012).
 
 ## Template Placeholders
 

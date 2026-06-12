@@ -1,6 +1,8 @@
 #!/bin/bash
 # Git Pre-commit Hook - Orchestrator
 # Executes all hooks in pre-commit.d/ directory in numeric order
+# Created: 2025-10-10
+# Location: /data/repos/.git-hooks/pre-commit
 
 # Colors for output
 RED='\033[0;31m'
