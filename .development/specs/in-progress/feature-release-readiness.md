@@ -31,26 +31,30 @@ fallimenti silenziosi al primo avvio.
 
 ## Work Breakdown
 
-### Fase 1 — Test target (sblocca tutto il resto)
+### Fase 1 — Test target (sblocca tutto il resto) ✅
 
-- [ ] Catch2 v3 via CPM, target `dev-dash-tests`, `enable_testing()` + ctest
-- [ ] Test `SnapshotService` su tmpdir: save explicit/auto, list, restore,
+- [x] Catch2 v3 via CPM, target `dev-dash-tests`, `enable_testing()` + ctest
+- [x] Test `SnapshotService` su tmpdir: save explicit/auto, list, restore,
       prune
-- [ ] Test `ApplyEngine`: apply/skip/fail counts, force overwrite
-- [ ] Entry point `.development/automation/test.sh` (ADR-012)
+- [x] Test `ApplyEngine`: apply/skip/fail counts, force overwrite
+- [x] Entry point `.development/automation/test.sh` (ADR-012)
 
-### Fase 2 — Installabilità
+> Nota: `services/` estratto in libreria statica `dev-dash-services` per
+> linkare la logica senza lo stack grafico. `-Wall -Wextra` abilitati sui
+> nostri target (scoped via interface lib), `-Werror` rimandato alla CI.
 
-- [ ] `project(... VERSION 0.1.0)` + `version.h` generato via `configure_file`
-- [ ] Risoluzione asset a due tentativi (adiacente all'eseguibile, poi
+### Fase 2 — Installabilità ✅
+
+- [x] `project(... VERSION 0.1.0)` + `version.h` generato via `configure_file`
+- [x] Risoluzione asset a due tentativi (adiacente all'eseguibile, poi
       `../share/dev-dash/assets/`)
-- [ ] DejaVu Sans bundled in `app/assets/fonts/` (rimuove il path di sistema
+- [x] DejaVu Sans bundled in `app/assets/fonts/` (rimuove il path di sistema
       hardcoded in `font_library.cpp`)
-- [ ] Init `~/.devdash/{scaffolds,snapshots}` in `App::Init()`, errori in UI
-- [ ] `install()` rules con `GNUInstallDirs` (bin, asset, desktop entry)
-- [ ] `dev-dash.desktop` in `app/assets/`
-- [ ] CPack TGZ: `dev-dash-X.Y.Z-linux-x86_64.tar.gz`
-- [ ] Smoke test manuale: install in prefix pulito + run
+- [x] Init `~/.devdash/{scaffolds,snapshots}` in `App::Init()`, errori in UI
+- [x] `install()` rules con `GNUInstallDirs` (bin, asset, desktop entry)
+- [x] `dev-dash.desktop` in `app/assets/`
+- [x] CPack TGZ: `dev-dash-X.Y.Z-linux-x86_64.tar.gz`
+- [x] Smoke test manuale: install in prefix pulito + run
 
 ### Fase 3 — CI e release
 
