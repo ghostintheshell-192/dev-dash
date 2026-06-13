@@ -100,12 +100,7 @@ namespace dev_dash::app
         _applyEngine        = std::make_unique<services::ApplyEngine>();
         _snapshotService    = std::make_unique<services::SnapshotService>(*_applyEngine);
         _scaffoldRepository = std::make_unique<services::ScaffoldRepository>();
-        if (const char* home = std::getenv("HOME"))
-        {
-            const std::filesystem::path devdash{std::string(home) + "/.devdash"};
-            _scaffoldRepository->SetScaffoldRoot(devdash / "scaffolds");
-            _snapshotService->SetSnapshotRoot(devdash / "snapshots");
-        }
+        EnsureRuntimeDirs();
 
         _projectSelectorPanel = std::make_unique<ui::ProjectSelectorPanel>(
             _window->Handle(),
@@ -113,6 +108,66 @@ namespace dev_dash::app
 
         _window->Show();
         return true;
+    }
+
+    void App::EnsureRuntimeDirs()
+    {
+        const char* home = std::getenv("HOME");
+        if (!home)
+        {
+            _startupIssues.emplace_back(
+                "$HOME is not set — scaffolds and snapshots are disabled this session.");
+            return;
+        }
+
+        const std::filesystem::path devdash   = std::filesystem::path(home) / ".devdash";
+        const std::filesystem::path scaffolds = devdash / "scaffolds";
+        const std::filesystem::path snapshots = devdash / "snapshots";
+
+        for (const auto& dir : {scaffolds, snapshots})
+        {
+            std::error_code ec;
+            std::filesystem::create_directories(dir, ec);
+            if (ec)
+            {
+                const std::string msg =
+                    "Could not create " + dir.string() + ": " + ec.message();
+                std::cerr << "[error] " << msg << '\n';
+                _startupIssues.push_back(msg);
+            }
+        }
+
+        // Wire the roots regardless: if a dir failed, the service simply finds
+        // it absent later — the issue is already surfaced above, not silenced.
+        _scaffoldRepository->SetScaffoldRoot(scaffolds);
+        _snapshotService->SetSnapshotRoot(snapshots);
+    }
+
+    void App::RenderStartupIssues()
+    {
+        if (_startupIssues.empty())
+            return;
+
+        const ImGuiViewport* vp = ImGui::GetMainViewport();
+        ImGui::SetNextWindowPos(vp->GetCenter(), ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+        ImGui::SetNextWindowSize(ImVec2(520.0f, 0.0f), ImGuiCond_Appearing);
+
+        bool open = true;
+        ImGui::Begin("Startup warnings", &open,
+                     ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings);
+        ImGui::TextWrapped(
+            "DevDash hit problems preparing its working directories. Scaffolds "
+            "and snapshots may not work until these are resolved:");
+        ImGui::Spacing();
+        for (const auto& issue : _startupIssues)
+            ImGui::BulletText("%s", issue.c_str());
+        ImGui::Spacing();
+        if (ImGui::Button("Dismiss"))
+            open = false;
+        ImGui::End();
+
+        if (!open)
+            _startupIssues.clear();
     }
 
     void App::OnProjectSelected(const std::filesystem::path& path)
@@ -142,6 +197,8 @@ namespace dev_dash::app
                 break;
 
             _imguiBackend->NewFrame();
+
+            RenderStartupIssues();
 
             switch (_appState)
             {

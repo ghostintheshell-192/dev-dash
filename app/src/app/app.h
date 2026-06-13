@@ -2,6 +2,8 @@
 
 #include <filesystem>
 #include <memory>
+#include <string>
+#include <vector>
 
 namespace dev_dash::platform
 {
@@ -53,6 +55,12 @@ namespace dev_dash::app
         bool MainLoop();
         void OnProjectSelected(const std::filesystem::path& path);
 
+        // Create ~/.devdash/{scaffolds,snapshots} and wire the service roots.
+        // I/O failures are appended to _startupIssues rather than silenced.
+        void EnsureRuntimeDirs();
+        // Non-blocking overlay listing any _startupIssues until dismissed.
+        void RenderStartupIssues();
+
         // ----- Construction order (in Init body) -----
         // 1. _sdlSession
         // 2. _window
@@ -100,5 +108,9 @@ namespace dev_dash::app
         std::unique_ptr<ui::Shell>                   _shell;
 
         AppState _appState = AppState::kSelectingProject;
+
+        // Startup I/O problems (e.g. ~/.devdash not creatable). Surfaced in a
+        // dismissable overlay so first-run failures are visible, not silent.
+        std::vector<std::string> _startupIssues;
     };
 }

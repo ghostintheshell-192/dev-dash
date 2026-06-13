@@ -54,3 +54,35 @@ if(DEVDASH_BUILD_TESTS)
     enable_testing()
     add_subdirectory(tests)
 endif()
+
+# ----- Install rules (GNUInstallDirs) -----
+#
+# Layout matches platform::ResolveAssetsDir()'s second candidate:
+#   <prefix>/bin/dev-dash
+#   <prefix>/share/dev-dash/assets/...   (fonts, etc.)
+#   <prefix>/share/applications/dev-dash.desktop
+
+include(GNUInstallDirs)
+
+install(TARGETS dev-dash
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+# Runtime assets. The .desktop file lives in assets/ but belongs under
+# share/applications, so it is excluded from the asset tree copy below.
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/assets/
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/dev-dash/assets
+    PATTERN "dev-dash.desktop" EXCLUDE)
+
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/assets/dev-dash.desktop
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
+
+# ----- CPack (TGZ tarball) -----
+
+set(CPACK_GENERATOR "TGZ")
+set(CPACK_PACKAGE_NAME "dev-dash")
+set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
+set(CPACK_PACKAGE_FILE_NAME "dev-dash-${PROJECT_VERSION}-linux-x86_64")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
+    "Documentation-first project dashboard for Claude Code")
+set(CPACK_PACKAGE_HOMEPAGE_URL "https://github.com/ghostintheshell-192/dev-dash")
+include(CPack)

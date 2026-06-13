@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=DevDash
+GenericName=Project Dashboard
+Comment=Documentation-first project dashboard for Claude Code
+Exec=dev-dash
+Icon=dev-dash
+Terminal=false
+Categories=Development;Utility;
+Keywords=claude;documentation;dashboard;scaffold;
