@@ -58,8 +58,8 @@
 
 ### tech-debt/ (10 files)
 
-- [non-markdown-files-rendered-as-markdown.md](tech-debt/non-markdown-files-rendered-as-markdown.md) (3KB, 2026-06-13) **RECENT**
 - [README.md](tech-debt/README.md) (3KB, 2026-06-13) **RECENT**
+- [non-markdown-files-rendered-as-markdown.md](tech-debt/non-markdown-files-rendered-as-markdown.md) (3KB, 2026-06-13) **RECENT**
 - [scanner-directory-include-silent.md](tech-debt/scanner-directory-include-silent.md) (1KB, 2026-06-10) **RECENT**
 - [line-level-promote.md](tech-debt/line-level-promote.md) (1KB, 2026-05-10)
 - [imgui-backend-shutdown-order.md](tech-debt/imgui-backend-shutdown-order.md) (1KB, 2026-05-10)
@@ -116,9 +116,9 @@
 ## Recently Modified (last 7 days)
 
 1. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
-2. [non-markdown-files-rendered-as-markdown.md](tech-debt/non-markdown-files-rendered-as-markdown.md) (today)
-3. [README.md](tech-debt/README.md) (today)
-4. [INDEX.md](INDEX.md) (today)
+2. [README.md](tech-debt/README.md) (today)
+3. [INDEX.md](INDEX.md) (today)
+4. [non-markdown-files-rendered-as-markdown.md](tech-debt/non-markdown-files-rendered-as-markdown.md) (today)
 5. [feature-release-readiness.md](specs/in-progress/feature-release-readiness.md) (today)
 6. [feature-ui-overhaul.md](specs/implemented/feature-ui-overhaul.md) (today)
 7. [013-scaffold-source-of-truth.md](reference/decisions/013-scaffold-source-of-truth.md) (today)
