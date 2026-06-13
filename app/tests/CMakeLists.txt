@@ -9,6 +9,7 @@ add_executable(dev-dash-tests
 
 target_link_libraries(dev-dash-tests
     PRIVATE
+        dev-dash-warnings
         dev-dash-services
         Catch2::Catch2WithMain
 )

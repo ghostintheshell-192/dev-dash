@@ -45,4 +45,6 @@ target_include_directories(dev-dash-services PUBLIC ${CMAKE_SOURCE_DIR}/src)
 
 # nlohmann_json is used by SettingsParser; PUBLIC so the JSON headers reach
 # any consumer that transitively pulls a service header including it.
-target_link_libraries(dev-dash-services PUBLIC nlohmann_json::nlohmann_json)
+target_link_libraries(dev-dash-services
+    PUBLIC  nlohmann_json::nlohmann_json
+    PRIVATE dev-dash-warnings)

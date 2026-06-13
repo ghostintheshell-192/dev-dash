@@ -15,6 +15,7 @@ add_subdirectory(app)
 
 target_link_libraries(dev-dash
     PRIVATE
+        dev-dash-warnings
         dev-dash-services
         ImGui
         imgui_md

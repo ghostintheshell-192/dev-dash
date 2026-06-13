@@ -8,3 +8,11 @@ endif()
 message(STATUS "GCC: enabling position-independent code (-fPIC)")
 set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} -fPIC")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+
+# Warning flags carried by an INTERFACE target rather than CMAKE_*_FLAGS, so
+# they apply ONLY to our code — not to the CPM dependencies (ImGui, SDL, md4c)
+# built in the same tree, which would otherwise drown us in third-party noise.
+# Deliberately NOT -Werror locally, to keep development fluid; CI (phase 3)
+# promotes these to errors so nothing slips through the pipeline.
+add_library(dev-dash-warnings INTERFACE)
+target_compile_options(dev-dash-warnings INTERFACE -Wall -Wextra)
