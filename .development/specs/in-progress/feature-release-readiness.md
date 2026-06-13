@@ -65,13 +65,13 @@ fallimenti silenziosi al primo avvio.
 - [ ] Eliminare `ci.yml.disabled`
 - [ ] `CHANGELOG.md` iniziale (Keep-a-Changelog)
 
-### Fase 4 — Documentazione utente
+### Fase 4 — Documentazione utente ✅
 
-- [ ] Rewrite `docs/SETUP.md`: prerequisiti (GCC, CMake ≥3.28, Ninja, Vulkan),
+- [x] Rewrite `docs/SETUP.md`: prerequisiti (GCC, CMake ≥3.28, Ninja, Vulkan),
       build, install, primo avvio
-- [ ] Rewrite `docs/architecture.md`: layered split reale (oggi descrive
+- [x] Rewrite `docs/architecture.md`: layered split reale (oggi descrive
       Avalonia)
-- [ ] api-design.md: aggiungere `PromoteEngine` e gli adapter section-aware
+- [x] api-design.md: aggiungere `PromoteEngine` e gli adapter section-aware
       (oggi implementati ma non documentati)
 
 ## Acceptance

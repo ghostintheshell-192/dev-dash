@@ -20,8 +20,8 @@
 ### (root)/ (5 files)
 
 - [ARCHITECTURE.md](ARCHITECTURE.md) (4KB, 2026-06-13) **RECENT**
-- [api-design.md](api-design.md) (43KB, 2026-06-13) **RECENT**
 - [INDEX.md](INDEX.md) (6KB, 2026-06-13) **RECENT**
+- [api-design.md](api-design.md) (43KB, 2026-06-13) **RECENT**
 - [CURRENT-STATUS.md](CURRENT-STATUS.md) (14KB, 2026-06-10) **RECENT**
 - [README.md](README.md) (2KB, 2026-04-26)
 
@@ -115,10 +115,10 @@
 ## Recently Modified (last 7 days)
 
 1. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
-2. [feature-release-readiness.md](specs/in-progress/feature-release-readiness.md) (today)
-3. [api-design.md](api-design.md) (today)
-4. [README.md](tech-debt/README.md) (today)
-5. [INDEX.md](INDEX.md) (today)
+2. [README.md](tech-debt/README.md) (today)
+3. [INDEX.md](INDEX.md) (today)
+4. [feature-release-readiness.md](specs/in-progress/feature-release-readiness.md) (today)
+5. [api-design.md](api-design.md) (today)
 6. [non-markdown-files-rendered-as-markdown.md](tech-debt/non-markdown-files-rendered-as-markdown.md) (today)
 7. [feature-ui-overhaul.md](specs/implemented/feature-ui-overhaul.md) (today)
 8. [013-scaffold-source-of-truth.md](reference/decisions/013-scaffold-source-of-truth.md) (today)
