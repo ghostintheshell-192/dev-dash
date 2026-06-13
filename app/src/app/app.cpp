@@ -7,7 +7,10 @@
 #include <imgui.h>
 #include <vulkan/vulkan.h>
 
+#include "version.h"
+
 #include "../platform/sdl_session.h"
+#include "../platform/asset_paths.h"
 #include "../platform/window.h"
 #include "../platform/vulkan_context.h"
 #include "../platform/swapchain.h"
@@ -64,7 +67,8 @@ namespace dev_dash::app
     {
         _sdlSession     = std::make_unique<platform::SdlSession>();
         _window         = std::make_unique<platform::Window>(
-            "dev-dash", platform::kInitialWindowWidth, platform::kInitialWindowHeight);
+            std::string("dev-dash ") + kVersion,
+            platform::kInitialWindowWidth, platform::kInitialWindowHeight);
         _vulkanContext  = std::make_unique<platform::VulkanContext>(*_window);
         _swapchain      = std::make_unique<platform::Swapchain>(*_vulkanContext, *_window);
         _frameResources = std::make_unique<platform::FrameResources>(*_vulkanContext, *_swapchain);
@@ -78,7 +82,8 @@ namespace dev_dash::app
         if (uiScale <= 0.0f)
             uiScale = 1.0f;
 
-        _fonts        = std::make_unique<ui::FontLibrary>(uiScale);
+        const std::filesystem::path assetsDir = platform::ResolveAssetsDir();
+        _fonts        = std::make_unique<ui::FontLibrary>(uiScale, assetsDir / "fonts");
         _imguiBackend = std::make_unique<platform::ImGuiBackend>(*_window, *_vulkanContext, *_swapchain);
 
         // After ImGuiBackend: its init sets the stock dark style as a

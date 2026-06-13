@@ -1,5 +1,7 @@
 target_sources(dev-dash
     PRIVATE
+        asset_paths.h
+        asset_paths.cpp
         deletion_queue.h
         sdl_session.h
         sdl_session.cpp

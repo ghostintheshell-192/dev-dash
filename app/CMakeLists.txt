@@ -1,6 +1,15 @@
 cmake_minimum_required(VERSION 3.28)
 
-project("dev-dash" LANGUAGES C CXX)
+project("dev-dash" VERSION 0.1.0 LANGUAGES C CXX)
+
+# Generated header carrying the project version into C++ (PROJECT_VERSION is
+# set by project(... VERSION ...) above). Lands in the build tree's generated/
+# dir, which src/ adds to its include path.
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/version.h.in
+    ${CMAKE_BINARY_DIR}/generated/version.h
+    @ONLY
+)
 
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED ON)

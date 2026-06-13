@@ -4,6 +4,9 @@ target_sources(dev-dash PRIVATE main.cpp)
 
 target_precompile_headers(dev-dash PRIVATE pch.h)
 
+# Generated version.h (configure_file in the top-level CMakeLists).
+target_include_directories(dev-dash PRIVATE ${CMAKE_BINARY_DIR}/generated)
+
 add_subdirectory(core)
 add_subdirectory(services)
 add_subdirectory(ui)

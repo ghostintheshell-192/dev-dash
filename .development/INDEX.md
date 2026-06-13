@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-06-13 20:35*
+*Auto-generated: 2026-06-13 21:10*
 
 ---
 
@@ -115,9 +115,9 @@
 ## Recently Modified (last 7 days)
 
 1. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
-2. [feature-release-readiness.md](specs/in-progress/feature-release-readiness.md) (today)
-3. [README.md](tech-debt/README.md) (today)
-4. [INDEX.md](INDEX.md) (today)
+2. [README.md](tech-debt/README.md) (today)
+3. [INDEX.md](INDEX.md) (today)
+4. [feature-release-readiness.md](specs/in-progress/feature-release-readiness.md) (today)
 5. [feature-ui-overhaul.md](specs/implemented/feature-ui-overhaul.md) (today)
 6. [013-scaffold-source-of-truth.md](reference/decisions/013-scaffold-source-of-truth.md) (today)
 7. [feature-agnostic-automation.md](specs/implemented/feature-agnostic-automation.md) (2d ago)

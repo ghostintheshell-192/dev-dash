@@ -1,5 +1,7 @@
 #pragma once
 
+#include <filesystem>
+
 #include <imgui.h>
 
 namespace dev_dash::ui
@@ -9,7 +11,8 @@ namespace dev_dash::ui
     public:
         // Must be called after ImGui::CreateContext() and before ImGui_ImplVulkan_Init().
         // uiScale multiplies every font size (display content scale, ≥ 1).
-        explicit FontLibrary(float uiScale = 1.0f);
+        // fontsDir is the resolved directory holding the bundled .ttf files.
+        FontLibrary(float uiScale, std::filesystem::path fontsDir);
         ~FontLibrary() = default;
 
         FontLibrary(const FontLibrary&)            = delete;
