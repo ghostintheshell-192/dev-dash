@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-06-13 21:36*
+*Auto-generated: 2026-06-13 22:08*
 
 ---
 
@@ -20,9 +20,9 @@
 ### (root)/ (5 files)
 
 - [ARCHITECTURE.md](ARCHITECTURE.md) (4KB, 2026-06-13) **RECENT**
+- [api-design.md](api-design.md) (43KB, 2026-06-13) **RECENT**
 - [INDEX.md](INDEX.md) (6KB, 2026-06-13) **RECENT**
 - [CURRENT-STATUS.md](CURRENT-STATUS.md) (14KB, 2026-06-10) **RECENT**
-- [api-design.md](api-design.md) (39KB, 2026-05-12)
 - [README.md](README.md) (2KB, 2026-04-26)
 
 ### specs/ (1 files)
@@ -106,10 +106,9 @@
 
 ### docs/
 
-- [ARCHITECTURE.md](docs/ARCHITECTURE.md) (8KB, 2026-02-10)
-- [CLAUDE-CONFIG-DISCOVERY.md](docs/CLAUDE-CONFIG-DISCOVERY.md) (5KB, 2026-02-10)
-- [README.md](docs/README.md) (<1KB, 2026-02-10)
-- [SETUP.md](docs/SETUP.md) (2KB, 2026-02-10)
+- [ARCHITECTURE.md](docs/ARCHITECTURE.md) (7KB, 2026-06-13) **RECENT**
+- [README.md](docs/README.md) (<1KB, 2026-06-13) **RECENT**
+- [SETUP.md](docs/SETUP.md) (4KB, 2026-06-13) **RECENT**
 
 ---
 
@@ -117,14 +116,14 @@
 
 1. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
 2. [feature-release-readiness.md](specs/in-progress/feature-release-readiness.md) (today)
-3. [README.md](tech-debt/README.md) (today)
-4. [INDEX.md](INDEX.md) (today)
-5. [non-markdown-files-rendered-as-markdown.md](tech-debt/non-markdown-files-rendered-as-markdown.md) (today)
-6. [feature-ui-overhaul.md](specs/implemented/feature-ui-overhaul.md) (today)
-7. [013-scaffold-source-of-truth.md](reference/decisions/013-scaffold-source-of-truth.md) (today)
-8. [feature-agnostic-automation.md](specs/implemented/feature-agnostic-automation.md) (2d ago)
-9. [2026-06-11_spec-workflow-hook-silent-fail.md](archive/completed/2026-06-11_spec-workflow-hook-silent-fail.md) (2d ago)
-10. [2026-06-10_project-githooks-not-active.md](archive/completed/2026-06-10_project-githooks-not-active.md) (2d ago)
+3. [api-design.md](api-design.md) (today)
+4. [README.md](tech-debt/README.md) (today)
+5. [INDEX.md](INDEX.md) (today)
+6. [non-markdown-files-rendered-as-markdown.md](tech-debt/non-markdown-files-rendered-as-markdown.md) (today)
+7. [feature-ui-overhaul.md](specs/implemented/feature-ui-overhaul.md) (today)
+8. [013-scaffold-source-of-truth.md](reference/decisions/013-scaffold-source-of-truth.md) (today)
+9. [feature-agnostic-automation.md](specs/implemented/feature-agnostic-automation.md) (2d ago)
+10. [2026-06-11_spec-workflow-hook-silent-fail.md](archive/completed/2026-06-11_spec-workflow-hook-silent-fail.md) (2d ago)
 
 ---
 

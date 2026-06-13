@@ -1,11 +1,12 @@
-﻿# Documentation
+# Documentation
 
 Public project documentation.
 
 ## Contents
 
-Add project documentation here:
-- Architecture diagrams
-- API documentation
-- User guides
-- Technical specifications
+- **[SETUP.md](SETUP.md)** — prerequisites, build, install, first run
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** — conceptual overview: layers,
+  domain model, config resolution, scaffolds/snapshots
+
+For internal/operational docs (specs, ADRs, tech-debt, the live file tree)
+see [`.development/`](../.development/).
