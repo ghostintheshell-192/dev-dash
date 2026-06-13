@@ -1,7 +1,7 @@
 ---
 type: feature
 priority: must-have
-status: planned
+status: in-progress
 category: infrastructure
 part_of: release
 related: [feature-snapshot-history, feature-scaffold-management]

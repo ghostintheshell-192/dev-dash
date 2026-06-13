@@ -8,9 +8,11 @@ PRESET="${1:-linux-debug}"
 BUILD_DIR="app/build/$PRESET"
 
 if [[ ! -f "$BUILD_DIR/CTestTestfile.cmake" ]]; then
-    echo "test: no test target yet (planned in feature-release-readiness, phase 1)"
+    echo "test: no build tree configured at $BUILD_DIR — run build.sh first (no-op)"
     exit 0
 fi
 
-ctest --test-dir "$BUILD_DIR" --output-on-failure
-echo "test: OK"
+# --no-tests=ignore: a build configured with -DDEVDASH_BUILD_TESTS=OFF exposes
+# no tests; treat that as the declared no-op rather than a hard error.
+ctest --test-dir "$BUILD_DIR" --output-on-failure --no-tests=ignore
+echo "test: OK (preset $PRESET)"

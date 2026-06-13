@@ -28,6 +28,10 @@ else()
     message(FATAL_ERROR "Platform ${CMAKE_SYSTEM_NAME} not supported yet (Linux only)")
 endif()
 
+# ----- Options -----
+
+option(DEVDASH_BUILD_TESTS "Build the dev-dash unit tests (Catch2)" ON)
+
 # ----- CPM -----
 
 include(cmake/get_cpm.cmake)
@@ -36,3 +40,8 @@ include(cmake/get_cpm.cmake)
 
 add_subdirectory(external)
 add_subdirectory(src)
+
+if(DEVDASH_BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(tests)
+endif()

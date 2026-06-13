@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-06-13 00:20*
+*Auto-generated: 2026-06-13 20:35*
 
 ---
 
@@ -52,9 +52,9 @@
 - [feature-snapshot-history.md](specs/implemented/feature-snapshot-history.md) (8KB, 2026-06-10) **RECENT**
 - [feature-effective-config-view.md](specs/implemented/feature-effective-config-view.md) (6KB, 2026-05-10)
 
-### specs/planned/ (1 files)
+### specs/in-progress/ (1 files)
 
-- [feature-release-readiness.md](specs/planned/feature-release-readiness.md) (3KB, 2026-06-10) **RECENT**
+- [feature-release-readiness.md](specs/in-progress/feature-release-readiness.md) (3KB, 2026-06-13) **RECENT**
 
 ### tech-debt/ (9 files)
 
@@ -115,15 +115,15 @@
 ## Recently Modified (last 7 days)
 
 1. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
-2. [feature-ui-overhaul.md](specs/implemented/feature-ui-overhaul.md) (today)
-3. [INDEX.md](INDEX.md) (today)
-4. [README.md](tech-debt/README.md) (today)
-5. [013-scaffold-source-of-truth.md](reference/decisions/013-scaffold-source-of-truth.md) (today)
-6. [feature-agnostic-automation.md](specs/implemented/feature-agnostic-automation.md) (1d ago)
-7. [2026-06-11_spec-workflow-hook-silent-fail.md](archive/completed/2026-06-11_spec-workflow-hook-silent-fail.md) (2d ago)
-8. [2026-06-10_project-githooks-not-active.md](archive/completed/2026-06-10_project-githooks-not-active.md) (2d ago)
-9. [scanner-directory-include-silent.md](tech-debt/scanner-directory-include-silent.md) (2d ago)
-10. [006-desktop-vs-vscode-extension.md](reference/decisions/006-desktop-vs-vscode-extension.md) (2d ago)
+2. [feature-release-readiness.md](specs/in-progress/feature-release-readiness.md) (today)
+3. [README.md](tech-debt/README.md) (today)
+4. [INDEX.md](INDEX.md) (today)
+5. [feature-ui-overhaul.md](specs/implemented/feature-ui-overhaul.md) (today)
+6. [013-scaffold-source-of-truth.md](reference/decisions/013-scaffold-source-of-truth.md) (today)
+7. [feature-agnostic-automation.md](specs/implemented/feature-agnostic-automation.md) (2d ago)
+8. [2026-06-11_spec-workflow-hook-silent-fail.md](archive/completed/2026-06-11_spec-workflow-hook-silent-fail.md) (2d ago)
+9. [2026-06-10_project-githooks-not-active.md](archive/completed/2026-06-10_project-githooks-not-active.md) (2d ago)
+10. [scanner-directory-include-silent.md](tech-debt/scanner-directory-include-silent.md) (2d ago)
 
 ---
 

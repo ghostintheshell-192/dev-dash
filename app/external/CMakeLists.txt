@@ -173,3 +173,19 @@ CPMAddPackage(
         "BUILD_IMGUI OFF"
         "BUILD_MD4C OFF"
 )
+
+# ----- Catch2 v3 (unit testing — test target only) -----
+#
+# Pulled only when DEVDASH_BUILD_TESTS is ON. Exports Catch2::Catch2WithMain
+# (links a main() that runs the registered tests) and ships the Catch.cmake
+# module under <source>/extras for catch_discover_tests — tests/CMakeLists.txt
+# adds that directory to CMAKE_MODULE_PATH.
+
+if(DEVDASH_BUILD_TESTS)
+    CPMAddPackage(
+        NAME Catch2
+        VERSION 3.7.1
+        GITHUB_REPOSITORY catchorg/Catch2
+        GIT_TAG v3.7.1
+    )
+endif()
