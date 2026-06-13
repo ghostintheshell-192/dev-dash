@@ -439,6 +439,137 @@ namespace dev_dash::services
 }
 ```
 
+### `PromoteEngine`
+
+The reverse of `ApplyEngine`: copy selected files from a project *back* into a
+scaffold, so a refined project config becomes a reusable template. Returns a
+count plus a list of per-file errors (no rollback — promotion targets a
+user-owned scaffold dir, not a live project).
+
+```cpp
+namespace dev_dash::services
+{
+    class PromoteEngine
+    {
+    public:
+        struct Result
+        {
+            int                      copiedCount = 0;
+            std::vector<std::string> errors;
+
+            bool Ok() const { return errors.empty(); }
+        };
+
+        // Copy each relative path from projectRoot to scaffoldRoot,
+        // creating intermediate directories as needed.
+        Result Promote(
+            const std::filesystem::path&    projectRoot,
+            const std::filesystem::path&    scaffoldRoot,
+            const std::vector<std::string>& relativePaths) const;
+    };
+}
+```
+
+### Config adapters (section-aware)
+
+> **Evolution note.** `EffectiveConfig` grew past the flat node list shown in
+> the `core/` section above: the resolved config is now a list of
+> **`ConfigSection`** (one per category), each carrying whether it is always
+> in Claude's context or loaded on demand. The adapters below produce those
+> sections; `ConfigResolver` orchestrates them.
+
+```cpp
+namespace dev_dash::core
+{
+    enum class ConfigSectionKind
+    {
+        kClaudeMd, kRules, kMemory, kSkills, kAgents, kMcpServers, kHooks,
+    };
+
+    struct ConfigSection
+    {
+        ConfigSectionKind       kind;
+        std::string             label;
+        std::vector<ConfigNode> nodes;
+        bool                    alwaysInContext;  // false → on-demand, 0 tokens until triggered
+    };
+}
+```
+
+Two shared building blocks the adapters sit on:
+
+```cpp
+namespace dev_dash::services
+{
+    // Directory scanning + @-include resolution.
+    class ConfigFileScanner
+    {
+    public:
+        // Files in `dir` matching `predicate`; recursive optional.
+        std::vector<std::filesystem::path> Scan(
+            const std::filesystem::path& dir,
+            const std::function<bool(const std::filesystem::path&)>& predicate,
+            bool recursive = false) const;
+
+        // Follow @path directives in a markdown file, transitively (maxDepth
+        // hops), resolved relative to each including file's directory.
+        std::vector<std::filesystem::path> ResolveAtIncludes(
+            const std::filesystem::path& file,
+            int maxDepth = 5) const;
+    };
+
+    // Pull MCP servers / hooks out of a settings.json.
+    class SettingsParser
+    {
+    public:
+        std::vector<core::ConfigNode> ParseMcpServers(
+            const std::filesystem::path& settingsPath,
+            core::ConfigLayerKind layer) const;
+
+        std::vector<core::ConfigNode> ParseHooks(
+            const std::filesystem::path& settingsPath,
+            core::ConfigLayerKind layer) const;
+    };
+}
+```
+
+Each adapter resolves one section across the layers it cares about, returning
+a `core::ConfigSection`. They take a `ConfigFileScanner&` by reference
+(constructor injection); the `kMcpServers`/`kHooks` ones use `SettingsParser`.
+
+| Adapter | Section | Layers consulted |
+|---------|---------|------------------|
+| `ClaudeMdAdapter` | `kClaudeMd` | global, workspace, project |
+| `RulesAdapter` | `kRules` | global, project |
+| `MemoryAdapter` | `kMemory` | (per memory layout) |
+| `SkillsAdapter` | `kSkills` | (on-demand section) |
+| `AgentsAdapter` | `kAgents` | (on-demand section) |
+| `McpAdapter` | `kMcpServers` | via `SettingsParser` |
+| `HooksAdapter` | `kHooks` | via `SettingsParser` |
+
+```cpp
+namespace dev_dash::services
+{
+    class ClaudeMdAdapter
+    {
+    public:
+        explicit ClaudeMdAdapter(ConfigFileScanner& scanner);
+
+        core::ConfigSection Resolve(const core::ConfigLayer& global,
+                                    const core::ConfigLayer& workspace,
+                                    const core::ConfigLayer& project) const;
+    private:
+        ConfigFileScanner& _scanner;
+    };
+    // RulesAdapter, MemoryAdapter, SkillsAdapter, AgentsAdapter,
+    // McpAdapter, HooksAdapter follow the same shape (Resolve(...) ->
+    // core::ConfigSection), differing only in which layers they read.
+}
+```
+
+`adapter_utils.h` provides the shared `AppendNodes()` helper (dedupe by
+`sourceFilePath`, label relative to a base dir) and the `IsMd()` predicate.
+
 ---
 
 ## ui/

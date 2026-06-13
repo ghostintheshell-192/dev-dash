@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-06-13 00:20*
+*Auto-generated: 2026-06-13 22:18*
 
 ---
 
@@ -21,8 +21,8 @@
 
 - [ARCHITECTURE.md](ARCHITECTURE.md) (4KB, 2026-06-13) **RECENT**
 - [INDEX.md](INDEX.md) (6KB, 2026-06-13) **RECENT**
+- [api-design.md](api-design.md) (43KB, 2026-06-13) **RECENT**
 - [CURRENT-STATUS.md](CURRENT-STATUS.md) (14KB, 2026-06-10) **RECENT**
-- [api-design.md](api-design.md) (39KB, 2026-05-12)
 - [README.md](README.md) (2KB, 2026-04-26)
 
 ### specs/ (1 files)
@@ -44,21 +44,19 @@
 - [feature-code-graph.md](specs/backlog/feature-code-graph.md) (8KB, 2026-05-10)
 - [feature-runtime-view-of-truth.md](specs/backlog/feature-runtime-view-of-truth.md) (2KB, 2026-05-10)
 
-### specs/implemented/ (5 files)
+### specs/implemented/ (6 files)
 
+- [feature-release-readiness.md](specs/implemented/feature-release-readiness.md) (3KB, 2026-06-13) **RECENT**
 - [feature-ui-overhaul.md](specs/implemented/feature-ui-overhaul.md) (3KB, 2026-06-13) **RECENT**
 - [feature-agnostic-automation.md](specs/implemented/feature-agnostic-automation.md) (3KB, 2026-06-11) **RECENT**
 - [feature-scaffold-management.md](specs/implemented/feature-scaffold-management.md) (10KB, 2026-06-10) **RECENT**
 - [feature-snapshot-history.md](specs/implemented/feature-snapshot-history.md) (8KB, 2026-06-10) **RECENT**
 - [feature-effective-config-view.md](specs/implemented/feature-effective-config-view.md) (6KB, 2026-05-10)
 
-### specs/planned/ (1 files)
-
-- [feature-release-readiness.md](specs/planned/feature-release-readiness.md) (3KB, 2026-06-10) **RECENT**
-
-### tech-debt/ (9 files)
+### tech-debt/ (10 files)
 
 - [README.md](tech-debt/README.md) (3KB, 2026-06-13) **RECENT**
+- [non-markdown-files-rendered-as-markdown.md](tech-debt/non-markdown-files-rendered-as-markdown.md) (3KB, 2026-06-13) **RECENT**
 - [scanner-directory-include-silent.md](tech-debt/scanner-directory-include-silent.md) (1KB, 2026-06-10) **RECENT**
 - [line-level-promote.md](tech-debt/line-level-promote.md) (1KB, 2026-05-10)
 - [imgui-backend-shutdown-order.md](tech-debt/imgui-backend-shutdown-order.md) (1KB, 2026-05-10)
@@ -105,25 +103,24 @@
 
 ### docs/
 
-- [ARCHITECTURE.md](docs/ARCHITECTURE.md) (8KB, 2026-02-10)
-- [CLAUDE-CONFIG-DISCOVERY.md](docs/CLAUDE-CONFIG-DISCOVERY.md) (5KB, 2026-02-10)
-- [README.md](docs/README.md) (<1KB, 2026-02-10)
-- [SETUP.md](docs/SETUP.md) (2KB, 2026-02-10)
+- [ARCHITECTURE.md](docs/ARCHITECTURE.md) (7KB, 2026-06-13) **RECENT**
+- [README.md](docs/README.md) (<1KB, 2026-06-13) **RECENT**
+- [SETUP.md](docs/SETUP.md) (4KB, 2026-06-13) **RECENT**
 
 ---
 
 ## Recently Modified (last 7 days)
 
 1. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
-2. [feature-ui-overhaul.md](specs/implemented/feature-ui-overhaul.md) (today)
+2. [feature-release-readiness.md](specs/implemented/feature-release-readiness.md) (today)
 3. [INDEX.md](INDEX.md) (today)
-4. [README.md](tech-debt/README.md) (today)
-5. [013-scaffold-source-of-truth.md](reference/decisions/013-scaffold-source-of-truth.md) (today)
-6. [feature-agnostic-automation.md](specs/implemented/feature-agnostic-automation.md) (1d ago)
-7. [2026-06-11_spec-workflow-hook-silent-fail.md](archive/completed/2026-06-11_spec-workflow-hook-silent-fail.md) (2d ago)
-8. [2026-06-10_project-githooks-not-active.md](archive/completed/2026-06-10_project-githooks-not-active.md) (2d ago)
-9. [scanner-directory-include-silent.md](tech-debt/scanner-directory-include-silent.md) (2d ago)
-10. [006-desktop-vs-vscode-extension.md](reference/decisions/006-desktop-vs-vscode-extension.md) (2d ago)
+4. [api-design.md](api-design.md) (today)
+5. [README.md](tech-debt/README.md) (today)
+6. [non-markdown-files-rendered-as-markdown.md](tech-debt/non-markdown-files-rendered-as-markdown.md) (today)
+7. [feature-ui-overhaul.md](specs/implemented/feature-ui-overhaul.md) (today)
+8. [013-scaffold-source-of-truth.md](reference/decisions/013-scaffold-source-of-truth.md) (today)
+9. [feature-agnostic-automation.md](specs/implemented/feature-agnostic-automation.md) (2d ago)
+10. [2026-06-11_spec-workflow-hook-silent-fail.md](archive/completed/2026-06-11_spec-workflow-hook-silent-fail.md) (2d ago)
 
 ---
 

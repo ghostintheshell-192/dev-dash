@@ -39,6 +39,14 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release"
       }
+    },
+    {
+      "name": "linux-ci",
+      "displayName": "Linux CI (Debug + warnings-as-errors)",
+      "inherits": [ "linux-debug" ],
+      "cacheVariables": {
+        "DEVDASH_WERROR": "ON"
+      }
     }
   ],
   "buildPresets": [
@@ -51,6 +59,11 @@
       "name": "linux-release",
       "displayName": "Linux Release",
       "configurePreset": "linux-release"
+    },
+    {
+      "name": "linux-ci",
+      "displayName": "Linux CI",
+      "configurePreset": "linux-ci"
     }
   ]
 }

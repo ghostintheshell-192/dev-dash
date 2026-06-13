@@ -1,0 +1,39 @@
+name: Release
+
+on:
+  push:
+    tags: [ 'v*' ]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # needed to create the GitHub Release
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            cmake ninja-build \
+            libvulkan-dev \
+            libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxi-dev \
+            libxfixes-dev libwayland-dev wayland-protocols libxkbcommon-dev
+
+      - name: Build (release)
+        run: .development/automation/build.sh linux-release
+
+      - name: Package (CPack TGZ)
+        run: (cd app/build/linux-release && cpack)
+
+      # gh is preinstalled on GitHub runners; github.token has the contents:write
+      # scope granted above. Tarball name comes from CPACK_PACKAGE_FILE_NAME.
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" \
+            app/build/linux-release/dev-dash-*-linux-x86_64.tar.gz \
+            --title "${GITHUB_REF_NAME}" \
+            --generate-notes

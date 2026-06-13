@@ -53,6 +53,8 @@ For detailed documentation, see `docs/`.
 - `snapshot.h`
 
 ### app/src/platform
+- `asset_paths.cpp`
+- `asset_paths.h`
 - `deletion_queue.h` — Adapted from Germen Pulchrum (DPD85/Germen, MIT) — `CodaCancellazione`. See app/THIRD_PARTY_NOTICES.md for attribution.
 - `frame_resources.cpp`
 - `frame_resources.h`

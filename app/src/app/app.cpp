@@ -7,7 +7,10 @@
 #include <imgui.h>
 #include <vulkan/vulkan.h>
 
+#include "version.h"
+
 #include "../platform/sdl_session.h"
+#include "../platform/asset_paths.h"
 #include "../platform/window.h"
 #include "../platform/vulkan_context.h"
 #include "../platform/swapchain.h"
@@ -64,7 +67,8 @@ namespace dev_dash::app
     {
         _sdlSession     = std::make_unique<platform::SdlSession>();
         _window         = std::make_unique<platform::Window>(
-            "dev-dash", platform::kInitialWindowWidth, platform::kInitialWindowHeight);
+            std::string("dev-dash ") + kVersion,
+            platform::kInitialWindowWidth, platform::kInitialWindowHeight);
         _vulkanContext  = std::make_unique<platform::VulkanContext>(*_window);
         _swapchain      = std::make_unique<platform::Swapchain>(*_vulkanContext, *_window);
         _frameResources = std::make_unique<platform::FrameResources>(*_vulkanContext, *_swapchain);
@@ -78,7 +82,8 @@ namespace dev_dash::app
         if (uiScale <= 0.0f)
             uiScale = 1.0f;
 
-        _fonts        = std::make_unique<ui::FontLibrary>(uiScale);
+        const std::filesystem::path assetsDir = platform::ResolveAssetsDir();
+        _fonts        = std::make_unique<ui::FontLibrary>(uiScale, assetsDir / "fonts");
         _imguiBackend = std::make_unique<platform::ImGuiBackend>(*_window, *_vulkanContext, *_swapchain);
 
         // After ImGuiBackend: its init sets the stock dark style as a
@@ -95,12 +100,7 @@ namespace dev_dash::app
         _applyEngine        = std::make_unique<services::ApplyEngine>();
         _snapshotService    = std::make_unique<services::SnapshotService>(*_applyEngine);
         _scaffoldRepository = std::make_unique<services::ScaffoldRepository>();
-        if (const char* home = std::getenv("HOME"))
-        {
-            const std::filesystem::path devdash{std::string(home) + "/.devdash"};
-            _scaffoldRepository->SetScaffoldRoot(devdash / "scaffolds");
-            _snapshotService->SetSnapshotRoot(devdash / "snapshots");
-        }
+        EnsureRuntimeDirs();
 
         _projectSelectorPanel = std::make_unique<ui::ProjectSelectorPanel>(
             _window->Handle(),
@@ -108,6 +108,66 @@ namespace dev_dash::app
 
         _window->Show();
         return true;
+    }
+
+    void App::EnsureRuntimeDirs()
+    {
+        const char* home = std::getenv("HOME");
+        if (!home)
+        {
+            _startupIssues.emplace_back(
+                "$HOME is not set — scaffolds and snapshots are disabled this session.");
+            return;
+        }
+
+        const std::filesystem::path devdash   = std::filesystem::path(home) / ".devdash";
+        const std::filesystem::path scaffolds = devdash / "scaffolds";
+        const std::filesystem::path snapshots = devdash / "snapshots";
+
+        for (const auto& dir : {scaffolds, snapshots})
+        {
+            std::error_code ec;
+            std::filesystem::create_directories(dir, ec);
+            if (ec)
+            {
+                const std::string msg =
+                    "Could not create " + dir.string() + ": " + ec.message();
+                std::cerr << "[error] " << msg << '\n';
+                _startupIssues.push_back(msg);
+            }
+        }
+
+        // Wire the roots regardless: if a dir failed, the service simply finds
+        // it absent later — the issue is already surfaced above, not silenced.
+        _scaffoldRepository->SetScaffoldRoot(scaffolds);
+        _snapshotService->SetSnapshotRoot(snapshots);
+    }
+
+    void App::RenderStartupIssues()
+    {
+        if (_startupIssues.empty())
+            return;
+
+        const ImGuiViewport* vp = ImGui::GetMainViewport();
+        ImGui::SetNextWindowPos(vp->GetCenter(), ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+        ImGui::SetNextWindowSize(ImVec2(520.0f, 0.0f), ImGuiCond_Appearing);
+
+        bool open = true;
+        ImGui::Begin("Startup warnings", &open,
+                     ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings);
+        ImGui::TextWrapped(
+            "DevDash hit problems preparing its working directories. Scaffolds "
+            "and snapshots may not work until these are resolved:");
+        ImGui::Spacing();
+        for (const auto& issue : _startupIssues)
+            ImGui::BulletText("%s", issue.c_str());
+        ImGui::Spacing();
+        if (ImGui::Button("Dismiss"))
+            open = false;
+        ImGui::End();
+
+        if (!open)
+            _startupIssues.clear();
     }
 
     void App::OnProjectSelected(const std::filesystem::path& path)
@@ -137,6 +197,8 @@ namespace dev_dash::app
                 break;
 
             _imguiBackend->NewFrame();
+
+            RenderStartupIssues();
 
             switch (_appState)
             {

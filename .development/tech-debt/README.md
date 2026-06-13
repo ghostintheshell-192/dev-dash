@@ -52,13 +52,14 @@ report: null  # Optional: link to archive/analysis/YYYY-MM-DD_report_agent-name.
 
 ## Current Issues by Priority
 
-*Auto-updated: 2026-06-13 00:20*
+*Auto-updated: 2026-06-13 22:18*
 
 **High Priority:**
 - `imgui-backend-shutdown-order.md` - ImGui assertion on exit: backend non spento prima di DestroyContext
 
 **Medium Priority:**
 - `line-level-promote.md` - Promote e Apply operano solo sull'intero file
+- `non-markdown-files-rendered-as-markdown.md` - File non-Markdown renderizzati come Markdown (script, config)
 - `scaffold-architecture-scripts.md` - Include architecture scripts in project scaffold
 
 **Low Priority:**

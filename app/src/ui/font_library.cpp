@@ -1,20 +1,13 @@
 #include "font_library.h"
 
 #include <iostream>
-#include <string>
 
-#include <SDL3/SDL.h>
 #include <imgui.h>
 
 namespace dev_dash::ui
 {
-    FontLibrary::FontLibrary(float uiScale)
+    FontLibrary::FontLibrary(float uiScale, std::filesystem::path fontsDir)
     {
-        std::string fontsDir;
-        if (const char* base = SDL_GetBasePath())
-            fontsDir = base;
-        fontsDir += "assets/fonts/";
-
         ImFontAtlas* atlas = ImGui::GetIO().Fonts;
         const float kBodySize = 17.0f * uiScale;
 
@@ -30,20 +23,25 @@ namespace dev_dash::ui
             0x2000, 0x27BF,
             0,
         };
-        constexpr const char* kDejaVu = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf";
+
+        // DejaVu Sans is bundled alongside the primary fonts (see assets/fonts/)
+        // and merged in as a fallback for glyphs IBM Plex lacks.
+        const std::filesystem::path dejaVu = fontsDir / "DejaVuSans.ttf";
 
         auto load = [&](const char* file, float size) -> ImFont*
         {
+            const std::filesystem::path path = fontsDir / file;
             ImFont* f = atlas->AddFontFromFileTTF(
-                (fontsDir + file).c_str(), size, nullptr, kPrimaryRanges);
+                path.string().c_str(), size, nullptr, kPrimaryRanges);
             if (!f)
             {
-                std::cerr << "[warn] Font not found: " << fontsDir << file << '\n';
+                std::cerr << "[warn] Font not found: " << path << '\n';
                 return f;
             }
             ImFontConfig merge;
             merge.MergeMode = true;
-            atlas->AddFontFromFileTTF(kDejaVu, size, &merge, kFallbackRanges);
+            atlas->AddFontFromFileTTF(
+                dejaVu.string().c_str(), size, &merge, kFallbackRanges);
             return f;
         };
 

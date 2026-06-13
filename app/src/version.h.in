@@ -1,0 +1,9 @@
+#pragma once
+
+// Generated from version.h.in by CMake (configure_file). Do not edit the
+// generated copy in the build tree — edit version.h.in and reconfigure.
+
+namespace dev_dash
+{
+    inline constexpr const char* kVersion = "@PROJECT_VERSION@";
+}
