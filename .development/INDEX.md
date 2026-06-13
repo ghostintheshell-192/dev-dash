@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-06-13 22:13*
+*Auto-generated: 2026-06-13 22:14*
 
 ---
 
@@ -115,9 +115,9 @@
 ## Recently Modified (last 7 days)
 
 1. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
-2. [README.md](tech-debt/README.md) (today)
-3. [INDEX.md](INDEX.md) (today)
-4. [feature-release-readiness.md](specs/in-progress/feature-release-readiness.md) (today)
+2. [feature-release-readiness.md](specs/in-progress/feature-release-readiness.md) (today)
+3. [README.md](tech-debt/README.md) (today)
+4. [INDEX.md](INDEX.md) (today)
 5. [api-design.md](api-design.md) (today)
 6. [non-markdown-files-rendered-as-markdown.md](tech-debt/non-markdown-files-rendered-as-markdown.md) (today)
 7. [feature-ui-overhaul.md](specs/implemented/feature-ui-overhaul.md) (today)

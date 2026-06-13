@@ -56,14 +56,19 @@ fallimenti silenziosi al primo avvio.
 - [x] CPack TGZ: `dev-dash-X.Y.Z-linux-x86_64.tar.gz`
 - [x] Smoke test manuale: install in prefix pulito + run
 
-### Fase 3 — CI e release
+### Fase 3 — CI e release ✅
 
-- [ ] `.github/workflows/ci.yml`: push/PR su develop/main, ubuntu-latest,
-      chiama gli entry point `build.sh` + `test.sh`
-- [ ] `.github/workflows/release.yml`: su tag `v*`, build Release + cpack +
-      GitHub Release
-- [ ] Eliminare `ci.yml.disabled`
-- [ ] `CHANGELOG.md` iniziale (Keep-a-Changelog)
+- [x] `.github/workflows/ci.yml`: push/PR su develop/main, ubuntu-latest,
+      chiama gli entry point `build.sh` + `test.sh` (preset `linux-ci`,
+      warnings-as-errors)
+- [x] `.github/workflows/release.yml`: su tag `v*`, build Release + cpack +
+      GitHub Release (via `gh` CLI)
+- [x] Eliminare `ci.yml.disabled`
+- [x] `CHANGELOG.md` iniziale (Keep-a-Changelog)
+
+> Verifica residua: i workflow GitHub Actions si collaudano solo al primo
+> push del branch / merge — la parte CMake (`linux-ci`, `-Werror`) è già
+> verificata in locale.
 
 ### Fase 4 — Documentazione utente ✅
 
