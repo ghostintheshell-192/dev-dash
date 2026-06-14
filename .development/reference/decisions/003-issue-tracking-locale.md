@@ -1,7 +1,9 @@
 # ADR-003: Issue tracking locale vs GitHub Issues
 
 **Data**: 2024-12-02
-**Status**: Accettata
+**Status**: Accepted
+**Impact**: medium
+**Sommario**: Adotta un issue tracking locale in file markdown sotto `.personal/issues/` per le issue personali, riservando GitHub Issues alle issue pubbliche e ai bug report esterni.
 
 ## Contesto
 

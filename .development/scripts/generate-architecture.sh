@@ -93,12 +93,17 @@ generate_adr_list() {
 
     for adr in "$ADR_DIR"/[0-9]*.md; do
         [[ -f "$adr" ]] || continue
-        local filename
+        local filename number title summary impact line
         filename=$(basename "$adr" .md)
-        local number="${filename%%-*}"
-        local title="${filename#*-}"
-        title=$(echo "$title" | sed 's/-/ /g' | sed 's/\b\(.\)/\u\1/g')
-        echo "- [ADR-$number: $title](reference/decisions/$filename.md)"
+        number="${filename%%-*}"
+        # Real H1 title (strip leading "# " and the "ADR-NNN:" prefix), not the slug.
+        title=$(head -1 "$adr" | sed 's/^#[[:space:]]*//; s/^ADR-[0-9]*:[[:space:]]*//')
+        summary=$(grep -m1 "^\*\*Sommario\*\*:" "$adr" | sed 's/^\*\*Sommario\*\*:[[:space:]]*//')
+        impact=$(grep -m1 "^\*\*Impact\*\*:" "$adr" | sed 's/^\*\*Impact\*\*:[[:space:]]*//')
+        line="- [ADR-$number: $title](reference/decisions/$filename.md)"
+        [[ -n "$impact" ]] && line="$line \`[$impact]\`"
+        [[ -n "$summary" ]] && line="$line — $summary"
+        printf '%s\n' "$line"
     done
 }
 

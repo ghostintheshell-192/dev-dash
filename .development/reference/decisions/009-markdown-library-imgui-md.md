@@ -1,7 +1,9 @@
 # ADR-009: Libreria markdown — imgui_md + MD4C
 
 **Data**: 2026-05-10
-**Status**: Accettata
+**Status**: Accepted
+**Impact**: medium
+**Sommario**: Adotta `imgui_md` (mekhontsev) + MD4C come stack markdown, separando il parser CommonMark esterno e mantenuto (MD4C) dal bridge ImGui disposable, invece del parser hand-written di `imgui_markdown` upstream o del fork mgerhardy; DevDash deriva `MarkdownRenderer` dal bridge per integrarvi font e color scheme.
 
 ## Contesto
 

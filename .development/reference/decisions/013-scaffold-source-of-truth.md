@@ -1,7 +1,9 @@
 # ADR-013: Scaffold source of truth — rsrc versionato, symlink in dev
 
 **Data**: 2026-06-12
-**Status**: Accettata
+**Status**: Accepted
+**Impact**: critical
+**Sommario**: Stabilisce `rsrc/project-scaffold/` come unica fonte di verità versionata in git, con `~/.devdash/scaffolds/dev-dash-standard` come symlink ad essa in modalità dev (il promote dell'app scrive nel working tree) e come copia per gli utenti finali, eliminando ogni meccanismo di sync.
 
 ## Contesto
 
@@ -38,7 +40,7 @@ mantenere, single source of truth, drift strutturalmente impossibile.
 
 - Artefatti **generati** non vivono nello scaffold: si distribuisce il
   generatore (`generate-claude-config.sh`), non il suo output
-  (`critical-rules.md`).
+  (`key-decisions.md`).
 - File **locali per definizione** (`settings.local.json`) sono esclusi.
 
 ## Conseguenze

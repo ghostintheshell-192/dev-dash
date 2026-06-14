@@ -1,7 +1,9 @@
 # ADR-007: Rimozione del Terminale Embedded
 
 **Data**: 2025-12-30
-**Status**: Accettata
+**Status**: Accepted
+**Impact**: medium
+**Sommario**: Rimuove completamente la feature del terminale embedded (PTY, ANSI parser, dipendenza Pty.Net) senza sostituirla, riallineando DevDash alla filosofia "documentazione e contesto, non esecuzione" e delegando l'esecuzione di Claude Code al terminale esterno.
 
 ## Contesto
 

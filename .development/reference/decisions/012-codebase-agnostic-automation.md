@@ -1,7 +1,9 @@
 # ADR-012: Automazione a due livelli, agnostica rispetto al codebase
 
 **Data**: 2026-06-10
-**Status**: Proposta (draft per review)
+**Status**: Proposed
+**Impact**: high
+**Sommario**: Riduce l'automazione a due livelli (globale Claude + progetto self-contained, decommissionando il livello workspace) e separa orchestrazione e implementazione: gli hook diventano orchestratori generici e agnostici rispetto allo stack, mentre la conoscenza stack-specifica vive in entry point standard sotto `.development/automation/`.
 
 ## Contesto
 

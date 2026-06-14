@@ -26,9 +26,11 @@ The following rules are automatically loaded from `.claude/rules/`:
 - **preflight-checks.md** - Pre-flight checks before coding
 - **workflow.md** - Git workflow and release process
 
-## Critical Rules
+## Key Decisions
 
-See **critical-rules.md** for critical architecture rules (auto-generated from ADRs).
+High-impact architecture decisions (ADR `Impact ≥ high`) are auto-generated from the ADRs and loaded into every session via the import below — `critical` ones are constraints that must not be violated, `high` ones are context that shapes ongoing work. Each entry carries a one-line Sommario; open the linked ADR for full context. For the complete catalogue see `.development/reference/decisions/` (index in its README).
+
+@key-decisions.md
 
 ## Documentation Structure
 
