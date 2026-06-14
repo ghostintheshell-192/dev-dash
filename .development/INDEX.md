@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-06-14 23:33*
+*Auto-generated: 2026-06-14 23:38*
 
 ---
 
@@ -55,6 +55,7 @@
 
 ### tech-debt/ (10 files)
 
+- [scaffold-architecture-scripts.md](tech-debt/scaffold-architecture-scripts.md) (1KB, 2026-06-14) **RECENT**
 - [README.md](tech-debt/README.md) (3KB, 2026-06-14) **RECENT**
 - [non-markdown-files-rendered-as-markdown.md](tech-debt/non-markdown-files-rendered-as-markdown.md) (3KB, 2026-06-13) **RECENT**
 - [scanner-directory-include-silent.md](tech-debt/scanner-directory-include-silent.md) (1KB, 2026-06-10) **RECENT**
@@ -62,7 +63,6 @@
 - [imgui-backend-shutdown-order.md](tech-debt/imgui-backend-shutdown-order.md) (1KB, 2026-05-10)
 - [markdown-code-block-styling.md](tech-debt/markdown-code-block-styling.md) (3KB, 2026-05-09)
 - [preprocess-imports-indented-fences.md](tech-debt/preprocess-imports-indented-fences.md) (2KB, 2026-05-09)
-- [scaffold-architecture-scripts.md](tech-debt/scaffold-architecture-scripts.md) (<1KB, 2026-04-28)
 - [session-handoff-skill-note.md](tech-debt/session-handoff-skill-note.md) (<1KB, 2026-04-28)
 - [_TEMPLATE.md](tech-debt/_TEMPLATE.md) (1KB, 2026-04-26)
 
@@ -114,15 +114,15 @@
 ## Recently Modified (last 7 days)
 
 1. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
-2. [README.md](tech-debt/README.md) (today)
-3. [013-scaffold-source-of-truth.md](reference/decisions/013-scaffold-source-of-truth.md) (today)
-4. [README.md](reference/decisions/README.md) (today)
-5. [014-germen-coevolution-strategy.md](reference/decisions/014-germen-coevolution-strategy.md) (today)
-6. [012-codebase-agnostic-automation.md](reference/decisions/012-codebase-agnostic-automation.md) (today)
-7. [011-release-and-distribution.md](reference/decisions/011-release-and-distribution.md) (today)
-8. [010-architecture-design.md](reference/decisions/010-architecture-design.md) (today)
-9. [009-markdown-library-imgui-md.md](reference/decisions/009-markdown-library-imgui-md.md) (today)
-10. [008-pivot-to-cpp-imgui.md](reference/decisions/008-pivot-to-cpp-imgui.md) (today)
+2. [scaffold-architecture-scripts.md](tech-debt/scaffold-architecture-scripts.md) (today)
+3. [README.md](tech-debt/README.md) (today)
+4. [INDEX.md](INDEX.md) (today)
+5. [013-scaffold-source-of-truth.md](reference/decisions/013-scaffold-source-of-truth.md) (today)
+6. [README.md](reference/decisions/README.md) (today)
+7. [014-germen-coevolution-strategy.md](reference/decisions/014-germen-coevolution-strategy.md) (today)
+8. [012-codebase-agnostic-automation.md](reference/decisions/012-codebase-agnostic-automation.md) (today)
+9. [011-release-and-distribution.md](reference/decisions/011-release-and-distribution.md) (today)
+10. [010-architecture-design.md](reference/decisions/010-architecture-design.md) (today)
 
 ---
 

@@ -45,4 +45,6 @@ Da portare nello scaffold:
 
 Sessione dedicata: (a) verificare la copertura reale del PromoteEngine;
 (b) decidere promote vs copia manuale per le parti generiche; (c) creare le
-varianti template degli script dev-dash-specifici. Vedi task #7.
+varianti template degli script dev-dash-specifici. Vedi task #7 e il tech-debt
+`.development/tech-debt/scaffold-architecture-scripts.md` (aggiornato e
+de-.NET-izzato il 2026-06-14), che possiede la parte "architecture scripts".
