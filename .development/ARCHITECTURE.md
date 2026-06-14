@@ -28,6 +28,7 @@ For detailed documentation, see `docs/`.
 - [ADR-011: Release And Distribution](reference/decisions/011-release-and-distribution.md)
 - [ADR-012: Codebase Agnostic Automation](reference/decisions/012-codebase-agnostic-automation.md)
 - [ADR-013: Scaffold Source Of Truth](reference/decisions/013-scaffold-source-of-truth.md)
+- [ADR-014: Germen Coevolution Strategy](reference/decisions/014-germen-coevolution-strategy.md)
 
 ## Project Tree
 

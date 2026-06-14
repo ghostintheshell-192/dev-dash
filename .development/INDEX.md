@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-06-13 22:18*
+*Auto-generated: 2026-06-14 23:01*
 
 ---
 
@@ -19,8 +19,8 @@
 
 ### (root)/ (5 files)
 
-- [ARCHITECTURE.md](ARCHITECTURE.md) (4KB, 2026-06-13) **RECENT**
-- [INDEX.md](INDEX.md) (6KB, 2026-06-13) **RECENT**
+- [ARCHITECTURE.md](ARCHITECTURE.md) (4KB, 2026-06-14) **RECENT**
+- [INDEX.md](INDEX.md) (6KB, 2026-06-14) **RECENT**
 - [api-design.md](api-design.md) (43KB, 2026-06-13) **RECENT**
 - [CURRENT-STATUS.md](CURRENT-STATUS.md) (14KB, 2026-06-10) **RECENT**
 - [README.md](README.md) (2KB, 2026-04-26)
@@ -55,7 +55,7 @@
 
 ### tech-debt/ (10 files)
 
-- [README.md](tech-debt/README.md) (3KB, 2026-06-13) **RECENT**
+- [README.md](tech-debt/README.md) (3KB, 2026-06-14) **RECENT**
 - [non-markdown-files-rendered-as-markdown.md](tech-debt/non-markdown-files-rendered-as-markdown.md) (3KB, 2026-06-13) **RECENT**
 - [scanner-directory-include-silent.md](tech-debt/scanner-directory-include-silent.md) (1KB, 2026-06-10) **RECENT**
 - [line-level-promote.md](tech-debt/line-level-promote.md) (1KB, 2026-05-10)
@@ -66,8 +66,9 @@
 - [session-handoff-skill-note.md](tech-debt/session-handoff-skill-note.md) (<1KB, 2026-04-28)
 - [_TEMPLATE.md](tech-debt/_TEMPLATE.md) (1KB, 2026-04-26)
 
-### reference/decisions/ (12 files)
+### reference/decisions/ (13 files)
 
+- [014-germen-coevolution-strategy.md](reference/decisions/014-germen-coevolution-strategy.md) (5KB, 2026-06-14) **RECENT**
 - [013-scaffold-source-of-truth.md](reference/decisions/013-scaffold-source-of-truth.md) (2KB, 2026-06-12) **RECENT**
 - [006-desktop-vs-vscode-extension.md](reference/decisions/006-desktop-vs-vscode-extension.md) (5KB, 2026-06-10) **RECENT**
 - [011-release-and-distribution.md](reference/decisions/011-release-and-distribution.md) (6KB, 2026-06-10) **RECENT**
@@ -112,15 +113,15 @@
 ## Recently Modified (last 7 days)
 
 1. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
-2. [feature-release-readiness.md](specs/implemented/feature-release-readiness.md) (today)
+2. [014-germen-coevolution-strategy.md](reference/decisions/014-germen-coevolution-strategy.md) (today)
 3. [INDEX.md](INDEX.md) (today)
-4. [api-design.md](api-design.md) (today)
-5. [README.md](tech-debt/README.md) (today)
-6. [non-markdown-files-rendered-as-markdown.md](tech-debt/non-markdown-files-rendered-as-markdown.md) (today)
-7. [feature-ui-overhaul.md](specs/implemented/feature-ui-overhaul.md) (today)
-8. [013-scaffold-source-of-truth.md](reference/decisions/013-scaffold-source-of-truth.md) (today)
-9. [feature-agnostic-automation.md](specs/implemented/feature-agnostic-automation.md) (2d ago)
-10. [2026-06-11_spec-workflow-hook-silent-fail.md](archive/completed/2026-06-11_spec-workflow-hook-silent-fail.md) (2d ago)
+4. [README.md](tech-debt/README.md) (today)
+5. [feature-release-readiness.md](specs/implemented/feature-release-readiness.md) (1d ago)
+6. [api-design.md](api-design.md) (1d ago)
+7. [non-markdown-files-rendered-as-markdown.md](tech-debt/non-markdown-files-rendered-as-markdown.md) (1d ago)
+8. [feature-ui-overhaul.md](specs/implemented/feature-ui-overhaul.md) (1d ago)
+9. [013-scaffold-source-of-truth.md](reference/decisions/013-scaffold-source-of-truth.md) (2d ago)
+10. [feature-agnostic-automation.md](specs/implemented/feature-agnostic-automation.md) (3d ago)
 
 ---
 
