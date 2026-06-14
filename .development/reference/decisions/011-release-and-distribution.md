@@ -1,7 +1,9 @@
 # ADR-011: Modello di release e distribuzione
 
 **Data**: 2026-06-10
-**Status**: Proposta (draft per review)
+**Status**: Proposed
+**Impact**: medium
+**Sommario**: Definisce il modello di release Linux-first minimo ma scalabile: SemVer con tag `v*` su `main` e versione nel `CMakeLists.txt`, install rules CMake con `GNUInstallDirs`, risoluzione asset a runtime a due tentativi con DejaVu bundled, e packaging via CPack (generator `TGZ` come primo formato).
 
 ## Contesto
 

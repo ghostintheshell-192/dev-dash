@@ -1,7 +1,10 @@
 # ADR-001: Stack tecnologico - C# + Avalonia
 
 **Data**: 2024-12-02 (originale), 2025-12-03 (rivista)
-**Status**: **Superseded by [ADR-008](008-pivot-to-cpp-imgui.md)** (2026-05-10)
+**Status**: Superseded
+**Impact**: low
+**Sommario**: Sceglie C# + Avalonia (nativo cross-platform, MVVM) come stack definitivo per DevDash, in luogo del prototipo React e delle alternative Electron/Tauri.
+**Superseded by**: [ADR-008](008-pivot-to-cpp-imgui.md) (2026-05-10)
 
 > ⚠️ Il rationale di questo ADR è rimasto valido fino ad aprile 2026, quando
 > il modello commerciale di Avalonia (account portal richiesto per i DevTools)

@@ -17,18 +17,18 @@ For detailed documentation, see `docs/`.
 
 ## Key Decisions
 
-- [ADR-001: Stack Tecnologico](reference/decisions/001-stack-tecnologico.md)
-- [ADR-002: Symlink Vs Copy](reference/decisions/002-symlink-vs-copy.md)
-- [ADR-003: Issue Tracking Locale](reference/decisions/003-issue-tracking-locale.md)
-- [ADR-006: Desktop Vs Vscode Extension](reference/decisions/006-desktop-vs-vscode-extension.md)
-- [ADR-007: Rimozione Terminale Embedded](reference/decisions/007-rimozione-terminale-embedded.md)
-- [ADR-008: Pivot To Cpp Imgui](reference/decisions/008-pivot-to-cpp-imgui.md)
-- [ADR-009: Markdown Library Imgui Md](reference/decisions/009-markdown-library-imgui-md.md)
-- [ADR-010: Architecture Design](reference/decisions/010-architecture-design.md)
-- [ADR-011: Release And Distribution](reference/decisions/011-release-and-distribution.md)
-- [ADR-012: Codebase Agnostic Automation](reference/decisions/012-codebase-agnostic-automation.md)
-- [ADR-013: Scaffold Source Of Truth](reference/decisions/013-scaffold-source-of-truth.md)
-- [ADR-014: Germen Coevolution Strategy](reference/decisions/014-germen-coevolution-strategy.md)
+- [ADR-001: Stack tecnologico - C# + Avalonia](reference/decisions/001-stack-tecnologico.md) `[low]` — Sceglie C# + Avalonia (nativo cross-platform, MVVM) come stack definitivo per DevDash, in luogo del prototipo React e delle alternative Electron/Tauri.
+- [ADR-002: Symlink vs Copy per aggregazione vault](reference/decisions/002-symlink-vs-copy.md) `[medium]` — Aggrega la documentazione nel Vault@Claude tramite symlink ai file originali, anziché copia fisica o aggregazione virtuale, per avere single source of truth e zero sync.
+- [ADR-003: Issue tracking locale vs GitHub Issues](reference/decisions/003-issue-tracking-locale.md) `[medium]` — Adotta un issue tracking locale in file markdown sotto `.personal/issues/` per le issue personali, riservando GitHub Issues alle issue pubbliche e ai bug report esterni.
+- [ADR-006: DevDash Desktop vs VS Code Extension](reference/decisions/006-desktop-vs-vscode-extension.md) `[high]` — Tratta DevDash Desktop ed eventuale estensione VS Code come due prodotti separati con filosofie distinte (desktop standalone vs companion dell'estensione Claude Code), integrati via filesystem e da sviluppare prima Desktop poi Extension; un addendum 2026-06-10 rimanda la ri-decisione sulla forma di distribuzione al verificarsi di un trigger concreto.
+- [ADR-007: Rimozione del Terminale Embedded](reference/decisions/007-rimozione-terminale-embedded.md) `[medium]` — Rimuove completamente la feature del terminale embedded (PTY, ANSI parser, dipendenza Pty.Net) senza sostituirla, riallineando DevDash alla filosofia "documentazione e contesto, non esecuzione" e delegando l'esecuzione di Claude Code al terminale esterno.
+- [ADR-008: Pivot dello stack — da C#/Avalonia a C++/Dear ImGui](reference/decisions/008-pivot-to-cpp-imgui.md) `[high]` — Riscrive DevDash in C++20 con Dear ImGui (docking) su SDL3 + Vulkan, abbandonando .NET 8 + Avalonia, motivato da preferenza linguistica, rifiuto degli user agreement Avalonia e dal kickstart Germen Pulchrum; il legacy resta sotto il tag `legacy/avalonia-final` e il nuovo codice vive in `poc/`.
+- [ADR-009: Libreria markdown — imgui_md + MD4C](reference/decisions/009-markdown-library-imgui-md.md) `[medium]` — Adotta `imgui_md` (mekhontsev) + MD4C come stack markdown, separando il parser CommonMark esterno e mantenuto (MD4C) dal bridge ImGui disposable, invece del parser hand-written di `imgui_markdown` upstream o del fork mgerhardy; DevDash deriva `MarkdownRenderer` dal bridge per integrarvi font e color scheme.
+- [ADR-010: Architettura del progetto vero — split layered](reference/decisions/010-architecture-design.md) `[critical]` — Struttura il progetto vero come split layered a cinque cartelle (`core/services/ui/platform/app/`, promozione di `poc/` → `app/`), con pattern "panel as viewmodel" invece di MVVM, classi concrete invece di interfacce virtuali, e callback con ordine di dichiarazione per il `MarkdownRenderer`.
+- [ADR-011: Modello di release e distribuzione](reference/decisions/011-release-and-distribution.md) `[medium]` — Definisce il modello di release Linux-first minimo ma scalabile: SemVer con tag `v*` su `main` e versione nel `CMakeLists.txt`, install rules CMake con `GNUInstallDirs`, risoluzione asset a runtime a due tentativi con DejaVu bundled, e packaging via CPack (generator `TGZ` come primo formato).
+- [ADR-012: Automazione a due livelli, agnostica rispetto al codebase](reference/decisions/012-codebase-agnostic-automation.md) `[high]` — Riduce l'automazione a due livelli (globale Claude + progetto self-contained, decommissionando il livello workspace) e separa orchestrazione e implementazione: gli hook diventano orchestratori generici e agnostici rispetto allo stack, mentre la conoscenza stack-specifica vive in entry point standard sotto `.development/automation/`.
+- [ADR-013: Scaffold source of truth — rsrc versionato, symlink in dev](reference/decisions/013-scaffold-source-of-truth.md) `[critical]` — Stabilisce `rsrc/project-scaffold/` come unica fonte di verità versionata in git, con `~/.devdash/scaffolds/dev-dash-standard` come symlink ad essa in modalità dev (il promote dell'app scrive nel working tree) e come copia per gli utenti finali, eliminando ogni meccanismo di sync.
+- [ADR-014: Strategia di co-evoluzione con Germen Pulchrum](reference/decisions/014-germen-coevolution-strategy.md) `[high]` — Articola la relazione con Germen Pulchrum come co-evoluzione su uno spettro temporale (copia con attribuzione oggi → `git subtree` poi → adozione wholesale tendenziale), abilita la contribuzione bidirezionale attiva (Valentina collaboratrice), e fissa che il modulo grafi nasca su Germen co-sviluppato ma vincolato a essere portabile (solo Dear ImGui, layout/render disaccoppiati).
 
 ## Project Tree
 

@@ -1,7 +1,9 @@
 # ADR-008: Pivot dello stack — da C#/Avalonia a C++/Dear ImGui
 
 **Data**: 2026-05-10
-**Status**: Accettata
+**Status**: Accepted
+**Impact**: high
+**Sommario**: Riscrive DevDash in C++20 con Dear ImGui (docking) su SDL3 + Vulkan, abbandonando .NET 8 + Avalonia, motivato da preferenza linguistica, rifiuto degli user agreement Avalonia e dal kickstart Germen Pulchrum; il legacy resta sotto il tag `legacy/avalonia-final` e il nuovo codice vive in `poc/`.
 **Supersedes**: [ADR-001](001-stack-tecnologico.md)
 
 ## Contesto

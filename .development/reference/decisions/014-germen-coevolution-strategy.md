@@ -1,7 +1,9 @@
 # ADR-014: Strategia di co-evoluzione con Germen Pulchrum
 
 **Data**: 2026-06-14
-**Status**: Accettata
+**Status**: Accepted
+**Impact**: high
+**Sommario**: Articola la relazione con Germen Pulchrum come co-evoluzione su uno spettro temporale (copia con attribuzione oggi → `git subtree` poi → adozione wholesale tendenziale), abilita la contribuzione bidirezionale attiva (Valentina collaboratrice), e fissa che il modulo grafi nasca su Germen co-sviluppato ma vincolato a essere portabile (solo Dear ImGui, layout/render disaccoppiati).
 
 ## Contesto
 

@@ -1,7 +1,9 @@
 # ADR-010: Architettura del progetto vero — split layered
 
 **Data**: 2026-05-10
-**Status**: Accettata
+**Status**: Accepted
+**Impact**: critical
+**Sommario**: Struttura il progetto vero come split layered a cinque cartelle (`core/services/ui/platform/app/`, promozione di `poc/` → `app/`), con pattern "panel as viewmodel" invece di MVVM, classi concrete invece di interfacce virtuali, e callback con ordine di dichiarazione per il `MarkdownRenderer`.
 **Sub-decisione di**: [ADR-008](008-pivot-to-cpp-imgui.md) (pivot a C++/Dear ImGui)
 
 ## Contesto

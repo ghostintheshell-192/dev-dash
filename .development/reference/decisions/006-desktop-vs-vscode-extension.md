@@ -1,7 +1,9 @@
 # ADR-006: DevDash Desktop vs VS Code Extension
 
 **Data**: 2025-12-25
-**Status**: Accettata (addendum 2026-06-10: trigger di ri-decisione sulla forma di distribuzione)
+**Status**: Accepted
+**Impact**: high
+**Sommario**: Tratta DevDash Desktop ed eventuale estensione VS Code come due prodotti separati con filosofie distinte (desktop standalone vs companion dell'estensione Claude Code), integrati via filesystem e da sviluppare prima Desktop poi Extension; un addendum 2026-06-10 rimanda la ri-decisione sulla forma di distribuzione al verificarsi di un trigger concreto.
 
 ## Contesto
 

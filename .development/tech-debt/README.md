@@ -52,7 +52,7 @@ report: null  # Optional: link to archive/analysis/YYYY-MM-DD_report_agent-name.
 
 ## Current Issues by Priority
 
-*Auto-updated: 2026-06-14 23:01*
+*Auto-updated: 2026-06-14 23:38*
 
 **High Priority:**
 - `imgui-backend-shutdown-order.md` - ImGui assertion on exit: backend non spento prima di DestroyContext
@@ -96,7 +96,7 @@ If resolving an issue requires a significant architectural choice:
 
 1. Document decision in `../reference/decisions/NNN-name.md`
 2. Link from issue: `related_decision: NNN-name.md`
-3. Update `.claude/critical-rules.md` if Impact=critical (auto-generated)
+3. Update `.claude/key-decisions.md` if Impact ≥ high (auto-generated)
 
 ## Tips
 
