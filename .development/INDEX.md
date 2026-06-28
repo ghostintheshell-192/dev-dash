@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-06-28 20:26*
+*Auto-generated: 2026-06-28 23:59*
 
 ---
 
@@ -19,8 +19,8 @@
 
 ### (root)/ (5 files)
 
-- [ARCHITECTURE.md](ARCHITECTURE.md) (7KB, 2026-06-28) **RECENT**
-- [INDEX.md](INDEX.md) (5KB, 2026-06-27) **RECENT**
+- [ARCHITECTURE.md](ARCHITECTURE.md) (8KB, 2026-06-28) **RECENT**
+- [INDEX.md](INDEX.md) (5KB, 2026-06-28) **RECENT**
 - [api-design.md](api-design.md) (43KB, 2026-06-13)
 - [CURRENT-STATUS.md](CURRENT-STATUS.md) (14KB, 2026-06-10)
 - [README.md](README.md) (2KB, 2026-04-26)
@@ -46,17 +46,20 @@
 
 ### specs/implemented/ (6 files)
 
+- [feature-scaffold-management.md](specs/implemented/feature-scaffold-management.md) (8KB, 2026-06-28) **RECENT**
+- [feature-snapshot-history.md](specs/implemented/feature-snapshot-history.md) (8KB, 2026-06-28) **RECENT**
 - [feature-release-readiness.md](specs/implemented/feature-release-readiness.md) (3KB, 2026-06-13)
 - [feature-ui-overhaul.md](specs/implemented/feature-ui-overhaul.md) (3KB, 2026-06-13)
 - [feature-agnostic-automation.md](specs/implemented/feature-agnostic-automation.md) (3KB, 2026-06-11)
-- [feature-scaffold-management.md](specs/implemented/feature-scaffold-management.md) (10KB, 2026-06-10)
-- [feature-snapshot-history.md](specs/implemented/feature-snapshot-history.md) (8KB, 2026-06-10)
 - [feature-effective-config-view.md](specs/implemented/feature-effective-config-view.md) (6KB, 2026-05-10)
 
-### tech-debt/ (10 files)
+### specs/planned/ (1 files)
 
-- [README.md](tech-debt/README.md) (3KB, 2026-06-27) **RECENT**
-- [scaffold-architecture-scripts.md](tech-debt/scaffold-architecture-scripts.md) (1KB, 2026-06-14)
+- [feature-scaffold-templating.md](specs/planned/feature-scaffold-templating.md) (10KB, 2026-06-28) **RECENT**
+
+### tech-debt/ (9 files)
+
+- [README.md](tech-debt/README.md) (3KB, 2026-06-28) **RECENT**
 - [non-markdown-files-rendered-as-markdown.md](tech-debt/non-markdown-files-rendered-as-markdown.md) (3KB, 2026-06-13)
 - [scanner-directory-include-silent.md](tech-debt/scanner-directory-include-silent.md) (1KB, 2026-06-10)
 - [line-level-promote.md](tech-debt/line-level-promote.md) (1KB, 2026-05-10)
@@ -66,8 +69,10 @@
 - [session-handoff-skill-note.md](tech-debt/session-handoff-skill-note.md) (<1KB, 2026-04-28)
 - [_TEMPLATE.md](tech-debt/_TEMPLATE.md) (1KB, 2026-04-26)
 
-### reference/decisions/ (14 files)
+### reference/decisions/ (16 files)
 
+- [016-git-managed-scaffold-versioning.md](reference/decisions/016-git-managed-scaffold-versioning.md) (5KB, 2026-06-28) **RECENT**
+- [015-scaffold-templating.md](reference/decisions/015-scaffold-templating.md) (6KB, 2026-06-28) **RECENT**
 - [README.md](reference/decisions/README.md) (2KB, 2026-06-14)
 - [_TEMPLATE.md](reference/decisions/_TEMPLATE.md) (1KB, 2026-06-14)
 - [001-stack-tecnologico.md](reference/decisions/001-stack-tecnologico.md) (3KB, 2026-06-14)
@@ -91,8 +96,9 @@
 
 - [2025-12-11_report_code-reviewer.md](archive/analysis/2025-12-11_report_code-reviewer.md) (8KB, 2026-02-10)
 
-### archive/completed/ (3 files)
+### archive/completed/ (4 files)
 
+- [2026-06-28_scaffold-architecture-scripts.md](archive/completed/2026-06-28_scaffold-architecture-scripts.md) (2KB, 2026-06-28) **RECENT**
 - [2026-06-11_spec-workflow-hook-silent-fail.md](archive/completed/2026-06-11_spec-workflow-hook-silent-fail.md) (4KB, 2026-06-11)
 - [2026-06-10_project-githooks-not-active.md](archive/completed/2026-06-10_project-githooks-not-active.md) (2KB, 2026-06-10)
 - [2026-05-10_contentcontrol-binding-multisidebar.md](archive/completed/2026-05-10_contentcontrol-binding-multisidebar.md) (2KB, 2026-05-10)
@@ -114,8 +120,14 @@
 ## Recently Modified (last 7 days)
 
 1. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
-2. [INDEX.md](INDEX.md) (1d ago)
-3. [README.md](tech-debt/README.md) (1d ago)
+2. [2026-06-28_scaffold-architecture-scripts.md](archive/completed/2026-06-28_scaffold-architecture-scripts.md) (today)
+3. [016-git-managed-scaffold-versioning.md](reference/decisions/016-git-managed-scaffold-versioning.md) (today)
+4. [015-scaffold-templating.md](reference/decisions/015-scaffold-templating.md) (today)
+5. [feature-scaffold-management.md](specs/implemented/feature-scaffold-management.md) (today)
+6. [feature-scaffold-templating.md](specs/planned/feature-scaffold-templating.md) (today)
+7. [feature-snapshot-history.md](specs/implemented/feature-snapshot-history.md) (today)
+8. [INDEX.md](INDEX.md) (today)
+9. [README.md](tech-debt/README.md) (today)
 
 ---
 

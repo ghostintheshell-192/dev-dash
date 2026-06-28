@@ -5,7 +5,7 @@ status: implemented
 category: core
 part_of: wedge
 related: [feature-effective-config-view, feature-snapshot-history]
-depends_on: [feature-effective-config-view][../../reference/technical/resource-model.md]
+depends_on: [feature-effective-config-view, ../../reference/technical/resource-model.md]
 created: 2026-05-10
 ---
 
@@ -192,44 +192,16 @@ riutilizzabili"
 
 ## Open Questions
 
-- **Granularità del diff**: file intero (semplice) o sezione di markdown
-  (per `CLAUDE.md` con headings)? MVP: file intero. Granularità più fine
-  come evoluzione.
-- **"Scaffold default"**: meccanismo di marker? File `.devdash-default`
-  nella cartella scaffold? Setting in config DevDash?
-- **Conflict resolution su apply**: cosa succede se l'utente applica uno
-  scaffold ma il file di destinazione è stato modificato e marcato come
-  "custom"? Default: skip-with-confirmation; alternative possibili
-  (force, three-way merge). MVP: skip.
-- **Scaffold seed**: il primo scaffold dell'utente da dove arriva?
-  - Opzione A: l'utente lo crea da zero o lo importa da un'altra source.
-  - Opzione B: DevDash propone di seedare il primo scaffold da
-    `rsrc/project-scaffold/` (l'attuale embedded) come point-of-departure.
-  - L'opzione B è gentile per l'onboarding ma reintroduce risorse
-    embedded nel binario in forma minore.
-- **Variabili / placeholder**: la versione attuale dello scaffold ha
-  `{PROJECT_NAME}`, `{TECH_STACK_DESCRIPTION}` ecc. che si risolvevano
-  all'apply. Manteniamo questo meccanismo (con UI esplicita per i valori)
-  o lo eliminiamo del tutto (l'utente customizza il file dopo l'apply)?
-  Inclinazione: **eliminarlo** per coerenza con "trasparenza, no magic".
+Nessuna pendente. Le Open Questions originali di questa spec sono state risolte
+il 2026-06-28 e **migrate a `feature-scaffold-templating`** (planned), dove sono
+lavoro attivo — e alle decisioni di principio in
+[ADR-015](../../reference/decisions/015-scaffold-templating.md) (templating) e
+[ADR-016](../../reference/decisions/016-git-managed-scaffold-versioning.md)
+(versioning git). Questa spec è `implemented`: è record, non va più riaperta.
 
-- **Permessi `Bash(...)` per stack** (emerso 2026-05-10 nel cleanup post-pivot):
-  i progetti reali hanno bisogno di permessi diversi a seconda dello stack
-  (es. `Bash(cmake:*)` per C++, `Bash(dotnet build:*)` per .NET,
-  `Bash(cargo:*)` per Rust). Lo scaffold corrente in `rsrc/project-scaffold/`
-  contiene solo permessi language-agnostic (`find`, `grep`, `gh*`, `WebSearch`).
-  Tre opzioni:
-  - **A**: scaffold per-stack — `~/.devdash/scaffolds/coding-cpp/`,
-    `coding-csharp/`, ecc. — ognuno con i propri permessi di default.
-    Più scaffold, ma ogni stack è esplicito.
-  - **B**: scaffold "intelligente" che rileva lo stack del progetto target
-    all'apply (presenza di `CMakeLists.txt`, `*.csproj`, `Cargo.toml`) e
-    aggiunge i permessi appropriati. Più magia, meno scaffold da gestire.
-  - **C**: lo scaffold contiene un superset di permessi commentati;
-    l'utente decommenta quelli rilevanti dopo l'apply. Trasparente ma
-    manuale.
-  Inclinazione iniziale: **A**, coerente con la filosofia "scaffold come
-  artefatto utente esplicito, no magic".
+*(Convenzione di processo emersa da questo caso — una spec non passa a
+`implemented` con OQ aperte — catturata in
+`.memory-bank/ideas/2026-06-28-spec-no-open-questions-at-implemented.md`.)*
 
 ## Related
 

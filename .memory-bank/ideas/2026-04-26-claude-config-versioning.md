@@ -78,6 +78,32 @@ Nel resource-model è stata aggiunta una **sezione M placeholder** ("Pilastro 6 
 5. Migrazione: se l'utente ha già una config setup, come si crea il primo snapshot baseline senza interruzioni?
 6. Cross-machine sync: scope iniziale o follow-up?
 
+## Aggiornamento 2026-06-28 — benchmark e convergenza su git
+
+Riemersa discutendo ADR-015/ADR-016 (scaffold templating + versioning git degli
+scaffold). Due aggiunte:
+
+1. **Nuovo caso d'uso — benchmark config × versione-codebase.** Oltre a "config A
+   vs config B" (caso primario sopra), incrociare un **punto nello storico git
+   del *codice* del progetto** ("tornare indietro nella codebase") con una config
+   applicata, per misurare differenze di **performance**. È una dimensione in più
+   rispetto al config-versioning puro: non solo *quale config*, ma *quale config
+   su quale stato del codice*.
+
+2. **Convergenza su git come backing store.** ADR-016 ha deciso git-gestito per
+   gli scaffold: git sta diventando il backing store ricorrente del design
+   (scaffold ora, config-versioning candidato qui). Rafforza il candidato #1
+   ("Git su `~/.claude/`") di questa nota.
+
+**Relazione con `feature-snapshot-history`** (chiarita oggi): NON sostituire gli
+snapshot con git. Due livelli coesistono, per bisogni diversi:
+- *snapshot leggeri* (pruning, niente branch) = undo rapido delle azioni DevDash;
+- *config-versioning git per-progetto* (questa nota, granularità per-progetto) =
+  versioning robusto dell'intera config quando serve.
+Il timore "casino con i branch a riapplicare config" è proprio il motivo per cui
+gli snapshot leggeri restano, e il git-versioning è un layer **aggiuntivo**, non
+sostitutivo.
+
 ## Promozione futura → spec dedicata
 
 Quando si attacca, **questa nota non si cancella** — diventa il punto di partenza della spec. Status passa a `promoted-to-spec` con link.
