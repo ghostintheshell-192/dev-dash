@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-06-14 23:38*
+*Auto-generated: 2026-06-28 20:26*
 
 ---
 
@@ -19,10 +19,10 @@
 
 ### (root)/ (5 files)
 
-- [ARCHITECTURE.md](ARCHITECTURE.md) (7KB, 2026-06-14) **RECENT**
-- [INDEX.md](INDEX.md) (6KB, 2026-06-14) **RECENT**
-- [api-design.md](api-design.md) (43KB, 2026-06-13) **RECENT**
-- [CURRENT-STATUS.md](CURRENT-STATUS.md) (14KB, 2026-06-10) **RECENT**
+- [ARCHITECTURE.md](ARCHITECTURE.md) (7KB, 2026-06-28) **RECENT**
+- [INDEX.md](INDEX.md) (5KB, 2026-06-27) **RECENT**
+- [api-design.md](api-design.md) (43KB, 2026-06-13)
+- [CURRENT-STATUS.md](CURRENT-STATUS.md) (14KB, 2026-06-10)
 - [README.md](README.md) (2KB, 2026-04-26)
 
 ### specs/ (1 files)
@@ -39,26 +39,26 @@
 
 ### specs/backlog/ (4 files)
 
-- [feature-global-settings-coverage.md](specs/backlog/feature-global-settings-coverage.md) (2KB, 2026-06-10) **RECENT**
-- [feature-plugins-keybindings-coverage.md](specs/backlog/feature-plugins-keybindings-coverage.md) (1KB, 2026-06-10) **RECENT**
+- [feature-global-settings-coverage.md](specs/backlog/feature-global-settings-coverage.md) (2KB, 2026-06-10)
+- [feature-plugins-keybindings-coverage.md](specs/backlog/feature-plugins-keybindings-coverage.md) (1KB, 2026-06-10)
 - [feature-code-graph.md](specs/backlog/feature-code-graph.md) (8KB, 2026-05-10)
 - [feature-runtime-view-of-truth.md](specs/backlog/feature-runtime-view-of-truth.md) (2KB, 2026-05-10)
 
 ### specs/implemented/ (6 files)
 
-- [feature-release-readiness.md](specs/implemented/feature-release-readiness.md) (3KB, 2026-06-13) **RECENT**
-- [feature-ui-overhaul.md](specs/implemented/feature-ui-overhaul.md) (3KB, 2026-06-13) **RECENT**
-- [feature-agnostic-automation.md](specs/implemented/feature-agnostic-automation.md) (3KB, 2026-06-11) **RECENT**
-- [feature-scaffold-management.md](specs/implemented/feature-scaffold-management.md) (10KB, 2026-06-10) **RECENT**
-- [feature-snapshot-history.md](specs/implemented/feature-snapshot-history.md) (8KB, 2026-06-10) **RECENT**
+- [feature-release-readiness.md](specs/implemented/feature-release-readiness.md) (3KB, 2026-06-13)
+- [feature-ui-overhaul.md](specs/implemented/feature-ui-overhaul.md) (3KB, 2026-06-13)
+- [feature-agnostic-automation.md](specs/implemented/feature-agnostic-automation.md) (3KB, 2026-06-11)
+- [feature-scaffold-management.md](specs/implemented/feature-scaffold-management.md) (10KB, 2026-06-10)
+- [feature-snapshot-history.md](specs/implemented/feature-snapshot-history.md) (8KB, 2026-06-10)
 - [feature-effective-config-view.md](specs/implemented/feature-effective-config-view.md) (6KB, 2026-05-10)
 
 ### tech-debt/ (10 files)
 
-- [scaffold-architecture-scripts.md](tech-debt/scaffold-architecture-scripts.md) (1KB, 2026-06-14) **RECENT**
-- [README.md](tech-debt/README.md) (3KB, 2026-06-14) **RECENT**
-- [non-markdown-files-rendered-as-markdown.md](tech-debt/non-markdown-files-rendered-as-markdown.md) (3KB, 2026-06-13) **RECENT**
-- [scanner-directory-include-silent.md](tech-debt/scanner-directory-include-silent.md) (1KB, 2026-06-10) **RECENT**
+- [README.md](tech-debt/README.md) (3KB, 2026-06-27) **RECENT**
+- [scaffold-architecture-scripts.md](tech-debt/scaffold-architecture-scripts.md) (1KB, 2026-06-14)
+- [non-markdown-files-rendered-as-markdown.md](tech-debt/non-markdown-files-rendered-as-markdown.md) (3KB, 2026-06-13)
+- [scanner-directory-include-silent.md](tech-debt/scanner-directory-include-silent.md) (1KB, 2026-06-10)
 - [line-level-promote.md](tech-debt/line-level-promote.md) (1KB, 2026-05-10)
 - [imgui-backend-shutdown-order.md](tech-debt/imgui-backend-shutdown-order.md) (1KB, 2026-05-10)
 - [markdown-code-block-styling.md](tech-debt/markdown-code-block-styling.md) (3KB, 2026-05-09)
@@ -68,20 +68,20 @@
 
 ### reference/decisions/ (14 files)
 
-- [013-scaffold-source-of-truth.md](reference/decisions/013-scaffold-source-of-truth.md) (3KB, 2026-06-14) **RECENT**
-- [README.md](reference/decisions/README.md) (2KB, 2026-06-14) **RECENT**
-- [014-germen-coevolution-strategy.md](reference/decisions/014-germen-coevolution-strategy.md) (5KB, 2026-06-14) **RECENT**
-- [012-codebase-agnostic-automation.md](reference/decisions/012-codebase-agnostic-automation.md) (7KB, 2026-06-14) **RECENT**
-- [011-release-and-distribution.md](reference/decisions/011-release-and-distribution.md) (6KB, 2026-06-14) **RECENT**
-- [010-architecture-design.md](reference/decisions/010-architecture-design.md) (12KB, 2026-06-14) **RECENT**
-- [009-markdown-library-imgui-md.md](reference/decisions/009-markdown-library-imgui-md.md) (10KB, 2026-06-14) **RECENT**
-- [008-pivot-to-cpp-imgui.md](reference/decisions/008-pivot-to-cpp-imgui.md) (12KB, 2026-06-14) **RECENT**
-- [007-rimozione-terminale-embedded.md](reference/decisions/007-rimozione-terminale-embedded.md) (6KB, 2026-06-14) **RECENT**
-- [006-desktop-vs-vscode-extension.md](reference/decisions/006-desktop-vs-vscode-extension.md) (5KB, 2026-06-14) **RECENT**
-- [003-issue-tracking-locale.md](reference/decisions/003-issue-tracking-locale.md) (1KB, 2026-06-14) **RECENT**
-- [002-symlink-vs-copy.md](reference/decisions/002-symlink-vs-copy.md) (1KB, 2026-06-14) **RECENT**
-- [001-stack-tecnologico.md](reference/decisions/001-stack-tecnologico.md) (3KB, 2026-06-14) **RECENT**
-- [_TEMPLATE.md](reference/decisions/_TEMPLATE.md) (1KB, 2026-06-14) **RECENT**
+- [README.md](reference/decisions/README.md) (2KB, 2026-06-14)
+- [_TEMPLATE.md](reference/decisions/_TEMPLATE.md) (1KB, 2026-06-14)
+- [001-stack-tecnologico.md](reference/decisions/001-stack-tecnologico.md) (3KB, 2026-06-14)
+- [002-symlink-vs-copy.md](reference/decisions/002-symlink-vs-copy.md) (1KB, 2026-06-14)
+- [003-issue-tracking-locale.md](reference/decisions/003-issue-tracking-locale.md) (1KB, 2026-06-14)
+- [006-desktop-vs-vscode-extension.md](reference/decisions/006-desktop-vs-vscode-extension.md) (5KB, 2026-06-14)
+- [007-rimozione-terminale-embedded.md](reference/decisions/007-rimozione-terminale-embedded.md) (6KB, 2026-06-14)
+- [008-pivot-to-cpp-imgui.md](reference/decisions/008-pivot-to-cpp-imgui.md) (12KB, 2026-06-14)
+- [009-markdown-library-imgui-md.md](reference/decisions/009-markdown-library-imgui-md.md) (10KB, 2026-06-14)
+- [010-architecture-design.md](reference/decisions/010-architecture-design.md) (12KB, 2026-06-14)
+- [011-release-and-distribution.md](reference/decisions/011-release-and-distribution.md) (6KB, 2026-06-14)
+- [012-codebase-agnostic-automation.md](reference/decisions/012-codebase-agnostic-automation.md) (7KB, 2026-06-14)
+- [013-scaffold-source-of-truth.md](reference/decisions/013-scaffold-source-of-truth.md) (3KB, 2026-06-14)
+- [014-germen-coevolution-strategy.md](reference/decisions/014-germen-coevolution-strategy.md) (5KB, 2026-06-14)
 
 ### reference/technical/ (1 files)
 
@@ -93,8 +93,8 @@
 
 ### archive/completed/ (3 files)
 
-- [2026-06-11_spec-workflow-hook-silent-fail.md](archive/completed/2026-06-11_spec-workflow-hook-silent-fail.md) (4KB, 2026-06-11) **RECENT**
-- [2026-06-10_project-githooks-not-active.md](archive/completed/2026-06-10_project-githooks-not-active.md) (2KB, 2026-06-10) **RECENT**
+- [2026-06-11_spec-workflow-hook-silent-fail.md](archive/completed/2026-06-11_spec-workflow-hook-silent-fail.md) (4KB, 2026-06-11)
+- [2026-06-10_project-githooks-not-active.md](archive/completed/2026-06-10_project-githooks-not-active.md) (2KB, 2026-06-10)
 - [2026-05-10_contentcontrol-binding-multisidebar.md](archive/completed/2026-05-10_contentcontrol-binding-multisidebar.md) (2KB, 2026-05-10)
 
 ---
@@ -105,24 +105,17 @@
 
 ### docs/
 
-- [ARCHITECTURE.md](docs/ARCHITECTURE.md) (7KB, 2026-06-13) **RECENT**
-- [README.md](docs/README.md) (<1KB, 2026-06-13) **RECENT**
-- [SETUP.md](docs/SETUP.md) (4KB, 2026-06-13) **RECENT**
+- [ARCHITECTURE.md](docs/ARCHITECTURE.md) (7KB, 2026-06-13)
+- [README.md](docs/README.md) (<1KB, 2026-06-13)
+- [SETUP.md](docs/SETUP.md) (4KB, 2026-06-13)
 
 ---
 
 ## Recently Modified (last 7 days)
 
 1. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
-2. [scaffold-architecture-scripts.md](tech-debt/scaffold-architecture-scripts.md) (today)
-3. [README.md](tech-debt/README.md) (today)
-4. [INDEX.md](INDEX.md) (today)
-5. [013-scaffold-source-of-truth.md](reference/decisions/013-scaffold-source-of-truth.md) (today)
-6. [README.md](reference/decisions/README.md) (today)
-7. [014-germen-coevolution-strategy.md](reference/decisions/014-germen-coevolution-strategy.md) (today)
-8. [012-codebase-agnostic-automation.md](reference/decisions/012-codebase-agnostic-automation.md) (today)
-9. [011-release-and-distribution.md](reference/decisions/011-release-and-distribution.md) (today)
-10. [010-architecture-design.md](reference/decisions/010-architecture-design.md) (today)
+2. [INDEX.md](INDEX.md) (1d ago)
+3. [README.md](tech-debt/README.md) (1d ago)
 
 ---
 
