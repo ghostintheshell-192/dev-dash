@@ -1,8 +1,9 @@
 ---
 type: bug
 priority: low
-status: open
+status: resolved
 discovered: 2026-07-03
+resolved: 2026-07-25
 related: []
 related_decision: null
 report: null
@@ -54,6 +55,20 @@ scaffolded projects don't inherit the bug.
 
 Discovered on 2026-07-03 while porting the scaffold to government-feed: the
 very first real-world run of the script hit the crash.
+
+## Resolution (2026-07-25)
+
+Option A applied to both copies (scaffold source of truth and the dev-dash live
+copy), converging on the government-feed fix: the replacement is now a callable,
+`re.sub(pattern, lambda _: new_section.rstrip() + '\n', content, ...)`, which
+bypasses escape parsing entirely.
+
+Verified in two steps. First the mechanism in isolation: the old form raises
+`re.error: bad escape \s`, the new one does not. Then end to end — a temporary
+issue titled with a literal backslash sequence, script run, exit 0, no
+exception, title rendered with the backslash intact. Issue removed and the index
+regenerated with no residue. Repeated against a throwaway copy of the scaffold
+scripts, same outcome.
 
 ## Related Documentation
 

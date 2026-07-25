@@ -1,8 +1,9 @@
 ---
 type: bug
 priority: medium
-status: open
+status: resolved
 discovered: 2026-07-24
+resolved: 2026-07-25
 related: [scaffold-architecture-eval-glob-expansion.md]
 related_decision: null
 report: null
@@ -85,3 +86,48 @@ Commit: `fix(scripts): make the doc generators idempotent` on
 Port both changes back into the scaffold's copies, so raid-sandbox stops being
 a divergence. Any project that adopts `04-docs-update` hits this on its first
 commit.
+
+## Resolution (2026-07-25)
+
+Both changes ported into the scaffold and the dev-dash live copies, converging
+on the raid-sandbox implementation: write-only-on-real-change guarded by a
+`strip_timestamp()` comparison, and a shared `recency_key()` replacing the
+sub-day `mtime` sort at both call sites in `generate-index.py`.
+
+Verified over six consecutive runs. `INDEX.md` reached its fixed point at run 2
+and both files stayed byte-identical through run 6, with mtimes frozen after
+run 2 — no writes, and no period-2 oscillation. Reproduced on a clean copy of
+the scaffold scripts. Content correctness checked as well, not just stability:
+the regenerated `tech-debt/README.md` picked up seven issues it had been
+missing, and `INDEX.md`'s self-entry was stale.
+
+Confirmed live during the commits that followed: the archive hook's
+`docs-update` step reported `Derived docs already current` instead of restaging
+noise.
+
+### Corrections to the analysis above
+
+- **"The first run stabilises the ordering, the next two leave both files
+  byte-identical"** is not accurate. `INDEX.md` needs **two** runs to reach its
+  fixed point, because it indexes itself and records its own `size_kb` and
+  mtime: run 1 captures the pre-write values, run 2 the post-write ones, and
+  run 3 is the first true no-op. This is inherent to the self-indexing design,
+  not specific to dev-dash — it reproduced on a clean copy.
+- **"Same information on screen"** overstates it. `recency_key()` orders by
+  calendar day (`toordinal()`), while `format_file_entry` and the "Recently
+  Modified" block label entries using a rolling 24-hour window
+  (`(now - mtime).days`). A file touched yesterday at 23:11 is therefore
+  labelled "today" but sorted with yesterday's group. It produces no churn, so
+  it is not a regression, but the sort key and the label are not the same
+  notion of "day".
+
+### Known warts, deliberately left
+
+Both are present in the raid-sandbox reference and were kept rather than
+diverging silently:
+
+- `update_readme()` returns `True` on the no-write path, so `main()` prints
+  `Updated <path>` even when nothing was written. `generate-index.py` correctly
+  prints `Unchanged` in the same situation. Worth cleaning up across all three
+  repos in one pass.
+- The day-granularity mismatch described above.

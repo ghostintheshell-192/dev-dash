@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-07-25 23:12*
+*Auto-generated: 2026-07-25 23:15*
 
 ---
 
@@ -57,14 +57,12 @@
 
 - [feature-scaffold-templating.md](specs/planned/feature-scaffold-templating.md) (10KB, 2026-06-29)
 
-### tech-debt/ (14 files)
+### tech-debt/ (12 files)
 
 - [README.md](tech-debt/README.md) (3KB, 2026-07-25) **RECENT**
 - [architecture-layer-overview-stale-prose.md](tech-debt/architecture-layer-overview-stale-prose.md) (5KB, 2026-07-25) **RECENT**
 - [claude-md-rules-list-incomplete.md](tech-debt/claude-md-rules-list-incomplete.md) (2KB, 2026-07-25) **RECENT**
 - [handoff-command-stale-projects-nesting.md](tech-debt/handoff-command-stale-projects-nesting.md) (3KB, 2026-07-25) **RECENT**
-- [scaffold-doc-generators-not-idempotent.md](tech-debt/scaffold-doc-generators-not-idempotent.md) (2KB, 2026-07-25) **RECENT**
-- [tech-debt-index-backslash-escape.md](tech-debt/tech-debt-index-backslash-escape.md) (2KB, 2026-07-25) **RECENT**
 - [non-markdown-files-rendered-as-markdown.md](tech-debt/non-markdown-files-rendered-as-markdown.md) (3KB, 2026-06-13)
 - [scanner-directory-include-silent.md](tech-debt/scanner-directory-include-silent.md) (1KB, 2026-06-10)
 - [imgui-backend-shutdown-order.md](tech-debt/imgui-backend-shutdown-order.md) (1KB, 2026-05-10)
@@ -101,10 +99,12 @@
 
 - [2025-12-11_report_code-reviewer.md](archive/analysis/2025-12-11_report_code-reviewer.md) (8KB, 2026-02-10)
 
-### archive/completed/ (6 files)
+### archive/completed/ (8 files)
 
 - [2026-07-25_archive-hook-loses-the-deletion.md](archive/completed/2026-07-25_archive-hook-loses-the-deletion.md) (8KB, 2026-07-25) **RECENT**
 - [2026-07-25_scaffold-architecture-eval-glob-expansion.md](archive/completed/2026-07-25_scaffold-architecture-eval-glob-expansion.md) (8KB, 2026-07-25) **RECENT**
+- [2026-07-25_scaffold-doc-generators-not-idempotent.md](archive/completed/2026-07-25_scaffold-doc-generators-not-idempotent.md) (5KB, 2026-07-25) **RECENT**
+- [2026-07-25_tech-debt-index-backslash-escape.md](archive/completed/2026-07-25_tech-debt-index-backslash-escape.md) (3KB, 2026-07-25) **RECENT**
 - [2026-06-28_scaffold-architecture-scripts.md](archive/completed/2026-06-28_scaffold-architecture-scripts.md) (2KB, 2026-06-29)
 - [2026-06-11_spec-workflow-hook-silent-fail.md](archive/completed/2026-06-11_spec-workflow-hook-silent-fail.md) (4KB, 2026-06-11)
 - [2026-06-10_project-githooks-not-active.md](archive/completed/2026-06-10_project-githooks-not-active.md) (2KB, 2026-06-10)
@@ -128,14 +128,14 @@
 
 1. [2026-07-25_archive-hook-loses-the-deletion.md](archive/completed/2026-07-25_archive-hook-loses-the-deletion.md) (today)
 2. [2026-07-25_scaffold-architecture-eval-glob-expansion.md](archive/completed/2026-07-25_scaffold-architecture-eval-glob-expansion.md) (today)
-3. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
-4. [INDEX.md](INDEX.md) (today)
-5. [README.md](tech-debt/README.md) (today)
-6. [architecture-layer-overview-stale-prose.md](tech-debt/architecture-layer-overview-stale-prose.md) (today)
-7. [claude-md-rules-list-incomplete.md](tech-debt/claude-md-rules-list-incomplete.md) (today)
-8. [handoff-command-stale-projects-nesting.md](tech-debt/handoff-command-stale-projects-nesting.md) (today)
-9. [scaffold-doc-generators-not-idempotent.md](tech-debt/scaffold-doc-generators-not-idempotent.md) (today)
-10. [tech-debt-index-backslash-escape.md](tech-debt/tech-debt-index-backslash-escape.md) (today)
+3. [2026-07-25_scaffold-doc-generators-not-idempotent.md](archive/completed/2026-07-25_scaffold-doc-generators-not-idempotent.md) (today)
+4. [2026-07-25_tech-debt-index-backslash-escape.md](archive/completed/2026-07-25_tech-debt-index-backslash-escape.md) (today)
+5. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
+6. [INDEX.md](INDEX.md) (today)
+7. [README.md](tech-debt/README.md) (today)
+8. [architecture-layer-overview-stale-prose.md](tech-debt/architecture-layer-overview-stale-prose.md) (today)
+9. [claude-md-rules-list-incomplete.md](tech-debt/claude-md-rules-list-incomplete.md) (today)
+10. [handoff-command-stale-projects-nesting.md](tech-debt/handoff-command-stale-projects-nesting.md) (today)
 
 ---
 
