@@ -52,14 +52,13 @@ report: null  # Optional: link to archive/analysis/YYYY-MM-DD_report_agent-name.
 
 ## Current Issues by Priority
 
-*Auto-updated: 2026-07-25 23:15*
+*Auto-updated: 2026-07-25 23:16*
 
 **High Priority:**
 - `architecture-layer-overview-stale-prose.md` - ARCHITECTURE.md "Layer Overview" table is hand-written prose frozen at the ADR-010 pivot, not derived from source
 - `imgui-backend-shutdown-order.md` - ImGui assertion on exit: backend non spento prima di DestroyContext
 
 **Medium Priority:**
-- `handoff-command-stale-projects-nesting.md` - `/handoff` command contradicts the session-handoff skill on where handoffs live
 - `line-level-promote.md` - Promote e Apply operano solo sull'intero file
 - `non-markdown-files-rendered-as-markdown.md` - File non-Markdown renderizzati come Markdown (script, config)
 
