@@ -52,7 +52,7 @@ report: null  # Optional: link to archive/analysis/YYYY-MM-DD_report_agent-name.
 
 ## Current Issues by Priority
 
-*Auto-updated: 2026-07-25 23:16*
+*Auto-updated: 2026-07-25 23:20*
 
 **High Priority:**
 - `architecture-layer-overview-stale-prose.md` - ARCHITECTURE.md "Layer Overview" table is hand-written prose frozen at the ADR-010 pivot, not derived from source
@@ -67,7 +67,6 @@ report: null  # Optional: link to archive/analysis/YYYY-MM-DD_report_agent-name.
 - `markdown-code-block-styling.md` - Fenced code blocks rendered as flat yellow text — no syntax highlighting
 - `preprocess-imports-indented-fences.md` - PreprocessImports does not recognise indented fenced code blocks
 - `scanner-directory-include-silent.md` - ConfigFileScanner: @include verso directory accettato e poi fallisce in silenzio
-- `session-handoff-skill-note.md` - Current Working Notes
 
 ## Integration with Reference Documentation
 
