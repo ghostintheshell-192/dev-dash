@@ -1,8 +1,9 @@
 ---
 type: bug
 priority: medium
-status: open
+status: resolved
 discovered: 2026-07-05
+resolved: 2026-07-25
 related: [architecture-layer-overview-stale-prose.md]
 related_decision: null
 report: null
@@ -130,6 +131,41 @@ for excl in "${EXCLUDE_DIRS[@]}"; do prune+=( -path "*/$excl/*" -prune -o ); don
   malformed expression; this one fails completely silently — which strengthens
   the case for the guard above. Option A was applied there and the tree went
   from 0 to 23 files, so the recommended fix is verified in practice.
+
+## Resolution (2026-07-25)
+
+Option A applied to both copies (scaffold source of truth and the dev-dash live
+copy), converging on the raid-sandbox implementation:
+
+- `build_find_name_args` populates a `FIND_NAME_ARGS` array instead of printing
+  a string; `process_directory` splices it quoted into `find`.
+- `count_stats` de-eval'd the same way: `prune_args` string replaced by a
+  `prune=()` array.
+- No `eval` remains in either file.
+- **Guard added** (the one this document asks for in Notes): a
+  `source_dirs_populated()` helper, with `main()` capturing the tree before
+  writing and emitting a `Warning:` on stderr when the tree is empty while the
+  source dirs are populated. An empty tree with genuinely nothing to scan stays
+  silent. This guard is **new relative to raid-sandbox**, which now trails on
+  this point.
+
+### Correction to the analysis above
+
+The Notes section generalises the one-matching-file case as producing
+`Stats: 0 files`. That holds for raid-sandbox because it configures a **single**
+glob (`*.js`), leaving nothing literal to fall back on. With several globs
+configured, only the globs that actually match something in the root expand;
+the rest stay literal and still match. The general failure mode is therefore
+**silently partial**, degrading to zero only when few globs are configured.
+
+Verified on a C++ fixture with three source files under `app/src/`: with one
+matching file in the root the old script returned 1 of 3, with three matching
+files it returned 0 of 3, and the fixed script returned 3 of 3 in both cases.
+
+This matters for the guard: a partial tree looks plausible, so it is **less**
+likely to be noticed than a blank one — and the guard as specified catches only
+the fully-empty case. That hole is known and accepted; closing it would need a
+different signal than emptiness.
 
 ## Related Documentation
 
