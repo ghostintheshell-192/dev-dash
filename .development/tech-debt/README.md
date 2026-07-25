@@ -52,20 +52,26 @@ report: null  # Optional: link to archive/analysis/YYYY-MM-DD_report_agent-name.
 
 ## Current Issues by Priority
 
-*Auto-updated: 2026-06-28 23:59*
+*Auto-updated: 2026-07-25 22:35*
 
 **High Priority:**
+- `architecture-layer-overview-stale-prose.md` - ARCHITECTURE.md "Layer Overview" table is hand-written prose frozen at the ADR-010 pivot, not derived from source
 - `imgui-backend-shutdown-order.md` - ImGui assertion on exit: backend non spento prima di DestroyContext
 
 **Medium Priority:**
+- `handoff-command-stale-projects-nesting.md` - `/handoff` command contradicts the session-handoff skill on where handoffs live
 - `line-level-promote.md` - Promote e Apply operano solo sull'intero file
 - `non-markdown-files-rendered-as-markdown.md` - File non-Markdown renderizzati come Markdown (script, config)
+- `scaffold-architecture-eval-glob-expansion.md` - generate-architecture.sh: eval re-expands unquoted globs against the CWD
+- `scaffold-doc-generators-not-idempotent.md` - Doc generators rewrite their output on every run (INDEX.md, tech-debt/README.md)
 
 **Low Priority:**
+- `claude-md-rules-list-incomplete.md` - .claude/CLAUDE.md's rule enumeration omits idea-capture.md
 - `markdown-code-block-styling.md` - Fenced code blocks rendered as flat yellow text — no syntax highlighting
 - `preprocess-imports-indented-fences.md` - PreprocessImports does not recognise indented fenced code blocks
 - `scanner-directory-include-silent.md` - ConfigFileScanner: @include verso directory accettato e poi fallisce in silenzio
 - `session-handoff-skill-note.md` - Current Working Notes
+- `tech-debt-index-backslash-escape.md` - update-tech-debt-index.py crashes on backslashes in issue titles
 
 ## Integration with Reference Documentation
 
