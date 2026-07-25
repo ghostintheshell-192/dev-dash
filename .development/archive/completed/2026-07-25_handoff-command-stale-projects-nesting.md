@@ -1,8 +1,9 @@
 ---
 type: bug
 priority: medium
-status: open
+status: resolved
 discovered: 2026-07-24
+resolved: 2026-07-25
 related: []
 related_decision: null
 report: null
@@ -74,6 +75,30 @@ audit also surfaced that `raid-sandbox` lacks the `## Session Start` section
 of `.claude/rules/workflow.md` — the directive to *read* the latest handoff —
 which is a per-project gap, not a scaffold bug: the scaffold's `workflow.md`
 has it.
+
+## Resolution (2026-07-25)
+
+Option B applied to both copies, which remain byte-identical: `handoff.md` no
+longer restates the procedure, it invokes the `session-handoff` skill and says
+explicitly that the skill owns location, naming, and content structure. The
+`/handoff` affordance survives as a thin trigger, and there is now only one
+statement of the convention — the duplication that let the two drift is gone.
+
+The UTF-8 BOM is stripped from both files (they opened with `EF BB BF`).
+
+Verified: no reference to `.memory-bank/projects/` remains anywhere in the repo.
+
+### Not covered
+
+Projects that already grew the wrong structure are untouched, as this write-up
+anticipated. `raid-sandbox` still has `.memory-bank/projects/raid-explorer/`
+with 12 handoffs; flattening it belongs to that repo's own scaffold-alignment
+work.
+
+Also unaddressed, and noted here so it is not lost: `raid-sandbox` lacks the
+`## Session Start` section of `.claude/rules/workflow.md` — the directive to
+*read* the latest handoff. That is a per-project gap, not a scaffold defect; the
+scaffold's `workflow.md` has it.
 
 ## Related Documentation
 

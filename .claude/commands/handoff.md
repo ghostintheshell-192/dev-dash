@@ -1,12 +1,10 @@
-﻿---
+---
 description: Update session handoff notes before exiting
 ---
 
-Perform a session handoff:
+Invoke the `session-handoff` skill.
 
-1. Identify all projects touched in this session
-2. For each project, create a new file in `.memory-bank/projects/<project-name>/`
-   - Filename format: `YYYY-MM-DD-HHmm-brief-title-slug.md`
-   - Use current timestamp
-3. Confirm what was updated
-4. Remind to use `/exit` or `/clear` when done
+The skill is the single source of the handoff procedure — where the file lives,
+how it is named, and what it must contain. Do not restate or improvise those
+details here: this command exists only to expose an explicit `/handoff` trigger
+alongside the skill's own activation on farewell phrases.
