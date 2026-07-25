@@ -71,18 +71,40 @@ is_skipped_file() {
     return 1
 }
 
-# Build a `find` -name argument list with -o between each pattern.
-# Usage: find ... \( $(build_find_name_args) \) ...
+# Populate the global array FIND_NAME_ARGS with `find` -name predicates, -o
+# between each pattern.
+#
+# Array form, spliced quoted into `find` — NOT a string through `eval`. With
+# `eval` the shell performs pathname expansion on the unquoted globs against
+# the CWD (the repo root): a source file sitting there that matches a glob
+# makes `find` search for that literal filename instead (or abort on a
+# malformed expression when several match), so the tree comes out empty while
+# the script still reports success. See the tech-debt note
+# `scaffold-architecture-eval-glob-expansion` (Option A).
 build_find_name_args() {
+    FIND_NAME_ARGS=()
     local first=1
     for glob in "${FILE_GLOBS[@]}"; do
         if [ $first -eq 1 ]; then
-            printf -- '-name %s ' "$glob"
+            FIND_NAME_ARGS+=(-name "$glob")
             first=0
         else
-            printf -- '-o -name %s ' "$glob"
+            FIND_NAME_ARGS+=(-o -name "$glob")
         fi
     done
+}
+
+# True when at least one existing SOURCE_DIRS entry actually holds files.
+# Used to tell "nothing to scan" (legitimate empty tree) apart from "the scan
+# matched nothing" (the failure mode above), which must never pass silently.
+source_dirs_populated() {
+    for source_dir in "${SOURCE_DIRS[@]}"; do
+        [[ -d "$source_dir" ]] || continue
+        if [[ -n "$(find "$source_dir" -type f 2>/dev/null | head -n 1)" ]]; then
+            return 0
+        fi
+    done
+    return 1
 }
 
 generate_adr_list() {
@@ -136,11 +158,10 @@ process_directory() {
 
     # Get files directly in this directory matching any of FILE_GLOBS.
     local files=()
-    local find_args
-    find_args=$(build_find_name_args)
+    build_find_name_args
     while IFS= read -r -d '' file; do
         files+=("$file")
-    done < <(eval "find \"$dir\" -maxdepth 1 -type f \\( $find_args \\) -print0 2>/dev/null" | sort -z)
+    done < <(find "$dir" -maxdepth 1 -type f \( "${FIND_NAME_ARGS[@]}" \) -print0 2>/dev/null | sort -z)
 
     # Filter out skipped files
     local filtered=()
@@ -202,16 +223,15 @@ generate_footer() {
 count_stats() {
     local total=0
     local missing=0
-    local find_args
-    find_args=$(build_find_name_args)
+    build_find_name_args
 
     for source_dir in "${SOURCE_DIRS[@]}"; do
         [[ -d "$source_dir" ]] || continue
 
-        # Build excluded-dirs prune args
-        local prune_args=""
+        # Build excluded-dirs prune args (array, same reason as above)
+        local prune=()
         for excl in "${EXCLUDE_DIRS[@]}"; do
-            prune_args+=" -path '*/${excl}/*' -prune -o"
+            prune+=(-path "*/${excl}/*" -prune -o)
         done
 
         while IFS= read -r -d '' filepath; do
@@ -224,7 +244,7 @@ count_stats() {
             if [[ -z "$desc" ]]; then
                 ((missing++)) || true
             fi
-        done < <(eval "find \"$source_dir\" $prune_args \\( $find_args \\) -type f -print0 2>/dev/null")
+        done < <(find "$source_dir" "${prune[@]}" \( "${FIND_NAME_ARGS[@]}" \) -type f -print0 2>/dev/null)
     done
 
     echo "$total $missing"
@@ -233,13 +253,23 @@ count_stats() {
 main() {
     echo "Generating architecture reference..."
 
+    local tree
+    tree=$(generate_tree)
+
     {
         generate_header
-        generate_tree
+        if [[ -n "$tree" ]]; then
+            printf '%s\n' "$tree"
+        fi
         generate_footer
     } > "$OUTPUT_FILE"
 
     echo -e "${GREEN}Generated:${NC} $OUTPUT_FILE"
+
+    if [[ -z "$tree" ]] && source_dirs_populated; then
+        echo -e "${YELLOW}Warning:${NC} project tree is EMPTY while the source directories contain files." >&2
+        echo "         The scan matched nothing — check FILE_GLOBS and SOURCE_DIRS in this script." >&2
+    fi
 
     local stats
     stats=$(count_stats)
