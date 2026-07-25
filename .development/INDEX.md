@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-07-25 23:03*
+*Auto-generated: 2026-07-25 23:12*
 
 ---
 
@@ -101,8 +101,9 @@
 
 - [2025-12-11_report_code-reviewer.md](archive/analysis/2025-12-11_report_code-reviewer.md) (8KB, 2026-02-10)
 
-### archive/completed/ (5 files)
+### archive/completed/ (6 files)
 
+- [2026-07-25_archive-hook-loses-the-deletion.md](archive/completed/2026-07-25_archive-hook-loses-the-deletion.md) (8KB, 2026-07-25) **RECENT**
 - [2026-07-25_scaffold-architecture-eval-glob-expansion.md](archive/completed/2026-07-25_scaffold-architecture-eval-glob-expansion.md) (8KB, 2026-07-25) **RECENT**
 - [2026-06-28_scaffold-architecture-scripts.md](archive/completed/2026-06-28_scaffold-architecture-scripts.md) (2KB, 2026-06-29)
 - [2026-06-11_spec-workflow-hook-silent-fail.md](archive/completed/2026-06-11_spec-workflow-hook-silent-fail.md) (4KB, 2026-06-11)
@@ -125,15 +126,16 @@
 
 ## Recently Modified (last 7 days)
 
-1. [2026-07-25_scaffold-architecture-eval-glob-expansion.md](archive/completed/2026-07-25_scaffold-architecture-eval-glob-expansion.md) (today)
-2. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
-3. [INDEX.md](INDEX.md) (today)
-4. [README.md](tech-debt/README.md) (today)
-5. [architecture-layer-overview-stale-prose.md](tech-debt/architecture-layer-overview-stale-prose.md) (today)
-6. [claude-md-rules-list-incomplete.md](tech-debt/claude-md-rules-list-incomplete.md) (today)
-7. [handoff-command-stale-projects-nesting.md](tech-debt/handoff-command-stale-projects-nesting.md) (today)
-8. [scaffold-doc-generators-not-idempotent.md](tech-debt/scaffold-doc-generators-not-idempotent.md) (today)
-9. [tech-debt-index-backslash-escape.md](tech-debt/tech-debt-index-backslash-escape.md) (today)
+1. [2026-07-25_archive-hook-loses-the-deletion.md](archive/completed/2026-07-25_archive-hook-loses-the-deletion.md) (today)
+2. [2026-07-25_scaffold-architecture-eval-glob-expansion.md](archive/completed/2026-07-25_scaffold-architecture-eval-glob-expansion.md) (today)
+3. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
+4. [INDEX.md](INDEX.md) (today)
+5. [README.md](tech-debt/README.md) (today)
+6. [architecture-layer-overview-stale-prose.md](tech-debt/architecture-layer-overview-stale-prose.md) (today)
+7. [claude-md-rules-list-incomplete.md](tech-debt/claude-md-rules-list-incomplete.md) (today)
+8. [handoff-command-stale-projects-nesting.md](tech-debt/handoff-command-stale-projects-nesting.md) (today)
+9. [scaffold-doc-generators-not-idempotent.md](tech-debt/scaffold-doc-generators-not-idempotent.md) (today)
+10. [tech-debt-index-backslash-escape.md](tech-debt/tech-debt-index-backslash-escape.md) (today)
 
 ---
 
