@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-07-25 23:16*
+*Auto-generated: 2026-07-25 23:20*
 
 ---
 
@@ -57,7 +57,7 @@
 
 - [feature-scaffold-templating.md](specs/planned/feature-scaffold-templating.md) (10KB, 2026-06-29)
 
-### tech-debt/ (11 files)
+### tech-debt/ (10 files)
 
 - [README.md](tech-debt/README.md) (3KB, 2026-07-25) **RECENT**
 - [architecture-layer-overview-stale-prose.md](tech-debt/architecture-layer-overview-stale-prose.md) (5KB, 2026-07-25) **RECENT**
@@ -68,7 +68,6 @@
 - [line-level-promote.md](tech-debt/line-level-promote.md) (1KB, 2026-05-10)
 - [markdown-code-block-styling.md](tech-debt/markdown-code-block-styling.md) (3KB, 2026-05-09)
 - [preprocess-imports-indented-fences.md](tech-debt/preprocess-imports-indented-fences.md) (2KB, 2026-05-09)
-- [session-handoff-skill-note.md](tech-debt/session-handoff-skill-note.md) (<1KB, 2026-04-28)
 - [_TEMPLATE.md](tech-debt/_TEMPLATE.md) (1KB, 2026-04-26)
 
 ### reference/decisions/ (16 files)
