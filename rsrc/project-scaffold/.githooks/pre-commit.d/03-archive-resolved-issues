@@ -57,11 +57,23 @@ while IFS= read -r file; do
         NEW_PATH="$ARCHIVE_DIR/$NEW_FILENAME"
 
         mkdir -p "$ARCHIVE_DIR"
+
+        # Never overwrite an existing archived issue. The manual
+        # archive-resolved-issues.sh has always guarded this; the hook did not.
+        if [ -f "$NEW_PATH" ]; then
+            echo -e "${YELLOW}  ⚠ Skipped:${NC} $FILENAME (already exists in archive)"
+            continue
+        fi
+
         mv "$FULL_PATH" "$NEW_PATH"
 
-        # Update git staging
-        git reset HEAD "$file" 2>/dev/null || true
-        git add "$NEW_PATH"
+        # Stage BOTH sides of the move: the removal of the original and the
+        # addition of the archived copy. `git reset HEAD "$file"` only unstages
+        # the modification — it leaves the original tracked at its HEAD content
+        # while absent from disk, so the commit carries the issue twice and the
+        # deletion is silently dropped. See
+        # tech-debt/archive-hook-loses-the-deletion.md.
+        git add -A -- "$FULL_PATH" "$NEW_PATH"
 
         MOVED_COUNT=$((MOVED_COUNT + 1))
         echo -e "${BLUE}  ↪ Archived:${NC} $FILENAME (status: $STATUS)"
