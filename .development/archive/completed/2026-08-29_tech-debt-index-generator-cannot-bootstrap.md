@@ -1,9 +1,10 @@
 ---
 type: bug
 priority: low
-status: open
+status: resolved
 discovered: 2026-08-29
-related: [post-merge-does-not-regenerate-derived-docs.md]
+resolved: 2026-08-29
+related: [docs-update-orchestrator-hardcodes-generated-files.md]
 related_decision: 012-codebase-agnostic-automation.md
 report: null
 ---
@@ -82,8 +83,59 @@ instead of a beige warning. B is worth doing even if A is deferred.
 Both belong in `rsrc/project-scaffold/` first (ADR-013) and propagate from
 there.
 
+## Solution Implemented
+
+Resolved 2026-08-29, Options A and B together, in `dev-dash` and
+`rsrc/project-scaffold/`.
+
+**A — the generator bootstraps its own file.** `update_readme()` writes a
+minimal skeleton when `README.md` is absent and then proceeds normally, instead
+of returning `failed`. The skeleton is deliberately thin: an H1 and two
+sentences saying what the folder holds and that the frontmatter is what makes an
+issue visible to the tooling. This script owns one section and cannot
+reconstruct the prose around it — that was always the right reason to refuse to
+*overwrite*, and never a reason to refuse to *create*. The contract is now "owns
+a section, bootstraps the file"; a project wanting the full document copies it
+from the scaffold. The dead `failed` branch in `main()` went with it.
+
+**B — failures say what failed.** `run_generator()` in `docs-update.sh` captures
+the generator's combined output instead of sending it to `/dev/null`, and prints
+it indented under the warning when the generator exits non-zero. The warning
+also goes to stderr now. Previously the one line that named the cause — a
+missing path, a traceback — was discarded, leaving an operator with
+`WARNING - generator failed` and nothing to act on.
+
+**Also fixed, in the sibling issue.** The `04-docs-update` staging bug found
+while testing `post-merge-does-not-regenerate-derived-docs.md`: newly *created*
+generated files were never staged, because `git diff --quiet` reports no
+difference for an untracked file. That was the other half of the same bootstrap
+gap — this generator refusing to create its file, and the hook failing to stage
+files that were created — and it is recorded in that issue.
+
+## Testing
+
+Against a scratch `.development/` holding one issue and no README:
+
+- **Bootstrap**: the README is created with the skeleton, the index section
+  appended, and the run reports both `Created` and `Updated`.
+- **Idempotent**: the second run reports `Unchanged` and rewrites nothing.
+- **Diagnostics**: with two generators deliberately absent, the entry point now
+  prints `bash: ...generate-architecture.sh: No such file or directory` and
+  python's `[Errno 2] No such file or directory` under their warnings, instead
+  of two bare failure lines. The third generator still runs, and the entry
+  point still exits 0 — a broken generator does not block a commit.
+
+## Impact
+
+`.development/` can now be regenerated from an empty state by the tooling that
+is supposed to maintain it, which is what a project adopting these generators
+without the scaffold, or any future bootstrap flow, actually needs.
+
 ## Notes
 
+- The `GENERATED` array finding recorded below has been split out into
+  `docs-update-orchestrator-hardcodes-generated-files.md` rather than archived
+  along with this issue.
 - Found while auditing the derived-docs pipeline for
   `post-merge-does-not-regenerate-derived-docs.md`.
 - **Separate finding, deserves its own note.** `.githooks/pre-commit.d/04-docs-update`
