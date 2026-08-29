@@ -52,8 +52,7 @@ report: null  # Optional: link to archive/analysis/YYYY-MM-DD_report_agent-name.
 
 ## Current Issues by Priority
 
-**High Priority:**
-- `imgui-backend-shutdown-order.md` - ImGui assertion on exit: backend non spento prima di DestroyContext
+**High Priority:** None currently
 
 **Medium Priority:**
 - `line-level-promote.md` - Promote e Apply operano solo sull'intero file
