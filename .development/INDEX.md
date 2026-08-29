@@ -58,7 +58,7 @@
 
 - [feature-scaffold-templating.md](specs/planned/feature-scaffold-templating.md) — Scaffold Templating
 
-### tech-debt/ (9 files)
+### tech-debt/ (10 files)
 
 - [README.md](tech-debt/README.md) — Tech Debt Issues
 - [_TEMPLATE.md](tech-debt/_TEMPLATE.md) — [Issue Title]
@@ -67,6 +67,7 @@
 - [line-level-promote.md](tech-debt/line-level-promote.md) — Promote e Apply operano solo sull'intero file
 - [markdown-code-block-styling.md](tech-debt/markdown-code-block-styling.md) — Fenced code blocks rendered as flat yellow text — no syntax highlighting
 - [non-markdown-files-rendered-as-markdown.md](tech-debt/non-markdown-files-rendered-as-markdown.md) — File non-Markdown renderizzati come Markdown (script, config)
+- [post-merge-does-not-regenerate-derived-docs.md](tech-debt/post-merge-does-not-regenerate-derived-docs.md) — Derived docs are one regeneration behind after any merge of two independent branches
 - [preprocess-imports-indented-fences.md](tech-debt/preprocess-imports-indented-fences.md) — PreprocessImports does not recognise indented fenced code blocks
 - [scanner-directory-include-silent.md](tech-debt/scanner-directory-include-silent.md) — ConfigFileScanner: @include verso directory accettato e poi fallisce in silenzio
 

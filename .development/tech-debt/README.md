@@ -58,6 +58,7 @@ report: null  # Optional: link to archive/analysis/YYYY-MM-DD_report_agent-name.
 **Medium Priority:**
 - `line-level-promote.md` - Promote e Apply operano solo sull'intero file
 - `non-markdown-files-rendered-as-markdown.md` - File non-Markdown renderizzati come Markdown (script, config)
+- `post-merge-does-not-regenerate-derived-docs.md` - Derived docs are one regeneration behind after any merge of two independent branches
 
 **Low Priority:**
 - `claude-md-rules-list-incomplete.md` - .claude/CLAUDE.md's rule enumeration omits idea-capture.md
