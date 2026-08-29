@@ -66,10 +66,10 @@ report: null  # Optional: link to archive/analysis/YYYY-MM-DD_report_agent-name.
 - `non-markdown-files-rendered-as-markdown.md` - File non-Markdown renderizzati come Markdown (script, config)
 
 **Low Priority:**
+- `docs-update-orchestrator-hardcodes-generated-files.md` - `04-docs-update` declares it knows nothing about the generators, then hardcodes their outputs
 - `markdown-code-block-styling.md` - Fenced code blocks rendered as flat yellow text — no syntax highlighting
 - `preprocess-imports-indented-fences.md` - PreprocessImports does not recognise indented fenced code blocks
 - `scanner-directory-include-silent.md` - ConfigFileScanner: @include verso directory accettato e poi fallisce in silenzio
-- `tech-debt-index-generator-cannot-bootstrap.md` - `update-tech-debt-index.py` cannot create the README it maintains, unlike its two siblings
 
 ## Integration with Reference Documentation
 
