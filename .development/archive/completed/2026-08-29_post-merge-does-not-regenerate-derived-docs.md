@@ -1,8 +1,9 @@
 ---
 type: bug
 priority: medium
-status: open
+status: resolved
 discovered: 2026-08-29
+resolved: 2026-08-29
 related: []
 related_decision: 012-codebase-agnostic-automation.md
 report: null
@@ -96,6 +97,84 @@ Option C is tempting — it is the only one with no manual step — but it split
 every documentation-touching merge into two commits, and the amend ritual is
 already established for specs. Adding a second, different post-merge convention
 to save one command is a bad trade.
+
+## Solution Implemented
+
+Resolved 2026-08-29 in `dev-dash` and `rsrc/project-scaffold/`. Option A, with
+the integration-branch generalisation, and one deviation worth naming.
+
+**The docs step invokes `pre-commit.d/04-docs-update` instead of
+reimplementing it.** The obvious way to write Option A was to run
+`docs-update.sh` from `post-merge` and stage the results — which would have
+meant a second copy of the list of generated files, in a hook, next to the copy
+already flagged in `tech-debt-index-generator-cannot-bootstrap.md`. That is the
+pattern this repo keeps rediscovering, so: one module deciding what to
+regenerate and what to stage, reached from two triggers. Three lines in
+`post-merge`, and any future fix to the staging logic is inherited rather than
+ported.
+
+The hook was restructured so the two steps are independent. It used to bail out
+early on a branch prefix it did not recognise or a spec it did not find, both
+before any docs work could happen; the docs step now runs on every merge into an
+integration branch. That matters immediately: `chore/` was never in the spec
+prefix list, and a `chore/` branch is exactly the kind that archives an issue or
+adds a note without carrying a spec.
+
+**Hole 3 closed.** `INTEGRATION_BRANCHES=("develop" "main")` replaces the
+hardcoded `develop`, so a repo integrating on `main` gets a working hook rather
+than a silent one.
+
+**A second defect, found while testing this one.** `04-docs-update` decided what
+to stage with `git diff --quiet <file>`, which reports *no difference* for a
+file git does not track yet. So whenever a generator **created** its output
+instead of updating it, the new file was left untracked and the hook announced
+that the derived docs were already current. Invisible in all five repos, where
+the three files have long been tracked; fatal on a fresh project, which is
+precisely when someone would be relying on the automation to work. It now adds
+unconditionally — `git add` on an unchanged tracked file is a no-op, so the
+pre-test bought nothing and got the create case wrong — and reports from the
+index rather than the working tree.
+
+## Testing
+
+In a scratch repository built from these hooks and generators:
+
+1. **Bootstrap** — first commit with no derived docs present: all three are
+   created, staged and committed, working tree clean. Before the staging fix
+   they were created and left untracked.
+2. **Clean merge, stale docs** — a `chore/` branch adding a tech-debt issue
+   committed with `--no-verify`, then merged with no conflict. This is the
+   reported failure. `post-merge` regenerated, the index gained the entry, and
+   both files were staged for the amend.
+3. **Concurrent branches** — two branches each adding an issue. Result below.
+4. **Spec path unaffected** — a merge with nothing to stage exits silently
+   instead of telling the operator to amend an unchanged commit.
+
+## Impact
+
+Closes the window between a merge and the next commit during which
+`ARCHITECTURE.md` — `@include`-imported into every session — could describe a
+tree that no longer existed.
+
+## Follow-up, not fixed here
+
+Test 3 surfaced something this note did not anticipate: when two branches each
+regenerate the same derived file, git **conflicts** on it. The conflict is not
+dangerous — resolving to either side and committing runs pre-commit, which
+regenerates correctly, and the final index was verified to contain all three
+issues with a clean tree. But the operator is resolving a conflict in a file
+that is about to be overwritten wholesale, which is busywork.
+
+The fix is a merge driver: a `.gitattributes` marking the three derived files
+`merge=generated`, and `bootstrap.sh` registering
+`git config merge.generated.driver true` (keep either side; `post-merge`
+regenerates). It is left out of this change deliberately — it adds a per-clone
+config step alongside `core.hooksPath`, which is a setup decision rather than a
+hook fix.
+
+Propagation to `government-feed`, `synedria` (which have the old hook) and
+`raid-sandbox` (which has none, and needed hole 3 fixed to work at all) is also
+still open. `sheet-atlas` needs `docs-update.sh` first.
 
 ## Notes
 
