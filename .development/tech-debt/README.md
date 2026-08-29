@@ -61,7 +61,6 @@ report: null  # Optional: link to archive/analysis/YYYY-MM-DD_report_agent-name.
 - `post-merge-does-not-regenerate-derived-docs.md` - Derived docs are one regeneration behind after any merge of two independent branches
 
 **Low Priority:**
-- `claude-md-rules-list-incomplete.md` - .claude/CLAUDE.md's rule enumeration omits idea-capture.md
 - `markdown-code-block-styling.md` - Fenced code blocks rendered as flat yellow text — no syntax highlighting
 - `preprocess-imports-indented-fences.md` - PreprocessImports does not recognise indented fenced code blocks
 - `scanner-directory-include-silent.md` - ConfigFileScanner: @include verso directory accettato e poi fallisce in silenzio

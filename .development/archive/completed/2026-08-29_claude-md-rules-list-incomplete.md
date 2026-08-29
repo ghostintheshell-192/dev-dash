@@ -1,7 +1,7 @@
 ---
 type: code-quality
 priority: low
-status: open
+status: resolved
 discovered: 2026-07-05
 related: [architecture-layer-overview-stale-prose.md]
 related_decision: null
@@ -53,6 +53,35 @@ index without cross-checking the directory.
 directory, and every other instance of this failure pattern in this audit
 came from a duplicated enumeration that nobody re-checks. Removing the
 duplication is more durable than committing to keep it updated.
+
+## Solution Implemented
+
+Resolved 2026-08-29. Option C: the enumeration is gone from `.claude/CLAUDE.md`,
+and from `rsrc/project-scaffold/.claude/CLAUDE.md` so new projects do not inherit
+it (ADR-013). What remains is one sentence stating that every `.md` under
+`.claude/rules/` is loaded automatically.
+
+The recommendation above held, and one argument it did not make turned out to be
+decisive: those six rule files are loaded **in full** into every session. The
+list was not a summary of something absent — it was a second, shorter copy of
+something already entirely in context. It could only ever subtract, by drifting.
+
+Deliberately, the file does not explain what was removed or why. `.claude/CLAUDE.md`
+is read at the start of every session, so prose justifying an absence would be
+paid for in every one of them, forever. The reasoning belongs here and in the
+commit; the file keeps only what a session needs to act.
+
+## Testing
+
+`ls .claude/rules/` returns six files, all still loaded, none of them named
+anywhere in `CLAUDE.md`. There is nothing left to fall out of sync.
+
+## Impact
+
+Removes one of the three hand-kept censuses found in this audit. The other two
+were `architecture-layer-overview-stale-prose.md` (resolved the same day) and
+`.githooks/pre-commit.d/04-docs-update`'s hardcoded `GENERATED` array, recorded
+in `tech-debt-index-generator-cannot-bootstrap.md` and still open.
 
 ## Notes
 
