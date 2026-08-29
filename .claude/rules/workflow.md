@@ -132,8 +132,11 @@ When analyzing tech-debt, bugs, or investigating issues:
 
 1. **Read the tech-debt/issue description** - Understand the problem
 2. **Read `.development/ARCHITECTURE.md`** - Find relevant files using:
-   - Project Tree (file index with descriptions)
-   - Layer Overview (understand dependencies)
+   - Project Tree (file index with descriptions — derived from source, so it is
+     the authority on what exists)
+   - Layer Overview (what each layer is *for*; it deliberately does not list
+     classes or implementation status — see `coding-standards.md` for the layer
+     dependency rules, and `CURRENT-STATUS.md` for what is implemented)
    - Related ADRs (architectural context)
 3. **Read files in logical order** - Follow layer structure (UI → Core ← Infrastructure)
 4. **Report findings** - Summary of what you found and where
