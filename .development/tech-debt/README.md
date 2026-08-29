@@ -12,6 +12,7 @@ type: [bug|feature|refactor|performance|testing|code-quality|security]
 priority: [high|medium|low]
 status: [open|in-progress|resolved|closed|rejected]
 discovered: YYYY-MM-DD
+resolved: null  # YYYY-MM-DD when status leaves open/in-progress
 related: []  # List of related issue filenames
 related_decision: null  # Optional: link to reference/decisions/NNN-name.md
 report: null  # Optional: link to archive/analysis/YYYY-MM-DD_report_agent-name.md
@@ -35,18 +36,24 @@ report: null  # Optional: link to archive/analysis/YYYY-MM-DD_report_agent-name.
    - Solution Implemented
    - Testing
    - Impact
+4. Set `resolved:` to the date. The archiving step reads it to name the file,
+   so an issue archived late still carries the date it was actually closed.
+   Left null, the file is prefixed with the day it happened to be moved and
+   the tools say so.
 
 ### Archiving Completed Issues
 
 **Automatic** (recommended):
 
 1. Change status to `resolved`, `closed`, or `rejected` in frontmatter
-2. Run: `../scripts/archive-resolved-issues.sh`
-3. Script automatically moves to `archive/completed/` with date prefix
+2. Commit — `03-archive-resolved-issues` handles staged issues — or run
+   `../scripts/archive-resolved-issues.sh` for a whole-folder sweep
+3. The file moves to `archive/completed/`, prefixed with `resolved:` (or
+   `closed:`) from its frontmatter
 
 **Manual**:
 
-1. Add date prefix: `YYYY-MM-DD_issue-name.md`
+1. Add date prefix: `YYYY-MM-DD_issue-name.md` — the closure date, not today's
 2. Move to `../archive/completed/`
 3. Delete from `tech-debt/`
 

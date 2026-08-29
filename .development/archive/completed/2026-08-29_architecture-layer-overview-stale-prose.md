@@ -3,6 +3,7 @@ type: bug
 priority: high
 status: resolved
 discovered: 2026-07-05
+resolved: 2026-08-29
 related: [scaffold-architecture-eval-glob-expansion.md]
 related_decision: 010-architecture-design.md
 report: null

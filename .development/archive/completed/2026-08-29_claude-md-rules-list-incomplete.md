@@ -3,6 +3,7 @@ type: code-quality
 priority: low
 status: resolved
 discovered: 2026-07-05
+resolved: 2026-08-29
 related: [architecture-layer-overview-stale-prose.md]
 related_decision: null
 report: null
