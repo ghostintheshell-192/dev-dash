@@ -3,6 +3,7 @@ type: [bug|feature|refactor|performance|code-quality|testing|security]
 priority: [high|medium|low]
 status: open
 discovered: YYYY-MM-DD
+resolved: null  # YYYY-MM-DD when status leaves open/in-progress — names the archived file
 related: []
 related_decision: null  # Optional: link to reference/decisions/NNN-name.md
 report: null  # Optional: link to archive/analysis/YYYY-MM-DD_report_agent-name.md

@@ -12,6 +12,7 @@ type: [bug|feature|refactor|performance|testing|code-quality|security]
 priority: [high|medium|low]
 status: [open|in-progress|resolved|closed|rejected]
 discovered: YYYY-MM-DD
+resolved: null  # YYYY-MM-DD when status leaves open/in-progress
 related: []  # List of related issue filenames
 related_decision: null  # Optional: link to reference/decisions/NNN-name.md
 report: null  # Optional: link to archive/analysis/YYYY-MM-DD_report_agent-name.md
@@ -42,17 +43,21 @@ appear in the index and it will never auto-archive. Always start from
    - Solution Implemented
    - Testing
    - Impact
+4. Set `resolved:` to the date. The hook reads it to name the archived file,
+   so an issue archived late still carries the date it was actually closed.
+   Left null, the file is prefixed with the day it happened to be moved and
+   the hook says so.
 
 ### Archiving Completed Issues
 
 **Automatic**: set `status` to `resolved`, `closed`, or `rejected` in the
 frontmatter and commit. The `03-archive-resolved-issues` pre-commit hook moves
-the file to `../archive/completed/` with a date prefix and stages both sides of
-the move.
+the file to `../archive/completed/`, prefixed with `resolved:` (or `closed:`)
+from the frontmatter, and stages both sides of the move.
 
 **Manual** (if hooks are not active):
 
-1. Add date prefix: `YYYY-MM-DD_issue-name.md`
+1. Add date prefix: `YYYY-MM-DD_issue-name.md` — the closure date, not today's
 2. Move to `../archive/completed/`
 
 ## Current Issues by Priority

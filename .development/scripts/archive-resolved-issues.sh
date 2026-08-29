@@ -20,6 +20,26 @@ TECH_DEBT_DIR="$DEVELOPMENT_DIR/tech-debt"
 ARCHIVE_DIR="$DEVELOPMENT_DIR/archive/completed"
 CURRENT_DATE=$(date +%Y-%m-%d)
 
+# Date to prefix the archived filename with, read from the issue's own
+# frontmatter. What a reader wants from that prefix is when the issue was
+# closed, not when someone got round to moving the file: git already records
+# the move, and the two can be months apart when an issue is archived late.
+# Prefers `resolved:`, falls back to `closed:`, and only then to today —
+# which the caller announces rather than passing off as a closure date.
+closure_date() {
+    local path="$1" field value
+    for field in resolved closed; do
+        value=$(grep -m 1 -E "^${field}: *[0-9]{4}-[0-9]{2}-[0-9]{2}" "$path" 2>/dev/null \
+            | sed -E "s/^${field}: *//" | tr -d ' \r')
+        if [ -n "$value" ]; then
+            printf '%s' "$value"
+            return 0
+        fi
+    done
+    printf '%s' "$CURRENT_DATE"
+    return 1
+}
+
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo -e "${BLUE}  Archive Resolved Tech Debt Issues${NC}"
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
@@ -57,9 +77,12 @@ for file in "$TECH_DEBT_DIR"/*.md; do
 
     if [ "$STATUS" = "resolved" ] || [ "$STATUS" = "closed" ] || [ "$STATUS" = "rejected" ]; then
         # Check if filename already has date prefix (YYYY-MM-DD_)
+        DATE_NOTE=""
         if [[ ! "$FILENAME" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}_ ]]; then
-            # Add date prefix
-            NEW_FILENAME="${CURRENT_DATE}_${FILENAME}"
+            if ! ISSUE_DATE=$(closure_date "$file"); then
+                DATE_NOTE=" ${YELLOW}[no closure date in frontmatter — used today]${NC}"
+            fi
+            NEW_FILENAME="${ISSUE_DATE}_${FILENAME}"
         else
             # Already has date, keep as is
             NEW_FILENAME="$FILENAME"
@@ -78,7 +101,7 @@ for file in "$TECH_DEBT_DIR"/*.md; do
         mv "$file" "$NEW_PATH"
         MOVED_COUNT=$((MOVED_COUNT + 1))
 
-        echo -e "${GREEN}  ✓ Archived:${NC} $FILENAME → ${NEW_FILENAME} (status: $STATUS)"
+        echo -e "${GREEN}  ✓ Archived:${NC} $FILENAME → ${NEW_FILENAME} (status: $STATUS)${DATE_NOTE}"
     fi
 done
 

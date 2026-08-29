@@ -100,6 +100,7 @@
 ### archive/completed/ (12 files)
 
 - [2026-05-10_contentcontrol-binding-multisidebar.md](archive/completed/2026-05-10_contentcontrol-binding-multisidebar.md) — ContentControl Binding Error in MultiSidebar - Empty Sidebar Content
+- [2026-05-10_imgui-backend-shutdown-order.md](archive/completed/2026-05-10_imgui-backend-shutdown-order.md) — ImGui assertion on exit: backend non spento prima di DestroyContext
 - [2026-06-10_project-githooks-not-active.md](archive/completed/2026-06-10_project-githooks-not-active.md) — Hook di progetto (.githooks/) mai attivi: hooksPath globale li bypassa
 - [2026-06-11_spec-workflow-hook-silent-fail.md](archive/completed/2026-06-11_spec-workflow-hook-silent-fail.md) — Hook 05 spec-workflow non sposta le spec al merge
 - [2026-06-28_scaffold-architecture-scripts.md](archive/completed/2026-06-28_scaffold-architecture-scripts.md) — Include architecture scripts in project scaffold
@@ -110,7 +111,6 @@
 - [2026-07-25_tech-debt-index-backslash-escape.md](archive/completed/2026-07-25_tech-debt-index-backslash-escape.md) — update-tech-debt-index.py crashes on backslashes in issue titles
 - [2026-08-29_architecture-layer-overview-stale-prose.md](archive/completed/2026-08-29_architecture-layer-overview-stale-prose.md) — ARCHITECTURE.md "Layer Overview" table is hand-written prose frozen at the ADR-010 pivot, not derived from source
 - [2026-08-29_claude-md-rules-list-incomplete.md](archive/completed/2026-08-29_claude-md-rules-list-incomplete.md) — .claude/CLAUDE.md's rule enumeration omits idea-capture.md
-- [2026-08-29_imgui-backend-shutdown-order.md](archive/completed/2026-08-29_imgui-backend-shutdown-order.md) — ImGui assertion on exit: backend non spento prima di DestroyContext
 
 ---
 
