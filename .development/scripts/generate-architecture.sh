@@ -37,19 +37,38 @@ SOURCE_DIRS=("$PROJECT_ROOT/poc/src" "$PROJECT_ROOT/app/src")
 REL_BASE="$PROJECT_ROOT"
 
 # Project-specific header content (Layer Overview block).
+#
+# This is the one part of ARCHITECTURE.md that is NOT derived from source: it is
+# printed verbatim, above a Project Tree that IS regenerated on every commit.
+# That asymmetry is invisible in the output — hence the HTML marker below, which
+# ships with it into the file.
+#
+# Keep each row to what the layer is *for*. Two things must never come back:
+# a list of the classes the layer holds (the tree lists them, correctly, forty
+# lines further down) and any claim about implementation status (CURRENT-STATUS.md
+# tracks that, with dates). Both drifted here and went unnoticed for months
+# precisely because the surrounding page looked auto-generated. Purpose does not
+# drift. Layer dependency rules are not repeated here either: they live in
+# .claude/rules/coding-standards.md, which is auto-loaded into every session too.
 generate_project_header() {
     cat << 'EOF'
+<!-- Hand-written: this block is not regenerated, unlike the Project Tree below.
+     Keep it to what each layer is for — never a census of its files, never
+     implementation status. See generate-architecture.sh for why. -->
+
 ## Layer Overview (`app/src/` — layered architecture, ADR-010)
 
 | Layer | Path | Purpose |
 |-------|------|---------|
 | Entry point | `app/src/main.cpp` | `int main` → `dev_dash::app::App().Run()` |
-| Composition root | `app/src/app/app.{h,cpp}` | `App` owns all layers via `unique_ptr`; wires construction order and main loop. |
-| Platform | `app/src/platform/` | SDL3/Vulkan/ImGui plumbing: `SdlSession`, `Window`, `VulkanContext`, `Swapchain`, `FrameResources`, `ImGuiBackend`, `DeletionQueue`. |
-| UI | `app/src/ui/` | `FontLibrary`, `MarkdownRenderer` (derives `imgui_md`), `DocumentPanelHost`. |
-| Services | `app/src/services/` | Domain logic: `DocumentLoader` (fully implemented); stubs for `ConfigResolver`, `DiffEngine`, `ApplyEngine`, `SnapshotService`, `ScaffoldRepository`. |
-| Core | `app/src/core/` | Pure value types (header-only): `Project`, `ConfigLayer`, `EffectiveConfig`, `Scaffold`, `Snapshot`, `DiffEntry`. |
+| Composition root | `app/src/app/` | Owns every layer via `unique_ptr`; fixes construction order and drives the main loop. |
+| Platform | `app/src/platform/` | SDL3/Vulkan/ImGui plumbing: window and surface lifetime, swapchain, per-frame resources, deferred destruction. |
+| UI | `app/src/ui/` | ImGui panels ("panel as viewmodel", ADR-010), font library, markdown rendering on `imgui_md`. |
+| Services | `app/src/services/` | Domain logic: document loading, effective-configuration resolution, diff/apply, snapshots, scaffolds. |
+| Core | `app/src/core/` | Pure value types, header-only. |
 | PoC (reference) | `poc/src/` | Original monolithic `Renderer` class — kept as reference pre-refactor. |
+
+For what each directory actually contains, see the Project Tree below.
 EOF
 }
 

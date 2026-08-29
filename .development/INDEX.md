@@ -58,11 +58,10 @@
 
 - [feature-scaffold-templating.md](specs/planned/feature-scaffold-templating.md) — Scaffold Templating
 
-### tech-debt/ (10 files)
+### tech-debt/ (9 files)
 
 - [README.md](tech-debt/README.md) — Tech Debt Issues
 - [_TEMPLATE.md](tech-debt/_TEMPLATE.md) — [Issue Title]
-- [architecture-layer-overview-stale-prose.md](tech-debt/architecture-layer-overview-stale-prose.md) — ARCHITECTURE.md "Layer Overview" table is hand-written prose frozen at the ADR-010 pivot, not derived from source
 - [claude-md-rules-list-incomplete.md](tech-debt/claude-md-rules-list-incomplete.md) — .claude/CLAUDE.md's rule enumeration omits idea-capture.md
 - [imgui-backend-shutdown-order.md](tech-debt/imgui-backend-shutdown-order.md) — ImGui assertion on exit: backend non spento prima di DestroyContext
 - [line-level-promote.md](tech-debt/line-level-promote.md) — Promote e Apply operano solo sull'intero file
@@ -98,7 +97,7 @@
 
 - [2025-12-11_report_code-reviewer.md](archive/analysis/2025-12-11_report_code-reviewer.md) — Code Review Report - DevDash
 
-### archive/completed/ (9 files)
+### archive/completed/ (10 files)
 
 - [2026-05-10_contentcontrol-binding-multisidebar.md](archive/completed/2026-05-10_contentcontrol-binding-multisidebar.md) — ContentControl Binding Error in MultiSidebar - Empty Sidebar Content
 - [2026-06-10_project-githooks-not-active.md](archive/completed/2026-06-10_project-githooks-not-active.md) — Hook di progetto (.githooks/) mai attivi: hooksPath globale li bypassa
@@ -109,6 +108,7 @@
 - [2026-07-25_scaffold-architecture-eval-glob-expansion.md](archive/completed/2026-07-25_scaffold-architecture-eval-glob-expansion.md) — generate-architecture.sh: eval re-expands unquoted globs against the CWD
 - [2026-07-25_scaffold-doc-generators-not-idempotent.md](archive/completed/2026-07-25_scaffold-doc-generators-not-idempotent.md) — Doc generators rewrite their output on every run (INDEX.md, tech-debt/README.md)
 - [2026-07-25_tech-debt-index-backslash-escape.md](archive/completed/2026-07-25_tech-debt-index-backslash-escape.md) — update-tech-debt-index.py crashes on backslashes in issue titles
+- [2026-08-29_architecture-layer-overview-stale-prose.md](archive/completed/2026-08-29_architecture-layer-overview-stale-prose.md) — ARCHITECTURE.md "Layer Overview" table is hand-written prose frozen at the ADR-010 pivot, not derived from source
 
 ---
 
