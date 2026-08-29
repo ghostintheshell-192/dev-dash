@@ -1,6 +1,6 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-07-25 23:20*
+*Auto-generated: 2026-08-29 18:45*
 
 ---
 
@@ -19,8 +19,8 @@
 
 ### (root)/ (5 files)
 
-- [ARCHITECTURE.md](ARCHITECTURE.md) (8KB, 2026-07-25) **RECENT**
-- [INDEX.md](INDEX.md) (7KB, 2026-07-25) **RECENT**
+- [ARCHITECTURE.md](ARCHITECTURE.md) (8KB, 2026-08-29) **RECENT**
+- [INDEX.md](INDEX.md) (7KB, 2026-08-29) **RECENT**
 - [api-design.md](api-design.md) (43KB, 2026-06-13)
 - [CURRENT-STATUS.md](CURRENT-STATUS.md) (14KB, 2026-06-10)
 - [README.md](README.md) (2KB, 2026-04-26)
@@ -59,9 +59,9 @@
 
 ### tech-debt/ (10 files)
 
-- [README.md](tech-debt/README.md) (3KB, 2026-07-25) **RECENT**
-- [architecture-layer-overview-stale-prose.md](tech-debt/architecture-layer-overview-stale-prose.md) (5KB, 2026-07-25) **RECENT**
-- [claude-md-rules-list-incomplete.md](tech-debt/claude-md-rules-list-incomplete.md) (2KB, 2026-07-25) **RECENT**
+- [README.md](tech-debt/README.md) (3KB, 2026-07-25)
+- [architecture-layer-overview-stale-prose.md](tech-debt/architecture-layer-overview-stale-prose.md) (5KB, 2026-07-25)
+- [claude-md-rules-list-incomplete.md](tech-debt/claude-md-rules-list-incomplete.md) (2KB, 2026-07-25)
 - [non-markdown-files-rendered-as-markdown.md](tech-debt/non-markdown-files-rendered-as-markdown.md) (3KB, 2026-06-13)
 - [scanner-directory-include-silent.md](tech-debt/scanner-directory-include-silent.md) (1KB, 2026-06-10)
 - [imgui-backend-shutdown-order.md](tech-debt/imgui-backend-shutdown-order.md) (1KB, 2026-05-10)
@@ -99,11 +99,11 @@
 
 ### archive/completed/ (9 files)
 
-- [2026-07-25_archive-hook-loses-the-deletion.md](archive/completed/2026-07-25_archive-hook-loses-the-deletion.md) (8KB, 2026-07-25) **RECENT**
-- [2026-07-25_handoff-command-stale-projects-nesting.md](archive/completed/2026-07-25_handoff-command-stale-projects-nesting.md) (4KB, 2026-07-25) **RECENT**
-- [2026-07-25_scaffold-architecture-eval-glob-expansion.md](archive/completed/2026-07-25_scaffold-architecture-eval-glob-expansion.md) (8KB, 2026-07-25) **RECENT**
-- [2026-07-25_scaffold-doc-generators-not-idempotent.md](archive/completed/2026-07-25_scaffold-doc-generators-not-idempotent.md) (5KB, 2026-07-25) **RECENT**
-- [2026-07-25_tech-debt-index-backslash-escape.md](archive/completed/2026-07-25_tech-debt-index-backslash-escape.md) (3KB, 2026-07-25) **RECENT**
+- [2026-07-25_archive-hook-loses-the-deletion.md](archive/completed/2026-07-25_archive-hook-loses-the-deletion.md) (8KB, 2026-07-25)
+- [2026-07-25_handoff-command-stale-projects-nesting.md](archive/completed/2026-07-25_handoff-command-stale-projects-nesting.md) (4KB, 2026-07-25)
+- [2026-07-25_scaffold-architecture-eval-glob-expansion.md](archive/completed/2026-07-25_scaffold-architecture-eval-glob-expansion.md) (8KB, 2026-07-25)
+- [2026-07-25_scaffold-doc-generators-not-idempotent.md](archive/completed/2026-07-25_scaffold-doc-generators-not-idempotent.md) (5KB, 2026-07-25)
+- [2026-07-25_tech-debt-index-backslash-escape.md](archive/completed/2026-07-25_tech-debt-index-backslash-escape.md) (3KB, 2026-07-25)
 - [2026-06-28_scaffold-architecture-scripts.md](archive/completed/2026-06-28_scaffold-architecture-scripts.md) (2KB, 2026-06-29)
 - [2026-06-11_spec-workflow-hook-silent-fail.md](archive/completed/2026-06-11_spec-workflow-hook-silent-fail.md) (4KB, 2026-06-11)
 - [2026-06-10_project-githooks-not-active.md](archive/completed/2026-06-10_project-githooks-not-active.md) (2KB, 2026-06-10)
@@ -125,16 +125,8 @@
 
 ## Recently Modified (last 7 days)
 
-1. [2026-07-25_archive-hook-loses-the-deletion.md](archive/completed/2026-07-25_archive-hook-loses-the-deletion.md) (today)
-2. [2026-07-25_handoff-command-stale-projects-nesting.md](archive/completed/2026-07-25_handoff-command-stale-projects-nesting.md) (today)
-3. [2026-07-25_scaffold-architecture-eval-glob-expansion.md](archive/completed/2026-07-25_scaffold-architecture-eval-glob-expansion.md) (today)
-4. [2026-07-25_scaffold-doc-generators-not-idempotent.md](archive/completed/2026-07-25_scaffold-doc-generators-not-idempotent.md) (today)
-5. [2026-07-25_tech-debt-index-backslash-escape.md](archive/completed/2026-07-25_tech-debt-index-backslash-escape.md) (today)
-6. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
-7. [INDEX.md](INDEX.md) (today)
-8. [README.md](tech-debt/README.md) (today)
-9. [architecture-layer-overview-stale-prose.md](tech-debt/architecture-layer-overview-stale-prose.md) (today)
-10. [claude-md-rules-list-incomplete.md](tech-debt/claude-md-rules-list-incomplete.md) (today)
+1. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
+2. [INDEX.md](INDEX.md) (today)
 
 ---
 
