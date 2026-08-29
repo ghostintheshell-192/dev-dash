@@ -52,8 +52,6 @@ report: null  # Optional: link to archive/analysis/YYYY-MM-DD_report_agent-name.
 
 ## Current Issues by Priority
 
-*Auto-updated: 2026-07-25 23:20*
-
 **High Priority:**
 - `architecture-layer-overview-stale-prose.md` - ARCHITECTURE.md "Layer Overview" table is hand-written prose frozen at the ADR-010 pivot, not derived from source
 - `imgui-backend-shutdown-order.md` - ImGui assertion on exit: backend non spento prima di DestroyContext

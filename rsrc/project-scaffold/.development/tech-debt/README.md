@@ -57,8 +57,6 @@ the move.
 
 ## Current Issues by Priority
 
-*Auto-updated: 2026-08-29 18:44*
-
 **High Priority:** None currently
 
 **Medium Priority:** None currently

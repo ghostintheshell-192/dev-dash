@@ -1,6 +1,7 @@
 # INDEX - DevDash Development Documentation
 
-*Auto-generated: 2026-08-29 18:45*
+*A map of what exists and what each document is for.*
+*For when and why something changed, ask git.*
 
 ---
 
@@ -19,95 +20,95 @@
 
 ### (root)/ (5 files)
 
-- [ARCHITECTURE.md](ARCHITECTURE.md) (8KB, 2026-08-29) **RECENT**
-- [INDEX.md](INDEX.md) (7KB, 2026-08-29) **RECENT**
-- [api-design.md](api-design.md) (43KB, 2026-06-13)
-- [CURRENT-STATUS.md](CURRENT-STATUS.md) (14KB, 2026-06-10)
-- [README.md](README.md) (2KB, 2026-04-26)
+- [ARCHITECTURE.md](ARCHITECTURE.md) — Architecture Reference
+- [CURRENT-STATUS.md](CURRENT-STATUS.md) — DevDash - Current Status
+- [INDEX.md](INDEX.md) — INDEX - DevDash Development Documentation
+- [README.md](README.md) — .development/ - Development Documentation
+- [api-design.md](api-design.md) — API Design — Layered Architecture
 
 ### specs/ (1 files)
 
-- [README.md](specs/README.md) (2KB, 2026-04-26)
+- [README.md](specs/README.md) — Feature Specifications
 
 ### specs/archived/ (5 files)
 
-- [feature-claude-context.md](specs/archived/feature-claude-context.md) (11KB, 2026-05-10)
-- [feature-issue-management.md](specs/archived/feature-issue-management.md) (18KB, 2026-05-10)
-- [feature-markdown-rendering.md](specs/archived/feature-markdown-rendering.md) (10KB, 2026-05-10)
-- [roadmap.md](specs/archived/roadmap.md) (3KB, 2026-05-10)
-- [feature-embedded-terminal.md](specs/archived/feature-embedded-terminal.md) (5KB, 2026-04-26)
+- [feature-claude-context.md](specs/archived/feature-claude-context.md) — Feature: Claude Context Panel
+- [feature-embedded-terminal.md](specs/archived/feature-embedded-terminal.md) — Embedded Claude Terminal
+- [feature-issue-management.md](specs/archived/feature-issue-management.md) — Issue Management UI
+- [feature-markdown-rendering.md](specs/archived/feature-markdown-rendering.md) — Markdown Rendering & Editing
+- [roadmap.md](specs/archived/roadmap.md) — Roadmap DevDash
 
 ### specs/backlog/ (4 files)
 
-- [feature-global-settings-coverage.md](specs/backlog/feature-global-settings-coverage.md) (2KB, 2026-06-10)
-- [feature-plugins-keybindings-coverage.md](specs/backlog/feature-plugins-keybindings-coverage.md) (1KB, 2026-06-10)
-- [feature-code-graph.md](specs/backlog/feature-code-graph.md) (8KB, 2026-05-10)
-- [feature-runtime-view-of-truth.md](specs/backlog/feature-runtime-view-of-truth.md) (2KB, 2026-05-10)
+- [feature-code-graph.md](specs/backlog/feature-code-graph.md) — Code Graph — Dual-purpose codebase map
+- [feature-global-settings-coverage.md](specs/backlog/feature-global-settings-coverage.md) — Global Settings Coverage (parsing generalizzato dei JSON di .claude)
+- [feature-plugins-keybindings-coverage.md](specs/backlog/feature-plugins-keybindings-coverage.md) — Plugins & Keybindings Coverage
+- [feature-runtime-view-of-truth.md](specs/backlog/feature-runtime-view-of-truth.md) — Runtime View-of-Truth
 
 ### specs/implemented/ (6 files)
 
-- [feature-scaffold-management.md](specs/implemented/feature-scaffold-management.md) (8KB, 2026-06-29)
-- [feature-snapshot-history.md](specs/implemented/feature-snapshot-history.md) (8KB, 2026-06-28)
-- [feature-release-readiness.md](specs/implemented/feature-release-readiness.md) (3KB, 2026-06-13)
-- [feature-ui-overhaul.md](specs/implemented/feature-ui-overhaul.md) (3KB, 2026-06-13)
-- [feature-agnostic-automation.md](specs/implemented/feature-agnostic-automation.md) (3KB, 2026-06-11)
-- [feature-effective-config-view.md](specs/implemented/feature-effective-config-view.md) (6KB, 2026-05-10)
+- [feature-agnostic-automation.md](specs/implemented/feature-agnostic-automation.md) — Agnostic Automation (two-level)
+- [feature-effective-config-view.md](specs/implemented/feature-effective-config-view.md) — Effective Config View
+- [feature-release-readiness.md](specs/implemented/feature-release-readiness.md) — Release Readiness
+- [feature-scaffold-management.md](specs/implemented/feature-scaffold-management.md) — Scaffold Management
+- [feature-snapshot-history.md](specs/implemented/feature-snapshot-history.md) — Snapshot & History
+- [feature-ui-overhaul.md](specs/implemented/feature-ui-overhaul.md) — feature-ui-overhaul
 
 ### specs/planned/ (1 files)
 
-- [feature-scaffold-templating.md](specs/planned/feature-scaffold-templating.md) (10KB, 2026-06-29)
+- [feature-scaffold-templating.md](specs/planned/feature-scaffold-templating.md) — Scaffold Templating
 
 ### tech-debt/ (10 files)
 
-- [README.md](tech-debt/README.md) (3KB, 2026-07-25)
-- [architecture-layer-overview-stale-prose.md](tech-debt/architecture-layer-overview-stale-prose.md) (5KB, 2026-07-25)
-- [claude-md-rules-list-incomplete.md](tech-debt/claude-md-rules-list-incomplete.md) (2KB, 2026-07-25)
-- [non-markdown-files-rendered-as-markdown.md](tech-debt/non-markdown-files-rendered-as-markdown.md) (3KB, 2026-06-13)
-- [scanner-directory-include-silent.md](tech-debt/scanner-directory-include-silent.md) (1KB, 2026-06-10)
-- [imgui-backend-shutdown-order.md](tech-debt/imgui-backend-shutdown-order.md) (1KB, 2026-05-10)
-- [line-level-promote.md](tech-debt/line-level-promote.md) (1KB, 2026-05-10)
-- [markdown-code-block-styling.md](tech-debt/markdown-code-block-styling.md) (3KB, 2026-05-09)
-- [preprocess-imports-indented-fences.md](tech-debt/preprocess-imports-indented-fences.md) (2KB, 2026-05-09)
-- [_TEMPLATE.md](tech-debt/_TEMPLATE.md) (1KB, 2026-04-26)
+- [README.md](tech-debt/README.md) — Tech Debt Issues
+- [_TEMPLATE.md](tech-debt/_TEMPLATE.md) — [Issue Title]
+- [architecture-layer-overview-stale-prose.md](tech-debt/architecture-layer-overview-stale-prose.md) — ARCHITECTURE.md "Layer Overview" table is hand-written prose frozen at the ADR-010 pivot, not derived from source
+- [claude-md-rules-list-incomplete.md](tech-debt/claude-md-rules-list-incomplete.md) — .claude/CLAUDE.md's rule enumeration omits idea-capture.md
+- [imgui-backend-shutdown-order.md](tech-debt/imgui-backend-shutdown-order.md) — ImGui assertion on exit: backend non spento prima di DestroyContext
+- [line-level-promote.md](tech-debt/line-level-promote.md) — Promote e Apply operano solo sull'intero file
+- [markdown-code-block-styling.md](tech-debt/markdown-code-block-styling.md) — Fenced code blocks rendered as flat yellow text — no syntax highlighting
+- [non-markdown-files-rendered-as-markdown.md](tech-debt/non-markdown-files-rendered-as-markdown.md) — File non-Markdown renderizzati come Markdown (script, config)
+- [preprocess-imports-indented-fences.md](tech-debt/preprocess-imports-indented-fences.md) — PreprocessImports does not recognise indented fenced code blocks
+- [scanner-directory-include-silent.md](tech-debt/scanner-directory-include-silent.md) — ConfigFileScanner: @include verso directory accettato e poi fallisce in silenzio
 
 ### reference/decisions/ (16 files)
 
-- [015-scaffold-templating.md](reference/decisions/015-scaffold-templating.md) (6KB, 2026-06-29)
-- [016-git-managed-scaffold-versioning.md](reference/decisions/016-git-managed-scaffold-versioning.md) (5KB, 2026-06-29)
-- [001-stack-tecnologico.md](reference/decisions/001-stack-tecnologico.md) (3KB, 2026-06-14)
-- [002-symlink-vs-copy.md](reference/decisions/002-symlink-vs-copy.md) (1KB, 2026-06-14)
-- [003-issue-tracking-locale.md](reference/decisions/003-issue-tracking-locale.md) (1KB, 2026-06-14)
-- [006-desktop-vs-vscode-extension.md](reference/decisions/006-desktop-vs-vscode-extension.md) (5KB, 2026-06-14)
-- [007-rimozione-terminale-embedded.md](reference/decisions/007-rimozione-terminale-embedded.md) (6KB, 2026-06-14)
-- [008-pivot-to-cpp-imgui.md](reference/decisions/008-pivot-to-cpp-imgui.md) (12KB, 2026-06-14)
-- [009-markdown-library-imgui-md.md](reference/decisions/009-markdown-library-imgui-md.md) (10KB, 2026-06-14)
-- [010-architecture-design.md](reference/decisions/010-architecture-design.md) (12KB, 2026-06-14)
-- [011-release-and-distribution.md](reference/decisions/011-release-and-distribution.md) (6KB, 2026-06-14)
-- [012-codebase-agnostic-automation.md](reference/decisions/012-codebase-agnostic-automation.md) (7KB, 2026-06-14)
-- [013-scaffold-source-of-truth.md](reference/decisions/013-scaffold-source-of-truth.md) (3KB, 2026-06-14)
-- [014-germen-coevolution-strategy.md](reference/decisions/014-germen-coevolution-strategy.md) (5KB, 2026-06-14)
-- [README.md](reference/decisions/README.md) (2KB, 2026-06-14)
-- [_TEMPLATE.md](reference/decisions/_TEMPLATE.md) (1KB, 2026-06-14)
+- [001-stack-tecnologico.md](reference/decisions/001-stack-tecnologico.md) — ADR-001: Stack tecnologico - C# + Avalonia
+- [002-symlink-vs-copy.md](reference/decisions/002-symlink-vs-copy.md) — ADR-002: Symlink vs Copy per aggregazione vault
+- [003-issue-tracking-locale.md](reference/decisions/003-issue-tracking-locale.md) — ADR-003: Issue tracking locale vs GitHub Issues
+- [006-desktop-vs-vscode-extension.md](reference/decisions/006-desktop-vs-vscode-extension.md) — ADR-006: DevDash Desktop vs VS Code Extension
+- [007-rimozione-terminale-embedded.md](reference/decisions/007-rimozione-terminale-embedded.md) — ADR-007: Rimozione del Terminale Embedded
+- [008-pivot-to-cpp-imgui.md](reference/decisions/008-pivot-to-cpp-imgui.md) — ADR-008: Pivot dello stack — da C#/Avalonia a C++/Dear ImGui
+- [009-markdown-library-imgui-md.md](reference/decisions/009-markdown-library-imgui-md.md) — ADR-009: Libreria markdown — imgui_md + MD4C
+- [010-architecture-design.md](reference/decisions/010-architecture-design.md) — ADR-010: Architettura del progetto vero — split layered
+- [011-release-and-distribution.md](reference/decisions/011-release-and-distribution.md) — ADR-011: Modello di release e distribuzione
+- [012-codebase-agnostic-automation.md](reference/decisions/012-codebase-agnostic-automation.md) — ADR-012: Automazione a due livelli, agnostica rispetto al codebase
+- [013-scaffold-source-of-truth.md](reference/decisions/013-scaffold-source-of-truth.md) — ADR-013: Scaffold source of truth — rsrc versionato, symlink in dev
+- [014-germen-coevolution-strategy.md](reference/decisions/014-germen-coevolution-strategy.md) — ADR-014: Strategia di co-evoluzione con Germen Pulchrum
+- [015-scaffold-templating.md](reference/decisions/015-scaffold-templating.md) — ADR-015: Scaffold templating — sostituzione esplicita guidata da manifest
+- [016-git-managed-scaffold-versioning.md](reference/decisions/016-git-managed-scaffold-versioning.md) — ADR-016: Versionamento git gestito degli scaffold
+- [README.md](reference/decisions/README.md) — Architecture Decision Records
+- [_TEMPLATE.md](reference/decisions/_TEMPLATE.md) — ADR-NNN: <titolo conciso della decisione>
 
 ### reference/technical/ (1 files)
 
-- [resource-model.md](reference/technical/resource-model.md) (35KB, 2026-04-26)
+- [resource-model.md](reference/technical/resource-model.md) — DevDash — Resource Model (DRAFT)
 
 ### archive/analysis/ (1 files)
 
-- [2025-12-11_report_code-reviewer.md](archive/analysis/2025-12-11_report_code-reviewer.md) (8KB, 2026-02-10)
+- [2025-12-11_report_code-reviewer.md](archive/analysis/2025-12-11_report_code-reviewer.md) — Code Review Report - DevDash
 
 ### archive/completed/ (9 files)
 
-- [2026-07-25_archive-hook-loses-the-deletion.md](archive/completed/2026-07-25_archive-hook-loses-the-deletion.md) (8KB, 2026-07-25)
-- [2026-07-25_handoff-command-stale-projects-nesting.md](archive/completed/2026-07-25_handoff-command-stale-projects-nesting.md) (4KB, 2026-07-25)
-- [2026-07-25_scaffold-architecture-eval-glob-expansion.md](archive/completed/2026-07-25_scaffold-architecture-eval-glob-expansion.md) (8KB, 2026-07-25)
-- [2026-07-25_scaffold-doc-generators-not-idempotent.md](archive/completed/2026-07-25_scaffold-doc-generators-not-idempotent.md) (5KB, 2026-07-25)
-- [2026-07-25_tech-debt-index-backslash-escape.md](archive/completed/2026-07-25_tech-debt-index-backslash-escape.md) (3KB, 2026-07-25)
-- [2026-06-28_scaffold-architecture-scripts.md](archive/completed/2026-06-28_scaffold-architecture-scripts.md) (2KB, 2026-06-29)
-- [2026-06-11_spec-workflow-hook-silent-fail.md](archive/completed/2026-06-11_spec-workflow-hook-silent-fail.md) (4KB, 2026-06-11)
-- [2026-06-10_project-githooks-not-active.md](archive/completed/2026-06-10_project-githooks-not-active.md) (2KB, 2026-06-10)
-- [2026-05-10_contentcontrol-binding-multisidebar.md](archive/completed/2026-05-10_contentcontrol-binding-multisidebar.md) (2KB, 2026-05-10)
+- [2026-05-10_contentcontrol-binding-multisidebar.md](archive/completed/2026-05-10_contentcontrol-binding-multisidebar.md) — ContentControl Binding Error in MultiSidebar - Empty Sidebar Content
+- [2026-06-10_project-githooks-not-active.md](archive/completed/2026-06-10_project-githooks-not-active.md) — Hook di progetto (.githooks/) mai attivi: hooksPath globale li bypassa
+- [2026-06-11_spec-workflow-hook-silent-fail.md](archive/completed/2026-06-11_spec-workflow-hook-silent-fail.md) — Hook 05 spec-workflow non sposta le spec al merge
+- [2026-06-28_scaffold-architecture-scripts.md](archive/completed/2026-06-28_scaffold-architecture-scripts.md) — Include architecture scripts in project scaffold
+- [2026-07-25_archive-hook-loses-the-deletion.md](archive/completed/2026-07-25_archive-hook-loses-the-deletion.md) — 03-archive-resolved-issues commits the archived copy but never the removal of the original
+- [2026-07-25_handoff-command-stale-projects-nesting.md](archive/completed/2026-07-25_handoff-command-stale-projects-nesting.md) — `/handoff` command contradicts the session-handoff skill on where handoffs live
+- [2026-07-25_scaffold-architecture-eval-glob-expansion.md](archive/completed/2026-07-25_scaffold-architecture-eval-glob-expansion.md) — generate-architecture.sh: eval re-expands unquoted globs against the CWD
+- [2026-07-25_scaffold-doc-generators-not-idempotent.md](archive/completed/2026-07-25_scaffold-doc-generators-not-idempotent.md) — Doc generators rewrite their output on every run (INDEX.md, tech-debt/README.md)
+- [2026-07-25_tech-debt-index-backslash-escape.md](archive/completed/2026-07-25_tech-debt-index-backslash-escape.md) — update-tech-debt-index.py crashes on backslashes in issue titles
 
 ---
 
@@ -117,16 +118,9 @@
 
 ### docs/
 
-- [ARCHITECTURE.md](docs/ARCHITECTURE.md) (7KB, 2026-06-13)
-- [README.md](docs/README.md) (<1KB, 2026-06-13)
-- [SETUP.md](docs/SETUP.md) (4KB, 2026-06-13)
-
----
-
-## Recently Modified (last 7 days)
-
-1. [ARCHITECTURE.md](ARCHITECTURE.md) (today)
-2. [INDEX.md](INDEX.md) (today)
+- [ARCHITECTURE.md](../docs/ARCHITECTURE.md) — DevDash Architecture
+- [README.md](../docs/README.md) — Documentation
+- [SETUP.md](../docs/SETUP.md) — Setup DevDash
 
 ---
 
