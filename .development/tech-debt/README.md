@@ -65,6 +65,7 @@ report: null  # Optional: link to archive/analysis/YYYY-MM-DD_report_agent-name.
 - `markdown-code-block-styling.md` - Fenced code blocks rendered as flat yellow text — no syntax highlighting
 - `preprocess-imports-indented-fences.md` - PreprocessImports does not recognise indented fenced code blocks
 - `scanner-directory-include-silent.md` - ConfigFileScanner: @include verso directory accettato e poi fallisce in silenzio
+- `tech-debt-index-generator-cannot-bootstrap.md` - `update-tech-debt-index.py` cannot create the README it maintains, unlike its two siblings
 
 ## Integration with Reference Documentation
 

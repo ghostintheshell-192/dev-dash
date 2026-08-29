@@ -58,7 +58,7 @@
 
 - [feature-scaffold-templating.md](specs/planned/feature-scaffold-templating.md) — Scaffold Templating
 
-### tech-debt/ (10 files)
+### tech-debt/ (11 files)
 
 - [README.md](tech-debt/README.md) — Tech Debt Issues
 - [_TEMPLATE.md](tech-debt/_TEMPLATE.md) — [Issue Title]
@@ -70,6 +70,7 @@
 - [post-merge-does-not-regenerate-derived-docs.md](tech-debt/post-merge-does-not-regenerate-derived-docs.md) — Derived docs are one regeneration behind after any merge of two independent branches
 - [preprocess-imports-indented-fences.md](tech-debt/preprocess-imports-indented-fences.md) — PreprocessImports does not recognise indented fenced code blocks
 - [scanner-directory-include-silent.md](tech-debt/scanner-directory-include-silent.md) — ConfigFileScanner: @include verso directory accettato e poi fallisce in silenzio
+- [tech-debt-index-generator-cannot-bootstrap.md](tech-debt/tech-debt-index-generator-cannot-bootstrap.md) — `update-tech-debt-index.py` cannot create the README it maintains, unlike its two siblings
 
 ### reference/decisions/ (16 files)
 
