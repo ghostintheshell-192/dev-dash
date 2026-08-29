@@ -32,14 +32,7 @@ directive is universal, kept here once, applied at invocation time.
 
 ## Project Rules
 
-The following rules are automatically loaded from `.claude/rules/`:
-
-- **overview.md** — Project overview, development methodology, and tech stack
-- **coding-standards.md** — Coding standards and conventions
-- **principles.md** — General development principles
-- **preflight-checks.md** — Pre-flight checks before coding
-- **workflow.md** — Git workflow and session discipline
-- **idea-capture.md** — Convention for capturing tangential ideas
+Every `.md` file under `.claude/rules/` is loaded automatically.
 
 ## Key Decisions
 
