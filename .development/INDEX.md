@@ -58,11 +58,10 @@
 
 - [feature-scaffold-templating.md](specs/planned/feature-scaffold-templating.md) — Scaffold Templating
 
-### tech-debt/ (10 files)
+### tech-debt/ (9 files)
 
 - [README.md](tech-debt/README.md) — Tech Debt Issues
 - [_TEMPLATE.md](tech-debt/_TEMPLATE.md) — [Issue Title]
-- [imgui-backend-shutdown-order.md](tech-debt/imgui-backend-shutdown-order.md) — ImGui assertion on exit: backend non spento prima di DestroyContext
 - [line-level-promote.md](tech-debt/line-level-promote.md) — Promote e Apply operano solo sull'intero file
 - [markdown-code-block-styling.md](tech-debt/markdown-code-block-styling.md) — Fenced code blocks rendered as flat yellow text — no syntax highlighting
 - [non-markdown-files-rendered-as-markdown.md](tech-debt/non-markdown-files-rendered-as-markdown.md) — File non-Markdown renderizzati come Markdown (script, config)
@@ -98,7 +97,7 @@
 
 - [2025-12-11_report_code-reviewer.md](archive/analysis/2025-12-11_report_code-reviewer.md) — Code Review Report - DevDash
 
-### archive/completed/ (11 files)
+### archive/completed/ (12 files)
 
 - [2026-05-10_contentcontrol-binding-multisidebar.md](archive/completed/2026-05-10_contentcontrol-binding-multisidebar.md) — ContentControl Binding Error in MultiSidebar - Empty Sidebar Content
 - [2026-06-10_project-githooks-not-active.md](archive/completed/2026-06-10_project-githooks-not-active.md) — Hook di progetto (.githooks/) mai attivi: hooksPath globale li bypassa
@@ -111,6 +110,7 @@
 - [2026-07-25_tech-debt-index-backslash-escape.md](archive/completed/2026-07-25_tech-debt-index-backslash-escape.md) — update-tech-debt-index.py crashes on backslashes in issue titles
 - [2026-08-29_architecture-layer-overview-stale-prose.md](archive/completed/2026-08-29_architecture-layer-overview-stale-prose.md) — ARCHITECTURE.md "Layer Overview" table is hand-written prose frozen at the ADR-010 pivot, not derived from source
 - [2026-08-29_claude-md-rules-list-incomplete.md](archive/completed/2026-08-29_claude-md-rules-list-incomplete.md) — .claude/CLAUDE.md's rule enumeration omits idea-capture.md
+- [2026-08-29_imgui-backend-shutdown-order.md](archive/completed/2026-08-29_imgui-backend-shutdown-order.md) — ImGui assertion on exit: backend non spento prima di DestroyContext
 
 ---
 
