@@ -38,8 +38,22 @@ REL_BASE="$PROJECT_ROOT"
 
 # Project-specific header content (architecture/layer overview block).
 # Substituted by DevDash; replace by hand with your own overview otherwise.
+#
+# This is the one part of ARCHITECTURE.md that is NOT derived from source: it is
+# printed verbatim, above a Project Tree that IS regenerated on every commit.
+# That asymmetry is invisible in the output — hence the HTML marker below, which
+# ships with it into the file.
+#
+# Keep the overview to what each part of the codebase is *for*. Avoid listing
+# the classes or files it holds (the tree lists them, derived from source, and a
+# hand-kept copy drifts) and avoid implementation status such as "stub" or
+# "implemented" (that belongs in CURRENT-STATUS.md, where it carries a date).
 generate_project_header() {
     cat << 'EOF'
+<!-- Hand-written: this block is not regenerated, unlike the Project Tree below.
+     Keep it to what each part of the codebase is for — never a census of its
+     files, never implementation status. See generate-architecture.sh for why. -->
+
 {PROJECT_LAYER_OVERVIEW}
 EOF
 }

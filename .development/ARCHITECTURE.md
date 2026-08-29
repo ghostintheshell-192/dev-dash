@@ -3,17 +3,23 @@
 Quick reference for navigating the DevDash codebase.
 For detailed documentation, see `docs/`.
 
+<!-- Hand-written: this block is not regenerated, unlike the Project Tree below.
+     Keep it to what each layer is for — never a census of its files, never
+     implementation status. See generate-architecture.sh for why. -->
+
 ## Layer Overview (`app/src/` — layered architecture, ADR-010)
 
 | Layer | Path | Purpose |
 |-------|------|---------|
 | Entry point | `app/src/main.cpp` | `int main` → `dev_dash::app::App().Run()` |
-| Composition root | `app/src/app/app.{h,cpp}` | `App` owns all layers via `unique_ptr`; wires construction order and main loop. |
-| Platform | `app/src/platform/` | SDL3/Vulkan/ImGui plumbing: `SdlSession`, `Window`, `VulkanContext`, `Swapchain`, `FrameResources`, `ImGuiBackend`, `DeletionQueue`. |
-| UI | `app/src/ui/` | `FontLibrary`, `MarkdownRenderer` (derives `imgui_md`), `DocumentPanelHost`. |
-| Services | `app/src/services/` | Domain logic: `DocumentLoader` (fully implemented); stubs for `ConfigResolver`, `DiffEngine`, `ApplyEngine`, `SnapshotService`, `ScaffoldRepository`. |
-| Core | `app/src/core/` | Pure value types (header-only): `Project`, `ConfigLayer`, `EffectiveConfig`, `Scaffold`, `Snapshot`, `DiffEntry`. |
+| Composition root | `app/src/app/` | Owns every layer via `unique_ptr`; fixes construction order and drives the main loop. |
+| Platform | `app/src/platform/` | SDL3/Vulkan/ImGui plumbing: window and surface lifetime, swapchain, per-frame resources, deferred destruction. |
+| UI | `app/src/ui/` | ImGui panels ("panel as viewmodel", ADR-010), font library, markdown rendering on `imgui_md`. |
+| Services | `app/src/services/` | Domain logic: document loading, effective-configuration resolution, diff/apply, snapshots, scaffolds. |
+| Core | `app/src/core/` | Pure value types, header-only. |
 | PoC (reference) | `poc/src/` | Original monolithic `Renderer` class — kept as reference pre-refactor. |
+
+For what each directory actually contains, see the Project Tree below.
 
 ## Key Decisions
 

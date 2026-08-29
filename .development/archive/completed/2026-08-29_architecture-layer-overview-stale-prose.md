@@ -1,7 +1,7 @@
 ---
 type: bug
 priority: high
-status: open
+status: resolved
 discovered: 2026-07-05
 related: [scaffold-architecture-eval-glob-expansion.md]
 related_decision: 010-architecture-design.md
@@ -84,6 +84,79 @@ fresh.
 changes implementation status over time); **Option B** as a cheap safety net
 for the rest of the header prose, which is more structural and less likely to
 drift but not immune to it.
+
+## Solution Implemented
+
+Resolved 2026-08-29. None of the three options above, in the end — auditing the
+table before fixing it changed the diagnosis.
+
+**The staleness was not confined to the Services row.** Every row that
+enumerated classes had drifted from the tree printed forty lines below it in the
+same file:
+
+| Row | Classes claimed | Actually present | Missing |
+| --- | --- | --- | --- |
+| Platform | 7 | 8 | `asset_paths` |
+| UI | 3 | 13 | `shell`, `sidebar`, `theme`, `widgets`, and all five panels |
+| Services | 6 | 17 | the seven adapters, `promote_engine`, `config_file_scanner`, `settings_parser` |
+| Core | 6 | 7 | `line_diff.h` |
+
+So the false "stubs" claim was the loudest instance of the defect, not the
+defect. The defect is a **hand-maintained census of something regenerated from
+source in the same document** — and a census drifts by construction, one file at
+a time, silently.
+
+That also disqualifies Option A on inspection: `grep -rn "STUB\|TODO: stub\|not
+implemented"` over `app/src/` matches nothing, so deriving stub status would
+mean building machinery for a predicate that is uniformly false across all
+sixteen services. A line-count threshold, the other suggestion, would classify
+`hooks_adapter.cpp` (32 lines, complete) as a stub while `config_resolver.cpp`
+(42) passes. And the scaffold copy of `generate_project_header()` emits
+`{PROJECT_LAYER_OVERVIEW}`, a token DevDash substitutes per ADR-015 — the block
+is hand-written prose *by contract* there, so no derivation logic could have
+propagated to it anyway.
+
+The fix instead removes the drifting content and keeps the part that does not
+drift:
+
+1. **The class enumerations are gone from every row.** They duplicated the
+   Project Tree, which is derived on every commit and was correct throughout.
+   Each row now states what the layer is *for* — true in May 2026, true today,
+   true when the eighteenth service lands.
+2. **No implementation status anywhere in the table.** That is
+   `CURRENT-STATUS.md`'s job, and it did its job correctly the whole time: this
+   was a propagation gap, never a knowledge gap.
+3. **No dependency-direction column**, though it was tempting. The Layer
+   Boundary Rules live in `.claude/rules/coding-standards.md`, which is
+   auto-loaded into every session alongside `ARCHITECTURE.md` — restating them
+   here would add no context and a second copy free to diverge.
+4. **Option B's marker, kept as the safety net**, as an HTML comment emitted
+   with the block: it names the asymmetry the footer hides, that this section is
+   verbatim while everything under "Project Tree" is generated. A longer comment
+   in the script above the heredoc records why the census and the status claims
+   must not come back.
+
+Point 4 is the piece that propagates: `rsrc/project-scaffold/.development/scripts/generate-architecture.sh`
+now wraps its `{PROJECT_LAYER_OVERVIEW}` placeholder in the same marker and
+carries the same guidance, so every project scaffolded from it inherits the
+convention rather than the trap (ADR-013).
+
+## Testing
+
+Regenerated with `.development/scripts/generate-architecture.sh` and diffed
+every row of the new table against `app/src/*/`: no remaining claim about which
+classes exist or how complete they are. Stats unchanged at 84 files, confirming
+the tree generation itself was untouched. The generator stays deterministic —
+the block is still a static heredoc, so the same tree still yields the same
+bytes.
+
+## Impact
+
+`ARCHITECTURE.md` is `@include`-imported into every Claude Code session by
+`.claude/CLAUDE.md`, and `workflow.md` instructs both sessions and delegated
+sub-agents to read it *first* as the navigation map. The table had been telling
+every one of them that the effective-configuration resolver — the project's most
+distinctive feature — did not exist yet. It stopped.
 
 ## Notes
 
