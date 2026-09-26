@@ -1,34 +1,88 @@
 # DevDash - Current Status
 
-*Last updated: 2026-06-10*
+*Last updated: 2026-09-26*
 
 ## Project Phase
 
-**Phase**: Wedge completa (3/3) — effective config view, scaffold management
-e snapshot & history implementate e mergiate in `develop`.
+**Phase**: Wedge completa + release readiness — in attesa del primo tag
+`v0.1.0`. Prossimo lavoro di prodotto: scaffold templating (ADR-015) e,
+sul fronte grafi, la collaborazione con Dario su ImGuiDot.
 
-Il pivot a **C++20 + Dear ImGui + SDL3 + Vulkan** è validato e lo skeleton
-layered (`core/services/ui/platform/app/`) è in produzione. Le tre wedge
-feature sono live: project selector + effective config view, scaffold
-list/diff/apply, snapshot save/restore con History panel e autosnapshot
-pre-apply. Flow apply/restore testato end-to-end (dogfooding sul repo stesso,
-2026-05-14).
+Il pivot a **C++20 + Dear ImGui + SDL3 + Vulkan** è validato e in produzione.
+Le tre wedge feature (effective config view, scaffold management, snapshot &
+history) sono live dentro una shell a workspace (top bar, sidebar, dockspace,
+status bar) con tema centralizzato "Grafite & Ambra". Il progetto è
+installabile, testato (Catch2) e ha CI + release workflow su GitHub Actions.
 
 Stato attuale del codebase:
 
-- `app/` — build funzionante. Skeleton layered completo + 3 wedge feature.
-- `poc/` — **rimosso** il 2026-05-12 (PoC concluso; font migrati in
-  `app/assets/fonts/`).
-- Architettura decisa in [ADR-010](reference/decisions/010-architecture-design.md)
-  + [api-design.md](api-design.md).
-- `imgui_md` consumato via CPM dal fork `DPD85/imgui_md`, pinnato a main
-  post-merge PR #2 (`11832f4`). PR1 (word wrap) e PR2 (CMakeLists standalone
-  con `BUILD_*` options + `*_TARGET` cache vars) entrambe mergiate da Dario.
-- Legacy `.NET 8 + Avalonia` rimosso da `develop` il 2026-05-10. Recover via `git checkout legacy/avalonia-final`.
-- `.github/workflows/ci.yml.disabled` — CI .NET disabilitata pre-pivot.
-  Da rimpiazzare con workflow CMake/GCC.
+- `app/` — build funzionante, layered (`core/services/ui/platform/app/`,
+  ADR-010). `services/` è anche libreria statica `dev-dash-services`, linkata
+  dai test senza stack grafico.
+- `app/tests/` — Catch2 v3: `SnapshotService`, `ApplyEngine`.
+- Versione `0.1.0` in `app/CMakeLists.txt`; nessun tag `v*` ancora creato.
+- `imgui_md` consumato via CPM dal fork `DPD85/imgui_md`, pinnato al commit
+  `11832f4` (= tag `v1.0.0`).
+- Automazione a due livelli, agnostica rispetto allo stack (ADR-012):
+  hook in `.githooks/` (documentati in `.githooks/README.md`) + entry point
+  in `.development/automation/`. Attivazione per clone: `bootstrap.sh`.
+- Scaffold: fonte di verità `rsrc/project-scaffold/` (ADR-013); templating
+  (ADR-015) e versionamento git (ADR-016) decisi, non ancora implementati.
+- Legacy `.NET 8 + Avalonia` rimosso da `develop` il 2026-05-10. Recover via
+  `git checkout legacy/avalonia-final`.
 
 ## Recent Work
+
+### 2026-09-26: Riallineamento config + ImGuiDot upstream
+
+- **Config riallineata con raid-sandbox** (che ne era un fork): skill
+  `session-handoff` (Next in ordine di priorità, rimando all'handoff che
+  porta la lista), `LC_ALL=C sort` in `generate-architecture.sh`, indice
+  tech-debt senza issue resolved/dropped, hook SessionStart/End più robusti,
+  regole preflight + "Keeping CURRENT-STATUS.md current", nuovo
+  `.githooks/README.md`, pulizia residui C#/Avalonia in `.gitattributes`.
+- **ImGuiDot** (`DPD85/ImGuiDot`, Graphviz → ImGui draw list, v2.0.0): è la
+  libreria diagrammi di Dario, già integrata nel branch
+  `funzionalità/diagrammi2` di Germen. Fork `ghostintheshell-192/ImGuiDot`,
+  due PR aperte upstream: `fix/gcc13-sqrt` (`std::sqrtf` non esiste in
+  libstdc++ < 14) e `fix/diagram-layout-size` (`Draw()` non riservava spazio
+  nel layout). Proposta a Dario sui colori di default (tema scuro) in attesa
+  di risposta.
+
+### 2026-08-29/30: Derived docs affidabili
+
+- `post-merge` rigenera i documenti derivati (git non esegue pre-commit sui
+  merge senza conflitti); merge driver `generated` per ARCHITECTURE.md e
+  INDEX.md; generatori deterministici e in grado di fare bootstrap.
+- INDEX.md come mappa (non storia), Layer Overview di ARCHITECTURE.md
+  riscritta, CLAUDE.md senza enumerazione delle regole.
+- Archiviazione tech-debt con la data di chiusura dal frontmatter.
+
+### 2026-07-25: Audit dello scaffold
+
+- Fix emersi dall'audit di `rsrc/project-scaffold/`: generatori doc
+  idempotenti, glob di `generate-architecture` valutato correttamente,
+  l'hook di archiviazione non perde più la cancellazione, comando `/handoff`
+  delegato alla skill, idea notes spostate in `.memory-bank/ideas/`.
+
+### 2026-06-28/29: ADR scaffold
+
+- **ADR-015** (templating guidato da manifest) e **ADR-016** (versionamento
+  git gestito degli scaffold); spec `feature-scaffold-templating` in
+  `planned/`. Modello ADR allineato fra progetto e scaffold.
+
+### 2026-06-10/14: Automazione agnostica, UI overhaul, release readiness
+
+- **`feature-agnostic-automation`** (ADR-012): entry point standard +
+  hook orchestratori; il tech-debt `project-githooks-not-active` è chiuso.
+- **ADR-013**: `rsrc/project-scaffold/` fonte di verità, symlink in dev.
+- **`feature-ui-overhaul`**: tema "Grafite & Ambra" (`ui/theme`), shell a
+  workspace (`ui/shell`, `ui/sidebar`, `StatusSink`), compare view
+  ridisegnata, diff leggibile, DPI scaling, marker dello scaffold di default.
+- **`feature-release-readiness`** (ADR-011): Catch2, versione + `version.h`,
+  asset a due tentativi con DejaVu bundled, install rules + `.desktop`,
+  CPack TGZ, `ci.yml` + `release.yml`, `CHANGELOG.md`, docs utente riscritte.
+- **ADR-014**: co-evoluzione con Germen, contribuzione attiva upstream.
 
 ### 2026-06-10: Spec workflow fix + sync documentazione
 
@@ -182,59 +236,31 @@ Le sessioni 2025-12 / 2026-01 hanno costruito la v0.2.x in Avalonia
 
 ### Immediato
 
-1. **Primo test target del progetto** — sblocca i test unit di
-   `SnapshotService` (fixture su tmpdir: save/list/restore/prune), il modulo
-   più testabile del codebase.
+1. **Primo tag `v0.1.0`** — l'acceptance 3 di `feature-release-readiness`
+   (release GitHub con tarball) è l'unica non ancora verificata: i workflow
+   si collaudano solo al primo tag su `main`.
 
-2. **UX/UI snapshot-history + scaffold-manage** — funzionante sopra le
-   primitive ma "tutta da rifare" (Valentina, 2026-05-14). Non prioritaria
-   finché il progetto resta single-user.
+2. **`feature-scaffold-templating`** (planned, ADR-015) — prossima feature
+   di prodotto.
 
-3. **`docs/architecture.md` + `docs/SETUP.md` rewrite** — i file pubblici
-   parlano ancora di Avalonia/.NET. La wedge è completa: ora possono
-   descrivere cosa esiste davvero.
+3. **Diagramma del progetto aperto** — obiettivo principale del thread
+   grafi (spec in backlog: `feature-code-graph`, da riscrivere per lo stack
+   attuale). Passa da ImGuiDot: seguire le PR aperte e la risposta di Dario
+   sui colori, poi definire cosa serve di più alla libreria (cluster, errori
+   di parsing esposti, interattività).
 
-4. **Tech-debt `project-githooks-not-active`** — decidere la strategia
-   hooksPath (hook progetto vs workspace); finché aperto, la branch
-   protection su `main`/`develop` è solo convenzionale.
+### Più avanti
 
-### Pulizia post-pivot
-
-Cleanup items completati 2026-05-10 (branch `chore/post-pivot-cleanup`):
-
-- ✅ Hook `02-dotnet-format` → `02-clang-format`. Dormiente finché non
-  esiste un `.clang-format` al root; quando lo aggiungi, si attiva.
-- ✅ `.claude/settings.json` (live config): rimossi
-  `Bash(dotnet build:*)`/`Bash(dotnet test:*)`, aggiunti `Bash(cmake:*)`,
-  `Bash(ninja:*)`, `Bash(make:*)`, `Bash(ctest:*)`.
-- ✅ Hook `04-generate-architecture` + `generate-architecture.sh` +
-  `extract-summary.sh`: riscritti per C++/ImGui (FILE_GLOBS array,
-  SOURCE_DIRS=poc/src/, generate_project_header riscritto, extract-summary
-  con branch C++ per primi `//` block top-of-file/class).
-- ✅ `generate-claude-config.sh`: rimossa heredoc-generation di
-  `coding-standards.md` (clobberava il file hand-maintained con template
-  C#). Il file resta hand-maintained.
-- ✅ `.gitignore`: rimossi pattern .NET (Visual Studio, NuGet, `*.dll`,
-  `bin/`, `obj/`, ecc.), aggiunti pattern C++/CMake (`build/`, `*.o`,
-  `CMakeCache.txt`, `compile_commands.json`).
-- ✅ `.claude/rules/workflow.md` Quick Commands: aggiornati a CMake/Ninja.
-
-Pendente:
-
-- 🔲 **`docs/SETUP.md`**: ancora referenzia `src/DevDash` + `dotnet build`.
-  Da aggiornare durante il rewrite di `docs/architecture.md` (dopo lo skeleton),
-  così descrivono cosa esiste, non cosa è progettato.
+- **UX/UI snapshot-history** — funzionante ma "tutta da rifare"
+  (Valentina, 2026-05-14); non prioritaria finché single-user.
+- **Dock layout persistence** (`io.IniFilename`) non ancora abilitata.
 
 ### Verifica reattiva (solo se serve)
 
-7. **Layout di tabelle complesse e code block**: oggi solo test minimo. Se
-   un giorno una tabella o un code block del progetto reale appare strano,
-   riguardare i tech-debt:
-   - `markdown-code-block-styling` — solo colore, niente syntax highlighting.
-   - `preprocess-imports-indented-fences` — fence indentate CommonMark non
-     riconosciute.
-   - Limitazione tabelle imgui_md: larghezza colonne dipende da contenuto
-     header (workaround: header descrittivi nei doc reali).
+- **Layout di tabelle complesse e code block**: se un documento reale appare
+  strano, riguardare i tech-debt `markdown-code-block-styling` e
+  `preprocess-imports-indented-fences`, e la limitazione di imgui_md sulla
+  larghezza delle colonne (dipende dal contenuto dell'header).
 
 ## Current Architecture
 
@@ -250,7 +276,9 @@ Vedi `ARCHITECTURE.md` per il tree completo (auto-generato).
 | Vulkan | 1.3.x | `find_package(Vulkan REQUIRED)` |
 | vk-bootstrap | 1.3.302 | Pinned al 1.3.x finché host non ha header Vulkan 1.4 |
 | MD4C | 0.5.3 | Parser CommonMark, statico, via CPM |
-| imgui_md | vendored (mekhontsev) | Bridge MD4C → ImGui, MIT, in `external/imgui_md/` |
+| imgui_md | fork `DPD85/imgui_md` @ `11832f4` (v1.0.0) | Bridge MD4C → ImGui, MIT, via CPM |
+| nlohmann/json | 3.11.3 | via CPM |
+| Catch2 | v3 | Test (`app/tests/`), via CPM |
 | CMake | ≥3.28 | + Ninja generator |
 
 ### Layout `app/`
@@ -261,10 +289,10 @@ della suddivisione `core/services/ui/platform/app/`.
 ## Blockers / Attention
 
 - **Nessun blocker attivo.**
-- **Branch protection non effettiva** su questo clone: gli hook di progetto
-  `.githooks/` sono bypassati dal `core.hooksPath` globale (vedi tech-debt
-  `project-githooks-not-active`). Attenzione ai commit diretti su
-  `main`/`develop`.
+- **Hook per clone**: senza `bash .development/automation/bootstrap.sh` la
+  branch protection su `main`/`develop` e gli hook di progetto non girano.
+- **Handoff solo locali**: `.memory-bank/sessions/` non è tracciato, quindi
+  le sessioni cloud non vedono i diari. La continuità passa da questo file.
 - **Warning lock `.git/config`** durante operazioni git: cosmetici, causati
   dai bind mount RO del sandbox Claude Code. Non investigare.
 
@@ -272,15 +300,18 @@ della suddivisione `core/services/ui/platform/app/`.
 
 | Target | Stato |
 | ------ | ----- |
-| `app/` (C++/CMake, layered) | ✅ Build + runtime su Debian 12 (GCC, Ninja, SDL3/Vulkan/ImGui) |
-| Legacy `.NET/Avalonia` | 🗑️ Rimosso da `develop` 2026-05-10; recover via `git checkout legacy/avalonia-final` |
-| CI | ⏸️ Disabilitata pre-pivot (`ci.yml.disabled`); da riattivare per CMake |
+| `app/` (C++/CMake, layered) | ✅ Build + runtime su Debian (GCC, Ninja, SDL3/Vulkan/ImGui) |
+| Test (`dev-dash-tests`) | ✅ Catch2 via `.development/automation/test.sh` |
+| CI | ✅ `ci.yml` (build + test, warnings-as-errors) su push/PR a develop/main |
+| Release | ⏳ `release.yml` pronto, mai esercitato (nessun tag `v*`) |
+| Legacy `.NET/Avalonia` | 🗑️ Rimosso; recover via `git checkout legacy/avalonia-final` |
 
 ## Quick Links
 
 - [ADR-008: pivot a C++/Dear ImGui](reference/decisions/008-pivot-to-cpp-imgui.md)
 - [ADR-009: libreria markdown imgui_md + MD4C](reference/decisions/009-markdown-library-imgui-md.md)
 - [ADR-010: architettura del progetto vero](reference/decisions/010-architecture-design.md)
+- [Indice ADR](reference/decisions/README.md) — fino ad ADR-016
 - [api-design.md: design definitivo](api-design.md) — companion operativo di ADR-010
 - [Tech-debt index](tech-debt/README.md)
 - [Spec planned/in-progress/implemented](specs/)
