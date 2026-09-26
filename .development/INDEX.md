@@ -69,7 +69,7 @@
 - [preprocess-imports-indented-fences.md](tech-debt/preprocess-imports-indented-fences.md) — PreprocessImports does not recognise indented fenced code blocks
 - [scanner-directory-include-silent.md](tech-debt/scanner-directory-include-silent.md) — ConfigFileScanner: @include verso directory accettato e poi fallisce in silenzio
 
-### reference/decisions/ (16 files)
+### reference/decisions/ (17 files)
 
 - [001-stack-tecnologico.md](reference/decisions/001-stack-tecnologico.md) — ADR-001: Stack tecnologico - C# + Avalonia
 - [002-symlink-vs-copy.md](reference/decisions/002-symlink-vs-copy.md) — ADR-002: Symlink vs Copy per aggregazione vault
@@ -85,12 +85,17 @@
 - [014-germen-coevolution-strategy.md](reference/decisions/014-germen-coevolution-strategy.md) — ADR-014: Strategia di co-evoluzione con Germen Pulchrum
 - [015-scaffold-templating.md](reference/decisions/015-scaffold-templating.md) — ADR-015: Scaffold templating — sostituzione esplicita guidata da manifest
 - [016-git-managed-scaffold-versioning.md](reference/decisions/016-git-managed-scaffold-versioning.md) — ADR-016: Versionamento git gestito degli scaffold
+- [017-code-graph-extraction.md](reference/decisions/017-code-graph-extraction.md) — ADR-017: Estrazione del code graph — tree-sitter di base, libclang opzionale
 - [README.md](reference/decisions/README.md) — Architecture Decision Records
 - [_TEMPLATE.md](reference/decisions/_TEMPLATE.md) — ADR-NNN: <titolo conciso della decisione>
 
 ### reference/technical/ (1 files)
 
 - [resource-model.md](reference/technical/resource-model.md) — DevDash — Resource Model (DRAFT)
+
+### reference/technical/code-graph-extraction/ (1 files)
+
+- [README.md](reference/technical/code-graph-extraction/README.md) — Code-graph extraction experiment (2026-09-26)
 
 ### archive/analysis/ (1 files)
 

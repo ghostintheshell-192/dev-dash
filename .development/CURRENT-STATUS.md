@@ -48,6 +48,10 @@ Stato attuale del codebase:
   libstdc++ < 14) e `fix/diagram-layout-size` (`Draw()` non riservava spazio
   nel layout). Proposta a Dario sui colori di default (tema scuro) in attesa
   di risposta.
+- **`feature-code-graph` riscritta e Fase 1 chiusa**: class diagram UML on
+  demand; esperimento libclang vs tree-sitter su `app/src/` (modello identico,
+  0,04 s contro ~53 s; casi difficili 6/6 contro 5/6 col nostro risolutore) →
+  ADR-017. Script in `reference/technical/code-graph-extraction/`.
 
 ### 2026-08-29/30: Derived docs affidabili
 
@@ -246,8 +250,10 @@ Le sessioni 2025-12 / 2026-01 hanno costruito la v0.2.x in Avalonia
 3. **Diagramma del progetto aperto** — spec
    [`feature-code-graph`](specs/planned/feature-code-graph.md): class diagram
    UML on demand (l'utente seleziona le classi, vicini diretti come nodi
-   fantasma), C++ come primo linguaggio, rendering con ImGuiDot. Primo passo:
-   esperimento libclang vs tree-sitter. Prerequisito: le due PR aperte su
+   fantasma), C++ come primo linguaggio, rendering con ImGuiDot. Fase 1 chiusa
+   ([ADR-017](reference/decisions/017-code-graph-extraction.md): tree-sitter +
+   risolutore di base, libclang opzionale). Prossimo: Fase 2 (modello,
+   estrattore in C++, generatore DOT), che richiede le due PR aperte su
    ImGuiDot mergiate.
 
 ### Più avanti
