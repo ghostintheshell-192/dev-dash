@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 session-archive.py
-Archives Claude Code session transcripts to .memory-bank/sessions/
+Archives Claude Code session transcripts, with credentials, keys and
+emails masked (redact_transcript.py), to .memory-bank/sessions/
 Called automatically by the SessionEnd hook.
 
 Input: JSON from stdin with session_id, transcript_path, cwd, reason
@@ -13,6 +14,9 @@ import shutil
 import sys
 from datetime import datetime
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from redact_transcript import redact_file  # noqa: E402  (sibling script)
 
 
 def find_project_root(start_path: Path) -> Path:
@@ -56,9 +60,13 @@ def main():
     filename = f"{timestamp}_{short_id}.jsonl"
     destination_path = destination_dir / filename
 
-    # Copy the transcript
+    # Copy the transcript, then mask credentials, keys and emails in the copy
     try:
         shutil.copy2(transcript_path, destination_path)
+        counts = redact_file(destination_path)
+        if counts:
+            summary = ", ".join(f"{k} {v}" for k, v in sorted(counts.items()))
+            print(f"Redacted: {summary}")
         print(f"Session archived to {project_root.name}/.memory-bank/sessions/{filename} (reason: {reason})")
     except Exception as e:
         print(f"Failed to copy transcript: {e}", file=sys.stderr)
