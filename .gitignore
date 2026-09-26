@@ -41,8 +41,7 @@ samples/
 .claude/*.local.md
 
 # C++ build artifacts
-# poc/.gitignore already handles poc/build/; these patterns catch stragglers
-# anywhere else in the tree (e.g., out-of-tree CMake builds, IDE-driven builds).
+# These patterns catch build output anywhere in the tree (e.g., out-of-tree CMake builds, IDE-driven builds).
 build/
 *.o
 *.a
@@ -53,3 +52,24 @@ CMakeFiles/
 cmake_install.cmake
 CTestTestfile.cmake
 compile_commands.json
+
+# Claude Code agents and harness runtime artifacts
+# Harness-injected runtime artifacts show up as sandbox char devices (not real
+# files), so the trailing-slash patterns miss them — match them bare too.
+.claude/agents
+.claude/launch.json
+.claude/loop.md
+.claude/output-styles
+.claude/routines
+.claude/scheduled_tasks.json
+.claude/workflows
+.mcp.json
+.tmp/
+# Agents run in git worktrees under the project (one per agent); the checkouts
+# are throwaway, the branches they produce are what gets kept.
+.claude/worktrees/
+.playwright-mcp/
+
+# Python bytecode (the doc generators in .development/scripts/)
+__pycache__/
+*.pyc

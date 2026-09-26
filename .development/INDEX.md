@@ -38,9 +38,8 @@
 - [feature-markdown-rendering.md](specs/archived/feature-markdown-rendering.md) — Markdown Rendering & Editing
 - [roadmap.md](specs/archived/roadmap.md) — Roadmap DevDash
 
-### specs/backlog/ (4 files)
+### specs/backlog/ (3 files)
 
-- [feature-code-graph.md](specs/backlog/feature-code-graph.md) — Code Graph — Dual-purpose codebase map
 - [feature-global-settings-coverage.md](specs/backlog/feature-global-settings-coverage.md) — Global Settings Coverage (parsing generalizzato dei JSON di .claude)
 - [feature-plugins-keybindings-coverage.md](specs/backlog/feature-plugins-keybindings-coverage.md) — Plugins & Keybindings Coverage
 - [feature-runtime-view-of-truth.md](specs/backlog/feature-runtime-view-of-truth.md) — Runtime View-of-Truth
@@ -54,8 +53,9 @@
 - [feature-snapshot-history.md](specs/implemented/feature-snapshot-history.md) — Snapshot & History
 - [feature-ui-overhaul.md](specs/implemented/feature-ui-overhaul.md) — feature-ui-overhaul
 
-### specs/planned/ (1 files)
+### specs/planned/ (2 files)
 
+- [feature-code-graph.md](specs/planned/feature-code-graph.md) — Code Graph — class diagram on demand
 - [feature-scaffold-templating.md](specs/planned/feature-scaffold-templating.md) — Scaffold Templating
 
 ### tech-debt/ (8 files)
