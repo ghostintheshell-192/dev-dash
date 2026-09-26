@@ -124,26 +124,28 @@ vista Compare.
       15.1.0 compilato dai sorgenti; richiede `bison` e `flex` sulla macchina
       di build e in CI).
 
-### Fase 1 — Esperimento: libclang vs tree-sitter
+### Fase 1 — Esperimento: libclang vs tree-sitter ✅
 
-Estrarre le classi di `app/src/` di dev-dash con entrambi e confrontare i
-risultati. Criteri: classi trovate, ereditarietà corretta, tipi dei membri
-risolti, tempo di estrazione, peso della dipendenza, requisiti (libclang ha
-bisogno di `compile_commands.json`).
+Chiusa il 2026-09-26 con
+[ADR-017](../../reference/decisions/017-code-graph-extraction.md).
+**Lettore di base: tree-sitter + risolutore di nomi nostro**, sempre
+disponibile, con i limiti dichiarati. **libclang: componente opzionale
+caricato a runtime**, per l'analisi avanzata di C, C++ e Objective-C.
 
-| | libclang | tree-sitter |
-|---|---|---|
-| Precisione | Semantica, come il compilatore | Sintattica: non risolve i nomi fra file |
-| Linguaggi | C, C++, Objective-C | Molti, una grammatica per linguaggio |
-| Requisiti | `compile_commands.json` | Nessuno, legge i file |
-| Peso | Pesante | Leggero |
-
-Esito: un **ADR** con la scelta e le misure.
+Misure su `app/src/`: i due approcci estraggono lo stesso modello (52 classi,
+121 relazioni); tree-sitter in 0,04 s, libclang in ~53 s. Sui sei casi
+difficili: libclang 6/6, tree-sitter col risolutore 5/6 (solo la macro resta
+fuori). Script e istruzioni per rifarlo in
+[`reference/technical/code-graph-extraction/`](../../reference/technical/code-graph-extraction/README.md).
 
 ### Fase 2 — Modello e generatore
 
 - [ ] Tipi in `core/`.
-- [ ] Estrattore in `services/` con la tecnologia scelta.
+- [ ] Interfaccia comune dell'estrattore in `services/` (ADR-017 §4).
+- [ ] Estrattore tree-sitter con il risolutore di nomi, portato in C++ dallo
+      script `extract_ts2.py` dell'esperimento. tree-sitter e la grammatica
+      C++ via CPM.
+- [ ] Relazioni incerte marcate nel modello (ADR-017 §2).
 - [ ] Generatore DOT: selezione + vicini fantasma → testo.
 - [ ] Test Catch2 del generatore (input modello, output DOT atteso).
 
@@ -179,8 +181,12 @@ le scelte di design (nuove API) si chiede prima a Dario.
 ## Out of Scope (per ora)
 
 - **Linguaggi diversi da C++**. Il C non ha classi (servirebbe un altro
-  diagramma, per esempio le dipendenze fra moduli). Altri linguaggi dipendono
-  dall'esito della Fase 1: con tree-sitter aggiungerli costa una grammatica.
+  diagramma, per esempio le dipendenze fra moduli). Con tree-sitter
+  (ADR-017) aggiungere un linguaggio costa una grammatica più le sue regole
+  di ricerca dei nomi. Per il C# l'analisi avanzata richiederebbe Roslyn, non
+  libclang.
+- **Analisi avanzata con libclang** (ADR-017 §3): componente opzionale, dopo
+  il lettore di base.
 - **Viste salvate**: una selezione con un nome, riapribile e sempre
   rigenerata dal codice. È documentazione che non invecchia; è il passo
   naturale dopo questa spec.
@@ -194,7 +200,10 @@ le scelte di design (nuove API) si chiede prima a Dario.
 
 ## Open questions
 
-- **OQ-1**: libclang o tree-sitter? Risposta dalla Fase 1.
+- ~~**OQ-1**: libclang o tree-sitter?~~ Risolta da ADR-017.
+- **OQ-1b**: come arriva libclang sulla macchina dell'utente (pacchetto di
+  sistema o download gestito da dev-dash) e come si presenta nell'interfaccia
+  l'offerta dell'analisi avanzata.
 - **OQ-2**: quali membri mostrare di default (solo pubblici? anche i
   protetti?), e se renderlo un'opzione del pannello.
 - **OQ-3**: osservazione dei file: inotify o controllo periodico? Va deciso
