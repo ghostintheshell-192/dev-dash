@@ -3,7 +3,7 @@
 **Data**: 2026-06-14
 **Status**: Accepted
 **Impact**: high
-**Sommario**: Articola la relazione con Germen Pulchrum come co-evoluzione su uno spettro temporale (copia con attribuzione oggi → `git subtree` poi → adozione wholesale tendenziale), abilita la contribuzione bidirezionale attiva (Valentina collaboratrice), e fissa che il modulo grafi nasca su Germen co-sviluppato ma vincolato a essere portabile (solo Dear ImGui, layout/render disaccoppiati).
+**Sommario**: Articola la relazione con Germen Pulchrum come co-evoluzione su uno spettro temporale (copia con attribuzione oggi → `git subtree` poi → adozione wholesale tendenziale), abilita la contribuzione bidirezionale attiva (Valentina collaboratrice), e fissa che il modulo grafi nasca su Germen co-sviluppato ma vincolato a essere portabile (solo Dear ImGui, layout/render disaccoppiati); un addendum 2026-09-26 registra che il modulo è nato come libreria autonoma di Dario (ImGuiDot, layout Graphviz) consumata via CPM.
 
 ## Contesto
 
@@ -98,6 +98,33 @@ della sessione di design dedicata al thread grafi.
    andrà gestita al momento del primo `git subtree` non banale. Non risolta
    qui: tracciata come nota per quel momento.
 
+## Addendum 2026-09-26: il modulo grafi è nato come libreria autonoma
+
+Il §3 prevedeva un modulo grafi dentro Germen, consumato da dev-dash con
+`git subtree`. Nel frattempo Dario ha fatto una scelta migliore: il modulo è
+nato come **libreria autonoma**,
+[ImGuiDot](https://github.com/DPD85/ImGuiDot), con un proprio repository e un
+modulo CPM. Germen la consuma via CPM (branch `funzionalità/diagrammi2`).
+
+Cosa cambia rispetto al testo sopra:
+
+- **Consumo via CPM, non `git subtree`.** dev-dash la consumerà come già fa con
+  `DPD85/imgui_md`. Il "Contro" sulla divergenza Conan/CPM non si applica a
+  questo modulo: la libreria porta con sé il proprio modulo CPM.
+- **Il vincolo di portabilità è rispettato**: ImGuiDot dipende solo da Dear
+  ImGui (draw list) e da Graphviz, niente infrastruttura di Germen.
+- **La domanda sul layout è chiusa: Graphviz.** ImGuiDot usa Graphviz per
+  parsing DOT e layout, e disegna da sé con la draw list. Lo split
+  `layout`/`render` del §3 corrisponde a Graphviz/ImGuiDot.
+- **La parte di dev-dash** (estrarre il modello dal codice e generare il DOT)
+  è definita in
+  [`feature-code-graph`](../../specs/planned/feature-code-graph.md) e in
+  [ADR-017](017-code-graph-extraction.md). Il confine fra le due parti è il
+  testo DOT.
+- **La contribuzione bidirezionale (§2) passa da PR su ImGuiDot** dal fork
+  `ghostintheshell-192/ImGuiDot`. Le prime due sono state aperte il
+  2026-09-26 (fix per GCC 13 e spazio del diagramma nel layout).
+
 ## Vedi anche
 
 - [ADR-008](008-pivot-to-cpp-imgui.md) — pivot a C++/ImGui, strategia di
@@ -107,3 +134,4 @@ della sessione di design dedicata al thread grafi.
   (il vincolo di disaccoppiamento del modulo grafi).
 - `app/THIRD_PARTY_NOTICES.md` — attribuzione operativa del codice portato.
 - `.development/specs/planned/feature-code-graph.md` — spec del code-graph.
+- [ADR-017](017-code-graph-extraction.md) — estrazione del code graph.
