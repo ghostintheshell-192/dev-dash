@@ -243,11 +243,12 @@ Le sessioni 2025-12 / 2026-01 hanno costruito la v0.2.x in Avalonia
 2. **`feature-scaffold-templating`** (planned, ADR-015) — prossima feature
    di prodotto.
 
-3. **Diagramma del progetto aperto** — obiettivo principale del thread
-   grafi (spec in backlog: `feature-code-graph`, da riscrivere per lo stack
-   attuale). Passa da ImGuiDot: seguire le PR aperte e la risposta di Dario
-   sui colori, poi definire cosa serve di più alla libreria (cluster, errori
-   di parsing esposti, interattività).
+3. **Diagramma del progetto aperto** — spec
+   [`feature-code-graph`](specs/planned/feature-code-graph.md): class diagram
+   UML on demand (l'utente seleziona le classi, vicini diretti come nodi
+   fantasma), C++ come primo linguaggio, rendering con ImGuiDot. Primo passo:
+   esperimento libclang vs tree-sitter. Prerequisito: le due PR aperte su
+   ImGuiDot mergiate.
 
 ### Più avanti
 

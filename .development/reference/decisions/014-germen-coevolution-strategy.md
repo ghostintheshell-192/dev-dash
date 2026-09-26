@@ -26,7 +26,7 @@ nuovi rendono utile esplicitarne la strategia *a regime*:
    lavorarci (su richiesta di dev-dash) ma si è arenato; la pagina ufficiale
    conferma "no graphing capabilities". È il pezzo mancante più rilevante per
    la roadmap di dev-dash (code-graph rendering, vedi ADR-008 § strategica e
-   `specs/backlog/feature-code-graph.md`).
+   `specs/planned/feature-code-graph.md`).
 
 I due stack restano **deliberatamente divergenti**: Germen usa Conan 2.x,
 monolite attorno a `Disegnatore`; dev-dash usa CPM puro, architettura layered
@@ -106,4 +106,4 @@ della sessione di design dedicata al thread grafi.
 - [ADR-010](010-architecture-design.md) — architettura layered di dev-dash
   (il vincolo di disaccoppiamento del modulo grafi).
 - `app/THIRD_PARTY_NOTICES.md` — attribuzione operativa del codice portato.
-- `.development/specs/backlog/feature-code-graph.md` — spec del code-graph.
+- `.development/specs/planned/feature-code-graph.md` — spec del code-graph.
