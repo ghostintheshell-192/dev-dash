@@ -26,7 +26,7 @@ This project follows a **spec-driven development** approach:
 1. **Specification First**: Write detailed specs in `.development/specs/`
 2. **Implementation**: Code according to spec
 3. **Documentation**: Keep `.development/CURRENT-STATUS.md` updated
-4. **Session Handoffs**: Use `.memory-bank/` for continuity between sessions
+4. **Session Handoffs**: Use `.memory-bank/journal/handoffs/` for continuity between sessions
 
 ## Architecture
 

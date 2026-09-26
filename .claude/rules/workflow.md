@@ -4,7 +4,19 @@
 
 At the beginning of every session, before starting any work:
 
-1. **Read the latest handoff** in `.memory-bank/` (the most recent `.md` file by date in the filename)
+0. **Make sure the journal is there.** Handoffs and transcripts live in a
+   private repository of their own, `ghostintheshell-192/dev-dash-memory`,
+   cloned at `.memory-bank/journal/` and ignored by dev-dash. On a local clone
+   it is set up once per machine. In a **cloud session** it is not: attach the
+   repository (push access) and clone only the handoffs:
+
+   ```bash
+   git clone --filter=blob:none --sparse \
+       https://github.com/ghostintheshell-192/dev-dash-memory .memory-bank/journal
+   git -C .memory-bank/journal sparse-checkout set handoffs
+   ```
+
+1. **Read the latest handoff** in `.memory-bank/journal/handoffs/` (the most recent `.md` file by date in the filename)
 2. **Read any linked files** referenced in the handoff (specs, idea notes,
    related handoffs)
 3. **Cross-reference** with `memory/MEMORY.md` for stable project facts
@@ -25,14 +37,20 @@ the `session-handoff` skill **before** replying farewell. Recognize phrases
 like "fermiamoci", "è tardi", "chiudiamo", "continuiamo domani", "ciao", "/exit",
 "/clear", explicit requests for a summary, and equivalent signals.
 
-The handoff lives in `.memory-bank/` with filename `YYYY-MM-DD-HHmm-<slug>.md`
+The handoff lives in `.memory-bank/journal/handoffs/` with filename `YYYY-MM-DD-HHmm-<slug>.md`
 and structure **Done / Next / Notes** (see recent entries). If the session
 touched multiple branches or merges, include commit hashes and branch names
 so the next session can resume git state without hunting. If anything was
 deferred or flagged for later, capture it in **Next** so it does not get lost.
 
+After writing it, **commit and push the journal** (`git -C .memory-bank/journal
+add -A && git -C .memory-bank/journal commit -m "..." && git -C
+.memory-bank/journal push`). In a cloud session this is the only way the
+handoff survives: the container is thrown away.
+
 Do not rely only on the `SessionEnd` hook in `.claude/settings.json` — that
-archives the raw transcript, it does not produce a semantic handoff.
+archives the raw transcript into `.memory-bank/journal/sessions/` (and pushes
+it), it does not produce a semantic handoff.
 
 ---
 

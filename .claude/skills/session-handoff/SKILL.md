@@ -12,7 +12,10 @@ When this skill is activated, create handoff notes for the current session.
 
 ### 1. Create a new handoff file
 
-**Location**: `.memory-bank/` (flat — no per-project subfolder)
+**Location**: `.memory-bank/journal/handoffs/` — the journal is a private
+repository of its own (`ghostintheshell-192/dev-dash-memory`), nested in the
+project and ignored by it. If `.memory-bank/journal/` is missing, set it up
+first as described in `.claude/rules/workflow.md` (*Session Start*, step 0).
 
 Each session gets its own file. Create a new file with this naming convention:
 
@@ -69,7 +72,19 @@ hashes in **Notes** so git state can be resumed without hunting.
 - Include specific file paths when relevant
 - Be concise but complete
 
-### 4. Confirm to the user
+### 4. Commit and push the journal
+
+```bash
+git -C .memory-bank/journal add --sparse -A
+git -C .memory-bank/journal commit -m "Handoff: <slug>"
+git -C .memory-bank/journal push
+```
+
+Not optional in a cloud session: the container is discarded when the session
+ends, and an unpushed handoff is lost. (`--sparse` lets the add work in the
+handoffs-only clone that cloud sessions use.)
+
+### 5. Confirm to the user
 
 After creating the file, confirm:
 
@@ -79,14 +94,15 @@ After creating the file, confirm:
 
 ## Example
 
-1. Create `.memory-bank/2026-01-21-2330-livmarkdown-migration.md`
+1. Create `.memory-bank/journal/handoffs/2026-01-21-2330-livmarkdown-migration.md`,
+   then commit and push the journal
 2. Confirm: "Created handoff notes: `2026-01-21-2330-livmarkdown-migration.md`. You can exit with /exit."
 
 ## Reading previous sessions
 
 At the start of a new session (see `.claude/rules/workflow.md`, *Session Start*):
 
-1. List files in `.memory-bank/`
+1. List files in `.memory-bank/journal/handoffs/`
 2. Read the most recent handoff (sorted by filename = sorted by date)
 3. Read any files it links to
 
