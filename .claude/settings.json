@@ -21,11 +21,15 @@
                 "hooks": [
                     {
                         "type": "command",
-                        "command": "python3 \"$(git rev-parse --show-toplevel)/.development/scripts/generate-index.py\" 2>/dev/null || true"
+                        "command": "bash \"$(git rev-parse --show-toplevel)/.development/scripts/generate-architecture.sh\" >/dev/null 2>&1 || true"
                     },
                     {
                         "type": "command",
-                        "command": "python3 \"$(git rev-parse --show-toplevel)/.development/scripts/update-tech-debt-index.py\" 2>/dev/null || true"
+                        "command": "python3 \"$(git rev-parse --show-toplevel)/.development/scripts/generate-index.py\" >/dev/null 2>&1 || true"
+                    },
+                    {
+                        "type": "command",
+                        "command": "python3 \"$(git rev-parse --show-toplevel)/.development/scripts/update-tech-debt-index.py\" >/dev/null 2>&1 || true"
                     }
                 ]
             }
@@ -35,7 +39,11 @@
                 "hooks": [
                     {
                         "type": "command",
-                        "command": "bash -c 'cat | python3 \"$(git rev-parse --show-toplevel)/.development/scripts/session-archive.py\"'"
+                        "command": "bash -c 'cat | python3 \"$(git rev-parse --show-toplevel)/.development/scripts/session-archive.py\"' || true"
+                    },
+                    {
+                        "type": "command",
+                        "command": "python3 \"$(git rev-parse --show-toplevel)/.development/scripts/update-tech-debt-index.py\" >/dev/null 2>&1 || true"
                     }
                 ]
             }

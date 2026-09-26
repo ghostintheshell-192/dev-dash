@@ -2,27 +2,24 @@
 * text=auto
 
 # Source code - always LF in repo
-*.cs text eol=lf
-*.csproj text eol=lf
-*.sln text eol=lf
-*.axaml text eol=lf
-*.xaml text eol=lf
+*.cpp text eol=lf
+*.h text eol=lf
+*.hpp text eol=lf
+*.c text eol=lf
+*.cmake text eol=lf
+*.py text eol=lf
 *.json text eol=lf
 *.xml text eol=lf
 *.yaml text eol=lf
 *.yml text eol=lf
 *.md text eol=lf
 *.txt text eol=lf
-*.props text eol=lf
-*.targets text eol=lf
 
 # Config files
 *.config text eol=lf
 *.editorconfig text eol=lf
 .gitignore text eol=lf
 .gitattributes text eol=lf
-nuget.config text eol=lf
-global.json text eol=lf
 
 # Scripts - platform specific
 *.sh text eol=lf
@@ -64,7 +61,5 @@ global.json text eol=lf
 *.ico binary
 *.pdf binary
 *.zip binary
-*.exe binary
-*.dll binary
-*.pdb binary
-*.nupkg binary
+*.ttf binary
+*.otf binary

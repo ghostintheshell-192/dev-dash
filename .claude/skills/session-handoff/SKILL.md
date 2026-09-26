@@ -12,7 +12,7 @@ When this skill is activated, create handoff notes for the current session.
 
 ### 1. Create a new handoff file
 
-**Location**: `.memory-bank/`
+**Location**: `.memory-bank/` (flat — no per-project subfolder)
 
 Each session gets its own file. Create a new file with this naming convention:
 
@@ -26,7 +26,6 @@ Each session gets its own file. Create a new file with this naming convention:
 
 - `2026-01-21-2330-release-v0-5-1.md`
 - `2026-01-19-1430-fix-export-bug.md`
-- `2025-12-10-0915-add-settings-page.md`
 
 ### 2. File content structure
 
@@ -39,13 +38,28 @@ Each session gets its own file. Create a new file with this naming convention:
 - Decisions made
 
 **Next**:
-- Suggested next steps
+- Suggested next steps, in priority order
 - Blockers identified
 
 **Notes**:
 - Useful context for next session
 - Gotchas to remember
 ```
+
+**Next** carries the remaining work **in priority order** — that ordering is the
+part the next session cannot reconstruct from `MEMORY.md` or the git log, so it
+is the most valuable thing in the file. If a task has a caveat ("ask before
+touching X"), it belongs here too.
+
+**If this session did not advance the project's task list** — config, tooling,
+documentation or scaffold work — say so explicitly at the top and **link the
+most recent handoff that does carry it**, instructing the next session to read
+that one as well. Otherwise the next session reads "we updated the config" and
+has no idea what the project is actually working on. Do not copy the list
+across: link it, so there is one authority and it cannot go stale.
+
+If the session touched branches or merges, record branch names and commit
+hashes in **Notes** so git state can be resumed without hunting.
 
 ### 3. Content guidelines
 
@@ -65,18 +79,16 @@ After creating the file, confirm:
 
 ## Example
 
-If you worked on dev-dash:
-
 1. Create `.memory-bank/2026-01-21-2330-livmarkdown-migration.md`
 2. Confirm: "Created handoff notes: `2026-01-21-2330-livmarkdown-migration.md`. You can exit with /exit."
 
 ## Reading previous sessions
 
-When starting a new session, to get context:
+At the start of a new session (see `.claude/rules/workflow.md`, *Session Start*):
 
 1. List files in `.memory-bank/`
-2. Read the most recent 1-3 handoff files (sorted by filename = sorted by date)
-3. Skip the `_archive-*` files unless deep history is needed
+2. Read the most recent handoff (sorted by filename = sorted by date)
+3. Read any files it links to
 
 ## Localized triggers
 

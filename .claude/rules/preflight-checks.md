@@ -4,8 +4,13 @@ Before making code modifications, verify:
 
 1. **Branch**: Never work on `main`/`develop`. Create feature branch if needed.
 2. **Uncommitted changes**: Note any pending changes before starting new work.
+3. **Context**: `.development/CURRENT-STATUS.md` for project state, and the
+   relevant spec in `.development/specs/` if the change touches the domain model.
 
 **Skip when:**
 
 - Read-only operations (exploring, reading, explaining code)
 - Already on a feature branch and continuing work
+
+> The latest handoff in `.memory-bank/` is read at **session start**, not here —
+> see `workflow.md`.

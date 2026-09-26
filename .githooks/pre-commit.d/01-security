@@ -1,11 +1,14 @@
 #!/bin/bash
-# Git Pre-Commit Hook - Security Scanner
-# Blocks commit of secrets and sensitive files
-# Created: 2025-10-10
-# Copied from: /data/repos/.git-hooks/pre-commit.d/01-security
+# Pre-commit module: security scanner.
 #
-# Location: .githooks/pre-commit.d/01-security
-# Configured via: git config core.hooksPath .githooks
+# Blocks staged secrets — by filename, by content pattern, and by directory —
+# before they reach a public repo. This one is stack-agnostic: it reads the
+# staged diff and nothing else, so it needs no adaptation to this project.
+#
+# Note on breadth: the filename patterns below are substring matches, so a
+# path merely *containing* "secret"/"credential"/"password" is blocked even if
+# it holds no secret. That is the intended bias — a false positive costs one
+# `--no-verify`, a false negative costs a leaked key.
 
 set -e
 

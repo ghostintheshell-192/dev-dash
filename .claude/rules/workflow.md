@@ -126,6 +126,13 @@ Sets `core.hooksPath .githooks` locally (overrides any global hooksPath),
 verifies prerequisites, and makes hooks/entry points executable. Without
 this, branch protection and the project hooks are NOT active.
 
+### Keeping CURRENT-STATUS.md current
+
+`.development/CURRENT-STATUS.md` is written by hand; no hook regenerates it. When a
+spec is completed (it moves to `specs/implemented/`), update it **on the same branch,
+before the merge into `develop`**: the phase summary, a *Recent Work* entry, and any
+roadmap item it closes.
+
 ## Investigation & Analysis Workflow
 
 When analyzing tech-debt, bugs, or investigating issues:
