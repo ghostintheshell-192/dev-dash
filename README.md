@@ -20,8 +20,9 @@ This directory contains the template structure for initializing new projects wit
     ├── preflight-checks.md     # Pre-work checklist
     └── workflow.md             # Git workflow
 
-.memory-bank/                    # Session handoff notes
-└── sessions/                    # JSONL transcript files
+.memory-bank/
+├── ideas/                       # Tangential idea notes (tracked)
+└── journal/                     # Private repo of its own: handoffs/ + sessions/ (not tracked)
 
 .scripts/                        # Automation scripts
 └── session-archive.py          # Archives session handoffs

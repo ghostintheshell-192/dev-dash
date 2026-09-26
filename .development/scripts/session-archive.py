@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
 """
 session-archive.py
-Archives Claude Code session transcripts to .memory-bank/sessions/
+Archives Claude Code session transcripts to the journal.
 Called automatically by the SessionEnd hook.
 
 Input: JSON from stdin with session_id, transcript_path, cwd, reason
-Output: Copies transcript to .memory-bank/sessions/YYYY-MM-DD_HHmm_<short-id>.jsonl
+Output: Copies transcript to .memory-bank/journal/sessions/YYYY-MM-DD_HHmm_<short-id>.jsonl
+        and, when the journal is a git repository, commits and pushes it.
+        Without a journal, falls back to .memory-bank/sessions/ (local only).
 """
 
 import json
 import shutil
+import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -41,7 +44,12 @@ def main():
 
     # Find project root
     project_root = find_project_root(cwd)
-    destination_dir = project_root / ".memory-bank" / "sessions"
+    journal = project_root / ".memory-bank" / "journal"
+    if (journal / ".git").exists():
+        destination_dir = journal / "sessions"
+    else:
+        journal = None
+        destination_dir = project_root / ".memory-bank" / "sessions"
     destination_dir.mkdir(parents=True, exist_ok=True)
 
     short_id = session_id[:8] if len(session_id) >= 8 else session_id
@@ -59,10 +67,34 @@ def main():
     # Copy the transcript
     try:
         shutil.copy2(transcript_path, destination_path)
-        print(f"Session archived to {project_root.name}/.memory-bank/sessions/{filename} (reason: {reason})")
+        print(f"Session archived to {destination_path.relative_to(project_root)} (reason: {reason})")
     except Exception as e:
         print(f"Failed to copy transcript: {e}", file=sys.stderr)
         sys.exit(1)
+
+    if journal is not None:
+        publish(journal, short_id)
+
+
+def publish(journal: Path, short_id: str) -> None:
+    """Commit and push the journal. Best effort: a session must be able to end
+    offline, so failures are reported and the transcript stays on disk."""
+    steps = [
+        # --sparse: cloud sessions clone only handoffs/, and sessions/ is outside the cone
+        ["git", "-C", str(journal), "add", "--sparse", "-A"],
+        ["git", "-C", str(journal), "commit", "-q", "-m", f"Archive session {short_id}"],
+        ["git", "-C", str(journal), "push", "-q"],
+    ]
+    for cmd in steps:
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+        except (OSError, subprocess.TimeoutExpired) as e:
+            print(f"Journal not published ({cmd[3]}): {e}", file=sys.stderr)
+            return
+        if result.returncode != 0:
+            print(f"Journal not published ({cmd[3]}): {result.stderr.strip()}", file=sys.stderr)
+            return
+    print("Journal committed and pushed")
 
 
 if __name__ == "__main__":

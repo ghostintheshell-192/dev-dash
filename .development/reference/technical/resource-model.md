@@ -189,7 +189,7 @@ Tre cose strutturalmente diverse.
 |---|---|---|---|---|---|---|---|
 | Conversation history → **Pilastro 5 (sez. L)** | G | `~/.claude/projects/<encoded-path>/*.jsonl` | jsonl | RO + indicizzata | n/a | A | Pilastro a sé, non adapter |
 | Checkpointing ⛔ fuori scope | P | gestito da Claude internamente | varies | — | n/a | A | Vedi nota F.2 |
-| Session handoff (manuale) | P | `.memory-bank/YYYY-MM-DD-HHmm-<slug>.md` | md | RW | n/a | U | Adapter standard |
+| Session handoff (manuale) | P | `.memory-bank/journal/handoffs/YYYY-MM-DD-HHmm-<slug>.md` | md | RW | n/a | U | Adapter standard |
 
 ### F.2 — Note
 

@@ -6,5 +6,9 @@ sessions/
 !README.md
 !_archive-*.md
 
+# Journal: handoffs + transcripts, a private repository of its own
+# (ghostintheshell-192/dev-dash-memory), nested here and never tracked by dev-dash.
+journal/
+
 # Tangential idea notes ARE tracked (durable artifacts, not session ephemera)
 !ideas/*.md
