@@ -140,12 +140,15 @@ target_include_directories(ImGui-Vulkan PUBLIC ${ImGui_SOURCE_DIR}/backends)
 # Pulled via CPM. Exports the `md4c` static library target. We disable the
 # md2html executable since we only need the parser. The companion target
 # `md4c-html` (HTML renderer) is also irrelevant for our ImGui rendering path.
+# EXCLUDE_FROM_ALL keeps MD4C's own install rules (static libs, headers,
+# CMake and pkg-config files) out of `cmake --install` and the CPack tarball.
 
 CPMAddPackage(
     NAME md4c
     VERSION 0.5.3
     GITHUB_REPOSITORY mity/md4c
     GIT_TAG release-0.5.3
+    EXCLUDE_FROM_ALL YES
     OPTIONS
         "BUILD_MD2HTML_EXECUTABLE OFF"
         "BUILD_SHARED_LIBS OFF"

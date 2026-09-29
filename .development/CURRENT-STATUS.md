@@ -1,6 +1,6 @@
 # DevDash - Current Status
 
-*Last updated: 2026-09-26*
+*Last updated: 2026-09-29*
 
 ## Project Phase
 
@@ -19,7 +19,8 @@ Stato attuale del codebase:
 - `app/` — build funzionante, layered (`core/services/ui/platform/app/`,
   ADR-010). `services/` è anche libreria statica `dev-dash-services`, linkata
   dai test senza stack grafico.
-- `app/tests/` — Catch2 v3: `SnapshotService`, `ApplyEngine`.
+- `app/tests/` — Catch2 v3: `SnapshotService`, `ApplyEngine`, `ConfigResolver`
+  (una cartella di prova per ogni regola di caricamento di Claude Code).
 - Versione `0.1.0` in `app/CMakeLists.txt`; nessun tag `v*` ancora creato.
 - `imgui_md` consumato via CPM dal fork `DPD85/imgui_md`, pinnato al commit
   `11832f4` (= tag `v1.0.0`).
@@ -32,6 +33,24 @@ Stato attuale del codebase:
   `git checkout legacy/avalonia-final`.
 
 ## Recent Work
+
+### 2026-09-29: Resolver allineato alle regole di caricamento di Claude Code
+
+Dall'audit di settembre (`.personal/`): la effective config view dava risposte
+sbagliate in casi comuni. Corretto il resolver in `services/`:
+
+- **CLAUDE.md**: letti anche `./CLAUDE.md` alla radice, `CLAUDE.local.md` e i
+  `CLAUDE.md` delle cartelle antenate, nell'ordine di caricamento. Due layer
+  nuovi: `Ancestor` e `Local` (sostituiscono `Workspace`, mai usato).
+- **Skill**: cartelle con `SKILL.md`, non più file `.md` sciolti.
+- **MCP**: letti da `~/.claude.json` (scope user e local) e `.mcp.json`, non
+  più da `settings.json`.
+- **Precedenza e shadowing** per MCP (local > project > user), skill
+  (user > project) e agent (project > user, identità dal `name:`): il
+  perdente resta visibile, attenuato, con "shadowed by …".
+- **Memoria**: codifica del percorso corretta (ogni carattere non
+  alfanumerico diventa `-`, verificato sul binario di Claude Code).
+- 11 test Catch2 nuovi (`test_config_resolver.cpp`).
 
 ### 2026-09-26: Riallineamento config + ImGuiDot upstream
 

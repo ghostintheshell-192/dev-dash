@@ -19,15 +19,40 @@ namespace dev_dash::services
     }
 
     std::vector<core::ConfigNode> SettingsParser::ParseMcpServers(
-        const std::filesystem::path& settingsPath,
+        const std::filesystem::path& jsonPath,
         core::ConfigLayerKind layer) const
     {
         std::vector<core::ConfigNode> result;
-        const auto json = TryLoad(settingsPath);
-        if (json.is_null() || !json.contains("mcpServers")) return result;
+        const auto json = TryLoad(jsonPath);
+        if (!json.is_object() || !json.contains("mcpServers")
+            || !json["mcpServers"].is_object())
+            return result;
 
         for (const auto& [name, _] : json["mcpServers"].items())
-            result.push_back({name, layer, settingsPath});
+            result.push_back({name, layer, jsonPath});
+
+        return result;
+    }
+
+    std::vector<core::ConfigNode> SettingsParser::ParseProjectMcpServers(
+        const std::filesystem::path& claudeJsonPath,
+        const std::string& projectKey,
+        core::ConfigLayerKind layer) const
+    {
+        std::vector<core::ConfigNode> result;
+        const auto json = TryLoad(claudeJsonPath);
+        if (!json.is_object() || !json.contains("projects")) return result;
+
+        const auto& projects = json["projects"];
+        if (!projects.is_object() || !projects.contains(projectKey)) return result;
+
+        const auto& entry = projects[projectKey];
+        if (!entry.is_object() || !entry.contains("mcpServers")
+            || !entry["mcpServers"].is_object())
+            return result;
+
+        for (const auto& [name, _] : entry["mcpServers"].items())
+            result.push_back({name, layer, claudeJsonPath});
 
         return result;
     }

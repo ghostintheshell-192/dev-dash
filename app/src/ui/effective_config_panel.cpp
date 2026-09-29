@@ -9,25 +9,15 @@ namespace dev_dash::ui
 {
     namespace
     {
-        const char* LayerLabel(core::ConfigLayerKind kind)
-        {
-            switch (kind)
-            {
-            case core::ConfigLayerKind::kGlobal:    return "Global";
-            case core::ConfigLayerKind::kWorkspace: return "Workspace";
-            case core::ConfigLayerKind::kProject:   return "Project";
-            }
-            return "?";
-        }
-
         ImVec4 LayerColor(core::ConfigLayerKind kind)
         {
             const Theme& t = CurrentTheme();
             switch (kind)
             {
-            case core::ConfigLayerKind::kGlobal:    return t.info;
-            case core::ConfigLayerKind::kWorkspace: return t.external;
-            case core::ConfigLayerKind::kProject:   return t.accent;
+            case core::ConfigLayerKind::kGlobal:   return t.info;
+            case core::ConfigLayerKind::kAncestor: return t.external;
+            case core::ConfigLayerKind::kProject:  return t.accent;
+            case core::ConfigLayerKind::kLocal:    return t.modified;
             }
             return t.text;
         }
@@ -119,16 +109,26 @@ namespace dev_dash::ui
 
                     ImGui::TableSetColumnIndex(0);
                     ImGui::PushStyleColor(ImGuiCol_Text, LayerColor(node.sourceLayer));
-                    ImGui::TextUnformatted(LayerLabel(node.sourceLayer));
+                    ImGui::TextUnformatted(core::LayerName(node.sourceLayer));
                     ImGui::PopStyleColor();
 
                     ImGui::TableSetColumnIndex(1);
                     ImGui::PushID(nodeId++);
+                    if (node.shadowed)
+                        ImGui::PushStyleColor(ImGuiCol_Text, CurrentTheme().textDim);
                     const bool clicked = ImGui::Selectable(
                         node.relativePath.c_str(),
                         false,
-                        ImGuiSelectableFlags_SpanAllColumns);
+                        ImGuiSelectableFlags_SpanAllColumns
+                            | ImGuiSelectableFlags_AllowOverlap);
+                    if (node.shadowed)
+                        ImGui::PopStyleColor();
                     ImGui::PopID();
+                    if (!node.note.empty())
+                    {
+                        ImGui::SameLine();
+                        ImGui::TextDisabled("(%s)", node.note.c_str());
+                    }
                     if (clicked && !node.sourceFilePath.empty())
                         _docHost.OpenPanel(node.sourceFilePath);
                 }
@@ -149,11 +149,6 @@ namespace dev_dash::ui
 
     void EffectiveConfigPanel::Refresh()
     {
-        core::ConfigLayer projectLayer{
-            core::ConfigLayerKind::kProject,
-            _project.path / ".claude",
-            "Project"
-        };
-        _config = _resolver.ResolveWithDefaultGlobal(_project, projectLayer);
+        _config = _resolver.ResolveWithDefaultGlobal(_project);
     }
 }
