@@ -115,6 +115,8 @@ For what each directory actually contains, see the Project Tree below.
 - `snapshot_service.h`
 
 ### app/src/ui
+- `diagram_preview_panel.cpp`
+- `diagram_preview_panel.h`
 - `document_panel_host.cpp`
 - `document_panel_host.h`
 - `effective_config_panel.cpp`

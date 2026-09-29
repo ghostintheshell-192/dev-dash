@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <iostream>
 
+#include <ImGuiDot.h>
 #include <imgui.h>
 #include <vulkan/vulkan.h>
 
@@ -37,6 +38,12 @@ namespace dev_dash::app
 
     App::~App()
     {
+        // The shell's diagram panel frees its Graphviz layout on destruction:
+        // it must go before the Graphviz context that ImGuiDot::CleanUp() frees.
+        _shell.reset();
+        if (_diagramsAvailable)
+            ImGuiDot::CleanUp();
+
         // ImGui::DestroyContext() asserts that all backends are already shut
         // down. ImGuiBackend::~ImGuiBackend() calls ImGui_ImplVulkan_Shutdown()
         // + ImGui_ImplSDL3_Shutdown(), but member destructors run AFTER the
@@ -101,6 +108,12 @@ namespace dev_dash::app
         _snapshotService    = std::make_unique<services::SnapshotService>(*_applyEngine);
         _scaffoldRepository = std::make_unique<services::ScaffoldRepository>();
         EnsureRuntimeDirs();
+
+        // Graphviz context for the diagrams. A failure only disables them.
+        _diagramsAvailable = ImGuiDot::Initialize();
+        if (!_diagramsAvailable)
+            _startupIssues.emplace_back(
+                "Graphviz could not be initialized — diagrams are disabled this session.");
 
         _projectSelectorPanel = std::make_unique<ui::ProjectSelectorPanel>(
             _window->Handle(),
@@ -175,7 +188,7 @@ namespace dev_dash::app
         _shell = std::make_unique<ui::Shell>(
             *_configResolver, *_scaffoldRepository, *_diffEngine,
             *_promoteEngine, *_applyEngine, *_snapshotService,
-            *_documentPanelHost, core::Project{path});
+            *_documentPanelHost, core::Project{path}, _diagramsAvailable);
         _appState = AppState::kWorkspace;
     }
 

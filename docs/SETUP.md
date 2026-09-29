@@ -16,6 +16,7 @@ How to build, install, and first-run DevDash on Linux.
 | Build system | **CMake ≥ 3.28** + **Ninja** | Presets need CMake 3.28. |
 | Graphics | **Vulkan**: loader + headers + a working driver (ICD) | `find_package(Vulkan)` needs the dev headers; the app needs a GPU driver at runtime. |
 | Misc | **Git**, network access | Dependencies are fetched from GitHub at configure time (CPM). |
+| Parser generators | **bison** + **flex** | Graphviz (diagrams, via ImGuiDot) is built from source and needs both. |
 
 SDL3 is **built from source** via CPM (Debian 12 doesn't ship `libsdl3-dev`
 yet), so the usual system headers SDL needs to build must be present —
@@ -25,7 +26,7 @@ On Debian/Ubuntu, an indicative set (exact names vary by release):
 
 ```bash
 sudo apt install \
-    build-essential cmake ninja-build git pkg-config \
+    build-essential cmake ninja-build git pkg-config bison flex \
     libvulkan-dev vulkan-validationlayers mesa-vulkan-drivers \
     libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxi-dev \
     libxfixes-dev libwayland-dev wayland-protocols libxkbcommon-dev

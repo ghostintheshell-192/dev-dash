@@ -24,6 +24,7 @@ namespace dev_dash::ui
     class Sidebar;
     class ScaffoldDiffPanel;
     class SnapshotHistoryPanel;
+    class DiagramPreviewPanel;
 
     // The workspace shell: top bar, navigation sidebar, central dockspace,
     // status bar. The sidebar holds structure (trees, lists — see Sidebar);
@@ -39,7 +40,8 @@ namespace dev_dash::ui
               services::ApplyEngine&        applyEngine,
               services::SnapshotService&    snapshotService,
               DocumentPanelHost&            docHost,
-              const core::Project&          project);
+              const core::Project&          project,
+              bool                          diagramsAvailable);
         ~Shell();
 
         void Render();
@@ -60,10 +62,12 @@ namespace dev_dash::ui
         std::unique_ptr<EffectiveConfigPanel> _configView;
         std::unique_ptr<ScaffoldDiffPanel>    _diffView;
         std::unique_ptr<SnapshotHistoryPanel> _historyView;
+        std::unique_ptr<DiagramPreviewPanel>  _diagramView;   // null when ImGuiDot is unavailable
 
         bool _configOpen  = true;
         bool _diffOpen    = false;
         bool _historyOpen = false;
+        bool _diagramOpen = false;
 
         float   _sidebarWidth       = 240.0f;
         ImGuiID _dockspaceId        = 0;

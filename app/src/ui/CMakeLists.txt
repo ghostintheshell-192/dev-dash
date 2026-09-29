@@ -25,4 +25,6 @@ target_sources(dev-dash
         file_diff_panel.cpp
         snapshot_history_panel.h
         snapshot_history_panel.cpp
+        diagram_preview_panel.h
+        diagram_preview_panel.cpp
 )

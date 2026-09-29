@@ -75,7 +75,8 @@ namespace dev_dash::app
         // 11. _documentPanelHost (needs loader + renderer; registers LinkHandler)
         // 12. _configResolver, _diffEngine, _promoteEngine, _applyEngine,
         //     _snapshotService, _scaffoldRepository
-        // 13. _projectSelectorPanel (needs window handle)
+        // 13. ImGuiDot::Initialize() -- Graphviz context, paired with CleanUp in ~App
+        // 14. _projectSelectorPanel (needs window handle)
         //
         // ----- Declaration order (drives LIFO destruction) -----
         // Last declared = first destroyed.
@@ -108,6 +109,9 @@ namespace dev_dash::app
         std::unique_ptr<ui::Shell>                   _shell;
 
         AppState _appState = AppState::kSelectingProject;
+
+        // ImGuiDot::Initialize() succeeded; paired with ImGuiDot::CleanUp() in ~App.
+        bool _diagramsAvailable = false;
 
         // Startup I/O problems (e.g. ~/.devdash not creatable). Surfaced in a
         // dismissable overlay so first-run failures are visible, not silent.
