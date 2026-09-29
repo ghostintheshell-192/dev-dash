@@ -52,6 +52,20 @@ sbagliate in casi comuni. Corretto il resolver in `services/`:
   alfanumerico diventa `-`, verificato sul binario di Claude Code).
 - 11 test Catch2 nuovi (`test_config_resolver.cpp`).
 
+### 2026-09-29: ImGuiDot nell'app + stile dei colori upstream
+
+- **ImGuiDot via CPM** (primo passo della Fase 2 di `feature-code-graph`),
+  fissato al branch `feature/style-colours` del fork in attesa del merge da
+  Dario; Graphviz 15 compilato dai sorgenti (`bison` e `flex` anche in CI).
+- **Pannello "Diagram"** (pulsante nella top bar): editor DOT e diagramma
+  ridisegnato mentre si scrive, con zoom. Serve a vedere i diagrammi col tema
+  prima del code graph.
+- **Sul fork**: `ImGuiDot::Style` come concordato con Dario (colori dallo stile
+  ImGui, sfondi e cornice trasparenti, `Push`/`PopStyleColour` come ImPlot) e
+  una correzione: il colore delle etichette era sempre nero.
+- Nuovo tech-debt `document-links-not-followed`: nei documenti si aprono solo
+  i link degli `@include`.
+
 ### 2026-09-26: Riallineamento config + ImGuiDot upstream
 
 - **Config riallineata con raid-sandbox** (che ne era un fork): skill

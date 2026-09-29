@@ -19,6 +19,7 @@ target_link_libraries(dev-dash
         dev-dash-services
         ImGui
         imgui_md
+        ImGui-Dot
         ImGui-SDL3
         ImGui-Vulkan
         vk-bootstrap::vk-bootstrap

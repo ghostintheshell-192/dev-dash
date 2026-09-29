@@ -31,8 +31,9 @@ only for now.
 
 ## Build
 
-Needs GCC ≥ 12, CMake ≥ 3.28, Ninja and the Vulkan development headers.
-Other dependencies (SDL3, Dear ImGui, MD4C…) are fetched at configure time.
+Needs GCC ≥ 12, CMake ≥ 3.28, Ninja, the Vulkan development headers, bison
+and flex. Other dependencies (SDL3, Dear ImGui, MD4C, ImGuiDot, Graphviz…) are
+fetched at configure time.
 
 ```bash
 git clone https://github.com/ghostintheshell-192/dev-dash.git
@@ -49,7 +50,8 @@ Full prerequisites, install and packaging: [docs/SETUP.md](docs/SETUP.md).
 C++20, [Dear ImGui](https://github.com/ocornut/imgui) (docking) on
 [SDL3](https://github.com/libsdl-org/SDL) + Vulkan,
 [MD4C](https://github.com/mity/md4c) with
-[imgui_md](https://github.com/DPD85/imgui_md) for markdown. The reasons behind
+[imgui_md](https://github.com/DPD85/imgui_md) for markdown,
+[ImGuiDot](https://github.com/DPD85/ImGuiDot) with Graphviz for diagrams. The reasons behind
 the stack are in
 [ADR-008](.development/reference/decisions/008-pivot-to-cpp-imgui.md).
 
