@@ -1,5 +1,7 @@
 #include "theme.h"
 
+#include <ImGuiDot.h>
+
 namespace dev_dash::ui
 {
     namespace
@@ -158,6 +160,14 @@ namespace dev_dash::ui
 
         if (uiScale != 1.0f)
             style.ScaleAllSizes(uiScale);
+
+        // Diagrams (ImGuiDot): by default they follow ImGuiCol_Border, which
+        // this theme keeps close to the background so panel edges stay quiet.
+        // Diagram lines need more contrast: use the dimmed text colour.
+        // Labels keep following ImGuiCol_Text.
+        ImGuiDot::Style& dot = ImGuiDot::GetStyle();
+        dot.colours[ImGuiDot::StyleColour_ShapeBorder] = t.textDim;
+        dot.colours[ImGuiDot::StyleColour_Arc]         = t.textDim;
     }
 
     const Theme& CurrentTheme()

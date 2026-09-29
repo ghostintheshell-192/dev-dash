@@ -85,7 +85,8 @@ draw list. Base of the code graph (`feature-code-graph`).
 - License: MIT
 - Pulled in at configure time via CPM, currently pinned to a commit of the
   fork <https://github.com/ghostintheshell-192/ImGuiDot> (branch
-  `feature/style-colours`) pending its merge upstream. Built with
+  `fix/multiline-labels`, on top of `feature/style-colours`) pending its
+  merge upstream. Built with
   `BUILD_IMGUI OFF`: it links dev-dash's own ImGui target.
 
 ## Graphviz
