@@ -13,6 +13,17 @@ namespace dev_dash::core
         std::string relativePath;       // display label (file path, server name, hook event…)
         ConfigLayerKind sourceLayer;
         std::filesystem::path sourceFilePath;  // file to open on click
+        bool shadowed = false;          // same name defined at a higher-precedence layer
+        std::string note;               // short qualifier shown next to the label
+
+        ConfigNode(std::string label,
+                   ConfigLayerKind layer,
+                   std::filesystem::path file)
+            : relativePath(std::move(label))
+            , sourceLayer(layer)
+            , sourceFilePath(std::move(file))
+        {
+        }
     };
 
     enum class ConfigSectionKind

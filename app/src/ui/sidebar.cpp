@@ -23,9 +23,10 @@ namespace dev_dash::ui
             const Theme& t = CurrentTheme();
             switch (kind)
             {
-            case core::ConfigLayerKind::kGlobal:    return t.info;
-            case core::ConfigLayerKind::kWorkspace: return t.external;
-            case core::ConfigLayerKind::kProject:   return t.accent;
+            case core::ConfigLayerKind::kGlobal:   return t.info;
+            case core::ConfigLayerKind::kAncestor: return t.external;
+            case core::ConfigLayerKind::kProject:  return t.accent;
+            case core::ConfigLayerKind::kLocal:    return t.modified;
             }
             return t.text;
         }
@@ -112,11 +113,21 @@ namespace dev_dash::ui
                 ImGui::PushID(nodeId++);
                 ImGui::TextColored(LayerColor(node.sourceLayer), "*");
                 ImGui::SameLine();
-                if (ImGui::Selectable(node.relativePath.c_str())
-                    && !node.sourceFilePath.empty())
+                if (node.shadowed)
+                    ImGui::PushStyleColor(ImGuiCol_Text, CurrentTheme().textDim);
+                const bool clicked = ImGui::Selectable(node.relativePath.c_str());
+                if (node.shadowed)
+                    ImGui::PopStyleColor();
+                if (clicked && !node.sourceFilePath.empty())
                     _callbacks.openDocument(node.sourceFilePath);
                 if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort))
-                    ImGui::SetTooltip("%s", node.sourceFilePath.string().c_str());
+                {
+                    if (node.note.empty())
+                        ImGui::SetTooltip("%s", node.sourceFilePath.string().c_str());
+                    else
+                        ImGui::SetTooltip("%s\n%s", node.note.c_str(),
+                                          node.sourceFilePath.string().c_str());
+                }
                 ImGui::PopID();
             }
             ImGui::TreePop();
@@ -420,12 +431,7 @@ namespace dev_dash::ui
 
     void Sidebar::Refresh()
     {
-        const core::ConfigLayer projectLayer{
-            core::ConfigLayerKind::kProject,
-            _project.path / ".claude",
-            "Project"
-        };
-        _config    = _configResolver.ResolveWithDefaultGlobal(_project, projectLayer);
+        _config    = _configResolver.ResolveWithDefaultGlobal(_project);
         _scaffolds = _scaffoldRepo.List();
         _scaffoldFiles.clear();
         _snapshots = _snapshotService.List(_projectSlug);

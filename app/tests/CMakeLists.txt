@@ -4,6 +4,7 @@
 
 add_executable(dev-dash-tests
     test_apply_engine.cpp
+    test_config_resolver.cpp
     test_snapshot_service.cpp
 )
 

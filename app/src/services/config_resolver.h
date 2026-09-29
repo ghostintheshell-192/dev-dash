@@ -1,6 +1,7 @@
 #pragma once
 
-#include "../core/config_layer.h"
+#include <filesystem>
+
 #include "../core/effective_config.h"
 #include "../core/project.h"
 #include "config_file_scanner.h"
@@ -20,9 +21,14 @@ namespace dev_dash::services
     public:
         ConfigResolver();
 
-        core::EffectiveConfig ResolveWithDefaultGlobal(
-            const core::Project&    project,
-            const core::ConfigLayer& projectLayer);
+        // Resolve against the current user's home directory ($HOME).
+        core::EffectiveConfig ResolveWithDefaultGlobal(const core::Project& project);
+
+        // Resolve with an explicit home directory: the user layer is
+        // homeDir/.claude, user and local MCP servers come from
+        // homeDir/.claude.json. An empty homeDir skips those sources.
+        core::EffectiveConfig Resolve(const core::Project& project,
+                                      const std::filesystem::path& homeDir);
 
     private:
         // Owned utilities — must be declared before adapters that hold refs to them.

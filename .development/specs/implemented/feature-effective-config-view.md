@@ -76,15 +76,19 @@ prima dover applicare uno scaffold o configurare alcunché**
 
 ### Funzionali
 
-- [ ] **Resolver di config**: legge `~/.claude/`, eventuale workspace dir
+- [x] **Resolver di config**: legge `~/.claude/`, eventuale workspace dir
   (se concept tornato), `<project>/.claude/` e `<project>/CLAUDE.md`.
   Produce un albero unificato con metadata di provenienza.
-- [ ] **Lineage**: ogni nodo dell'albero risolto ha un riferimento esplicito
-  al layer di provenienza (Global / Workspace / Project) e, se
+  *(2026-09-29: il "workspace" è diventato la catena delle cartelle
+  antenate; aggiunti `CLAUDE.local.md`, `~/.claude.json`, `.mcp.json`.)*
+- [x] **Lineage**: ogni nodo dell'albero risolto ha un riferimento esplicito
+  al layer di provenienza (Global / Ancestor / Project / Local) e, se
   applicabile, al file sorgente specifico.
-- [ ] **Override visibility**: quando un livello override un altro, la
+- [x] **Override visibility**: quando un livello override un altro, la
   vista lo segnala (la regola "vincente" mostra anche l'esistenza della
   regola "perdente" in un livello inferiore).
+  *(2026-09-29: per MCP, skill e agent. Le chiavi di `settings.json` non
+  sono ancora coperte: vedi `feature-global-settings-coverage`.)*
 - [ ] **Path configuration**: il path della config globale è il default
   `~/.claude/`, l'utente può override-arlo via config DevDash.
 
@@ -107,7 +111,7 @@ prima dover applicare uno scaffold o configurare alcunché**
   con badge di provenienza per ogni nodo.
 - [ ] Modificare una regola in `~/.claude/CLAUDE.md` esternamente, refresh
   → la vista riflette la modifica.
-- [ ] Una regola override-ata mostra entrambe le versioni (effettiva +
+- [x] Una regola override-ata mostra entrambe le versioni (effettiva +
   override-ata) con indicazione di quale livello vince.
 
 ## Technical Notes

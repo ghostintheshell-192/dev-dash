@@ -1,6 +1,9 @@
 #include "agents_adapter.h"
 #include "adapter_utils.h"
 
+#include <string>
+#include <vector>
+
 namespace dev_dash::services
 {
     AgentsAdapter::AgentsAdapter(ConfigFileScanner& scanner)
@@ -27,6 +30,19 @@ namespace dev_dash::services
 
         addLayer(global);
         addLayer(project);
+
+        // A subagent is identified by its frontmatter `name:`, falling back
+        // to the file name. Same name at two levels: the project's wins.
+        std::vector<std::string> names;
+        for (const auto& node : section.nodes)
+        {
+            std::string name = ReadFrontmatterField(node.sourceFilePath, "name");
+            names.push_back(name.empty() ? node.sourceFilePath.stem().string() : name);
+        }
+        MarkShadowed(section.nodes, names, [](core::ConfigLayerKind kind)
+        {
+            return kind == core::ConfigLayerKind::kProject ? 1 : 0;
+        });
 
         return section;
     }

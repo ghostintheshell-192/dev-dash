@@ -5,12 +5,29 @@
 
 namespace dev_dash::core
 {
+    // Where a configuration element comes from, from the widest scope to the
+    // narrowest. kAncestor covers the CLAUDE.md files of the directories above
+    // the project; kLocal the personal, per-project, uncommitted sources
+    // (CLAUDE.local.md, the "local" MCP scope in ~/.claude.json).
     enum class ConfigLayerKind
     {
         kGlobal,
-        kWorkspace,
-        kProject
+        kAncestor,
+        kProject,
+        kLocal
     };
+
+    inline const char* LayerName(ConfigLayerKind kind)
+    {
+        switch (kind)
+        {
+        case ConfigLayerKind::kGlobal:   return "Global";
+        case ConfigLayerKind::kAncestor: return "Ancestor";
+        case ConfigLayerKind::kProject:  return "Project";
+        case ConfigLayerKind::kLocal:    return "Local";
+        }
+        return "?";
+    }
 
     struct ConfigLayer
     {
