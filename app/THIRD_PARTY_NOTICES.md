@@ -113,7 +113,7 @@ Parses DOT and computes the diagram layout for ImGuiDot.
 ## CPM.cmake
 
 - Source: <https://github.com/cpm-cmake/CPM.cmake>
-- Version: 0.40.8
+- Version: 0.42.0
 - License: MIT
 - Downloaded on first configure into the build directory (see `cmake/get_cpm.cmake`).
 
