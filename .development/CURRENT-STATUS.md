@@ -1,11 +1,11 @@
 # DevDash - Current Status
 
-*Last updated: 2026-09-29*
+*Last updated: 2026-09-30*
 
 ## Project Phase
 
-**Phase**: Wedge completa + release readiness — in attesa del primo tag
-`v0.1.0`. Prossimo lavoro di prodotto: scaffold templating (ADR-015) e,
+**Phase**: Wedge completa, prima pre-release pubblicata (`v0.1.0`, non
+avviabile su Debian 12; `v0.1.1` la sostituisce). Prossimo lavoro di prodotto: scaffold templating (ADR-015) e,
 sul fronte grafi, la collaborazione con Dario su ImGuiDot.
 
 Il pivot a **C++20 + Dear ImGui + SDL3 + Vulkan** è validato e in produzione.
@@ -21,7 +21,9 @@ Stato attuale del codebase:
   dai test senza stack grafico.
 - `app/tests/` — Catch2 v3: `SnapshotService`, `ApplyEngine`, `ConfigResolver`
   (una cartella di prova per ogni regola di caricamento di Claude Code).
-- Versione `0.1.0` in `app/CMakeLists.txt`; nessun tag `v*` ancora creato.
+- Versione `0.1.1` in `app/CMakeLists.txt`. Tag `v0.1.0` su `main`
+  (pre-release GitHub); la release si compila su Ubuntu 22.04 con g++-12 e
+  controlla di restare entro glibc 2.36 / `GLIBCXX_3.4.30` (Debian 12).
 - `imgui_md` consumato via CPM dal fork `DPD85/imgui_md`, pinnato al commit
   `11832f4` (= tag `v1.0.0`).
 - Automazione a due livelli, agnostica rispetto allo stack (ADR-012):
@@ -33,6 +35,21 @@ Stato attuale del codebase:
   `git checkout legacy/avalonia-final`.
 
 ## Recent Work
+
+### 2026-09-30: Prima release, e la correzione per Debian 12
+
+- **PR #1** (`develop` → `main`) unita con merge commit; tag `v0.1.0`,
+  pubblicato come **pre-release**: `release.yml` passa `--prerelease` per i
+  tag `v0.*` e con suffisso `-`.
+- Il tarball di `v0.1.0` **non parte su Debian 12**: compilato su
+  `ubuntu-latest` (24.04) richiede `GLIBC_2.38` e `GLIBCXX_3.4.32`.
+  `release.yml` ora compila su `ubuntu-22.04` con g++-12, controlla le
+  versioni dei simboli del binario prima di impacchettare, e ha una prova a
+  secco (`workflow_dispatch`, tarball come artifact). Il progetto compila con
+  GCC 12 sotto `-Werror`. `v0.1.0` resta com'è; la correzione esce con
+  `v0.1.1`.
+- ImGuiDot: su richiesta di Dario la PR è divisa in due (stile, etichette su
+  più righe), entrambe dal fork. Il pin CPM resta su `7a60241` fino al merge.
 
 ### 2026-09-29: Resolver allineato alle regole di caricamento di Claude Code
 
@@ -273,9 +290,9 @@ Le sessioni 2025-12 / 2026-01 hanno costruito la v0.2.x in Avalonia
 
 ### Immediato
 
-1. **Primo tag `v0.1.0`** — l'acceptance 3 di `feature-release-readiness`
-   (release GitHub con tarball) è l'unica non ancora verificata: i workflow
-   si collaudano solo al primo tag su `main`.
+1. **Tag `v0.1.1`** — sostituisce `v0.1.0` come release utilizzabile. Poi
+   verificare a mano il tarball su Debian 12 (acceptance 3 di
+   `feature-release-readiness`).
 
 2. **`feature-scaffold-templating`** (planned, ADR-015) — prossima feature
    di prodotto.
