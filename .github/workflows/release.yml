@@ -3,34 +3,68 @@ name: Release
 on:
   push:
     tags: [ 'v*' ]
+  # Dry run: build, package and check the tarball without publishing it.
+  workflow_dispatch:
 
 jobs:
   release:
-    runs-on: ubuntu-latest
+    # The binary requires the glibc and libstdc++ it was built against, so the
+    # release is built on the oldest base we support, not on ubuntu-latest.
+    # Debian 12 (ADR-011 reference platform) ships glibc 2.36 and GCC 12's
+    # libstdc++ (GLIBCXX_3.4.30): Ubuntu 22.04 (glibc 2.35) with g++-12 stays
+    # within both.
+    runs-on: ubuntu-22.04
     permissions:
       contents: write   # needed to create the GitHub Release
+    env:
+      CC: gcc-12
+      CXX: g++-12
     steps:
       - uses: actions/checkout@v4
 
+      # cmake is not installed from apt: Ubuntu 22.04 ships 3.22, the project
+      # needs >= 3.28, and the runner image already provides a newer one.
       - name: Install build dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            cmake ninja-build bison flex \
+            ninja-build bison flex g++-12 \
             libvulkan-dev \
             libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxi-dev \
             libxfixes-dev libwayland-dev wayland-protocols libxkbcommon-dev
+          cmake --version
 
       - name: Build (release)
         run: .development/automation/build.sh linux-release
 
+      # Fail before publishing if the binary needs a newer glibc or libstdc++
+      # than the reference platform provides.
+      - name: Check runtime requirements (Debian 12)
+        run: |
+          bin=app/build/linux-release/src/dev-dash
+          newest() { objdump -T "$bin" | grep -o "$1_[0-9.]*" | sort -uV | tail -1; }
+          glibc=$(newest GLIBC); glibcxx=$(newest GLIBCXX)
+          echo "requires: $glibc, $glibcxx"
+          printf '%s\n' "$glibc" GLIBC_2.36 | sort -CV \
+            || { echo "::error::$glibc is newer than Debian 12's GLIBC_2.36"; exit 1; }
+          printf '%s\n' "$glibcxx" GLIBCXX_3.4.30 | sort -CV \
+            || { echo "::error::$glibcxx is newer than Debian 12's GLIBCXX_3.4.30"; exit 1; }
+
       - name: Package (CPack TGZ)
         run: (cd app/build/linux-release && cpack)
+
+      - name: Upload tarball (dry run)
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: dev-dash-linux-x86_64
+          path: app/build/linux-release/dev-dash-*-linux-x86_64.tar.gz
 
       # gh is preinstalled on GitHub runners; github.token has the contents:write
       # scope granted above. Tarball name comes from CPACK_PACKAGE_FILE_NAME.
       # SemVer: 0.y.z (initial development) and -suffixed tags are pre-releases.
       - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
