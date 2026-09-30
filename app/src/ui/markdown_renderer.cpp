@@ -11,14 +11,18 @@ namespace dev_dash::ui
 {
     MarkdownRenderer::MarkdownRenderer(const FontLibrary& fonts)
         : _fonts(fonts)
-        , _linkHandler([](std::string_view url)
-        {
-            const std::string urlStr(url);
-            if (!SDL_OpenURL(urlStr.c_str()))
-                std::cerr << "[error] SDL_OpenURL failed for '" << urlStr
-                          << "': " << SDL_GetError() << '\n';
-        })
+        , _linkHandler([](std::string_view url) { OpenExternalUrl(url); })
     {
+    }
+
+    bool MarkdownRenderer::OpenExternalUrl(std::string_view url)
+    {
+        const std::string urlStr(url);
+        if (SDL_OpenURL(urlStr.c_str()))
+            return true;
+        std::cerr << "[error] SDL_OpenURL failed for '" << urlStr
+                  << "': " << SDL_GetError() << '\n';
+        return false;
     }
 
     void MarkdownRenderer::SetLinkHandler(LinkHandler handler)

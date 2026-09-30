@@ -1,9 +1,9 @@
 ---
 type: bug
 priority: medium
-status: open
+status: resolved
 discovered: 2026-09-29
-resolved: null
+resolved: 2026-09-30
 related: []
 related_decision: null
 report: null
@@ -55,3 +55,23 @@ relativi conviene mostrarlo nella status bar.
 - **Code Locations**: `app/src/ui/document_panel_host.cpp` (`HandleLinkClick`),
   `app/src/ui/markdown_renderer.cpp` (gestore di default),
   `app/src/services/document_loader.cpp` (link `claudeimport://`)
+
+## Resolution
+
+Option A, 2026-09-30 (branch `fix/document-links-not-followed`).
+
+- `DocumentLoader::ResolveLink(documento, url)` in `services/` classifica il
+  link: `@include` (`claudeimport://`), documento markdown, altro file o
+  cartella, URL con schema, ancora, destinazione inesistente. I percorsi
+  relativi si risolvono rispetto al documento; `#frammento` e `?query` si
+  scartano, i `%XX` si decodificano, `file://` vale come percorso assoluto.
+  Coperto da `app/tests/test_document_loader.cpp`.
+- `DocumentPanelHost` registra il documento che sta disegnando
+  (`_currentDocument`) e agisce sul risultato: i `.md` si aprono in un
+  pannello, URL e file non markdown vanno all'applicazione di sistema
+  (`MarkdownRenderer::OpenExternalUrl`), ancore e errori finiscono nella
+  status bar (`SetStatusSink`, collegata dalla shell).
+- I file non markdown non si aprono nel viewer per scelta: lì verrebbero
+  resi come markdown (tech-debt `non-markdown-files-rendered-as-markdown`).
+- Resta aperto: lo scroll alla sezione per le ancore.
+

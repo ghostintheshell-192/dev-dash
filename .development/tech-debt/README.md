@@ -62,7 +62,6 @@ report: null  # Optional: link to archive/analysis/YYYY-MM-DD_report_agent-name.
 **High Priority:** None currently
 
 **Medium Priority:**
-- `document-links-not-followed.md` - I link nei documenti non si aprono
 - `line-level-promote.md` - Promote e Apply operano solo sull'intero file
 - `non-markdown-files-rendered-as-markdown.md` - File non-Markdown renderizzati come Markdown (script, config)
 
