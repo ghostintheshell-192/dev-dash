@@ -11,7 +11,7 @@ DevDash does not run Claude, wrap a terminal or duplicate what Claude Code
 already does. It reads the files Claude Code reads and shows them together,
 with where each one comes from.
 
-**Status:** early, pre-release (0.1.0). Built first as a personal tool; Linux
+**Status:** early, pre-release (0.1.1). Built first as a personal tool; Linux
 only for now.
 
 ## What it does
