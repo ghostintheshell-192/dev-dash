@@ -1,0 +1,9 @@
+target_sources(dev-dash
+    PRIVATE
+        project.h
+        config_layer.h
+        effective_config.h
+        scaffold.h
+        snapshot.h
+        diff_entry.h
+)

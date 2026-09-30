@@ -1,0 +1,47 @@
+#!/bin/bash
+# Pre-commit hook module: derived-docs regeneration (generic orchestrator,
+# ADR-012). Delegates to the project's docs-update entry point and stages
+# whatever generated files changed. No knowledge of generators or stack.
+
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
+ENTRY_POINT="$PROJECT_ROOT/.development/automation/docs-update.sh"
+
+if [[ ! -x "$ENTRY_POINT" ]]; then
+    exit 0
+fi
+
+echo -e "${BLUE}[04] Derived Docs${NC}"
+
+(cd "$PROJECT_ROOT" && "$ENTRY_POINT") | sed 's/^/  /'
+
+# Stage the regenerated files.
+GENERATED=(
+    ".development/ARCHITECTURE.md"
+    ".development/INDEX.md"
+    ".development/tech-debt/README.md"
+)
+
+# Add unconditionally: `git add` on an unchanged tracked file is a no-op, so
+# the pre-test bought nothing and got the create case wrong. It used to be
+# `git diff --quiet <file>`, which reports no difference for a file git does
+# not track yet — so whenever a generator CREATED its output rather than
+# updating it (a fresh project, a deleted file, a bootstrap), the new file was
+# left untracked and the hook announced the docs were already current.
+STAGED=()
+for file in "${GENERATED[@]}"; do
+    [[ -f "$PROJECT_ROOT/$file" ]] || continue
+    git add "$PROJECT_ROOT/$file"
+    STAGED+=("$PROJECT_ROOT/$file")
+done
+
+if [[ ${#STAGED[@]} -gt 0 ]] && ! git diff --cached --quiet -- "${STAGED[@]}" 2>/dev/null; then
+    echo -e "  ${GREEN}✓${NC} Regenerated docs staged"
+else
+    echo -e "  ${GREEN}✓${NC} Derived docs already current"
+fi
+
+exit 0

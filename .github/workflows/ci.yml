@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [ develop, main ]
+  pull_request:
+    branches: [ develop, main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # SDL3 is built from source (CPM), so its X11/Wayland build headers must
+      # be present. libvulkan-dev provides the headers + loader to link against
+      # (no GPU needed: the unit tests exercise services, not rendering).
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            cmake ninja-build bison flex \
+            libvulkan-dev \
+            libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxi-dev \
+            libxfixes-dev libwayland-dev wayland-protocols libxkbcommon-dev
+
+      # linux-ci = linux-debug + DEVDASH_WERROR=ON: warnings fail the build.
+      - name: Build (warnings as errors)
+        run: .development/automation/build.sh linux-ci
+
+      - name: Test
+        run: .development/automation/test.sh linux-ci

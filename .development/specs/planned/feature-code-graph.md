@@ -1,0 +1,222 @@
+---
+type: feature
+priority: must-have
+status: planned
+category: ui
+related: [feature-ui-overhaul]
+depends_on: []
+decided_by: ../../reference/decisions/014-germen-coevolution-strategy.md
+created: 2026-04-26
+updated: 2026-09-26
+---
+
+# Code Graph — class diagram on demand
+
+> **Riscritta il 2026-09-26** per lo stack attuale (C++/ImGui) e per la
+> libreria diagrammi di Dario, [ImGuiDot](https://github.com/DPD85/ImGuiDot).
+> La versione di aprile (pre-pivot, C#/Roslyn/Mermaid) è nella storia git.
+> Da quella sopravvive il principio: **un solo modello dei dati, più viste**.
+
+## Summary
+
+dev-dash mostra il **class diagram UML** del progetto aperto, generato dal
+codice e quindi sempre aggiornato. Il diagramma però **non è mai quello
+dell'intero progetto**: con centinaia di classi diventa un groviglio
+illeggibile. L'utente sceglie prima le classi che gli interessano da un elenco,
+poi clicca "Crea diagramma". Nel diagramma vede le classi scelte e, attenuati,
+i loro vicini diretti, così produttori e consumatori restano visibili e il grafo
+si può esplorare un passo alla volta.
+
+Il primo linguaggio è **C++**, che è anche il linguaggio di dev-dash, Germen e
+ImGuiDot: tre progetti reali su cui provarlo fin da subito.
+
+## Motivation
+
+- `ARCHITECTURE.md` è un albero di file: orienta, ma non mostra le
+  **relazioni** (chi eredita da chi, chi contiene chi, chi usa chi).
+- I diagrammi disegnati a mano invecchiano appena il codice cambia. Quelli
+  generati dal codice no, e questo è coerente con la filosofia
+  documentation-first di dev-dash.
+- Il class diagram è il livello "code" del modello C4. Resta la notazione di
+  riferimento a quel livello; il suo limite reale è la scala, non l'età, e la
+  selezione esplicita risolve proprio quello.
+
+## User stories
+
+- **US-1 — Scegliere cosa vedere**: nella sidebar vedo le classi del progetto
+  in un albero per namespace/cartella. Ogni voce ha una casella di spunta, a
+  qualunque livello (un clic seleziona un modulo intero), e in cima c'è un
+  campo di ricerca.
+- **US-2 — Creare il diagramma**: clicco "Crea diagramma" e si apre una
+  scheda ancorabile col class diagram delle classi selezionate.
+- **US-3 — Vedere i vicini**: nel diagramma compaiono anche i vicini diretti
+  (a un passo) delle classi selezionate, come **nodi fantasma**: attenuati,
+  solo col nome, senza membri. Posso nasconderli con un'opzione.
+- **US-4 — Esplorare**: cliccando un nodo fantasma lo aggiungo alla
+  selezione e il diagramma si aggiorna.
+- **US-5 — Sempre aggiornato**: se modifico un file del progetto, l'elenco e
+  il diagramma aperto si aggiornano senza che io debba chiederlo.
+
+## Design
+
+### Separazione delle responsabilità
+
+Il confine fra dev-dash e ImGuiDot è il **testo DOT**:
+
+- **dev-dash** estrae la struttura dal codice, la tiene come modello, genera il
+  DOT delle classi selezionate e dei loro vicini.
+- **ImGuiDot** riceve il DOT, calcola il layout con Graphviz e lo disegna con
+  la draw list di ImGui. Resta una libreria generica, senza nessuna conoscenza
+  di UML o di dev-dash.
+
+Questo soddisfa il vincolo di ADR-014 (modulo grafi portabile, layout e disegno
+separati) e chiude la domanda che l'ADR lasciava aperta fra Graphviz e un
+algoritmo di layout proprio: si usa Graphviz, tramite ImGuiDot.
+
+### Layer (ADR-010)
+
+| Layer | Cosa aggiunge |
+| ----- | ------------- |
+| `core/` | Tipi dei dati: classe (nome, namespace, file, membri), membro (nome, tipo, visibilità, metodo/attributo), relazione (da, a, tipo). |
+| `services/` | **Estrattore** (codice → modello, vedi Fase 1) e **generatore DOT** (modello + selezione → testo). Il generatore è una funzione pura, testabile con Catch2 senza stack grafico. |
+| `ui/` | Sezione della sidebar con l'albero delle classi; pannello del diagramma che usa ImGuiDot con l'interfaccia a stato in cache (`Update` quando cambia il DOT, `Draw` a ogni frame). |
+
+Segue la regola del `feature-ui-overhaul`: sidebar = struttura, area di lavoro
+= contenuto. La selezione a caselle riprende il modello d'interazione della
+vista Compare.
+
+### Notazione (UML pragmatico, non puristico)
+
+- **Riquadro classe** a scomparti: nome / attributi / metodi. Di default solo
+  i membri pubblici; molteplicità e nomi di ruolo omessi.
+- **Ereditarietà**: freccia con triangolo vuoto (`arrowhead=onormal`).
+- **Composizione / aggregazione**: rombo pieno / vuoto (`diamond` /
+  `odiamond`), dedotti dal tipo del membro (valore o `unique_ptr` →
+  composizione; riferimento o puntatore semplice → aggregazione).
+- **Dipendenza** (usa il tipo in una firma, senza esserne membro): freccia
+  tratteggiata (`style=dashed`).
+- **Nodi fantasma**: solo nome, colori con trasparenza.
+- I colori seguono il tema di dev-dash ("Grafite & Ambra") e vengono scritti
+  esplicitamente nel DOT, così il risultato non dipende dai default di
+  ImGuiDot.
+
+### Aggiornamento e reattività
+
+- L'estrazione gira **in un thread di background**: l'interfaccia non si
+  blocca mai (principio "responsiveness as requirement").
+- Dopo la prima estrazione completa, si ri-estrae **solo il file modificato**.
+- Graphviz non è thread-safe, quindi `ImGuiDot::Update` gira sul thread
+  principale. Con la selezione i grafi restano piccoli e il layout è
+  istantaneo.
+- dev-dash oggi non osserva i file del progetto: serve un meccanismo di
+  notifica (inotify su Linux, oppure un controllo periodico delle date di
+  modifica). La scelta si fa in Fase 3.
+
+## Work Breakdown
+
+### Fase 0 — Prerequisiti
+
+- [ ] PR `fix/gcc13-sqrt` mergiata in ImGuiDot. Senza, la CI di dev-dash
+      (GCC 13 su `ubuntu-latest`) non compila la libreria.
+- [ ] PR `fix/diagram-layout-size` mergiata. Senza, il diagramma non occupa
+      spazio nel layout e non scorre.
+- [ ] ImGuiDot aggiunto ad `app/external/CMakeLists.txt` via CPM (Graphviz
+      15.1.0 compilato dai sorgenti; richiede `bison` e `flex` sulla macchina
+      di build e in CI).
+
+### Fase 1 — Esperimento: libclang vs tree-sitter ✅
+
+Chiusa il 2026-09-26 con
+[ADR-017](../../reference/decisions/017-code-graph-extraction.md).
+**Lettore di base: tree-sitter + risolutore di nomi nostro**, sempre
+disponibile, con i limiti dichiarati. **libclang: componente opzionale
+caricato a runtime**, per l'analisi avanzata di C, C++ e Objective-C.
+
+Misure su `app/src/`: i due approcci estraggono lo stesso modello (52 classi,
+121 relazioni); tree-sitter in 0,04 s, libclang in ~53 s. Sui sei casi
+difficili: libclang 6/6, tree-sitter col risolutore 5/6 (solo la macro resta
+fuori). Script e istruzioni per rifarlo in
+[`reference/technical/code-graph-extraction/`](../../reference/technical/code-graph-extraction/README.md).
+
+### Fase 2 — Modello e generatore
+
+- [ ] Tipi in `core/`.
+- [ ] Interfaccia comune dell'estrattore in `services/` (ADR-017 §4).
+- [ ] Estrattore tree-sitter con il risolutore di nomi, portato in C++ dallo
+      script `extract_ts2.py` dell'esperimento. tree-sitter e la grammatica
+      C++ via CPM.
+- [ ] Relazioni incerte marcate nel modello (ADR-017 §2).
+- [ ] Generatore DOT: selezione + vicini fantasma → testo.
+- [ ] Test Catch2 del generatore (input modello, output DOT atteso).
+
+### Fase 3 — Interfaccia
+
+- [ ] Sezione della sidebar: albero per namespace/cartella, caselle a più
+      livelli, ricerca.
+- [ ] Pannello diagramma con ImGuiDot, opzione "mostra vicini".
+- [ ] Estrazione in background e aggiornamento incrementale (osservazione
+      dei file).
+
+### Fase 4 — Esplorazione
+
+- [ ] Clic su un nodo fantasma → lo aggiunge alla selezione. Richiede
+      l'hit-testing in ImGuiDot (vedi sotto).
+
+## Contributi a ImGuiDot
+
+Il class diagram UML ha bisogno di funzioni che ImGuiDot oggi non ha. Vanno
+proposte a Dario come PR sul suo repo (ADR-014: contribuzione attiva
+upstream), dal fork `ghostintheshell-192/ImGuiDot`, una modifica per PR. Per
+le scelte di design (nuove API) si chiede prima a Dario.
+
+| Serve per | In DOT | Stato in ImGuiDot | Tipo di contributo |
+|---|---|---|---|
+| Riquadro a scomparti | `shape=record` oppure label HTML | ❌ | Feature grossa: si segue la geometria dei campi calcolata da Graphviz |
+| Dipendenza tratteggiata | `style=dashed` | ❌ stili di linea ignorati | Feature piccola, comportamento definito da Graphviz |
+| Clic su un nodo | — | ❌ | **Nuova API**: da discutere con Dario prima di scrivere codice |
+| Errori di parsing leggibili | — | ❌ silenziosi | **Nuova API**: da discutere |
+| Cluster (raggruppamento per modulo) | `subgraph cluster_*` | ❌ | Feature media; utile per le viste future a livello modulo |
+| Colori coerenti col tema | — | In discussione con Dario | Non bloccante: dev-dash scrive i colori esplicitamente nel DOT |
+
+## Out of Scope (per ora)
+
+- **Linguaggi diversi da C++**. Il C non ha classi (servirebbe un altro
+  diagramma, per esempio le dipendenze fra moduli). Con tree-sitter
+  (ADR-017) aggiungere un linguaggio costa una grammatica più le sue regole
+  di ricerca dei nomi. Per il C# l'analisi avanzata richiederebbe Roslyn, non
+  libclang.
+- **Analisi avanzata con libclang** (ADR-017 §3): componente opzionale, dopo
+  il lettore di base.
+- **Viste salvate**: una selezione con un nome, riapribile e sempre
+  rigenerata dal codice. È documentazione che non invecchia; è il passo
+  naturale dopo questa spec.
+- **Vista testuale per Claude** dallo stesso modello (idea della versione di
+  aprile: una lista di adiacenza caricata a inizio sessione, per consultare le
+  relazioni invece di cercare nei file). Il modello di questa spec la rende
+  possibile; va pesata sul costo in token.
+- **Diagrammi a livello modulo** (stile C4) e altri tipi di diagramma.
+- **Layout stabile**: aggiungendo una classe Graphviz ricalcola tutto e i nodi
+  si spostano. Per la prima versione si accetta.
+
+## Open questions
+
+- ~~**OQ-1**: libclang o tree-sitter?~~ Risolta da ADR-017.
+- **OQ-1b**: come arriva libclang sulla macchina dell'utente (pacchetto di
+  sistema o download gestito da dev-dash) e come si presenta nell'interfaccia
+  l'offerta dell'analisi avanzata.
+- **OQ-2**: quali membri mostrare di default (solo pubblici? anche i
+  protetti?), e se renderlo un'opzione del pannello.
+- **OQ-3**: osservazione dei file: inotify o controllo periodico? Va deciso
+  anche pensando a Windows (ADR-011: Linux-first, non Linux-only).
+- **OQ-4**: dove vive il modello estratto: solo in memoria o anche su disco
+  (cache per non ri-estrarre tutto a ogni avvio)?
+
+## Related
+
+- [ADR-014](../../reference/decisions/014-germen-coevolution-strategy.md) —
+  co-evoluzione con Germen, modulo grafi portabile, contribuzione upstream.
+- [ADR-010](../../reference/decisions/010-architecture-design.md) — layer.
+- [resource-model.md](../../reference/technical/resource-model.md) — la
+  discussione di aprile da cui è nata la prima versione.
+- [ImGuiDot](https://github.com/DPD85/ImGuiDot) — libreria di Dario (Graphviz
+  → ImGui).

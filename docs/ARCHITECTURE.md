@@ -1,247 +1,159 @@
-# Architettura DevDash
+# DevDash Architecture
 
-## Concetti chiave
-
-### Workspace
-
-Un workspace e un contenitore logico di progetti con caratteristiche comuni:
-
-| Workspace | Path | Tipo contenuto |
-|-----------|------|----------------|
-| Coding | `/data/repos` | Repository software |
-| Writing | `/data/documenti/Vault@Racconti` | Progetti creativi |
-
-I workspace sono configurati nelle impostazioni DevDash. Ogni workspace ha una struttura standard:
-
-```
-workspace/
-├── CLAUDE.md              # Entry point per Claude Code
-├── .rules/                # Standards e bootstrap (hidden folder)
-│   ├── bootstrap-coding.md    # oppure bootstrap-writing.md
-│   ├── user-preferences.yaml
-│   ├── core/
-│   ├── workflows/
-│   └── coding-standards/
-└── .memory-bank/          # Memoria operativa (hidden folder)
-    ├── progetti/          # Handoff sessioni (per coding)
-    └── sessioni/          # Archivio conversazioni
-```
-
-### Workspace Model
-
-Il modello `Workspace.cs` rappresenta un workspace con le seguenti proprieta:
-
-| Proprieta | Tipo | Descrizione |
-|-----------|------|-------------|
-| `Id` | int | Identificativo univoco |
-| `Name` | string | Nome del workspace |
-| `Path` | string | Path assoluto |
-| `Type` | string | "coding" o "writing" |
-| `Icon` | string | Emoji icona |
-| `HasRules` | bool | Presenza di `.rules/` |
-| `HasMemoryBank` | bool | Presenza di `.memory-bank/` |
-| `HasClaudeMd` | bool | Presenza di `CLAUDE.md` |
-| `BootstrapType` | string? | Tipo rilevato da `bootstrap-*.md` |
-
-### Progetto
-
-Un progetto vive dentro un workspace e puo avere:
-
-- **`.personal/`** - Documentazione privata per spec-driven development
-- **`docs/`** - Documentazione pubblica/ufficiale
-- **`.claude/`** - Configurazione Claude Code locale (opzionale)
-- **`CLAUDE.md`** - Istruzioni Claude Code a livello progetto
-
-### Struttura .personal
-
-```
-.personal/
-├── INDEX.md              # Punto di ingresso, overview progetto
-├── CURRENT-STATUS.md     # Stato attuale, cosa stavo facendo
-├── active/               # Lavoro in corso
-│   ├── current-notes.md
-│   └── tech-debt/        # Debito tecnico da risolvere
-├── specs/                # Specifiche funzionalita
-│   ├── planned/          # In roadmap
-│   ├── backlog/          # Idee parcheggiate
-│   └── completed/        # Archivio
-├── reference/            # Materiale di riferimento
-│   └── decisions/        # ADR (Architecture Decision Records)
-└── business/             # Note marketing, monetizzazione
-```
+A public, conceptual overview. For the exact API surface see
+[.development/api-design.md](../.development/api-design.md); for the live file
+tree see [.development/ARCHITECTURE.md](../.development/ARCHITECTURE.md).
 
 ---
 
+## What DevDash is
 
-## Sistema configurazioni Claude Code
+DevDash is a documentation-first project dashboard that collaborates with
+Claude Code. It **manages documentation and context** — the project's own
+docs plus the Claude Code configuration that applies to it — and deliberately
+does **not** duplicate Claude Code's execution/automation capabilities.
 
-DevDash visualizza e permette di modificare le configurazioni Claude Code distribuite su tre livelli:
+> DevDash manages documentation and context. Claude Code manages execution
+> and automation.
 
-### Livello 1: Global (`~/.claude/`)
-
-```
-~/.claude/
-├── settings.json          # Configurazione Claude Code (schema strict)
-├── user-profile.md        # Profilo utente, preferenze comunicazione
-├── hooks/                 # Hook globali (session archiving, etc.)
-├── agents/                # Agenti riutilizzabili
-│   ├── code-reviewer.md
-│   ├── security-auditor.md
-│   └── api-designer.md
-└── commands/              # Comandi slash personalizzati
-```
-
-### Livello 2: Workspace (`.rules/` - portabile)
-
-```
-workspace/
-├── CLAUDE.md              # Entry point, regole workspace-wide
-└── .rules/                # Hidden folder, portabile con il workspace
-    ├── bootstrap-coding.md    # Bootstrap per sessioni coding
-    ├── bootstrap-writing.md   # Bootstrap per sessioni writing
-    ├── user-preferences.yaml  # Preferenze workflow
-    ├── goto.yaml              # Language detection routing
-    ├── core/
-    │   ├── principles.md
-    │   └── security-boundaries.md
-    ├── workflows/
-    │   ├── git.md
-    │   ├── session.md
-    │   └── personal-folder.md
-    └── coding-standards/
-        ├── general-principles.md
-        ├── csharp-dotnet.md
-        └── ...
-```
-
-### Livello 3: Project (ogni repo)
-
-```
-progetto/
-├── CLAUDE.md              # Override specifici progetto
-└── .claude/
-    ├── settings.json      # Settings progetto (read-only)
-    └── .mcp.json          # MCP servers configurati
-```
-
-### Effective Configuration
-
-Le configurazioni si combinano con precedenza: **Project > Workspace > Global**.
-
-DevDash mostrera la "effective configuration" risultante dal merge dei tre livelli.
+It is a Linux-first desktop application: **C++20 + Dear ImGui + SDL3 +
+Vulkan**. (The original prototype was C#/Avalonia; the pivot is recorded in
+[ADR-008](../.development/reference/decisions/008-pivot-to-cpp-imgui.md).)
 
 ---
 
-## Memory Bank
+## Layered architecture
 
-La `.memory-bank/` e la memoria operativa del workspace:
+The code under `app/src/` is split into layers with a strict dependency
+direction (ADR-010). Each layer may only depend on the ones above it in this
+table:
 
-```
-.memory-bank/
-├── progetti/           # Per workspace coding
-│   └── [project].md    # Handoff note per progetto
-└── sessioni/           # Archivio conversazioni (auto-saved by hook)
-```
+| Layer | Path | Responsibility | Depends on |
+|-------|------|----------------|------------|
+| **core** | `core/` | Pure value types (header-only), no behavior | nothing (just `<filesystem>`, `<string>`, …) |
+| **services** | `services/` | Domain logic: file I/O, config resolution, diff/apply/promote, snapshots | core |
+| **ui** | `ui/` | ImGui panels, shell, fonts, markdown renderer | core, services, ImGui |
+| **platform** | `platform/` | SDL3/Vulkan/ImGui plumbing | SDL/Vulkan/ImGui — **not** ui/services |
+| **app** | `app/` | Composition root + main loop | all layers |
 
-Questa cartella e:
-- **Hidden** (prefisso `.`) per non inquinare la root
-- **Portabile** con il workspace
-- **Opzionale** - DevDash funziona anche senza
+The boundary is mechanically checkable: no `#include "ui/..."` in
+`platform/`, no `#include "platform/..."` in `services/` or `core/`. The test
+of the design: swapping the rendering backend should leave `core/` and
+`services/` untouched. This separation is also what lets the services compile
+into a standalone `dev-dash-services` library that the unit tests link
+without the graphics stack.
 
----
+Two conventions worth knowing:
 
-## Integrazione Vault@Claude
-
-Per avere una vista unificata di tutte le configurazioni e documentazione, usiamo symlink verso un vault Obsidian:
-
-```
-/data/documenti/Vault@Claude/
-├── _sistema/                          # Symlink config Claude
-│   ├── global/          → ~/.claude/
-│   ├── workspace/       → /data/repos/CLAUDE.md + .rules/
-│   └── progetti/
-│       ├── sheet-atlas/ → /data/repos/sheet-atlas/.claude/
-│       └── ...
-│
-├── progetti/                          # Symlink .personal di ogni progetto
-│   ├── sheet-atlas/     → /data/repos/sheet-atlas/.personal/
-│   ├── government-feed/ → /data/repos/government-feed/.personal/
-│   └── ...
-│
-└── _automazione/
-    ├── validate-config.py
-    └── effective-config.py
-```
-
-### Vantaggi
-
-1. **Obsidian come viewer** - Navigazione, ricerca, graph view gratis
-2. **MCP integration** - Claude Code/Desktop possono accedere via plugin
-3. **Backup centralizzato** - Un vault = tutto il contesto
-4. **Zero duplicazione** - Symlink, non copie
-
-### Setup symlink (Linux/macOS)
-
-```bash
-# Creare la struttura base
-mkdir -p /data/documenti/Vault@Claude/{_sistema/{global,workspace,progetti},progetti}
-
-# Symlink configurazioni
-ln -s ~/.claude /data/documenti/Vault@Claude/_sistema/global
-ln -s /data/repos/CLAUDE.md /data/documenti/Vault@Claude/_sistema/workspace/
-ln -s /data/repos/.rules /data/documenti/Vault@Claude/_sistema/workspace/
-
-# Symlink .personal di ogni progetto
-ln -s /data/repos/sheet-atlas/.personal /data/documenti/Vault@Claude/progetti/sheet-atlas
-```
+- **"Panel as viewmodel"** instead of MVVM: each panel class in `ui/` holds
+  its own state and receives services by constructor injection. No separate
+  ViewModel layer.
+- **Concrete services, no virtual interfaces**: tests use real temp dirs. A
+  service is promoted to a virtual interface only when a real seam appears.
 
 ---
 
+## Domain model (core/)
 
-## Integrazione Claude Code
+The pure value types that everything else operates on:
 
-### Modalita previste
-
-1. **Launch con contesto** - Aprire Claude Code con `.personal/INDEX.md` gia caricato
-2. **Issue → Task** - Convertire issue selezionata in prompt Claude Code
-3. **Config editing** - Modificare configurazioni e vedere effective config live
-
-### MCP (Model Context Protocol)
-
-Con il plugin [obsidian-claude-code-mcp](https://github.com/iansinnott/obsidian-claude-code-mcp):
-
-- Claude Code auto-discover il vault via WebSocket (porta 22360)
-- Claude Desktop accede via HTTP/SSE
-- Entrambi possono leggere/scrivere nel vault
-
-Questo permette a DevDash di "comandare" Claude Code indirettamente, modificando file che Claude legge.
+| Type | Represents |
+|------|------------|
+| `Project` | The directory under inspection + presence flags (`.claude/`, `.git`, `CLAUDE.md`). |
+| `ConfigLayer` | A labeled directory holding Claude config: Global / Workspace / Project. |
+| `EffectiveConfig` | The merged view, organized into **sections** (see below). |
+| `Scaffold` | A user-managed config template under `~/.devdash/scaffolds/<name>/`. |
+| `Snapshot` | A point-in-time backup under `~/.devdash/snapshots/<slug>/<timestamp>/`. |
+| `DiffEntry` / `LineDiff` | File-level and line-level diff results between two trees. |
 
 ---
 
-## DevDash Desktop vs VS Code Extension
+## Claude Code configuration model
 
-DevDash esistera in due versioni con filosofie distinte:
+Claude Code configuration is spread across three layers, merged with
+**Project > Workspace > Global** precedence:
 
-| | Desktop (Avalonia) | Extension (VS Code) |
-| --- | --- | --- |
-| **Claude Code** | Delegato a terminale esterno | Delegato all'estensione ufficiale |
-| **Focus** | Docs + context + workspace management | Solo: docs + context + workflow |
-| **Autonomia** | Standalone | Companion di Claude Code Extension |
+| Layer | Location |
+|-------|----------|
+| Global | `~/.claude/` |
+| Workspace | `<workspace>/.claude/` (optional) |
+| Project | `<project>/.claude/`, `CLAUDE.md` |
 
-L'integrazione tra le versioni avviene tramite **filesystem** (CLAUDE.md, .rules/, .personal/), non tramite API. Entrambe leggono/scrivono gli stessi file.
+DevDash resolves these into an **`EffectiveConfig`**: instead of one flat
+file list, the result is grouped into **section-aware** categories, each
+carrying whether it is always in Claude's context or loaded on demand:
 
-**Ordine di sviluppo**: Desktop prima (validazione workflow), Extension dopo.
+| Section (`ConfigSectionKind`) | What it gathers | Always in context? |
+|------|-----------------|--------------------|
+| `kClaudeMd` | `CLAUDE.md` + its `@`-includes (transitive) | yes |
+| `kRules` | `.claude/rules/*.md` | yes |
+| `kMemory` | memory files | yes |
+| `kSkills` | available skills | on demand |
+| `kAgents` | reusable agents | on demand |
+| `kMcpServers` | MCP servers from `settings.json` | on demand |
+| `kHooks` | hooks from `settings.json` | on triggering event |
 
-Per dettagli completi, vedere [ADR-006](../.personal/reference/decisions/006-desktop-vs-vscode-extension.md).
+Each section is produced by a dedicated **adapter** in `services/`
+(`ClaudeMdAdapter`, `RulesAdapter`, `MemoryAdapter`, …) on top of two shared
+helpers: `ConfigFileScanner` (directory scan + `@`-include resolution) and
+`SettingsParser` (MCP servers + hooks out of `settings.json`).
+`ConfigResolver` orchestrates the adapters into the final `EffectiveConfig`.
 
 ---
 
-## Decisioni architetturali
+## Scaffolds, snapshots, and the apply/promote flow
 
-Le ADR (Architecture Decision Records) sono documentate in `.personal/reference/decisions/`:
+DevDash treats config as something you can template, back up, and move
+between a project and a scaffold:
 
-- [001 - Stack tecnologico (C# + Avalonia)](../.personal/reference/decisions/001-stack-tecnologico.md)
-- [002 - Symlink vs Copy](../.personal/reference/decisions/002-symlink-vs-copy.md)
-- [003 - Issue tracking locale](../.personal/reference/decisions/003-issue-tracking-locale.md)
-- [006 - DevDash Desktop vs VS Code Extension](../.personal/reference/decisions/006-desktop-vs-vscode-extension.md)
-- [007 - Rimozione Terminale Embedded](../.personal/reference/decisions/007-rimozione-terminale-embedded.md)
+- **Apply** (`ApplyEngine`): write selected files from a source tree (a
+  scaffold or a snapshot) into a target project. Auto-snapshots the target
+  first unless told otherwise.
+- **Promote** (`PromoteEngine`): the reverse direction — copy selected files
+  from a project *back* into a scaffold, so a refined project config becomes a
+  reusable template.
+- **Snapshot** (`SnapshotService`): save / list / restore / prune
+  point-in-time backups. Restore is "apply with forced overwrite", and takes
+  a `pre-restore` auto-snapshot first.
+- **Diff** (`DiffEngine`): file-by-file (and line-level) comparison between
+  two trees, feeding the Compare view.
+
+The **source of truth** for the bundled scaffold is versioned under
+`rsrc/project-scaffold/` (ADR-013); on the dev machine `~/.devdash/scaffolds/`
+symlinks to it, so dogfooding writes straight into the git working tree.
+
+---
+
+## Rendering and the main loop
+
+`platform/` owns the SDL3 window, the Vulkan context/swapchain/frame
+resources, and the ImGui backend. `App` (the composition root) wires
+everything in a fixed construction order and runs the frame loop; the
+declaration order of its members drives LIFO destruction, which matters for
+callbacks (e.g. the markdown renderer's link handler must outlive nothing
+that captures it). The full construction/destruction graph is documented in
+[api-design.md](../.development/api-design.md#cross-cutting).
+
+The `ui/` shell provides the workspace: top bar, resizable navigation
+sidebar (structure: config by layer, scaffolds, history), a central
+dockspace (content: documents, diffs, tables), and a persistent status bar.
+**Sidebar = structure, workspace = content.**
+
+---
+
+## Key decisions
+
+The Architecture Decision Records live in
+[.development/reference/decisions/](../.development/reference/decisions/):
+
+- [ADR-001 — Technology stack](../.development/reference/decisions/001-stack-tecnologico.md)
+- [ADR-002 — Symlink vs copy](../.development/reference/decisions/002-symlink-vs-copy.md)
+- [ADR-003 — Local issue tracking](../.development/reference/decisions/003-issue-tracking-locale.md)
+- [ADR-006 — Desktop vs VS Code extension](../.development/reference/decisions/006-desktop-vs-vscode-extension.md)
+- [ADR-007 — Removal of the embedded terminal](../.development/reference/decisions/007-rimozione-terminale-embedded.md)
+- [ADR-008 — Pivot to C++ / ImGui](../.development/reference/decisions/008-pivot-to-cpp-imgui.md)
+- [ADR-009 — Markdown library (imgui_md)](../.development/reference/decisions/009-markdown-library-imgui-md.md)
+- [ADR-010 — Layered architecture design](../.development/reference/decisions/010-architecture-design.md)
+- [ADR-011 — Release and distribution](../.development/reference/decisions/011-release-and-distribution.md)
+- [ADR-012 — Codebase-agnostic automation](../.development/reference/decisions/012-codebase-agnostic-automation.md)
+- [ADR-013 — Scaffold source of truth](../.development/reference/decisions/013-scaffold-source-of-truth.md)

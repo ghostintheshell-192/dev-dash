@@ -1,7 +1,9 @@
 # ADR-002: Symlink vs Copy per aggregazione vault
 
 **Data**: 2024-12-02
-**Status**: Accettata
+**Status**: Accepted
+**Impact**: medium
+**Sommario**: Aggrega la documentazione nel Vault@Claude tramite symlink ai file originali, anziché copia fisica o aggregazione virtuale, per avere single source of truth e zero sync.
 
 ## Contesto
 

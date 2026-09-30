@@ -1,32 +1,52 @@
 # Architecture Decision Records
 
-This folder contains key architectural decisions made for the project.
+This folder records the key architectural decisions made for the project.
+Start a new ADR by copying [`_TEMPLATE.md`](_TEMPLATE.md).
 
 ## Format
 
-Each decision document should include:
+Each ADR carries a frontmatter block followed by prose sections. See
+`_TEMPLATE.md` for the canonical layout.
 
-1. **Date**: When the decision was made
-2. **Status**: Active, Superseded, Deprecated
-3. **Context**: Why the decision was needed
-4. **Decision**: What was decided
-5. **Rationale**: Why this option was chosen
-6. **Consequences**: Trade-offs and implications
+**Frontmatter** (in this order):
 
-## Naming Convention
+| Field | Required | Notes |
+| ----- | -------- | ----- |
+| `**Data**` | yes | Date the decision was made (`YYYY-MM-DD`). |
+| `**Status**` | yes | One of: `Proposed`, `Accepted`, `Superseded`, `Deprecated`. |
+| `**Impact**` | yes | One of: `critical`, `high`, `medium`, `low` (see scale below). |
+| `**Sommario**` | yes | One sentence — *what* the ADR decides. Extracted verbatim by the generators. |
+| `**Supersedes**` / `**Sub-decisione di**` / `**Superseded by**` | optional | Cross-links, placed after `Sommario`. |
 
-`NNN-short-description.md`
+**Body sections**: `## Contesto`, `## Decisione`, `## Rationale`,
+`## Conseguenze`. (Body prose is in Italian; only the `Status` *values* are
+English.)
 
-Example: `001-error-handling-philosophy.md`
+## Impact scale
+
+`Impact` controls how far a decision reaches into the agent's context — it is
+the contract behind two generators (`generate-claude-config.sh`,
+`generate-architecture.sh`):
+
+| Level | Meaning | Reaches context as |
+| ----- | ------- | ------------------ |
+| `critical` | Rule that must never be violated. | Loaded **every session** into `key-decisions.md`, flagged as a constraint. |
+| `high` | Context that shapes ongoing decisions. | Loaded **every session** into `key-decisions.md`. |
+| `medium` | Relevant, consult on demand. | Indexed only (title + Sommario in the ARCHITECTURE.md list). |
+| `low` | Historical or narrow record (e.g. a superseded ADR). | Indexed only. |
+
+The auto-load threshold is **`Impact ≥ high`**: `critical` + `high` decisions
+are digested into `.claude/key-decisions.md`, which `.claude/CLAUDE.md`
+pulls in via `@include` at session start.
+
+## Naming convention
+
+`NNN-short-description.md` — e.g. `010-architecture-design.md`.
 
 ## Index
 
-| ADR | Title | Status |
-|-----|-------|--------|
-| [001](001-stack-tecnologico.md) | Stack tecnologico - C# + Avalonia | Active |
-| [002](002-symlink-vs-copy.md) | Symlink vs Copy | Active |
-| [003](003-issue-tracking-locale.md) | Issue tracking locale | Active |
-| 004 | Claude Integration (read-only per config native) | *Pending* |
-| 005 | Path configurabili | *Pending* |
-| [006](006-desktop-vs-vscode-extension.md) | DevDash Desktop vs VS Code Extension | Active |
-| [007](007-rimozione-terminale-embedded.md) | Rimozione del Terminale Embedded | Active |
+The up-to-date catalogue of ADRs — title, `Impact`, and one-line Sommario —
+is **auto-generated** in
+[`.development/ARCHITECTURE.md`](../../ARCHITECTURE.md) under *Key Decisions*,
+produced by `generate-architecture.sh`. It is not duplicated here, to avoid
+the drift this hand-maintained table used to accumulate.

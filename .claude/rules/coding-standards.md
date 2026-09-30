@@ -1,64 +1,61 @@
-﻿# Coding Standards
+# Coding Standards
 
-## Language-Specific Standards
+## C++ Conventions
 
+Applies to all C++ code under `app/`, including code ported from
+external sources (Germen Pulchrum). Borrowed code is translated to these
+conventions on the way in — the source project's style is not preserved.
 
+| Element | Convention | Example |
+| ------- | ---------- | ------- |
+| File names | `snake_case.cpp` / `snake_case.h` | `document_loader.cpp` |
+| Types (class, struct, enum) | `PascalCase` | `class DocumentLoader` |
+| Member functions & free functions | `PascalCase` | `LoadResult Load(...)` |
+| Local variables & parameters | `camelCase` | `std::filesystem::path filePath` |
+| Private member fields | `_camelCase` | `VkDevice _device;` |
+| Public struct fields | `camelCase` | `std::string relativePath;` |
+| Constants (`constexpr`) | `kPascalCase` | `constexpr int kMaxFramesInFlight = 3;` |
+| Namespaces | `snake_case` (sparingly; nest only when needed) | `namespace dev_dash::platform` |
+| Indentation | 4 spaces | — |
+| Braces | Allman (open brace on its own line) | — |
+| `std::` qualification | Always explicit; never `using namespace std` | `std::printf(...)` |
 
-## General Principles
+**Why these choices**:
 
-### Naming Conventions
+- `PascalCase` for types and member functions: consistent across the codebase;
+  also keeps symmetry if C bindings are ever needed.
+- The `k`-prefix for constants comes from the Google C++ style — it makes a
+  constant visually distinct from a type at the call site, which matters in
+  ImGui/Vulkan code where types and constants are densely interleaved.
+- `camelCase` for public struct fields (extends the local/param rule) — aligns
+  with `MarkdownFonts` established style in the PoC.
+- Allman braces and 4-space indent match the style established in
+  `app/src/main.cpp`.
 
-- Use clear, descriptive names
-- Follow language conventions for casing
-- Avoid abbreviations unless widely understood
-- Be consistent within the codebase
+When porting Italian-named identifiers from Germen, translate to English
+*and* re-style in one pass — never carry over the Italian/source style.
 
-### Code Style
+## Layer Boundary Rules
 
-- Use automated formatters where available
-- Follow the principle of least surprise
-- Keep functions/methods focused and small
-- Prefer composition over inheritance
+- `core/` ← nothing: only `<filesystem>`, `<vector>`, `<string>`, `<optional>`.
+- `services/` ← `core/`.
+- `ui/` ← `core/`, `services/`, `<imgui.h>`, `<imgui_md.h>`.
+- `platform/` ← SDL3, Vulkan, vk-bootstrap, `<imgui.h>`. **NOT** `ui/` or `services/`.
+- `app/` ← all layers (composition root).
 
-### File Organization
+No `#include "ui/..."` in `platform/*.h`. No `#include "platform/..."` in
+`services/*.h` or `core/*.h`.
 
-- One primary entity per file
-- Group related functionality
-- Use consistent directory structure
-- Keep imports/dependencies organized
+## Dependency Injection
 
-### Documentation
+Services are injected by reference in constructors. No null checks needed for
+references. Raw pointer (`T*`) signals optional non-owning dependency.
 
-- **XML/JSDoc comments**: Required for public APIs
-- **Language**: English only
-- **Focus**: Explain "why", not "what"
-- Keep comments up-to-date with code changes
-
-### Error Handling
-
-- Handle errors explicitly
-- Use appropriate error types
-- Provide meaningful error messages
-- Log errors with sufficient context
-
-### Testing
-
-- Write tests for new features
-- Maintain existing test coverage
-- Use descriptive test names
-- Follow AAA pattern (Arrange, Act, Assert)
-
-### Dependencies
-
-- Keep dependencies minimal
-- Use well-maintained libraries
-- Pin versions for reproducibility
-- Document why each dependency is needed
-
-## Code Review Guidelines
-
-- Review for logic and architecture, not just syntax
-- Check for security issues
-- Verify tests are adequate
-- Ensure documentation is updated
-- Be constructive in feedback
+```cpp
+class DocumentPanelHost
+{
+public:
+    DocumentPanelHost(services::DocumentLoader& loader,
+                      MarkdownRenderer& renderer);
+};
+```

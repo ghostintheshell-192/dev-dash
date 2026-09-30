@@ -1,14 +1,52 @@
-﻿{
-  "hooks": {
-    "SessionEnd": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash -c 'cat | python3 \"$PWD/.scripts/session-archive.py\"'"
-          }
+{
+    "permissions": {
+        "allow": [
+            "Bash(find:*)",
+            "Bash(done)",
+            "Bash(grep:*)",
+            "Bash(cmake:*)",
+            "Bash(ninja:*)",
+            "Bash(make:*)",
+            "Bash(ctest:*)",
+            "WebSearch",
+            "Bash(gh run view:*)",
+            "Bash(gh pr view:*)",
+            "Bash(gh issue view:*)"
         ]
-      }
-    ]
-  }
+    },
+    "hooks": {
+        "SessionStart": [
+            {
+                "matcher": "startup",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "bash \"$(git rev-parse --show-toplevel)/.development/scripts/generate-architecture.sh\" >/dev/null 2>&1 || true"
+                    },
+                    {
+                        "type": "command",
+                        "command": "python3 \"$(git rev-parse --show-toplevel)/.development/scripts/generate-index.py\" >/dev/null 2>&1 || true"
+                    },
+                    {
+                        "type": "command",
+                        "command": "python3 \"$(git rev-parse --show-toplevel)/.development/scripts/update-tech-debt-index.py\" >/dev/null 2>&1 || true"
+                    }
+                ]
+            }
+        ],
+        "SessionEnd": [
+            {
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "bash -c 'cat | python3 \"$(git rev-parse --show-toplevel)/.development/scripts/session-archive.py\"' || true"
+                    },
+                    {
+                        "type": "command",
+                        "command": "python3 \"$(git rev-parse --show-toplevel)/.development/scripts/update-tech-debt-index.py\" >/dev/null 2>&1 || true"
+                    }
+                ]
+            }
+        ]
+    }
 }

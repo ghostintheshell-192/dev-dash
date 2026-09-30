@@ -22,33 +22,53 @@ NC='\033[0m'
 # Modify this section for each project.
 
 PROJECT_NAME="DevDash"
-FILE_GLOB="*.cs"
-SKIP_FILES=("AssemblyInfo.cs")
-EXCLUDE_DIRS=("obj" "bin")
+FILE_GLOBS=("*.cpp" "*.cc" "*.cxx" "*.h" "*.hpp" "*.hxx")
+SKIP_FILES=()
+EXCLUDE_DIRS=("obj" "bin" "build" "external" "cpm-cache" ".git")
 EXTRACT_CMD="$SCRIPT_DIR/extract-summary.sh"
 MAX_DESC_LENGTH=200
 DOCS_REF="\`docs/\`"
 
-# Source directories to scan
-SOURCE_DIRS=("$PROJECT_ROOT/src")
-# Base for relative path calculation
-REL_BASE="$PROJECT_ROOT/src"
+# Source directories to scan.
+# poc/src/ — original PoC (reference, kept intact post-refactor)
+# app/src/ — layered skeleton (real project, post ADR-010 split)
+SOURCE_DIRS=("$PROJECT_ROOT/poc/src" "$PROJECT_ROOT/app/src")
+# Base for relative path calculation (the printed "### dirname" headers).
+REL_BASE="$PROJECT_ROOT"
 
-# Project-specific header content
+# Project-specific header content (Layer Overview block).
+#
+# This is the one part of ARCHITECTURE.md that is NOT derived from source: it is
+# printed verbatim, above a Project Tree that IS regenerated on every commit.
+# That asymmetry is invisible in the output — hence the HTML marker below, which
+# ships with it into the file.
+#
+# Keep each row to what the layer is *for*. Two things must never come back:
+# a list of the classes the layer holds (the tree lists them, correctly, forty
+# lines further down) and any claim about implementation status (CURRENT-STATUS.md
+# tracks that, with dates). Both drifted here and went unnoticed for months
+# precisely because the surrounding page looked auto-generated. Purpose does not
+# drift. Layer dependency rules are not repeated here either: they live in
+# .claude/rules/coding-standards.md, which is auto-loaded into every session too.
 generate_project_header() {
     cat << 'EOF'
-## Layer Overview
+<!-- Hand-written: this block is not regenerated, unlike the Project Tree below.
+     Keep it to what each layer is for — never a census of its files, never
+     implementation status. See generate-architecture.sh for why. -->
 
-| Layer | Directory | Purpose |
-|-------|-----------|---------|
-| **Models** | `DevDash/Models/` | Domain entities, enums, records |
-| **ViewModels** | `DevDash/ViewModels/` | MVVM ViewModels with CommunityToolkit.Mvvm |
-| **Views** | `DevDash/Views/` | Avalonia AXAML views and controls |
-| **Services** | `DevDash/Services/` | Business logic, filesystem access, scaffold |
-| **Converters** | `DevDash/Converters/` | XAML value converters |
-| **Styles** | `DevDash/Styles/` | XAML style dictionaries |
+## Layer Overview (`app/src/` — layered architecture, ADR-010)
 
-**Pattern**: MVVM — Views bind to ViewModels, Services injected via constructor.
+| Layer | Path | Purpose |
+|-------|------|---------|
+| Entry point | `app/src/main.cpp` | `int main` → `dev_dash::app::App().Run()` |
+| Composition root | `app/src/app/` | Owns every layer via `unique_ptr`; fixes construction order and drives the main loop. |
+| Platform | `app/src/platform/` | SDL3/Vulkan/ImGui plumbing: window and surface lifetime, swapchain, per-frame resources, deferred destruction. |
+| UI | `app/src/ui/` | ImGui panels ("panel as viewmodel", ADR-010), font library, markdown rendering on `imgui_md`. |
+| Services | `app/src/services/` | Domain logic: document loading, effective-configuration resolution, diff/apply, snapshots, scaffolds. |
+| Core | `app/src/core/` | Pure value types, header-only. |
+| PoC (reference) | `poc/src/` | Original monolithic `Renderer` class — kept as reference pre-refactor. |
+
+For what each directory actually contains, see the Project Tree below.
 EOF
 }
 
@@ -70,6 +90,42 @@ is_skipped_file() {
     return 1
 }
 
+# Populate the global array FIND_NAME_ARGS with `find` -name predicates, -o
+# between each pattern.
+#
+# Array form, spliced quoted into `find` — NOT a string through `eval`. With
+# `eval` the shell performs pathname expansion on the unquoted globs against
+# the CWD (the repo root): a source file sitting there that matches a glob
+# makes `find` search for that literal filename instead (or abort on a
+# malformed expression when several match), so the tree comes out empty while
+# the script still reports success. See the tech-debt note
+# `scaffold-architecture-eval-glob-expansion` (Option A).
+build_find_name_args() {
+    FIND_NAME_ARGS=()
+    local first=1
+    for glob in "${FILE_GLOBS[@]}"; do
+        if [ $first -eq 1 ]; then
+            FIND_NAME_ARGS+=(-name "$glob")
+            first=0
+        else
+            FIND_NAME_ARGS+=(-o -name "$glob")
+        fi
+    done
+}
+
+# True when at least one existing SOURCE_DIRS entry actually holds files.
+# Used to tell "nothing to scan" (legitimate empty tree) apart from "the scan
+# matched nothing" (the failure mode above), which must never pass silently.
+source_dirs_populated() {
+    for source_dir in "${SOURCE_DIRS[@]}"; do
+        [[ -d "$source_dir" ]] || continue
+        if [[ -n "$(find "$source_dir" -type f 2>/dev/null | head -n 1)" ]]; then
+            return 0
+        fi
+    done
+    return 1
+}
+
 generate_adr_list() {
     if [[ ! -d "$ADR_DIR" ]]; then
         echo "- See \`reference/decisions/\` for architecture decisions"
@@ -78,11 +134,17 @@ generate_adr_list() {
 
     for adr in "$ADR_DIR"/[0-9]*.md; do
         [[ -f "$adr" ]] || continue
-        local filename=$(basename "$adr" .md)
-        local number="${filename%%-*}"
-        local title="${filename#*-}"
-        title=$(echo "$title" | sed 's/-/ /g' | sed 's/\b\(.\)/\u\1/g')
-        echo "- [ADR-$number: $title](reference/decisions/$filename.md)"
+        local filename number title summary impact line
+        filename=$(basename "$adr" .md)
+        number="${filename%%-*}"
+        # Real H1 title (strip leading "# " and the "ADR-NNN:" prefix), not the slug.
+        title=$(head -1 "$adr" | sed 's/^#[[:space:]]*//; s/^ADR-[0-9]*:[[:space:]]*//')
+        summary=$(grep -m1 "^\*\*Sommario\*\*:" "$adr" | sed 's/^\*\*Sommario\*\*:[[:space:]]*//')
+        impact=$(grep -m1 "^\*\*Impact\*\*:" "$adr" | sed 's/^\*\*Impact\*\*:[[:space:]]*//')
+        line="- [ADR-$number: $title](reference/decisions/$filename.md)"
+        [[ -n "$impact" ]] && line="$line \`[$impact]\`"
+        [[ -n "$summary" ]] && line="$line — $summary"
+        printf '%s\n' "$line"
     done
 }
 
@@ -113,16 +175,18 @@ process_directory() {
     local dir="$1"
     local reldir="${dir#$REL_BASE/}"
 
-    # Get files directly in this directory
+    # Get files directly in this directory matching any of FILE_GLOBS.
     local files=()
+    build_find_name_args
     while IFS= read -r -d '' file; do
         files+=("$file")
-    done < <(find "$dir" -maxdepth 1 -name "$FILE_GLOB" -type f -print0 2>/dev/null | sort -z)
+    done < <(find "$dir" -maxdepth 1 -type f \( "${FIND_NAME_ARGS[@]}" \) -print0 2>/dev/null | LC_ALL=C sort -z)
 
     # Filter out skipped files
     local filtered=()
     for filepath in "${files[@]}"; do
-        local filename=$(basename "$filepath")
+        local filename
+        filename=$(basename "$filepath")
         is_skipped_file "$filename" || filtered+=("$filepath")
     done
 
@@ -132,8 +196,10 @@ process_directory() {
         echo "### $reldir"
 
         for filepath in "${filtered[@]}"; do
-            local file=$(basename "$filepath")
-            local desc=$($EXTRACT_CMD "$filepath" 2>/dev/null || true)
+            local file
+            file=$(basename "$filepath")
+            local desc
+            desc=$($EXTRACT_CMD "$filepath" 2>/dev/null || true)
 
             if [[ -z "$desc" ]]; then
                 echo "- \`$file\`"
@@ -149,10 +215,11 @@ process_directory() {
     local subdirs=()
     while IFS= read -r -d '' subdir; do
         subdirs+=("$subdir")
-    done < <(find "$dir" -maxdepth 1 -mindepth 1 -type d -print0 2>/dev/null | sort -z)
+    done < <(find "$dir" -maxdepth 1 -mindepth 1 -type d -print0 2>/dev/null | LC_ALL=C sort -z)
 
     for subdir in "${subdirs[@]}"; do
-        local dirname=$(basename "$subdir")
+        local dirname
+        dirname=$(basename "$subdir")
         is_excluded_dir "$dirname" && continue
         process_directory "$subdir"
     done
@@ -172,41 +239,67 @@ generate_footer() {
     echo "*Auto-generated by \`.development/scripts/generate-architecture.sh\`*"
 }
 
+count_stats() {
+    local total=0
+    local missing=0
+    build_find_name_args
+
+    for source_dir in "${SOURCE_DIRS[@]}"; do
+        [[ -d "$source_dir" ]] || continue
+
+        # Build excluded-dirs prune args (array, same reason as above)
+        local prune=()
+        for excl in "${EXCLUDE_DIRS[@]}"; do
+            prune+=(-path "*/${excl}/*" -prune -o)
+        done
+
+        while IFS= read -r -d '' filepath; do
+            local filename
+            filename=$(basename "$filepath")
+            is_skipped_file "$filename" && continue
+            ((total++)) || true
+            local desc
+            desc=$($EXTRACT_CMD "$filepath" 2>/dev/null || true)
+            if [[ -z "$desc" ]]; then
+                ((missing++)) || true
+            fi
+        done < <(find "$source_dir" "${prune[@]}" \( "${FIND_NAME_ARGS[@]}" \) -type f -print0 2>/dev/null)
+    done
+
+    echo "$total $missing"
+}
+
 main() {
     echo "Generating architecture reference..."
 
+    local tree
+    tree=$(generate_tree)
+
     {
         generate_header
-        generate_tree
+        if [[ -n "$tree" ]]; then
+            printf '%s\n' "$tree"
+        fi
         generate_footer
     } > "$OUTPUT_FILE"
 
     echo -e "${GREEN}Generated:${NC} $OUTPUT_FILE"
 
-    # Stats
-    local total=0
-    local missing=0
+    if [[ -z "$tree" ]] && source_dirs_populated; then
+        echo -e "${YELLOW}Warning:${NC} project tree is EMPTY while the source directories contain files." >&2
+        echo "         The scan matched nothing — check FILE_GLOBS and SOURCE_DIRS in this script." >&2
+    fi
 
-    for source_dir in "${SOURCE_DIRS[@]}"; do
-        [[ -d "$source_dir" ]] || continue
-        while IFS= read -r -d '' filepath; do
-            local filename=$(basename "$filepath")
-            is_skipped_file "$filename" && continue
-            ((total++)) || true
-            local desc=$($EXTRACT_CMD "$filepath" 2>/dev/null || true)
-            if [[ -z "$desc" ]]; then
-                ((missing++)) || true
-            fi
-        done < <(find "$source_dir" -name "$FILE_GLOB" -type f \
-            $(printf "! -path '*/%s/*' " "${EXCLUDE_DIRS[@]}") \
-            -print0 2>/dev/null)
-    done
+    local stats
+    stats=$(count_stats)
+    local total="${stats% *}"
+    local missing="${stats#* }"
 
     echo ""
     echo "Stats: $total files, $missing without summary"
 
     if [[ $missing -gt 0 ]]; then
-        echo -e "${YELLOW}Tip:${NC} Add /// <summary> comments to describe your types"
+        echo -e "${YELLOW}Tip:${NC} Add a top-of-file // comment block to describe the file/class purpose"
     fi
 }
 

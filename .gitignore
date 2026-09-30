@@ -1,23 +1,75 @@
-# Build outputs
-bin/
-obj/
-*.dll
-*.exe
-*.pdb
-
 # IDE
-.vs/
-.vscode/
 .idea/
-*.user
-*.suo
+.vscode/
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Private documentation (not committed)
-.personal/
+# Editor leftovers / backups
+*.bak
+backups/
 
-# Session handoffs (local only)
-.memory-bank/
+# Logs
+*.log
+build_log.txt
+app_output.log
+logs/
+
+# Code signing certificates - NEVER commit private keys!
+*.key
+*.pfx
+*.p12
+
+# Sample files / test data
+samples/
+
+# Private folders (not committed)
+.personal/
+.secrets/
+
+# Session handoffs (selectively ignored, see .memory-bank/.gitignore)
+.memory-bank/sessions/
+
+# Legacy binary archives in development archive
+.development/archive/legacy/*.zip
+
+# Claude Code local overrides
+**/claude-todos*.md
+**/temp-todos*.md
+.claude/settings.local.json
+.claude/*.local.md
+
+# C++ build artifacts
+# These patterns catch build output anywhere in the tree (e.g., out-of-tree CMake builds, IDE-driven builds).
+build/
+*.o
+*.a
+*.so
+*.dylib
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CTestTestfile.cmake
+compile_commands.json
+
+# Claude Code agents and harness runtime artifacts
+# Harness-injected runtime artifacts show up as sandbox char devices (not real
+# files), so the trailing-slash patterns miss them — match them bare too.
+.claude/agents
+.claude/launch.json
+.claude/loop.md
+.claude/output-styles
+.claude/routines
+.claude/scheduled_tasks.json
+.claude/workflows
+.mcp.json
+.tmp/
+# Agents run in git worktrees under the project (one per agent); the checkouts
+# are throwaway, the branches they produce are what gets kept.
+.claude/worktrees/
+.playwright-mcp/
+
+# Python bytecode (the doc generators in .development/scripts/)
+__pycache__/
+*.pyc

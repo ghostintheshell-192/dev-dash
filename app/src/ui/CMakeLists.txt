@@ -1,0 +1,30 @@
+target_sources(dev-dash
+    PRIVATE
+        theme.h
+        theme.cpp
+        status_sink.h
+        widgets.h
+        widgets.cpp
+        shell.h
+        shell.cpp
+        sidebar.h
+        sidebar.cpp
+        font_library.h
+        font_library.cpp
+        markdown_renderer.h
+        markdown_renderer.cpp
+        document_panel_host.h
+        document_panel_host.cpp
+        project_selector_panel.h
+        project_selector_panel.cpp
+        effective_config_panel.h
+        effective_config_panel.cpp
+        scaffold_diff_panel.h
+        scaffold_diff_panel.cpp
+        file_diff_panel.h
+        file_diff_panel.cpp
+        snapshot_history_panel.h
+        snapshot_history_panel.cpp
+        diagram_preview_panel.h
+        diagram_preview_panel.cpp
+)

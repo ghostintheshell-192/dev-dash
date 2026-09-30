@@ -1,0 +1,29 @@
+#!/bin/bash
+# Standard automation entry point (ADR-012): regenerate derived docs.
+# Contract: runs from repo root; idempotent; always exit 0 unless a
+# generator itself crashes. Prints which files it touched.
+# Aggregates: ARCHITECTURE.md, INDEX.md, tech-debt/README.md.
+set -euo pipefail
+
+SCRIPTS=.development/scripts
+
+# A generator's own diagnostics used to go to /dev/null, so a failure surfaced
+# as one uncoloured WARNING line among coloured successes and the message
+# saying what actually went wrong — a missing path, a traceback — was thrown
+# away. Capture instead of discard, and print it on failure: the caller cannot
+# act on "generator failed".
+run_generator()
+{
+    local label="$1"; shift
+    local output
+    if output=$("$@" 2>&1); then
+        echo "docs-update: $label regenerated"
+    else
+        echo "docs-update: WARNING - $label generator failed" >&2
+        printf '%s\n' "$output" | sed 's/^/    /' >&2
+    fi
+}
+
+run_generator "ARCHITECTURE.md"      bash "$SCRIPTS/generate-architecture.sh"
+run_generator "INDEX.md"             python3 "$SCRIPTS/generate-index.py"
+run_generator "tech-debt/README.md"  python3 "$SCRIPTS/update-tech-debt-index.py"

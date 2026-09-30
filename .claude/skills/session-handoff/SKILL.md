@@ -1,29 +1,36 @@
-﻿---
+---
 name: session-handoff
 description: Use when ending a session, switching projects, before /exit or /clear, or when the user asks for a summary of what was done. Also activate when the user says goodbye or requests a handoff/summary in their native language.
-allowed-tools: Read, Write, Edit, Glob, Grep
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
 # Session Handoff
 
-When this skill is activated, update the handoff notes for all projects you worked on during the session.
+When this skill is activated, create handoff notes for the current session.
 
 ## What to do
 
-### 1. Identify projects touched
+### 1. Create a new handoff file
 
-Review the conversation and identify:
-- Which projects had files created/edited
-- Which projects were discussed substantially
-- The current working directory (may be a project itself)
+**Location**: `.memory-bank/journal/handoffs/` — the journal is a private
+repository of its own (`ghostintheshell-192/dev-dash-memory`), nested in the
+project and ignored by it. If `.memory-bank/journal/` is missing, set it up
+first as described in `.claude/rules/workflow.md` (*Session Start*, step 0).
 
-### 2. Create a handoff file for each project
+Each session gets its own file. Create a new file with this naming convention:
 
-**Location**: `.memory-bank/projects/<project-name>/`
+**Filename format**: `YYYY-MM-DD-HHmm-brief-title-slug.md`
 
-**Filename**: `YYYY-MM-DD-HHmm-titolo-slug.md`
+- `YYYY-MM-DD` = today's date
+- `HHmm` = current time (24h format, no colon for filesystem compatibility)
+- `brief-title-slug` = lowercase, hyphen-separated summary (max 50 chars)
 
-Create a new file for this session (one file per session, not appending to existing):
+**Examples**:
+
+- `2026-01-21-2330-release-v0-5-1.md`
+- `2026-01-19-1430-fix-export-bug.md`
+
+### 2. File content structure
 
 ```markdown
 ## YYYY-MM-DD - Brief title
@@ -34,7 +41,7 @@ Create a new file for this session (one file per session, not appending to exist
 - Decisions made
 
 **Next**:
-- Suggested next steps
+- Suggested next steps, in priority order
 - Blockers identified
 
 **Notes**:
@@ -42,33 +49,62 @@ Create a new file for this session (one file per session, not appending to exist
 - Gotchas to remember
 ```
 
-### 3. Content language
+**Next** carries the remaining work **in priority order** — that ordering is the
+part the next session cannot reconstruct from `MEMORY.md` or the git log, so it
+is the most valuable thing in the file. If a task has a caveat ("ask before
+touching X"), it belongs here too.
 
-- Write the content in the **user's preferred language** (check user profile or recent messages)
-- Keep field names in English (Done/Next/Notes) for consistency and parseability
+**If this session did not advance the project's task list** — config, tooling,
+documentation or scaffold work — say so explicitly at the top and **link the
+most recent handoff that does carry it**, instructing the next session to read
+that one as well. Otherwise the next session reads "we updated the config" and
+has no idea what the project is actually working on. Do not copy the list
+across: link it, so there is one authority and it cannot go stale.
+
+If the session touched branches or merges, record branch names and commit
+hashes in **Notes** so git state can be resumed without hunting.
+
+### 3. Content guidelines
+
+- Write content in the **user's preferred language** (check user profile or recent messages)
+- Keep field names in English (Done/Next/Notes) for consistency
 - Max 5-7 bullet points per section
-- Include specific file names when relevant
-- Don't repeat information already in previous entries
+- Include specific file paths when relevant
+- Be concise but complete
 
-### 4. Confirm to the user
+### 4. Commit and push the journal
 
-After updating, confirm:
-- Which handoff files were updated
+```bash
+git -C .memory-bank/journal add --sparse -A
+git -C .memory-bank/journal commit -m "Handoff: <slug>"
+git -C .memory-bank/journal push
+```
+
+Not optional in a cloud session: the container is discarded when the session
+ends, and an unpushed handoff is lost. (`--sparse` lets the add work in the
+handoffs-only clone that cloud sessions use.)
+
+### 5. Confirm to the user
+
+After creating the file, confirm:
+
+- Which handoff file was created
+- The filename used
 - Remind the user to type `/exit` or `/clear` to complete
 
 ## Example
 
-If during the session you worked on `my-app` and `utils-lib`:
+1. Create `.memory-bank/journal/handoffs/2026-01-21-2330-livmarkdown-migration.md`,
+   then commit and push the journal
+2. Confirm: "Created handoff notes: `2026-01-21-2330-livmarkdown-migration.md`. You can exit with /exit."
 
-1. Create `.memory-bank/projects/my-app/2026-01-29-1030-feature-implementation.md`
-2. Create `.memory-bank/projects/utils-lib/2026-01-29-1030-bug-fix.md`
-3. Confirm: "Created handoff notes for my-app and utils-lib. You can exit with /exit."
+## Reading previous sessions
 
-## Multi-project sessions
+At the start of a new session (see `.claude/rules/workflow.md`, *Session Start*):
 
-If the user did `/clear` during the session to switch projects:
-- Only update projects touched AFTER the last `/clear`
-- Previous projects were already handled
+1. List files in `.memory-bank/journal/handoffs/`
+2. Read the most recent handoff (sorted by filename = sorted by date)
+3. Read any files it links to
 
 ## Localized triggers
 
