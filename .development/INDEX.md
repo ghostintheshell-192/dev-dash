@@ -58,12 +58,11 @@
 - [feature-code-graph.md](specs/planned/feature-code-graph.md) — Code Graph — class diagram on demand
 - [feature-scaffold-templating.md](specs/planned/feature-scaffold-templating.md) — Scaffold Templating
 
-### tech-debt/ (9 files)
+### tech-debt/ (8 files)
 
 - [README.md](tech-debt/README.md) — Tech Debt Issues
 - [_TEMPLATE.md](tech-debt/_TEMPLATE.md) — [Issue Title]
 - [docs-update-orchestrator-hardcodes-generated-files.md](tech-debt/docs-update-orchestrator-hardcodes-generated-files.md) — `04-docs-update` declares it knows nothing about the generators, then hardcodes their outputs
-- [document-links-not-followed.md](tech-debt/document-links-not-followed.md) — I link nei documenti non si aprono
 - [line-level-promote.md](tech-debt/line-level-promote.md) — Promote e Apply operano solo sull'intero file
 - [markdown-code-block-styling.md](tech-debt/markdown-code-block-styling.md) — Fenced code blocks rendered as flat yellow text — no syntax highlighting
 - [non-markdown-files-rendered-as-markdown.md](tech-debt/non-markdown-files-rendered-as-markdown.md) — File non-Markdown renderizzati come Markdown (script, config)
@@ -102,7 +101,7 @@
 
 - [2025-12-11_report_code-reviewer.md](archive/analysis/2025-12-11_report_code-reviewer.md) — Code Review Report - DevDash
 
-### archive/completed/ (14 files)
+### archive/completed/ (15 files)
 
 - [2026-05-10_contentcontrol-binding-multisidebar.md](archive/completed/2026-05-10_contentcontrol-binding-multisidebar.md) — ContentControl Binding Error in MultiSidebar - Empty Sidebar Content
 - [2026-05-10_imgui-backend-shutdown-order.md](archive/completed/2026-05-10_imgui-backend-shutdown-order.md) — ImGui assertion on exit: backend non spento prima di DestroyContext
@@ -118,6 +117,7 @@
 - [2026-08-29_claude-md-rules-list-incomplete.md](archive/completed/2026-08-29_claude-md-rules-list-incomplete.md) — .claude/CLAUDE.md's rule enumeration omits idea-capture.md
 - [2026-08-29_post-merge-does-not-regenerate-derived-docs.md](archive/completed/2026-08-29_post-merge-does-not-regenerate-derived-docs.md) — Derived docs are one regeneration behind after any merge of two independent branches
 - [2026-08-29_tech-debt-index-generator-cannot-bootstrap.md](archive/completed/2026-08-29_tech-debt-index-generator-cannot-bootstrap.md) — `update-tech-debt-index.py` cannot create the README it maintains, unlike its two siblings
+- [2026-09-30_document-links-not-followed.md](archive/completed/2026-09-30_document-links-not-followed.md) — I link nei documenti non si aprono
 
 ---
 

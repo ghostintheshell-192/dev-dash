@@ -48,6 +48,13 @@ Stato attuale del codebase:
   secco (`workflow_dispatch`, tarball come artifact). Il progetto compila con
   GCC 12 sotto `-Werror`. `v0.1.0` resta com'è; la correzione esce con
   `v0.1.1`.
+- **Link nei documenti** (tech-debt `document-links-not-followed`, risolto):
+  `DocumentLoader::ResolveLink` classifica i link rispetto al documento; i
+  `.md` si aprono in un pannello, URL e altri file vanno al sistema, ancore
+  ed errori nella status bar. 9 test nuovi. In `imgui_md` il clic su un link
+  era ignorato prima del ritardo del tooltip (~0,4 s): patch sul branch
+  `fix/link-click-without-hover-delay` di `DPD85/imgui_md`, da unire e poi
+  da fissare nel CPM (oggi `11832f4`).
 - ImGuiDot: su richiesta di Dario la PR è divisa in due (stile, etichette su
   più righe), entrambe dal fork. Il pin CPM resta su `7a60241` fino al merge.
 

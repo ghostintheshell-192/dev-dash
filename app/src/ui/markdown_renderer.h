@@ -20,8 +20,12 @@ namespace dev_dash::ui
         MarkdownRenderer(const MarkdownRenderer&)            = delete;
         MarkdownRenderer& operator=(const MarkdownRenderer&) = delete;
 
-        // Default handler opens external URLs via SDL_OpenURL.
+        // Default handler opens external URLs via OpenExternalUrl().
         void SetLinkHandler(LinkHandler handler);
+
+        // Hands `url` to the system (browser, file manager, default app).
+        // Returns false, and logs why, if the system refuses it.
+        static bool OpenExternalUrl(std::string_view url);
 
     protected:
         void get_font(font_info& info) const override;

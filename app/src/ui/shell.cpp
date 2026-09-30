@@ -31,6 +31,8 @@ namespace dev_dash::ui
         : _project(project)
         , _docHost(docHost)
     {
+        _docHost.SetStatusSink(&_status);
+
         _configView = std::make_unique<EffectiveConfigPanel>(
             configResolver, docHost, project);
 
@@ -69,7 +71,12 @@ namespace dev_dash::ui
             _status, project, std::move(callbacks));
     }
 
-    Shell::~Shell() = default;
+    // The document host outlives the shell (it is owned by App): detach the
+    // status bar before it goes.
+    Shell::~Shell()
+    {
+        _docHost.SetStatusSink(nullptr);
+    }
 
     void Shell::Render()
     {

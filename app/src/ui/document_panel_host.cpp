@@ -1,5 +1,6 @@
 #include "document_panel_host.h"
 #include "markdown_renderer.h"
+#include "status_sink.h"
 #include "theme.h"
 #include "../services/document_loader.h"
 
@@ -31,7 +32,7 @@ namespace dev_dash::ui
         auto result = _loader.Load(path);
         if (result.content.empty())
         {
-            std::cerr << "[warn] DocumentPanelHost: could not open: " << path << '\n';
+            ReportError("Could not open " + path.string());
             return;
         }
 
@@ -41,7 +42,7 @@ namespace dev_dash::ui
 
     void DocumentPanelHost::Render(unsigned int dockId)
     {
-        DrainPendingImports();
+        DrainPendingOpens();
 
         for (auto& panel : _panels)
         {
@@ -54,7 +55,10 @@ namespace dev_dash::ui
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding,
                                 CurrentTheme().readingPadding);
             if (ImGui::Begin(panel.title.c_str(), &panel.open))
+            {
+                _currentDocument = panel.path;
                 _renderer.print(panel.content.data(), panel.content.data() + panel.content.size());
+            }
             ImGui::End();
             ImGui::PopStyleVar();
         }
@@ -64,15 +68,45 @@ namespace dev_dash::ui
 
     void DocumentPanelHost::HandleLinkClick(std::string_view url)
     {
-        constexpr std::string_view kPrefix = "claudeimport://";
-        if (url.starts_with(kPrefix))
-            _pendingImports.emplace_back(url.substr(kPrefix.size()));
+        using Kind = services::LinkTarget::Kind;
+        const services::LinkTarget target = _loader.ResolveLink(_currentDocument, url);
+
+        switch (target.kind)
+        {
+        case Kind::kImport:
+        case Kind::kDocument:
+            _pendingOpens.push_back(target.path);
+            break;
+        case Kind::kFile:
+            if (!MarkdownRenderer::OpenExternalUrl(services::DocumentLoader::ToFileUrl(target.path)))
+                ReportError("Could not open " + target.path.string());
+            break;
+        case Kind::kExternal:
+            if (!MarkdownRenderer::OpenExternalUrl(target.url))
+                ReportError("Could not open " + target.url);
+            break;
+        case Kind::kAnchor:
+            if (_status != nullptr)
+                _status->Set(StatusSink::Level::kInfo,
+                             "Links to a section (" + std::string(url) + ") are not followed yet");
+            break;
+        case Kind::kMissing:
+            ReportError("Link target not found: " + target.path.string());
+            break;
+        }
     }
 
-    void DocumentPanelHost::DrainPendingImports()
+    void DocumentPanelHost::DrainPendingOpens()
     {
-        for (const auto& path : _pendingImports)
+        for (const auto& path : _pendingOpens)
             OpenPanel(path);
-        _pendingImports.clear();
+        _pendingOpens.clear();
+    }
+
+    void DocumentPanelHost::ReportError(std::string message)
+    {
+        std::cerr << "[warn] DocumentPanelHost: " << message << '\n';
+        if (_status != nullptr)
+            _status->Set(StatusSink::Level::kError, std::move(message));
     }
 }
