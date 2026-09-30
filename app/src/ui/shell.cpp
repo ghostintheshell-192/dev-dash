@@ -1,5 +1,6 @@
 #include "shell.h"
 
+#include "diagram_preview_panel.h"
 #include "document_panel_host.h"
 #include "effective_config_panel.h"
 #include "scaffold_diff_panel.h"
@@ -25,7 +26,8 @@ namespace dev_dash::ui
                  services::ApplyEngine&        applyEngine,
                  services::SnapshotService&    snapshotService,
                  DocumentPanelHost&            docHost,
-                 const core::Project&          project)
+                 const core::Project&          project,
+                 bool                          diagramsAvailable)
         : _project(project)
         , _docHost(docHost)
     {
@@ -38,6 +40,9 @@ namespace dev_dash::ui
 
         _historyView = std::make_unique<SnapshotHistoryPanel>(
             snapshotService, _status, project);
+
+        if (diagramsAvailable)
+            _diagramView = std::make_unique<DiagramPreviewPanel>();
 
         Sidebar::Callbacks callbacks;
         callbacks.openDocument =
@@ -125,6 +130,11 @@ namespace dev_dash::ui
             ImGui::SetNextWindowDockID(_dockspaceId, ImGuiCond_FirstUseEver);
             _historyView->Render(&_historyOpen);
         }
+        if (_diagramOpen && _diagramView)
+        {
+            ImGui::SetNextWindowDockID(_dockspaceId, ImGuiCond_FirstUseEver);
+            _diagramView->Render(&_diagramOpen);
+        }
 
         // The file diff viewer renders every frame, independently of the
         // scaffold diff panel that opened it: if it only rendered while
@@ -150,9 +160,24 @@ namespace dev_dash::ui
         ImGui::SameLine();
         ImGui::TextDisabled("%s", _project.path.string().c_str());
 
-        const float switchW = 130.0f;
-        ImGui::SameLine(ImGui::GetContentRegionAvail().x - switchW
+        const ImGuiStyle& style = ImGui::GetStyle();
+        const float switchW  = ImGui::CalcTextSize("Change project...").x
+                               + style.FramePadding.x * 2.0f;
+        const float diagramW = _diagramView
+            ? ImGui::CalcTextSize("Diagram").x + style.FramePadding.x * 2.0f
+                  + style.ItemSpacing.x
+            : 0.0f;
+        ImGui::SameLine(ImGui::GetContentRegionAvail().x - switchW - diagramW
                         + ImGui::GetCursorPosX());
+        if (_diagramView)
+        {
+            if (ImGui::SmallButton("Diagram"))
+            {
+                _diagramOpen = true;
+                ImGui::SetWindowFocus("Diagram");
+            }
+            ImGui::SameLine();
+        }
         if (ImGui::SmallButton("Change project..."))
             _wantsProjectSwitch = true;
 

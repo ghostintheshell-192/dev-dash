@@ -16,7 +16,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            cmake ninja-build \
+            cmake ninja-build bison flex \
             libvulkan-dev \
             libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxi-dev \
             libxfixes-dev libwayland-dev wayland-protocols libxkbcommon-dev
@@ -29,11 +29,17 @@ jobs:
 
       # gh is preinstalled on GitHub runners; github.token has the contents:write
       # scope granted above. Tarball name comes from CPACK_PACKAGE_FILE_NAME.
+      # SemVer: 0.y.z (initial development) and -suffixed tags are pre-releases.
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          prerelease=()
+          case "${GITHUB_REF_NAME}" in
+            v0.*|*-*) prerelease=(--prerelease) ;;
+          esac
           gh release create "${GITHUB_REF_NAME}" \
             app/build/linux-release/dev-dash-*-linux-x86_64.tar.gz \
             --title "${GITHUB_REF_NAME}" \
-            --generate-notes
+            --generate-notes \
+            "${prerelease[@]}"

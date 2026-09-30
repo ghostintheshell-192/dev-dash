@@ -177,6 +177,26 @@ CPMAddPackage(
         "BUILD_MD4C OFF"
 )
 
+# ----- ImGuiDot (Graphviz DOT → ImGui draw list) -----
+#
+# Dario's diagram library (DPD85/ImGuiDot, MIT): Graphviz 15 parses DOT and
+# computes the layout, ImGuiDot draws it with the ImGui draw list. Base of the
+# code graph (feature-code-graph, ADR-014 addendum, ADR-017). We provide ImGui,
+# so BUILD_IMGUI OFF (the default IMGUI_TARGET "ImGui" matches our target).
+# Graphviz is built from source: bison and flex are needed at configure time.
+#
+# Pinned to fix/multiline-labels on Valentina's fork: ImGuiDot::Style (colours
+# from the ImGui style) plus multi-line labels, pending their merge upstream;
+# then switch to DPD85.
+# For co-development: -DCPM_ImGuiDot_SOURCE=/path/to/ImGuiDot at configure.
+CPMAddPackage(
+    NAME ImGuiDot
+    GITHUB_REPOSITORY ghostintheshell-192/ImGuiDot
+    GIT_TAG 7a602410af62d2e65602a299e6bd9509c39f5d0a
+    OPTIONS
+        "BUILD_IMGUI OFF"
+)
+
 # ----- Catch2 v3 (unit testing — test target only) -----
 #
 # Pulled only when DEVDASH_BUILD_TESTS is ON. Exports Catch2::Catch2WithMain

@@ -76,6 +76,33 @@ markdown integration in PR <https://github.com/DPD85/Germen/pull/4>,
 and the `MarkdownRenderer` class in `app/src/ui/` derives `imgui_md`
 to customize fonts and link handling.
 
+## ImGuiDot
+
+Draws Graphviz diagrams, written in the DOT language, with the Dear ImGui
+draw list. Base of the code graph (`feature-code-graph`).
+
+- Source: <https://github.com/DPD85/ImGuiDot> by Dario Passet
+- License: MIT
+- Pulled in at configure time via CPM, currently pinned to a commit of the
+  fork <https://github.com/ghostintheshell-192/ImGuiDot> (branch
+  `fix/multiline-labels`, on top of `feature/style-colours`) pending its
+  merge upstream. Built with
+  `BUILD_IMGUI OFF`: it links dev-dash's own ImGui target.
+
+## Graphviz
+
+Parses DOT and computes the diagram layout for ImGuiDot.
+
+- Source: <https://gitlab.com/graphviz/graphviz>
+- Version: 15.1.0
+- License: Eclipse Public License 2.0 (EPL-2.0)
+- Pulled in by ImGuiDot via CPM and built from source (needs `bison` and
+  `flex`), with a small patch to its Flex/Bison CMake setup
+  (`Graphviz-FlexBison.patch` in ImGuiDot). Linked statically into the
+  `dev-dash` binary. Under EPL-2.0 a binary distribution must say where the
+  Graphviz source is available: the URL and version above, unmodified apart
+  from that build patch.
+
 ## vk-bootstrap
 
 - Source: <https://github.com/charles-lunarg/vk-bootstrap>
@@ -87,7 +114,7 @@ to customize fonts and link handling.
 ## CPM.cmake
 
 - Source: <https://github.com/cpm-cmake/CPM.cmake>
-- Version: 0.40.8
+- Version: 0.42.0
 - License: MIT
 - Downloaded on first configure into the build directory (see `cmake/get_cpm.cmake`).
 
