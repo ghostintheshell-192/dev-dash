@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.28)
 
-project("dev-dash" VERSION 0.1.0 LANGUAGES C CXX)
+project("dev-dash" VERSION 0.1.1 LANGUAGES C CXX)
 
 # Generated header carrying the project version into C++ (PROJECT_VERSION is
 # set by project(... VERSION ...) above). Lands in the build tree's generated/
