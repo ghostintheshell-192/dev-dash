@@ -85,6 +85,8 @@ fallimenti silenziosi al primo avvio.
 2. `cmake --install build --prefix /tmp/devdash-test && /tmp/devdash-test/bin/dev-dash`
    parte con font corretti e crea `~/.devdash/` se assente.
 3. Tag `v0.1.0` su main produce una GitHub Release con tarball funzionante.
+   *Verificata con `v0.1.1` (2026-09-30), avviata su Debian 12: il tarball
+   di `v0.1.0` richiedeva glibc 2.38 e non partiva.*
 4. `docs/SETUP.md` seguito alla lettera su macchina pulita porta a un'app
    che gira.
 

@@ -4,8 +4,8 @@
 
 ## Project Phase
 
-**Phase**: Wedge completa, prima pre-release pubblicata (`v0.1.0`, non
-avviabile su Debian 12; `v0.1.1` la sostituisce). Prossimo lavoro di prodotto: scaffold templating (ADR-015) e,
+**Phase**: Wedge completa, prima pre-release utilizzabile: `v0.1.1`,
+verificata su Debian 12 (`v0.1.0` non partiva lì). Prossimo lavoro di prodotto: scaffold templating (ADR-015) e,
 sul fronte grafi, la collaborazione con Dario su ImGuiDot.
 
 Il pivot a **C++20 + Dear ImGui + SDL3 + Vulkan** è validato e in produzione.
@@ -21,8 +21,8 @@ Stato attuale del codebase:
   dai test senza stack grafico.
 - `app/tests/` — Catch2 v3: `SnapshotService`, `ApplyEngine`, `ConfigResolver`
   (una cartella di prova per ogni regola di caricamento di Claude Code).
-- Versione `0.1.1` in `app/CMakeLists.txt`. Tag `v0.1.0` su `main`
-  (pre-release GitHub); la release si compila su Ubuntu 22.04 con g++-12 e
+- Versione `0.1.1` in `app/CMakeLists.txt`. Tag `v0.1.0` e `v0.1.1` su
+  `main` (pre-release GitHub); la release si compila su Ubuntu 22.04 con g++-12 e
   controlla di restare entro glibc 2.36 / `GLIBCXX_3.4.30` (Debian 12).
 - `imgui_md` consumato via CPM dal fork `DPD85/imgui_md`, pinnato al commit
   `11832f4` (= tag `v1.0.0`).
@@ -290,14 +290,10 @@ Le sessioni 2025-12 / 2026-01 hanno costruito la v0.2.x in Avalonia
 
 ### Immediato
 
-1. **Tag `v0.1.1`** — sostituisce `v0.1.0` come release utilizzabile. Poi
-   verificare a mano il tarball su Debian 12 (acceptance 3 di
-   `feature-release-readiness`).
-
-2. **`feature-scaffold-templating`** (planned, ADR-015) — prossima feature
+1. **`feature-scaffold-templating`** (planned, ADR-015) — prossima feature
    di prodotto.
 
-3. **Diagramma del progetto aperto** — spec
+2. **Diagramma del progetto aperto** — spec
    [`feature-code-graph`](specs/planned/feature-code-graph.md): class diagram
    UML on demand (l'utente seleziona le classi, vicini diretti come nodi
    fantasma), C++ come primo linguaggio, rendering con ImGuiDot. Fase 1 chiusa
