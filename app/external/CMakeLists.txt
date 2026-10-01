@@ -185,14 +185,15 @@ CPMAddPackage(
 # so BUILD_IMGUI OFF (the default IMGUI_TARGET "ImGui" matches our target).
 # Graphviz is built from source: bison and flex are needed at configure time.
 #
-# Pinned to fix/multiline-labels on Valentina's fork: ImGuiDot::Style (colours
-# from the ImGui style) plus multi-line labels, pending their merge upstream;
-# then switch to DPD85.
+# Pinned to fix/label-font-size on Valentina's fork: fix/multiline-labels
+# (ImGuiDot::Style, colours from the ImGui style, plus multi-line labels) and
+# the label font size converted from points to pixels, pending their merge
+# upstream; then switch to DPD85.
 # For co-development: -DCPM_ImGuiDot_SOURCE=/path/to/ImGuiDot at configure.
 CPMAddPackage(
     NAME ImGuiDot
     GITHUB_REPOSITORY ghostintheshell-192/ImGuiDot
-    GIT_TAG 7a602410af62d2e65602a299e6bd9509c39f5d0a
+    GIT_TAG c828e7023839ab4912601b51be3d4ded14c9d718
     OPTIONS
         "BUILD_IMGUI OFF"
 )

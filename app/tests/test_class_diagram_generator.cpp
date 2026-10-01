@@ -131,7 +131,7 @@ TEST_CASE("without records the class is a box with one line per member", "[diagr
     options.recordShapes = false;
     const std::string dot = Generate(model, {"ns::Panel", "ns::Empty"}, options);
     CHECK(Contains(dot, "node [shape=box];"));
-    CHECK(Contains(dot, "label=\"Panel\\n+ size : std::vector<int>\\l+ Render()\\l\""));
+    CHECK(Contains(dot, "label=\"Panel\\n\\n+ size : std::vector<int>\\l+ Render()\\l\""));
     CHECK(Contains(dot, "label=\"Empty\""));
 }
 

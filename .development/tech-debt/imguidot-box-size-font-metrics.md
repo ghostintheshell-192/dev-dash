@@ -21,25 +21,30 @@ text. It is the most visible defect of the diagrams in DevDash.
 
 ## Analysis
 
-Graphviz lays out the graph measuring the labels with its own text metrics
-(the font named by `fontname`, Times by default, estimated when no font
-library is built in) and sizes the nodes from them. ImGuiDot then draws the
-labels with `ImGui::GetIO().Fonts->Fonts[0]` at the layout's `fontsize`: a
-different font with different widths. The boxes keep the size Graphviz gave
-them, the text drawn inside is smaller.
+Two causes, one much larger than the other:
+
+1. **Points drawn as pixels** (the bulk of it). Graphviz works in typographic
+   points; ImGuiDot converts every geometry to pixels with `PIXEL_PER_PPI`
+   (96/72), but drew the text at `label->fontsize * zoom`, the points taken as
+   pixels: text 25% smaller than the space measured for it. Fixed on the fork,
+   branch `fix/label-font-size` (`c828e70`, one line in `DrawLabel`), which
+   DevDash pins. To report upstream as a PR.
+2. **Different fonts**. Graphviz measures the labels with its own metrics
+   (`fontname`, Times by default, estimated when no font library is built
+   in), ImGuiDot draws them with `ImGui::GetIO().Fonts->Fonts[0]`. What is
+   left after the fix: some slack in wide boxes, and line spacing a little
+   tighter than the box height expects.
 
 ## Possible Solutions
 
-- **Option A**: give Graphviz the metrics of the ImGui font: a text-layout
-  plugin (`gvtextlayout`) that measures with `ImFont::CalcTextSizeA`. Exact,
-  but the plugin API is involved.
-- **Option B**: scale the drawn text to the width Graphviz expects for each
-  label (`textspan_t::size`). Simple; text size then varies a little between
-  labels.
-- **Option C**: let the caller set `fontname`/`fontsize` defaults that match
-  the ImGui font closely enough. Cheapest, approximate.
+- **Point 1**: the PR with `c828e70`, rebased on Dario's main.
+- **Point 2, Option A**: give Graphviz the metrics of the ImGui font: a
+  text-layout plugin (`gvtextlayout`) that measures with
+  `ImFont::CalcTextSizeA`. Exact, but the plugin API is involved.
+- **Point 2, Option B**: let the caller set `fontname`/`fontsize` defaults
+  closer to the ImGui font. Cheap, approximate.
 
 ## Recommended Approach
 
-To be discussed with Dario: it is a design choice of his library. Option A
-is the clean one if the plugin API allows it.
+Point 1 as a PR now: a plain bug, behaviour defined by Graphviz. Point 2 to
+discuss with Dario: it is a design choice of his library.

@@ -184,12 +184,14 @@ namespace dev_dash::services
 
             if (!recordShape)
             {
-                // Plain box: the name centred ("\n"), then one left-justified
-                // line ("\l") per member, attributes first.
+                // Plain box: the name centred ("\n"), an empty line that sets
+                // it apart as a heading (records draw a separator instead),
+                // then one left-justified line ("\l") per member, attributes
+                // first.
                 std::string label = EscapeLabelText(displayName);
                 if (attributes.empty() && methods.empty())
                     return label;
-                label += "\\n";
+                label += "\\n\\n";
                 for (const std::string& line : attributes)
                     label += EscapeLabelText(line) + "\\l";
                 for (const std::string& line : methods)
