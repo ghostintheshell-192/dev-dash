@@ -59,3 +59,20 @@ public:
                       MarkdownRenderer& renderer);
 };
 ```
+
+## UI: explanations in the status bar, not in tooltips
+
+The app explains itself in the status bar at the bottom of the window, the way
+VS Code and Visual Studio do ("loading project in background…"), never with
+tooltips: what the item under the mouse does, a file path, an activity running
+in background. Non-invasive, always in the same place.
+
+- After an item: `StatusHint(status, "what it does")` (`ui/widgets.h`). It also
+  works on disabled items, where it can say why they are disabled.
+- Next to a control that needs a longer explanation: `HelpMarker(status, text)`.
+- A background activity: `status.SetHint(...)` every frame while it runs;
+  an item under the mouse overrides it.
+- An outcome that must stay visible (done, failed): `status.Set(level, ...)`.
+
+Hints are one line. Content too long for one line (a list of files) goes in the
+panel itself, expandable, with a one-line hint on its header.

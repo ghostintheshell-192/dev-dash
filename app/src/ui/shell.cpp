@@ -49,7 +49,7 @@ namespace dev_dash::ui
         if (diagramsAvailable)
         {
             _diagramView   = std::make_unique<DiagramPreviewPanel>();
-            _codeGraphView = std::make_unique<CodeGraphPanel>(classExtractor, diagramGenerator, project);
+            _codeGraphView = std::make_unique<CodeGraphPanel>(classExtractor, diagramGenerator, _status, project);
         }
 
         Sidebar::Callbacks callbacks;
@@ -241,7 +241,11 @@ namespace dev_dash::ui
         ImGui::BeginChild("##statusbar", ImVec2(0, 0),
                           ImGuiChildFlags_AlwaysUseWindowPadding);
 
-        if (!_status.Message().empty())
+        if (const std::string hint = _status.TakeHint(); !hint.empty())
+        {
+            ImGui::TextUnformatted(hint.c_str());
+        }
+        else if (!_status.Message().empty())
         {
             const Theme& t = CurrentTheme();
             const ImVec4 color =

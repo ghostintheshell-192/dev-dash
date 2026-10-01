@@ -1,6 +1,8 @@
 #include "code_graph_panel.h"
 
+#include "status_sink.h"
 #include "theme.h"
+#include "widgets.h"
 #include "../services/class_diagram_generator.h"
 
 #include <algorithm>
@@ -62,9 +64,11 @@ namespace dev_dash::ui
 
     CodeGraphPanel::CodeGraphPanel(services::CppClassExtractor& extractor,
                                    services::ClassDiagramGenerator& generator,
+                                   StatusSink& status,
                                    const core::Project& project)
         : _extractor(extractor)
         , _generator(generator)
+        , _status(status)
         , _project(project)
     {
     }
@@ -99,8 +103,12 @@ namespace dev_dash::ui
         catch (const std::exception& e)
         {
             _readError = e.what();
+            _status.Set(StatusSink::Level::kError, "Code graph: reading failed: " + _readError);
             return;
         }
+        _status.Set(StatusSink::Level::kInfo,
+                    "Code graph: " + std::to_string(_result.model.classes.size()) + " classes read from "
+                        + std::to_string(_result.filesRead) + " files");
 
         // Group by scope; drop the checked classes that no longer exist.
         std::map<std::string, std::vector<std::size_t>> byScope;
@@ -173,16 +181,18 @@ namespace dev_dash::ui
 
         // ----- Reading
 
+        // The activity goes to the status bar; an item under the mouse
+        // overrides it there while hovered.
+        if (reading)
+            _status.SetHint("Code graph: reading the C++ classes of the project in background...");
+
         ImGui::BeginDisabled(reading);
-        if (ImGui::Button(_hasResult ? "Read again" : "Read the code"))
+        if (ImGui::Button(reading ? "Reading..." : _hasResult ? "Read again" : "Read the code"))
             StartReading();
         ImGui::EndDisabled();
-        if (reading)
-        {
-            ImGui::SameLine();
-            ImGui::TextDisabled("Reading...");
-        }
-        else if (_hasResult)
+        StatusHint(_status, "Read the C++ classes of the project, skipping hidden and build directories "
+                            "(.git, build, cmake-build-*, out, node_modules)");
+        if (_hasResult && !reading)
         {
             ImGui::SameLine();
             ImGui::TextDisabled("%zu classes, %d files", _result.model.classes.size(), _result.filesRead);
@@ -192,16 +202,17 @@ namespace dev_dash::ui
             ImGui::TextColored(t.removed, "%s", _readError.c_str());
         if (_hasResult && !_result.partlyReadFiles.empty())
         {
-            ImGui::TextColored(t.modified, "%zu files read in part (?)", _result.partlyReadFiles.size());
-            if (ImGui::BeginItemTooltip())
+            ImGui::PushStyleColor(ImGuiCol_Text, t.modified);
+            const bool expanded =
+                ImGui::TreeNode("##partly_read", "%zu files read in part", _result.partlyReadFiles.size());
+            ImGui::PopStyleColor();
+            StatusHint(_status, "Code the reader did not understand: macros it cannot expand, syntax its "
+                                "grammar misses, or real errors. The rest of each file is read.");
+            if (expanded)
             {
-                ImGui::TextUnformatted("Code the reader did not understand: macros it cannot expand,\n"
-                                       "syntax its grammar misses, or real errors. The rest of each\n"
-                                       "file is read; a class inside the unread part is missing.");
-                ImGui::Separator();
                 for (const std::filesystem::path& file : _result.partlyReadFiles)
                     ImGui::TextDisabled("%s", file.lexically_relative(_project.path).string().c_str());
-                ImGui::EndTooltip();
+                ImGui::TreePop();
             }
         }
 
@@ -224,18 +235,25 @@ namespace dev_dash::ui
         ImGui::BeginDisabled(_selection.empty());
         if (ImGui::Button("Create diagram"))
             CreateDiagram();
+        StatusHint(_status, _selection.empty() ? "Check at least one class to create a diagram"
+                                               : "Draw the checked classes, with the options below");
         ImGui::SameLine();
         if (ImGui::Button("Clear"))
             _selection.clear();
+        StatusHint(_status, "Uncheck all the classes, also those hidden by the filter");
         ImGui::EndDisabled();
         ImGui::SameLine();
         ImGui::TextDisabled("%zu checked", _selection.size());
         ImGui::Checkbox("Neighbours", &_showNeighbours);
+        StatusHint(_status, "Also draw the classes one step away from the checked ones, dimmed and "
+                            "with their name only");
         ImGui::SameLine();
         ImGui::Checkbox("All members", &_allMembers);
+        StatusHint(_status, "Show the protected and private members too, not only the public ones");
 
         ImGui::SetNextItemWidth(-1.0f);
         ImGui::InputTextWithHint("##filter", "Filter classes", _filter.data(), _filter.size());
+        StatusHint(_status, "Show only the classes whose full name contains this text (case ignored)");
         const std::string_view filter(_filter.data());
 
         // ----- Classes by scope
@@ -256,7 +274,11 @@ namespace dev_dash::ui
             // classes are; a click checks or clears them all.
             bool all = std::all_of(visible.begin(), visible.end(), [&](std::size_t index)
                                    { return _selection.contains(_result.model.classes[index].qualifiedName); });
-            if (ImGui::Checkbox("##all", &all))
+            const bool changed = ImGui::Checkbox("##all", &all);
+            StatusHint(_status, "Check or uncheck every class of "
+                                    + (group.scope.empty() ? std::string("the global scope") : group.scope)
+                                    + " shown by the filter");
+            if (changed)
                 for (const std::size_t index : visible)
                 {
                     const std::string& name = _result.model.classes[index].qualifiedName;
@@ -282,10 +304,9 @@ namespace dev_dash::ui
                         else
                             _selection.erase(cls.qualifiedName);
                     }
-                    if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
-                        ImGui::SetTooltip("%s\n%s\n%zu members", cls.qualifiedName.c_str(),
-                                          cls.file.lexically_relative(_project.path).string().c_str(),
-                                          cls.members.size());
+                    StatusHint(_status, cls.qualifiedName + "  ·  "
+                                            + cls.file.lexically_relative(_project.path).string() + "  ·  "
+                                            + std::to_string(cls.members.size()) + " members");
                     ImGui::PopID();
                 }
                 ImGui::TreePop();
@@ -299,13 +320,20 @@ namespace dev_dash::ui
     {
         ImGui::SetNextItemWidth(160.0f);
         ImGui::SliderFloat("Zoom", &_zoom, kMinZoom, kMaxZoom, "%.2fx", ImGuiSliderFlags_Logarithmic);
+        StatusHint(_status, "Zoom of the diagram (Ctrl+click to type a value)");
         ImGui::SameLine();
         ImGui::BeginDisabled(_dot.empty());
         if (ImGui::Button("Fit"))
             _fitPending = true;
+        StatusHint(_status, "Zoom so that the whole diagram fits the view");
         ImGui::SameLine();
         if (ImGui::Button("Copy DOT"))
+        {
             ImGui::SetClipboardText(_dot.c_str());
+            _status.Set(StatusSink::Level::kInfo, "Code graph: DOT text of the diagram copied to the clipboard");
+        }
+        StatusHint(_status, "Copy the DOT text of this diagram, to check it or render it elsewhere "
+                            "(the Diagram panel, Graphviz)");
         ImGui::EndDisabled();
         ImGui::Separator();
 

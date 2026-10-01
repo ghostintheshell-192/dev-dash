@@ -1,6 +1,7 @@
 #include "sidebar.h"
 #include "status_sink.h"
 #include "theme.h"
+#include "widgets.h"
 #include "../services/config_resolver.h"
 #include "../services/scaffold_repository.h"
 #include "../services/snapshot_service.h"
@@ -120,14 +121,9 @@ namespace dev_dash::ui
                     ImGui::PopStyleColor();
                 if (clicked && !node.sourceFilePath.empty())
                     _callbacks.openDocument(node.sourceFilePath);
-                if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort))
-                {
-                    if (node.note.empty())
-                        ImGui::SetTooltip("%s", node.sourceFilePath.string().c_str());
-                    else
-                        ImGui::SetTooltip("%s\n%s", node.note.c_str(),
-                                          node.sourceFilePath.string().c_str());
-                }
+                StatusHint(_status, node.note.empty()
+                                        ? node.sourceFilePath.string()
+                                        : node.note + "  —  " + node.sourceFilePath.string());
                 ImGui::PopID();
             }
             ImGui::TreePop();
@@ -171,8 +167,7 @@ namespace dev_dash::ui
                 RenderScaffoldMenu(s);
                 ImGui::EndPopup();
             }
-            if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort))
-                ImGui::SetTooltip("%s", s.path.string().c_str());
+            StatusHint(_status, s.path.string());
 
             if (s.isDefault)
             {
@@ -304,8 +299,7 @@ namespace dev_dash::ui
             ImGui::PushID(id++);
             if (ImGui::Selectable(file.c_str()))
                 _callbacks.openDocument(root / relBase / file);
-            if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort))
-                ImGui::SetTooltip("%s", (root / relBase / file).string().c_str());
+            StatusHint(_status, (root / relBase / file).string());
             ImGui::PopID();
         }
     }

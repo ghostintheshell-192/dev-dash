@@ -16,6 +16,8 @@ namespace dev_dash::services { class ClassDiagramGenerator; }
 
 namespace dev_dash::ui
 {
+    class StatusSink;
+
     // The code graph (feature-code-graph): reads the C++ classes of the
     // project in the background, lists them by scope with a check box each,
     // and draws the class diagram of the checked ones with their direct
@@ -26,6 +28,7 @@ namespace dev_dash::ui
     public:
         CodeGraphPanel(services::CppClassExtractor& extractor,
                        services::ClassDiagramGenerator& generator,
+                       StatusSink& status,
                        const core::Project& project);
         ~CodeGraphPanel();
 
@@ -50,6 +53,7 @@ namespace dev_dash::ui
 
         services::CppClassExtractor&     _extractor;
         services::ClassDiagramGenerator& _generator;
+        StatusSink&                      _status;
         core::Project                    _project;
 
         // Reading runs on a worker thread; the result is collected on the UI
