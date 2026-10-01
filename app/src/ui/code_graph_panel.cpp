@@ -386,7 +386,10 @@ namespace dev_dash::ui
                             "(the Diagram panel, Graphviz)");
         ImGui::Separator();
 
-        ImGui::BeginChild("##canvas", ImVec2(0.0f, 0.0f), ImGuiChildFlags_None,
+        // The padding keeps the outer borders reachable: they lie exactly on
+        // the edge of the space ImGuiDot reserves, and without it the scroll
+        // stops there and clips them.
+        ImGui::BeginChild("##canvas", ImVec2(0.0f, 0.0f), ImGuiChildFlags_AlwaysUseWindowPadding,
                           ImGuiWindowFlags_HorizontalScrollbar);
         const ImVec2 available = ImGui::GetContentRegionAvail();
         // Fitting measures the diagram drawn at the current zoom: ImGuiDot
