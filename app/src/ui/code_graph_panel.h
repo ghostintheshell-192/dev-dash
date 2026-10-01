@@ -2,12 +2,13 @@
 
 #include <array>
 #include <future>
+#include <memory>
 #include <set>
 #include <stop_token>
 #include <string>
 #include <vector>
 
-#include <ImGuiDot.h>
+#include <imgui.h>
 
 #include "../core/project.h"
 #include "../services/cpp_class_extractor.h"
@@ -19,10 +20,13 @@ namespace dev_dash::ui
     class StatusSink;
 
     // The code graph (feature-code-graph): reads the C++ classes of the
-    // project in the background, lists them by scope with a check box each,
-    // and draws the class diagram of the checked ones with their direct
-    // neighbours. A first, self-contained home: the class list moves to the
-    // sidebar later (US-1). ImGuiDot::Initialize() must have succeeded.
+    // project in the background and lists them by scope with a check box
+    // each. "Create diagram" opens the class diagram of the checked classes,
+    // with their direct neighbours, in a tab of its own: several diagrams can
+    // stay open side by side, and closing a tab is how a diagram goes away.
+    // The tabs live apart from the list: closing the list leaves them open.
+    // The list moves to the sidebar later (US-1). ImGuiDot::Initialize()
+    // must have succeeded.
     class CodeGraphPanel
     {
     public:
@@ -35,7 +39,11 @@ namespace dev_dash::ui
         CodeGraphPanel(const CodeGraphPanel&)            = delete;
         CodeGraphPanel& operator=(const CodeGraphPanel&) = delete;
 
+        // The class list window.
         void Render(bool* open);
+        // The diagram tabs, docked into the workspace on first show. Called
+        // every frame, whether the list window is open or not.
+        void RenderDiagrams(ImGuiID dockspaceId);
 
     private:
         // The classes of one scope (namespace or enclosing class), sorted.
@@ -45,11 +53,13 @@ namespace dev_dash::ui
             std::vector<std::size_t> classes;   // indices into the model
         };
 
+        struct DiagramTab;
+
         void StartReading();
         void CollectReading();
         void RenderClassList();
-        void RenderDiagram();
         void CreateDiagram();
+        void RenderDiagramTab(DiagramTab& tab);
 
         services::CppClassExtractor&     _extractor;
         services::ClassDiagramGenerator& _generator;
@@ -70,10 +80,7 @@ namespace dev_dash::ui
         bool                   _showNeighbours = true;
         bool                   _allMembers     = false;
 
-        ImGuiDot::DiagramState _diagram;
-        std::string            _dot;
-        float                  _zoom       = 1.0f;
-        bool                   _fitPending = false;  // fit the zoom to the view on the next frame
-        float                  _listWidth  = 320.0f;
+        std::vector<std::unique_ptr<DiagramTab>> _tabs;
+        int                                      _nextTabNumber = 1;
     };
 }

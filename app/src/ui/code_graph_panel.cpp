@@ -12,6 +12,7 @@
 #include <exception>
 #include <map>
 
+#include <ImGuiDot.h>
 #include <imgui.h>
 
 namespace dev_dash::ui
@@ -62,6 +63,25 @@ namespace dev_dash::ui
         }
     }
 
+    // One diagram, in a tab of its own: the DOT text it was made from (kept
+    // for Copy DOT) and the state ImGuiDot laid out from it.
+    struct CodeGraphPanel::DiagramTab
+    {
+        int                    number = 0;
+        std::string            title;           // shown on the tab
+        std::string            dot;
+        ImGuiDot::DiagramState state;
+        float                  zoom         = 1.0f;
+        bool                   fitPending   = true;   // fit the zoom to the view on the next frame
+        bool                   focusPending = true;   // bring the new tab to the front
+        bool                   open         = true;
+
+        DiagramTab() = default;
+        DiagramTab(const DiagramTab&)            = delete;
+        DiagramTab& operator=(const DiagramTab&) = delete;
+        ~DiagramTab() { ImGuiDot::CleanUp(state); }
+    };
+
     CodeGraphPanel::CodeGraphPanel(services::CppClassExtractor& extractor,
                                    services::ClassDiagramGenerator& generator,
                                    StatusSink& status,
@@ -78,7 +98,6 @@ namespace dev_dash::ui
     CodeGraphPanel::~CodeGraphPanel()
     {
         _stopReading.request_stop();
-        ImGuiDot::CleanUp(_diagram);
     }
 
     void CodeGraphPanel::StartReading()
@@ -145,9 +164,27 @@ namespace dev_dash::ui
         options.palette.ghostText   = ToHex(t.textDim);
         options.palette.edge        = ToHex(t.textDim);
 
-        _dot = _generator.Generate(_result.model, _selection, options);
-        ImGuiDot::Update(_diagram, _dot);
-        _fitPending = true;
+        auto tab    = std::make_unique<DiagramTab>();
+        tab->number = _nextTabNumber++;
+        tab->dot    = _generator.Generate(_result.model, _selection, options);
+        ImGuiDot::Update(tab->state, tab->dot);
+
+        // "Diagram 3: Shell, Sidebar +4": the first checked names say what
+        // the diagram is about.
+        constexpr std::size_t kNamesInTitle = 2;
+        std::string names;
+        std::size_t count = 0;
+        for (const std::string& name : _selection)
+        {
+            if (count++ < kNamesInTitle)
+                names += (names.empty() ? "" : ", ") + ShortNameOf(name);
+        }
+        if (count > kNamesInTitle)
+            names += " +" + std::to_string(count - kNamesInTitle);
+        tab->title = "Diagram " + std::to_string(tab->number) + ": " + names;
+
+        _status.Set(StatusSink::Level::kInfo, "Code graph: " + tab->title + " opened");
+        _tabs.push_back(std::move(tab));
     }
 
     void CodeGraphPanel::Render(bool* open)
@@ -160,17 +197,7 @@ namespace dev_dash::ui
             return;
         }
 
-        ImGui::BeginChild("##code_graph_classes", ImVec2(_listWidth, 0.0f), ImGuiChildFlags_ResizeX);
         RenderClassList();
-        _listWidth = ImGui::GetWindowWidth();
-        ImGui::EndChild();
-
-        ImGui::SameLine();
-
-        ImGui::BeginChild("##code_graph_diagram", ImVec2(0.0f, 0.0f), ImGuiChildFlags_None);
-        RenderDiagram();
-        ImGui::EndChild();
-
         ImGui::End();
     }
 
@@ -236,7 +263,8 @@ namespace dev_dash::ui
         if (ImGui::Button("Create diagram"))
             CreateDiagram();
         StatusHint(_status, _selection.empty() ? "Check at least one class to create a diagram"
-                                               : "Draw the checked classes, with the options below");
+                                               : "Open the diagram of the checked classes in a new tab, "
+                                                 "with the options below");
         ImGui::SameLine();
         if (ImGui::Button("Clear"))
             _selection.clear();
@@ -316,51 +344,68 @@ namespace dev_dash::ui
         ImGui::EndChild();
     }
 
-    void CodeGraphPanel::RenderDiagram()
+    void CodeGraphPanel::RenderDiagrams(ImGuiID dockspaceId)
     {
+        for (const std::unique_ptr<DiagramTab>& tab : _tabs)
+        {
+            ImGui::SetNextWindowDockID(dockspaceId, ImGuiCond_FirstUseEver);
+            if (tab->focusPending)
+            {
+                ImGui::SetNextWindowFocus();
+                tab->focusPending = false;
+            }
+            RenderDiagramTab(*tab);
+        }
+        std::erase_if(_tabs, [](const std::unique_ptr<DiagramTab>& tab) { return !tab->open; });
+    }
+
+    void CodeGraphPanel::RenderDiagramTab(DiagramTab& tab)
+    {
+        // The number after ### keeps the window identity when titles repeat.
+        const std::string windowName = tab.title + "###code_graph_diagram_" + std::to_string(tab.number);
+        if (!ImGui::Begin(windowName.c_str(), &tab.open))
+        {
+            ImGui::End();
+            return;
+        }
+
         ImGui::SetNextItemWidth(160.0f);
-        ImGui::SliderFloat("Zoom", &_zoom, kMinZoom, kMaxZoom, "%.2fx", ImGuiSliderFlags_Logarithmic);
+        ImGui::SliderFloat("Zoom", &tab.zoom, kMinZoom, kMaxZoom, "%.2fx", ImGuiSliderFlags_Logarithmic);
         StatusHint(_status, "Zoom of the diagram (Ctrl+click to type a value)");
         ImGui::SameLine();
-        ImGui::BeginDisabled(_dot.empty());
         if (ImGui::Button("Fit"))
-            _fitPending = true;
+            tab.fitPending = true;
         StatusHint(_status, "Zoom so that the whole diagram fits the view");
         ImGui::SameLine();
         if (ImGui::Button("Copy DOT"))
         {
-            ImGui::SetClipboardText(_dot.c_str());
-            _status.Set(StatusSink::Level::kInfo, "Code graph: DOT text of the diagram copied to the clipboard");
+            ImGui::SetClipboardText(tab.dot.c_str());
+            _status.Set(StatusSink::Level::kInfo, "Code graph: DOT text of " + tab.title + " copied to the clipboard");
         }
         StatusHint(_status, "Copy the DOT text of this diagram, to check it or render it elsewhere "
                             "(the Diagram panel, Graphviz)");
-        ImGui::EndDisabled();
         ImGui::Separator();
 
-        if (_dot.empty())
-        {
-            ImGui::TextDisabled("Check some classes, then Create diagram.");
-            return;
-        }
-
-        ImGui::BeginChild("##code_graph_canvas", ImVec2(0.0f, 0.0f), ImGuiChildFlags_None,
+        ImGui::BeginChild("##canvas", ImVec2(0.0f, 0.0f), ImGuiChildFlags_None,
                           ImGuiWindowFlags_HorizontalScrollbar);
         const ImVec2 available = ImGui::GetContentRegionAvail();
         // Fitting measures the diagram drawn at the current zoom: ImGuiDot
         // reserves its size with an item, unshifted when the pivot is 0.
-        ImGuiDot::Draw(_diagram, _zoom, _fitPending ? ImVec2(0.0f, 0.0f) : ImVec2(0.5f, 0.0f));
-        if (_fitPending)
+        ImGuiDot::Draw(tab.state, tab.zoom, tab.fitPending ? ImVec2(0.0f, 0.0f) : ImVec2(0.5f, 0.0f));
+        if (tab.fitPending)
         {
             const ImVec2 drawn = ImGui::GetItemRectSize();
-            if (drawn.x > 0.0f && drawn.y > 0.0f)
+            if (drawn.x > 0.0f && drawn.y > 0.0f && available.x > 0.0f && available.y > 0.0f)
             {
                 const float scale = std::min(available.x / drawn.x, available.y / drawn.y);
-                _zoom = std::clamp(_zoom * scale, kMinZoom, kMaxFitZoom);
+                tab.zoom = std::clamp(tab.zoom * scale, kMinZoom, kMaxFitZoom);
                 ImGui::SetScrollX(0.0f);
                 ImGui::SetScrollY(0.0f);
+                tab.fitPending = false;
             }
-            _fitPending = false;
         }
         ImGui::EndChild();
+
+        ImGui::End();
     }
 }

@@ -182,8 +182,12 @@ fuori). Script e istruzioni per rifarlo in
 **Prima fetta visibile (2026-10-01)**: pannello "Code graph" (`ui/code_graph_panel.*`,
 pulsante nella top bar) con lettura in background e annullabile, elenco delle
 classi per scope con caselle (anche per scope intero) e filtro, opzioni
-"Neighbours" / "All members", "Create diagram", "Fit", "Copy DOT". L'elenco
-sta nel pannello, non ancora nella sidebar. Il generatore usa scatole semplici
+"Neighbours" / "All members". "Create diagram" apre ogni diagramma in una
+scheda sua (US-2), con "Fit" e "Copy DOT": più diagrammi restano aperti
+insieme, e chiudere la scheda è il modo di toglierne uno. Le schede vivono a
+parte dall'elenco: chiudere l'elenco non le chiude. L'elenco sta nel
+pannello, non ancora nella sidebar: per ora la scheda nuova copre l'elenco
+nello stesso gruppo di schede, finché non si trascina altrove. Il generatore usa scatole semplici
 (`recordShapes = false`) finché ImGuiDot non disegna i record.
 
 Emerso usandolo (provato su dev-dash, su un progetto senza C++ e sui

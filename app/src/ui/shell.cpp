@@ -153,6 +153,10 @@ namespace dev_dash::ui
             ImGui::SetNextWindowDockID(_dockspaceId, ImGuiCond_FirstUseEver);
             _codeGraphView->Render(&_codeGraphOpen);
         }
+        // The diagram tabs render every frame, apart from the class list
+        // that opens them: closing the list must not close the diagrams.
+        if (_codeGraphView)
+            _codeGraphView->RenderDiagrams(_dockspaceId);
 
         // The file diff viewer renders every frame, independently of the
         // scaffold diff panel that opened it: if it only rendered while
