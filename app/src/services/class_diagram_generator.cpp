@@ -76,11 +76,17 @@ namespace dev_dash::services
                                                              : qualifiedName.substr(pos + kScope.size()));
         }
 
-        // The namespace prefix ("a::b::") shared by all the names, so that the
-        // labels can leave it out. It never covers the last component of a
-        // name: a lone class keeps its own name.
-        std::string CommonScopePrefix(const std::vector<std::string>& names)
+        // The namespace prefix ("a::b::") shared by all the scoped names, so
+        // that the labels can leave it out. It never covers the last component
+        // of a name: a lone class keeps its own name. Names at global scope
+        // (often from an external library, like a base class) do not take
+        // part, or a single one of them would keep every label in full.
+        std::string CommonScopePrefix(const std::vector<std::string>& allNames)
         {
+            std::vector<std::string> names;
+            for (const std::string& name : allNames)
+                if (name.find(kScope) != std::string::npos)
+                    names.push_back(name);
             if (names.empty())
                 return {};
 
@@ -146,7 +152,7 @@ namespace dev_dash::services
         }
 
         std::string ClassLabel(const core::CodeClass& cls, std::string_view displayName,
-                               core::MemberAccess memberAccess)
+                               core::MemberAccess memberAccess, bool recordShape)
         {
             const std::string className = ShortName(cls.qualifiedName);
             std::vector<std::string> attributes;
@@ -174,6 +180,21 @@ namespace dev_dash::services
                         line += " : " + member.type;
                     attributes.push_back(std::move(line));
                 }
+            }
+
+            if (!recordShape)
+            {
+                // Plain box: the name centred ("\n"), then one left-justified
+                // line ("\l") per member, attributes first.
+                std::string label = EscapeLabelText(displayName);
+                if (attributes.empty() && methods.empty())
+                    return label;
+                label += "\\n";
+                for (const std::string& line : attributes)
+                    label += EscapeLabelText(line) + "\\l";
+                for (const std::string& line : methods)
+                    label += EscapeLabelText(line) + "\\l";
+                return label;
             }
 
             std::string label = "{" + EscapeRecordText(displayName);
@@ -265,7 +286,8 @@ namespace dev_dash::services
         for (const core::CodeClass* cls : selected)
             drawnNames.push_back(cls->qualifiedName);
         const std::string prefix = CommonScopePrefix(drawnNames);
-        const auto displayName = [&](const std::string& name) { return name.substr(prefix.size()); };
+        const auto displayName = [&](const std::string& name)
+        { return name.starts_with(prefix) ? name.substr(prefix.size()) : name; };
 
         // ----- DOT text
 
@@ -276,7 +298,7 @@ namespace dev_dash::services
         AppendAttribute(graphAttributes, "bgcolor", palette.background);
         dot += "    graph [" + graphAttributes + "];\n";
 
-        std::string nodeAttributes = "shape=record";
+        std::string nodeAttributes = options.recordShapes ? "shape=record" : "shape=box";
         if (!palette.classFill.empty())
         {
             AppendAttribute(nodeAttributes, "style", "filled", false);
@@ -296,7 +318,8 @@ namespace dev_dash::services
             dot += "\n";
         for (const core::CodeClass* cls : selected)
             dot += "    " + Quote(cls->qualifiedName) + " [label="
-                 + Quote(ClassLabel(*cls, displayName(cls->qualifiedName), options.memberAccess)) + "];\n";
+                 + Quote(ClassLabel(*cls, displayName(cls->qualifiedName), options.memberAccess,
+                                    options.recordShapes)) + "];\n";
 
         if (!ghosts.empty())
             dot += "\n";

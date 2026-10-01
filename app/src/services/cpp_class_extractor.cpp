@@ -605,6 +605,16 @@ namespace dev_dash::services
             }
         }
 
+        // Directories that hold no code of the project: hidden ones (.git,
+        // .cache...), build trees (where CPM and FetchContent also keep the
+        // sources of the dependencies) and node_modules.
+        bool IsSkippedDirectory(const std::filesystem::path& path)
+        {
+            const std::string name = path.filename().string();
+            return name.starts_with('.') || name == "build" || name.starts_with("build-")
+                || name.starts_with("cmake-build-") || name == "out" || name == "node_modules";
+        }
+
         bool IsSourceFile(const std::filesystem::path& path)
         {
             const std::string extension = path.extension().string();
@@ -619,7 +629,7 @@ namespace dev_dash::services
         }
     }
 
-    ExtractionResult CppClassExtractor::Extract(const std::filesystem::path& root) const
+    ExtractionResult CppClassExtractor::Extract(const std::filesystem::path& root, std::stop_token stop) const
     {
         ExtractionResult result;
 
@@ -629,7 +639,9 @@ namespace dev_dash::services
                  root, std::filesystem::directory_options::skip_permission_denied, ec);
              !ec && it != std::filesystem::recursive_directory_iterator(); it.increment(ec))
         {
-            if (it->is_regular_file(ec) && IsSourceFile(it->path()))
+            if (it->is_directory(ec) && IsSkippedDirectory(it->path()))
+                it.disable_recursion_pending();
+            else if (it->is_regular_file(ec) && IsSourceFile(it->path()))
                 paths.push_back(it->path());
         }
         std::sort(paths.begin(), paths.end());
@@ -644,6 +656,12 @@ namespace dev_dash::services
         Index index;
         for (const std::filesystem::path& path : paths)
         {
+            if (stop.stop_requested())
+            {
+                result.cancelled = true;
+                return result;
+            }
+
             auto file  = std::make_unique<SourceFile>();
             file->path = path;
             file->text = ReadFile(path);
@@ -655,7 +673,7 @@ namespace dev_dash::services
             const TSNode rootNode = ts_tree_root_node(file->tree.get());
             ++result.filesRead;
             if (ts_node_has_error(rootNode))
-                ++result.filesWithSyntaxErrors;
+                result.partlyReadFiles.push_back(path);
             index.Collect(rootNode, "", *file);
             files.push_back(std::move(file));
         }

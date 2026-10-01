@@ -27,4 +27,6 @@ target_sources(dev-dash
         snapshot_history_panel.cpp
         diagram_preview_panel.h
         diagram_preview_panel.cpp
+        code_graph_panel.h
+        code_graph_panel.cpp
 )

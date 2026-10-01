@@ -1,6 +1,8 @@
 #pragma once
 
 #include <filesystem>
+#include <stop_token>
+#include <vector>
 
 #include "../core/code_model.h"
 
@@ -10,7 +12,12 @@ namespace dev_dash::services
     {
         core::CodeModel model;
         int filesRead = 0;
-        int filesWithSyntaxErrors = 0;  // parsed anyway: tree-sitter recovers around the error
+        // Files with code the parser did not understand: macros it cannot
+        // expand (TEST_CASE(...), SDLCALL), syntax the grammar misses (a
+        // default argument "= {}"), or real errors. tree-sitter recovers
+        // around them, so the rest of the file is read.
+        std::vector<std::filesystem::path> partlyReadFiles;
+        bool cancelled = false;         // stopped before the end: the model is partial
     };
 
     // The base reader of the code graph (ADR-017): reads the C++ classes of a
@@ -37,10 +44,16 @@ namespace dev_dash::services
         CppClassExtractor() = default;
 
         // Reads every C++ source file under root (.h .hh .hpp .hxx .cpp .cc
-        // .cxx), in path order. Classes keep the order in which they are
-        // found; relations are sorted, one per pair of classes. A relation
-        // may point to a name outside the model: a base class from an
-        // external library, for example.
-        ExtractionResult Extract(const std::filesystem::path& root) const;
+        // .cxx), in path order, skipping the directories that hold no code
+        // of the project: hidden ones, build trees (build, build-*,
+        // cmake-build-*, out) and node_modules. Classes keep the order in
+        // which they are found; relations are sorted, one per pair of
+        // classes. A relation may point to a name outside the model: a base
+        // class from an external library, for example.
+        //
+        // Meant to run on a worker thread: a stop request is checked between
+        // files, so that the caller can give up quickly (a project switch
+        // during a long reading).
+        ExtractionResult Extract(const std::filesystem::path& root, std::stop_token stop = {}) const;
     };
 }

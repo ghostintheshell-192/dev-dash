@@ -29,6 +29,10 @@ namespace dev_dash::services
         // Least visible access shown in the class boxes: kPublic shows only the
         // public members, kPrivate shows all of them.
         core::MemberAccess memberAccess = core::MemberAccess::kPublic;
+        // Class boxes as records ({name|attributes|methods}), the UML
+        // compartments. Off: plain boxes with the name and the members on
+        // separate lines, for renderers without records (ImGuiDot, for now).
+        bool recordShapes = true;
         DiagramPalette palette;
     };
 

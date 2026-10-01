@@ -179,6 +179,29 @@ fuori). Script e istruzioni per rifarlo in
 
 ### Fase 3 — Interfaccia
 
+**Prima fetta visibile (2026-10-01)**: pannello "Code graph" (`ui/code_graph_panel.*`,
+pulsante nella top bar) con lettura in background e annullabile, elenco delle
+classi per scope con caselle (anche per scope intero) e filtro, opzioni
+"Neighbours" / "All members", "Create diagram", "Fit", "Copy DOT". L'elenco
+sta nel pannello, non ancora nella sidebar. Il generatore usa scatole semplici
+(`recordShapes = false`) finché ImGuiDot non disegna i record.
+
+Emerso usandolo (provato su dev-dash, su un progetto senza C++ e sui
+sorgenti di Graphviz, ~1800 file):
+
+- la radice del progetto include test e `poc/`: le strutture dei test
+  finiscono fra le classi. Si saltano solo le cartelle nascoste e di build;
+- "file con errori di sintassi" era fuorviante: quasi tutti sono macro
+  (`TEST_CASE`, `SDLCALL`) o un limite della grammatica (`= {}` come argomento
+  di default). Ora si chiamano "letti in parte", con l'elenco nel tooltip;
+- un intero namespace con tutti i membri dà un diagramma largo e piatto,
+  illeggibile anche adattato alla vista: la selezione piccola è il caso d'uso;
+- ImGuiDot: scatole molto più grandi del testo (Graphviz misura con il suo
+  font, ImGui disegna con un altro), linee tratteggiate disegnate piene,
+  fantasma riempiti come le classi;
+- cambiare progetto durante una lettura lunga bloccava l'app finché la
+  lettura non finiva: ora la lettura si annulla (`std::stop_token`).
+
 - [ ] Sezione della sidebar: albero per namespace/cartella, caselle a più
       livelli, ricerca.
 - [ ] Pannello diagramma con ImGuiDot, opzione "mostra vicini".

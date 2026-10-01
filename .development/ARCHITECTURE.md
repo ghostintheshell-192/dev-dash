@@ -120,6 +120,8 @@ For what each directory actually contains, see the Project Tree below.
 - `snapshot_service.h`
 
 ### app/src/ui
+- `code_graph_panel.cpp`
+- `code_graph_panel.h`
 - `diagram_preview_panel.cpp`
 - `diagram_preview_panel.h`
 - `document_panel_host.cpp`

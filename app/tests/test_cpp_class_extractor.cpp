@@ -289,17 +289,44 @@ TEST_CASE("every source file under the root is read, in path order", "[extractor
                  "namespace z { struct FromSource { FromHeader header; }; }");
 
     CHECK(e.result.filesRead == 2);
-    CHECK(e.result.filesWithSyntaxErrors == 0);
+    CHECK(e.result.partlyReadFiles.empty());
     REQUIRE(e.result.model.classes.size() == 2);
     // code.cpp sorts before code.h.
     CHECK(e.result.model.classes[0].qualifiedName == "z::FromSource");
     CHECK(e.HasRelation("z::FromSource", "z::FromHeader", RelationKind::kComposes));
 }
 
-TEST_CASE("a file with a syntax error is counted and still read", "[extractor]")
+TEST_CASE("hidden and build directories are skipped", "[extractor]")
+{
+    Extraction e("namespace p { struct Mine {}; }");
+    WriteFile(e.root.Path() / "build" / "_deps" / "lib" / "lib.h", "struct Dependency {};");
+    WriteFile(e.root.Path() / "cmake-build-debug" / "gen.h", "struct Generated {};");
+    WriteFile(e.root.Path() / ".cache" / "x.h", "struct Cached {};");
+    WriteFile(e.root.Path() / "src" / "builder" / "b.h", "struct Builder {};");   // not a build tree
+
+    const services::ExtractionResult result = CppClassExtractor().Extract(e.root.Path());
+    CHECK(result.filesRead == 2);
+    CHECK(result.model.classes.size() == 2);
+}
+
+TEST_CASE("a stop request ends the reading early", "[extractor]")
+{
+    TempDir root{"extractor-stop"};
+    WriteFile(root.Path() / "a.h", "struct A {};");
+
+    std::stop_source source;
+    source.request_stop();
+    const services::ExtractionResult result = CppClassExtractor().Extract(root.Path(), source.get_token());
+    CHECK(result.cancelled);
+    CHECK(result.filesRead == 0);
+    CHECK(result.model.classes.empty());
+}
+
+TEST_CASE("a file with a syntax error is listed and still read", "[extractor]")
 {
     Extraction e("namespace s { struct Fine { int x; }; struct Broken { int y }; }");
 
-    CHECK(e.result.filesWithSyntaxErrors == 1);
+    REQUIRE(e.result.partlyReadFiles.size() == 1);
+    CHECK(e.result.partlyReadFiles[0].filename() == "code.h");
     CHECK(e.Class("s::Fine") != nullptr);
 }

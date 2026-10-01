@@ -121,6 +121,20 @@ TEST_CASE("the class box shows the members, without the special ones", "[diagram
     }
 }
 
+TEST_CASE("without records the class is a box with one line per member", "[diagram]")
+{
+    core::CodeModel model;
+    model.classes = {Class("ns::Panel", {Attribute("size", "std::vector<int>"), Method("Render", "void")}),
+                     Class("ns::Empty")};
+
+    DiagramOptions options;
+    options.recordShapes = false;
+    const std::string dot = Generate(model, {"ns::Panel", "ns::Empty"}, options);
+    CHECK(Contains(dot, "node [shape=box];"));
+    CHECK(Contains(dot, "label=\"Panel\\n+ size : std::vector<int>\\l+ Render()\\l\""));
+    CHECK(Contains(dot, "label=\"Empty\""));
+}
+
 TEST_CASE("record and quoting characters are escaped", "[diagram]")
 {
     core::CodeModel model;
@@ -201,7 +215,7 @@ TEST_CASE("an uncertain relation is marked, not guessed", "[diagram]")
     CHECK(Contains(dot, "\"A\" -> \"C\" [arrowhead=vee, style=dotted, label=\"?\"];"));
 }
 
-TEST_CASE("the labels leave out the scope shared by all the drawn classes", "[diagram]")
+TEST_CASE("the labels leave out the scope shared by the drawn classes", "[diagram]")
 {
     core::CodeModel model;
     model.classes = {Class("dev_dash::ui::Panel"), Class("dev_dash::services::Loader"), Class("dev_dash::ui::Theme")};
@@ -219,13 +233,13 @@ TEST_CASE("the labels leave out the scope shared by all the drawn classes", "[di
         CHECK(Contains(Generate(model, {"dev_dash::ui::Theme"}), "label=\"{Theme}\""));
     }
 
-    SECTION("a class at global scope keeps the whole names")
+    SECTION("a name at global scope does not keep the others in full")
     {
-        model.classes.push_back(Class("Global"));
-        model.relations.push_back(Relation("Global", "dev_dash::ui::Theme", RelationKind::kDepends));
-        const std::string dot = Generate(model, {"Global"});
-        CHECK(Contains(dot, "label=\"{Global}\""));
-        CHECK(Contains(dot, "label=\"dev_dash::ui::Theme\""));
+        model.relations.push_back(Relation("dev_dash::ui::Panel", "imgui_md", RelationKind::kInherits));
+        const std::string dot = Generate(model, {"dev_dash::ui::Panel"});
+        CHECK(Contains(dot, "label=\"{ui::Panel}\""));
+        CHECK(Contains(dot, "label=\"services::Loader\""));
+        CHECK(Contains(dot, "label=\"imgui_md\""));
     }
 }
 

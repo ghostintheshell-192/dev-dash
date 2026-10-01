@@ -33,6 +33,8 @@ namespace dev_dash::services
     class PromoteEngine;
     class ApplyEngine;
     class SnapshotService;
+    class CppClassExtractor;
+    class ClassDiagramGenerator;
 }
 
 namespace dev_dash::app
@@ -74,7 +76,8 @@ namespace dev_dash::app
         // 10. _markdownRenderer (needs fonts)
         // 11. _documentPanelHost (needs loader + renderer; registers LinkHandler)
         // 12. _configResolver, _diffEngine, _promoteEngine, _applyEngine,
-        //     _snapshotService, _scaffoldRepository
+        //     _snapshotService, _scaffoldRepository, _classExtractor,
+        //     _diagramGenerator
         // 13. ImGuiDot::Initialize() -- Graphviz context, paired with CleanUp in ~App
         // 14. _projectSelectorPanel (needs window handle)
         //
@@ -103,6 +106,8 @@ namespace dev_dash::app
         // ApplyEngine before SnapshotService: SnapshotService holds a ref to it.
         std::unique_ptr<services::ApplyEngine>        _applyEngine;
         std::unique_ptr<services::SnapshotService>    _snapshotService;
+        std::unique_ptr<services::CppClassExtractor>     _classExtractor;
+        std::unique_ptr<services::ClassDiagramGenerator> _diagramGenerator;
         std::unique_ptr<ui::ProjectSelectorPanel>    _projectSelectorPanel;
         // Shell declared last → destroyed first, before the services its
         // views reference.

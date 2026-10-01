@@ -30,6 +30,8 @@
 #include "../services/promote_engine.h"
 #include "../services/apply_engine.h"
 #include "../services/snapshot_service.h"
+#include "../services/cpp_class_extractor.h"
+#include "../services/class_diagram_generator.h"
 #include "../core/project.h"
 
 namespace dev_dash::app
@@ -107,6 +109,8 @@ namespace dev_dash::app
         _applyEngine        = std::make_unique<services::ApplyEngine>();
         _snapshotService    = std::make_unique<services::SnapshotService>(*_applyEngine);
         _scaffoldRepository = std::make_unique<services::ScaffoldRepository>();
+        _classExtractor     = std::make_unique<services::CppClassExtractor>();
+        _diagramGenerator   = std::make_unique<services::ClassDiagramGenerator>();
         EnsureRuntimeDirs();
 
         // Graphviz context for the diagrams. A failure only disables them.
@@ -188,6 +192,7 @@ namespace dev_dash::app
         _shell = std::make_unique<ui::Shell>(
             *_configResolver, *_scaffoldRepository, *_diffEngine,
             *_promoteEngine, *_applyEngine, *_snapshotService,
+            *_classExtractor, *_diagramGenerator,
             *_documentPanelHost, core::Project{path}, _diagramsAvailable);
         _appState = AppState::kWorkspace;
     }
