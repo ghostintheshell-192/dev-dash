@@ -16,8 +16,20 @@ resolved: null  # YYYY-MM-DD when status leaves open/in-progress
 related: []  # List of related issue filenames
 related_decision: null  # Optional: link to reference/decisions/NNN-name.md
 report: null  # Optional: link to archive/analysis/YYYY-MM-DD_report_agent-name.md
+upstream: null  # Optional: the dependency the debt lives in
+upstream_link: null  # Optional: the issue or PR opened upstream
 ---
 ```
+
+### Upstream debt
+
+Debt that lives in a dependency, not in DevDash (a limit of ImGuiDot, a gap in
+the tree-sitter grammar), carries `upstream:` with the dependency's name. The
+index lists it in a section of its own, grouped by dependency, so that it is
+in one place when the time comes to report it there. `upstream_link:` records
+the issue or PR once opened: without it the issue reads "not reported yet".
+It is resolved when the fix is merged upstream and DevDash uses it (pin
+updated, workaround removed).
 
 ## Workflow
 
@@ -70,6 +82,19 @@ report: null  # Optional: link to archive/analysis/YYYY-MM-DD_report_agent-name.
 - `markdown-code-block-styling.md` - Fenced code blocks rendered as flat yellow text — no syntax highlighting
 - `preprocess-imports-indented-fences.md` - PreprocessImports does not recognise indented fenced code blocks
 - `scanner-directory-include-silent.md` - ConfigFileScanner: @include verso directory accettato e poi fallisce in silenzio
+
+### Upstream — to report to the dependencies
+
+**ImGuiDot:**
+- `imguidot-box-size-font-metrics.md` - ImGuiDot: node boxes far larger than their text (not reported yet)
+- `imguidot-diagram-size-api.md` - ImGuiDot: no API for the size of a diagram (not reported yet)
+- `imguidot-fillcolor-without-filled.md` - ImGuiDot: `fillcolor` applied without `style=filled` (not reported yet)
+- `imguidot-line-styles-ignored.md` - ImGuiDot: `style=dashed` and `style=dotted` ignored (not reported yet)
+- `imguidot-record-shape.md` - ImGuiDot: `shape=record` not drawn (not reported yet)
+- `imguidot-reserved-space-border.md` - ImGuiDot: reserved space cuts the outer borders (not reported yet)
+
+**tree-sitter-cpp:**
+- `tree-sitter-cpp-default-argument-braces.md` - tree-sitter-cpp: `= {}` default argument parsed as an error (not reported yet)
 
 ## Integration with Reference Documentation
 

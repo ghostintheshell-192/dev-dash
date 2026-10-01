@@ -7,6 +7,8 @@ resolved: null  # YYYY-MM-DD when status leaves open/in-progress — names the a
 related: []
 related_decision: null  # Optional: link to reference/decisions/NNN-name.md
 report: null  # Optional: link to archive/analysis/YYYY-MM-DD_report_agent-name.md
+upstream: null  # Optional: the dependency the debt lives in (ImGuiDot, tree-sitter-cpp...): listed apart, to report there
+upstream_link: null  # Optional: the issue or PR opened upstream, once reported
 ---
 
 # [Issue Title]

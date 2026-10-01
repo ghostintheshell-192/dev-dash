@@ -219,6 +219,11 @@ sorgenti di Graphviz, ~1800 file):
 
 ## Contributi a ImGuiDot
 
+> I difetti e le mancanze di ImGuiDot emersi usando il code graph sono
+> registrati come tech-debt con `upstream: ImGuiDot`, elencati a parte
+> nell'indice di [`tech-debt/`](../../tech-debt/README.md): lì si segue cosa è
+> già stato segnalato a Dario e cosa no.
+
 Il class diagram UML ha bisogno di funzioni che ImGuiDot oggi non ha. Vanno
 proposte a Dario come PR sul suo repo (ADR-014: contribuzione attiva
 upstream), dal fork `ghostintheshell-192/ImGuiDot`, una modifica per PR. Per
