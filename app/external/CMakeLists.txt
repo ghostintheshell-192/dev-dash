@@ -197,6 +197,46 @@ CPMAddPackage(
         "BUILD_IMGUI OFF"
 )
 
+# ----- tree-sitter + C++ grammar (code graph extractor) -----
+#
+# The base reader of the code graph (ADR-017): tree-sitter parses the source
+# files, our resolver links the names. Both are plain C (MIT). Downloaded
+# sources only and built here as two small static libraries: the runtime is a
+# single amalgamated unit (lib/src/lib.c), the grammar is the generated
+# parser.c plus its hand-written scanner.c. Linked by the services layer.
+
+CPMAddPackage(
+    NAME tree-sitter
+    VERSION 0.26.13
+    GITHUB_REPOSITORY tree-sitter/tree-sitter
+    DOWNLOAD_ONLY ON
+)
+
+add_library(tree-sitter STATIC ${tree-sitter_SOURCE_DIR}/lib/src/lib.c)
+target_include_directories(tree-sitter
+    PUBLIC  ${tree-sitter_SOURCE_DIR}/lib/include
+    PRIVATE ${tree-sitter_SOURCE_DIR}/lib/src ${tree-sitter_SOURCE_DIR}/lib/src/wasm)
+# The project builds C without GNU extensions (CMAKE_C_EXTENSIONS OFF): the
+# runtime needs the POSIX/BSD declarations its own build enables (fdopen,
+# le16toh...), same definitions as tree-sitter's CMakeLists.txt.
+target_compile_definitions(tree-sitter
+    PRIVATE _POSIX_C_SOURCE=200112L _DEFAULT_SOURCE _BSD_SOURCE _DARWIN_C_SOURCE)
+set_target_properties(tree-sitter PROPERTIES C_STANDARD 11)
+
+CPMAddPackage(
+    NAME tree-sitter-cpp
+    VERSION 0.23.4
+    GITHUB_REPOSITORY tree-sitter/tree-sitter-cpp
+    DOWNLOAD_ONLY ON
+)
+
+add_library(tree-sitter-cpp STATIC
+    ${tree-sitter-cpp_SOURCE_DIR}/src/parser.c
+    ${tree-sitter-cpp_SOURCE_DIR}/src/scanner.c)
+target_include_directories(tree-sitter-cpp PRIVATE ${tree-sitter-cpp_SOURCE_DIR}/src)
+target_link_libraries(tree-sitter-cpp PUBLIC tree-sitter)
+set_target_properties(tree-sitter-cpp PROPERTIES C_STANDARD 11)
+
 # ----- Catch2 v3 (unit testing — test target only) -----
 #
 # Pulled only when DEVDASH_BUILD_TESTS is ON. Exports Catch2::Catch2WithMain

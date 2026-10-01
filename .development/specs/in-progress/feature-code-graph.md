@@ -142,12 +142,22 @@ fuori). Script e istruzioni per rifarlo in
 
 - [x] Tipi in `core/` (`core/code_model.h`): classe, membro, relazione con
       il flag `certain`.
-- [ ] Interfaccia comune dell'estrattore in `services/` (ADR-017 §4).
-- [ ] Estrattore tree-sitter con il risolutore di nomi, portato in C++ dallo
-      script `extract_ts2.py` dell'esperimento. tree-sitter e la grammatica
-      C++ via CPM.
-- [ ] Relazioni incerte marcate nel modello (ADR-017 §2): il campo c'è e il
-      generatore le disegna, resta all'estrattore riempirlo.
+- [x] Interfaccia comune dell'estrattore (ADR-017 §4): per ora è il modello
+      `core::CodeModel` che ogni estrattore restituisce. La classe base
+      virtuale arriva con il secondo estrattore (libclang), come vuole
+      ADR-010 (classi concrete finché non serve un punto di sostituzione).
+- [x] Estrattore tree-sitter con il risolutore di nomi
+      (`services/cpp_class_extractor.*`), portato in C++ da `extract_ts2.py`.
+      tree-sitter 0.26.13 e tree-sitter-cpp 0.23.4 via CPM. Verificato con
+      `compare.py` contro lo script: identico su `app/src` (72 classi,
+      140 relazioni, 526 membri), su `ImGuiDot/src` e sui casi difficili.
+      14 test Catch2, fra cui i sei casi difficili.
+- [x] Relazioni incerte marcate nel modello (ADR-017 §2): un nome che due
+      `using namespace` rendono ambiguo dà una relazione incerta (la prima
+      trovata, marcata). È l'unico caso per ora.
+- Limite noto: le classi in un namespace anonimo finiscono nel namespace che
+  lo contiene (come nello script); i dettagli interni di un `.cpp` compaiono
+  quindi fra le classi del progetto.
 - [x] Generatore DOT (`services/class_diagram_generator.*`): selezione +
       vicini fantasma → testo. Scelte fatte:
   - riquadro classe come `shape=record` (`{nome|attributi|metodi}`, righe

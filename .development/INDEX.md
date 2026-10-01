@@ -53,9 +53,12 @@
 - [feature-snapshot-history.md](specs/implemented/feature-snapshot-history.md) — Snapshot & History
 - [feature-ui-overhaul.md](specs/implemented/feature-ui-overhaul.md) — feature-ui-overhaul
 
-### specs/planned/ (2 files)
+### specs/in-progress/ (1 files)
 
-- [feature-code-graph.md](specs/planned/feature-code-graph.md) — Code Graph — class diagram on demand
+- [feature-code-graph.md](specs/in-progress/feature-code-graph.md) — Code Graph — class diagram on demand
+
+### specs/planned/ (1 files)
+
 - [feature-scaffold-templating.md](specs/planned/feature-scaffold-templating.md) — Scaffold Templating
 
 ### tech-debt/ (8 files)

@@ -54,6 +54,7 @@ For what each directory actually contains, see the Project Tree below.
 - `app.h`
 
 ### app/src/core
+- `code_model.h` — The structure of a code base as the code graph sees it (feature-code-graph): classes, their members, and the relations between classes. Every extractor produces this model, whatever its source (ADR-01...
 - `config_layer.h`
 - `diff_entry.h`
 - `effective_config.h`
@@ -85,12 +86,16 @@ For what each directory actually contains, see the Project Tree below.
 - `agents_adapter.h`
 - `apply_engine.cpp`
 - `apply_engine.h`
+- `class_diagram_generator.cpp`
+- `class_diagram_generator.h`
 - `claude_md_adapter.cpp`
 - `claude_md_adapter.h`
 - `config_file_scanner.cpp`
 - `config_file_scanner.h`
 - `config_resolver.cpp`
 - `config_resolver.h`
+- `cpp_class_extractor.cpp`
+- `cpp_class_extractor.h`
 - `diff_engine.cpp`
 - `diff_engine.h`
 - `document_loader.cpp`
