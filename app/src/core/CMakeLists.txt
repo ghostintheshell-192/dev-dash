@@ -6,4 +6,5 @@ target_sources(dev-dash
         scaffold.h
         snapshot.h
         diff_entry.h
+        code_model.h
 )

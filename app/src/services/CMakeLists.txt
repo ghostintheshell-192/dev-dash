@@ -37,6 +37,8 @@ add_library(dev-dash-services STATIC
     snapshot_service.cpp
     scaffold_repository.h
     scaffold_repository.cpp
+    class_diagram_generator.h
+    class_diagram_generator.cpp
 )
 
 # Lets consumers include via "services/..." and "core/..." (the layer's own

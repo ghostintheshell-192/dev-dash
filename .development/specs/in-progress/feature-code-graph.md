@@ -1,13 +1,13 @@
 ---
 type: feature
 priority: must-have
-status: planned
+status: in-progress
 category: ui
 related: [feature-ui-overhaul]
 depends_on: []
 decided_by: ../../reference/decisions/014-germen-coevolution-strategy.md
 created: 2026-04-26
-updated: 2026-09-26
+updated: 2026-10-01
 ---
 
 # Code Graph — class diagram on demand
@@ -140,14 +140,32 @@ fuori). Script e istruzioni per rifarlo in
 
 ### Fase 2 — Modello e generatore
 
-- [ ] Tipi in `core/`.
+- [x] Tipi in `core/` (`core/code_model.h`): classe, membro, relazione con
+      il flag `certain`.
 - [ ] Interfaccia comune dell'estrattore in `services/` (ADR-017 §4).
 - [ ] Estrattore tree-sitter con il risolutore di nomi, portato in C++ dallo
       script `extract_ts2.py` dell'esperimento. tree-sitter e la grammatica
       C++ via CPM.
-- [ ] Relazioni incerte marcate nel modello (ADR-017 §2).
-- [ ] Generatore DOT: selezione + vicini fantasma → testo.
-- [ ] Test Catch2 del generatore (input modello, output DOT atteso).
+- [ ] Relazioni incerte marcate nel modello (ADR-017 §2): il campo c'è e il
+      generatore le disegna, resta all'estrattore riempirlo.
+- [x] Generatore DOT (`services/class_diagram_generator.*`): selezione +
+      vicini fantasma → testo. Scelte fatte:
+  - riquadro classe come `shape=record` (`{nome|attributi|metodi}`, righe
+    chiuse da `\l`), non label HTML: in ImGuiDot si appoggia sulle righe già
+    divise da Graphviz, lo stesso meccanismo delle etichette su più righe
+    (PR #18);
+  - scomparti vuoti omessi; costruttori, distruttore e operatori omessi;
+    overload in una riga sola (i parametri non sono nel modello);
+  - membri mostrati fino a un livello d'accesso scelto (`memberAccess`,
+    default solo pubblici): risponde in parte a OQ-2;
+  - ereditarietà scritta base → derivata (`dir=back`), così il layout mette
+    la base in alto;
+  - relazione incerta: linea punteggiata ed etichetta `?`;
+  - le etichette tolgono il namespace comune a tutte le classi disegnate;
+  - colori da una `DiagramPalette` passata dalla UI (i servizi non vedono
+    il tema); una voce vuota lascia il default del renderer.
+- [x] Test Catch2 del generatore (`tests/test_class_diagram_generator.cpp`):
+      un output DOT completo atteso, più una regola per test.
 
 ### Fase 3 — Interfaccia
 
@@ -171,7 +189,7 @@ le scelte di design (nuove API) si chiede prima a Dario.
 
 | Serve per | In DOT | Stato in ImGuiDot | Tipo di contributo |
 |---|---|---|---|
-| Riquadro a scomparti | `shape=record` oppure label HTML | ❌ | Feature grossa: si segue la geometria dei campi calcolata da Graphviz |
+| Riquadro a scomparti | `shape=record` (scelto dal generatore) | ❌ | Feature grossa: si segue la geometria dei campi calcolata da Graphviz |
 | Dipendenza tratteggiata | `style=dashed` | ❌ stili di linea ignorati | Feature piccola, comportamento definito da Graphviz |
 | Clic su un nodo | — | ❌ | **Nuova API**: da discutere con Dario prima di scrivere codice |
 | Errori di parsing leggibili | — | ❌ silenziosi | **Nuova API**: da discutere |
