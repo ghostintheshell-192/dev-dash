@@ -206,8 +206,12 @@ sorgenti di Graphviz, ~1800 file):
 - cambiare progetto durante una lettura lunga bloccava l'app finché la
   lettura non finiva: ora la lettura si annulla (`std::stop_token`).
 
-- [ ] Sezione della sidebar: albero per namespace/cartella, caselle a più
-      livelli, ricerca.
+- [x] Sezione della sidebar: albero per namespace, caselle a più livelli
+      (a tre stati: piena, vuota, mista), ricerca. Fatto il 2026-10-02: la
+      finestra "Code graph" e il suo pulsante non ci sono più, i diagrammi
+      restano schede del workspace. Una classe con classi annidate è un nodo
+      solo, la cui casella copre anche le annidate. La vista per cartella è
+      rimandata: utile per i progetti senza namespace.
 - [ ] Pannello diagramma con ImGuiDot, opzione "mostra vicini".
 - [ ] Estrazione in background e aggiornamento incrementale (osservazione
       dei file).

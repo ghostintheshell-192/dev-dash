@@ -11,6 +11,7 @@
 #include <cstdio>
 #include <exception>
 #include <map>
+#include <optional>
 
 #include <ImGuiDot.h>
 #include <imgui.h>
@@ -269,7 +270,12 @@ namespace dev_dash::ui
 
         ImGui::Separator();
         ImGui::BeginDisabled(_selection.empty());
-        if (ImGui::Button("Create diagram"))
+        // The count rides on the button: the sidebar is too narrow for a
+        // third item on this row.
+        const std::string createLabel = _selection.empty()
+                                            ? std::string("Create diagram###create")
+                                            : "Create diagram (" + std::to_string(_selection.size()) + ")###create";
+        if (ImGui::Button(createLabel.c_str()))
             CreateDiagram();
         StatusHint(_status, _selection.empty() ? "Check at least one class to create a diagram"
                                                : "Open the diagram of the checked classes in a new tab, "
@@ -279,8 +285,6 @@ namespace dev_dash::ui
             _selection.clear();
         StatusHint(_status, "Uncheck all the classes, also those hidden by the filter");
         ImGui::EndDisabled();
-        ImGui::SameLine();
-        ImGui::TextDisabled("%zu checked", _selection.size());
         ImGui::Checkbox("Neighbours", &_showNeighbours);
         StatusHint(_status, "Also draw the classes one step away from the checked ones, dimmed and "
                             "with their name only");
@@ -308,15 +312,34 @@ namespace dev_dash::ui
     }
 
     // The scopes nested in node, then its own classes. A scope with no class
-    // shown by the filter is left out.
+    // shown by the filter is left out. A class with nested classes is one
+    // node: its box covers the class and the classes nested in it.
     void CodeGraphPanel::RenderScope(const ScopeNode& node, const std::string& path, int depth)
     {
-        const bool filtering = _filter[0] != '\0';
+        const bool             filtering = _filter[0] != '\0';
+        const std::string_view filter(_filter.data());
+
+        // The class of node named like a nested scope, if any.
+        const auto classNamed = [&](const std::string& name) -> std::optional<std::size_t>
+        {
+            for (const std::size_t index : node.classes)
+                if (ShortNameOf(_result.model.classes[index].qualifiedName) == name)
+                    return index;
+            return std::nullopt;
+        };
+        std::set<std::size_t> classesAsScopes;
 
         for (const auto& [name, child] : node.children)
         {
+            const std::optional<std::size_t> ownClass = classNamed(name);
+            if (ownClass)
+                classesAsScopes.insert(*ownClass);
+
             std::vector<std::size_t> visible;
             CollectVisible(child, visible);
+            const std::size_t nestedCount = visible.size();
+            if (ownClass && Matches(_result.model.classes[*ownClass].qualifiedName, filter))
+                visible.push_back(*ownClass);
             if (visible.empty())
                 continue;
 
@@ -334,8 +357,9 @@ namespace dev_dash::ui
             ImGui::PushItemFlag(ImGuiItemFlags_MixedValue, mixed);
             const bool changed = ImGui::Checkbox("##all", &all);
             ImGui::PopItemFlag();
-            StatusHint(_status, "Check or uncheck every class of " + childPath + " shown by the filter, "
-                                    "nested scopes included");
+            StatusHint(_status, "Check or uncheck " + std::string(ownClass ? "the class " : "every class of ") + childPath
+                                    + (ownClass ? " and the classes nested in it" : ", nested scopes included")
+                                    + " shown by the filter");
             if (changed)
                 for (const std::size_t index : visible)
                 {
@@ -354,7 +378,15 @@ namespace dev_dash::ui
             const ImGuiTreeNodeFlags flags =
                 ImGuiTreeNodeFlags_SpanAvailWidth | (depth == 0 ? ImGuiTreeNodeFlags_DefaultOpen : 0);
             const bool open = ImGui::TreeNodeEx(name.c_str(), flags);
-            StatusHint(_status, childPath + "  ·  " + std::to_string(visible.size()) + " classes");
+            if (ownClass)
+            {
+                const core::CodeClass& cls = _result.model.classes[*ownClass];
+                StatusHint(_status, cls.qualifiedName + "  ·  " + cls.file.lexically_relative(_project.path).string()
+                                        + "  ·  " + std::to_string(cls.members.size()) + " members, "
+                                        + std::to_string(nestedCount) + " nested classes");
+            }
+            else
+                StatusHint(_status, childPath + "  ·  " + std::to_string(visible.size()) + " classes");
             if (open)
             {
                 RenderScope(child, childPath, depth + 1);
@@ -363,9 +395,8 @@ namespace dev_dash::ui
             ImGui::PopID();
         }
 
-        const std::string_view filter(_filter.data());
         for (const std::size_t index : node.classes)
-            if (Matches(_result.model.classes[index].qualifiedName, filter))
+            if (!classesAsScopes.contains(index) && Matches(_result.model.classes[index].qualifiedName, filter))
                 RenderClass(index);
     }
 
