@@ -1,6 +1,7 @@
 #pragma once
 
 #include <filesystem>
+#include <optional>
 #include <stop_token>
 #include <vector>
 
@@ -18,6 +19,13 @@ namespace dev_dash::services
         // around them, so the rest of the file is read.
         std::vector<std::filesystem::path> partlyReadFiles;
         bool cancelled = false;         // stopped before the end: the model is partial
+        // Every directory holding C++ files, at any depth, relative to the
+        // root and sorted: the excluded ones too, for the caller to offer
+        // them back. The skipped ones (hidden, build trees) are not listed.
+        std::vector<std::filesystem::path> sourceDirectories;
+        // The directories left out of this reading, relative to the root:
+        // the ones asked for, or those of the default rule.
+        std::vector<std::filesystem::path> excludedDirectories;
     };
 
     // The base reader of the code graph (ADR-017): reads the C++ classes of a
@@ -51,9 +59,20 @@ namespace dev_dash::services
         // classes. A relation may point to a name outside the model: a base
         // class from an external library, for example.
         //
+        // excludedDirectories (relative to root) leaves directories out, with
+        // all they hold: they are still listed in sourceDirectories, not
+        // read. Without it, the default rule applies: the directories named
+        // test or tests stay out, as they hold the tests of the project, not
+        // its design.
+        //
         // Meant to run on a worker thread: a stop request is checked between
         // files, so that the caller can give up quickly (a project switch
         // during a long reading).
-        ExtractionResult Extract(const std::filesystem::path& root, std::stop_token stop = {}) const;
+        ExtractionResult Extract(const std::filesystem::path& root,
+                                 std::stop_token stop = {},
+                                 const std::optional<std::vector<std::filesystem::path>>& excludedDirectories = {}) const;
+
+        // The default rule: a directory named test or tests.
+        static bool IsTestDirectory(const std::filesystem::path& directory);
     };
 }

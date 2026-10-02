@@ -8,6 +8,7 @@
 #include <map>
 #include <memory>
 #include <optional>
+#include <set>
 #include <string>
 #include <string_view>
 #include <unordered_map>
@@ -629,21 +630,70 @@ namespace dev_dash::services
         }
     }
 
-    ExtractionResult CppClassExtractor::Extract(const std::filesystem::path& root, std::stop_token stop) const
+    bool CppClassExtractor::IsTestDirectory(const std::filesystem::path& directory)
+    {
+        const std::filesystem::path name = directory.filename();
+        return name == "test" || name == "tests";
+    }
+
+    ExtractionResult CppClassExtractor::Extract(
+        const std::filesystem::path& root,
+        std::stop_token stop,
+        const std::optional<std::vector<std::filesystem::path>>& excludedDirectories) const
     {
         ExtractionResult result;
 
+        // Inside an excluded directory, at any depth.
+        const auto isExcluded = [&](const std::filesystem::path& relative)
+        {
+            for (const std::filesystem::path& excluded : result.excludedDirectories)
+            {
+                if (excluded.empty())
+                    continue;
+                const auto [end, unused] =
+                    std::mismatch(excluded.begin(), excluded.end(), relative.begin(), relative.end());
+                if (end == excluded.end())
+                    return true;
+            }
+            return false;
+        };
+
         std::vector<std::filesystem::path> paths;
+        std::set<std::filesystem::path>    sourceDirectories;
         std::error_code ec;
         for (auto it = std::filesystem::recursive_directory_iterator(
                  root, std::filesystem::directory_options::skip_permission_denied, ec);
              !ec && it != std::filesystem::recursive_directory_iterator(); it.increment(ec))
         {
-            if (it->is_directory(ec) && IsSkippedDirectory(it->path()))
-                it.disable_recursion_pending();
+            if (it->is_directory(ec))
+            {
+                if (IsSkippedDirectory(it->path()))
+                    it.disable_recursion_pending();
+                // The default rule takes the outermost test directories.
+                else if (!excludedDirectories && IsTestDirectory(it->path()))
+                {
+                    const std::filesystem::path relative = it->path().lexically_relative(root);
+                    if (!isExcluded(relative))
+                        result.excludedDirectories.push_back(relative);
+                }
+            }
             else if (it->is_regular_file(ec) && IsSourceFile(it->path()))
                 paths.push_back(it->path());
         }
+        if (excludedDirectories)
+            result.excludedDirectories = *excludedDirectories;
+        std::sort(result.excludedDirectories.begin(), result.excludedDirectories.end());
+
+        // Every directory holding C++ files, with its parents; the files of
+        // the excluded ones are not read.
+        std::erase_if(paths, [&](const std::filesystem::path& path)
+                      {
+                          const std::filesystem::path directory = path.parent_path().lexically_relative(root);
+                          for (std::filesystem::path d = directory; !d.empty() && d != "."; d = d.parent_path())
+                              sourceDirectories.insert(d);
+                          return isExcluded(directory);
+                      });
+        result.sourceDirectories.assign(sourceDirectories.begin(), sourceDirectories.end());
         std::sort(paths.begin(), paths.end());
 
         // ----- Parse every file and index the names. The files stay alive:

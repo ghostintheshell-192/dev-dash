@@ -194,7 +194,11 @@ Emerso usandolo (provato su dev-dash, su un progetto senza C++ e sui
 sorgenti di Graphviz, ~1800 file):
 
 - la radice del progetto include test e `poc/`: le strutture dei test
-  finiscono fra le classi. Si saltano solo le cartelle nascoste e di build;
+  finiscono fra le classi. Si saltano solo le cartelle nascoste e di build.
+  Risolto il 2026-10-02: nodo "Folders" con l'albero delle cartelle che
+  contengono C++ e una casella a tre stati per cartella; la prima lettura
+  lascia fuori le cartelle `test` e `tests`, poi decide l'utente (la scelta
+  vale per la sessione, non è ancora salvata);
 - "file con errori di sintassi" era fuorviante: quasi tutti sono macro
   (`TEST_CASE`, `SDLCALL`) o un limite della grammatica (`= {}` come argomento
   di default). Ora si chiamano "letti in parte", con l'elenco nel tooltip;

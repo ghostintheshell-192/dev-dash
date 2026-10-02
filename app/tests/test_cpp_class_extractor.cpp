@@ -330,3 +330,43 @@ TEST_CASE("a file with a syntax error is listed and still read", "[extractor]")
     CHECK(e.result.partlyReadFiles[0].filename() == "code.h");
     CHECK(e.Class("s::Fine") != nullptr);
 }
+
+TEST_CASE("test directories stay out by default, and are listed", "[extractor]")
+{
+    TempDir root{"extractor-default-exclusion"};
+    WriteFile(root.Path() / "src" / "core" / "model.h", "struct Model {};");
+    WriteFile(root.Path() / "tests" / "unit" / "fixture.h", "struct Fixture {};");
+    WriteFile(root.Path() / "lib" / "test" / "helper.h", "struct Helper {};");
+
+    const services::ExtractionResult result = CppClassExtractor().Extract(root.Path());
+    CHECK(result.filesRead == 1);
+    REQUIRE(result.model.classes.size() == 1);
+    CHECK(result.model.classes[0].qualifiedName == "Model");
+
+    using Paths = std::vector<std::filesystem::path>;
+    CHECK(result.excludedDirectories == Paths{"lib/test", "tests"});
+    CHECK(result.sourceDirectories == Paths{"lib", "lib/test", "src", "src/core", "tests", "tests/unit"});
+}
+
+TEST_CASE("the excluded directories asked for replace the default rule", "[extractor]")
+{
+    TempDir root{"extractor-exclusion"};
+    WriteFile(root.Path() / "src" / "model.h", "struct Model {};");
+    WriteFile(root.Path() / "src" / "experimental" / "draft.h", "struct Draft {};");
+    WriteFile(root.Path() / "tests" / "fixture.h", "struct Fixture {};");
+
+    using Paths = std::vector<std::filesystem::path>;
+    const services::ExtractionResult result =
+        CppClassExtractor().Extract(root.Path(), {}, Paths{"src/experimental"});
+    CHECK(result.filesRead == 2);
+    CHECK(result.excludedDirectories == Paths{"src/experimental"});
+
+    std::vector<std::string> names;
+    for (const core::CodeClass& cls : result.model.classes)
+        names.push_back(cls.qualifiedName);
+    std::sort(names.begin(), names.end());
+    CHECK(names == std::vector<std::string>{"Fixture", "Model"});
+
+    // Nothing excluded: everything is read.
+    CHECK(CppClassExtractor().Extract(root.Path(), {}, Paths{}).filesRead == 3);
+}

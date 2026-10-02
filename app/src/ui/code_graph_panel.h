@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <filesystem>
 #include <future>
 #include <map>
 #include <memory>
@@ -56,10 +57,23 @@ namespace dev_dash::ui
             std::vector<std::size_t>         classes;   // indices into the model
         };
 
+        // A directory of the project holding C++ files, in the tree of the
+        // folders to read.
+        struct DirectoryNode
+        {
+            std::filesystem::path                relative;   // to the project root
+            std::map<std::string, DirectoryNode> children;
+        };
+
         struct DiagramTab;
 
         void StartReading();
         void CollectReading();
+        void RenderFolders();
+        void RenderDirectory(const DirectoryNode& node, bool parentExcluded);
+        bool IsExcluded(const std::filesystem::path& relative) const;
+        bool HasExcludedBelow(const std::filesystem::path& relative) const;
+        void SetExcluded(const std::filesystem::path& relative, bool excluded);
         void RenderScope(const ScopeNode& node, const std::string& path, int depth);
         void RenderClass(std::size_t index);
         void CollectVisible(const ScopeNode& node, std::vector<std::size_t>& visible) const;
@@ -80,6 +94,13 @@ namespace dev_dash::ui
         bool                                    _hasResult = false;
         std::string                             _readError;
         ScopeNode                               _tree;      // the global scope
+        DirectoryNode                           _directories;   // the project root
+
+        // The folders left out of the reading, relative to the project root.
+        // Empty until the first reading, which applies the default rule of
+        // the extractor (test directories out) and fills it.
+        std::set<std::filesystem::path> _excluded;
+        bool                            _excludedChosen = false;
 
         std::set<std::string>  _selection;
         std::array<char, 128>  _filter{};

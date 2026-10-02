@@ -60,6 +60,14 @@ namespace dev_dash::ui
             return parts;
         }
 
+        // directory is inside container, or is container.
+        bool IsWithin(const std::filesystem::path& directory, const std::filesystem::path& container)
+        {
+            const auto [end, unused] =
+                std::mismatch(container.begin(), container.end(), directory.begin(), directory.end());
+            return end == container.end();
+        }
+
         std::string ShortNameOf(const std::string& qualifiedName)
         {
             const std::size_t pos = qualifiedName.rfind(kScope);
@@ -135,9 +143,12 @@ namespace dev_dash::ui
     {
         _readError.clear();
         _stopReading = std::stop_source();
-        _reading     = std::async(std::launch::async,
-                                  [&extractor = _extractor, root = _project.path, stop = _stopReading.get_token()]
-                                  { return extractor.Extract(root, stop); });
+        std::optional<std::vector<std::filesystem::path>> excluded;
+        if (_excludedChosen)
+            excluded.emplace(_excluded.begin(), _excluded.end());
+        _reading = std::async(std::launch::async,
+                              [&extractor = _extractor, root = _project.path, stop = _stopReading.get_token(),
+                               excluded = std::move(excluded)] { return extractor.Extract(root, stop, excluded); });
     }
 
     void CodeGraphPanel::CollectReading()
@@ -159,6 +170,25 @@ namespace dev_dash::ui
         _status.Set(StatusSink::Level::kInfo,
                     "Code graph: " + std::to_string(_result.model.classes.size()) + " classes read from "
                         + std::to_string(_result.filesRead) + " files");
+
+        // The first reading tells which folders the default rule left out.
+        if (!_excludedChosen)
+        {
+            _excluded.insert(_result.excludedDirectories.begin(), _result.excludedDirectories.end());
+            _excludedChosen = true;
+        }
+        _directories = DirectoryNode{};
+        for (const std::filesystem::path& directory : _result.sourceDirectories)
+        {
+            DirectoryNode* node = &_directories;
+            std::filesystem::path relative;
+            for (const std::filesystem::path& part : directory)
+            {
+                relative /= part;
+                node           = &node->children[part.string()];
+                node->relative = relative;
+            }
+        }
 
         // The tree of the scopes; drop the checked classes that no longer
         // exist.
@@ -235,17 +265,31 @@ namespace dev_dash::ui
         if (reading)
             _status.SetHint("Code graph: reading the C++ classes of the project in background...");
 
+        // The folders chosen differ from those of the classes listed.
+        const bool foldersChanged =
+            _hasResult
+            && _excluded != std::set<std::filesystem::path>(_result.excludedDirectories.begin(),
+                                                            _result.excludedDirectories.end());
+
         ImGui::BeginDisabled(reading);
+        if (foldersChanged)
+            ImGui::PushStyleColor(ImGuiCol_Text, t.accent);
         if (ImGui::Button(reading ? "Reading..." : _hasResult ? "Read again" : "Read the code"))
             StartReading();
+        if (foldersChanged)
+            ImGui::PopStyleColor();
         ImGui::EndDisabled();
-        StatusHint(_status, "Read the C++ classes of the project, skipping hidden and build directories "
-                            "(.git, build, cmake-build-*, out, node_modules)");
+        StatusHint(_status, foldersChanged
+                                ? "The folders to read changed: read again to list the classes they hold"
+                                : "Read the C++ classes of the project, skipping hidden and build directories "
+                                  "(.git, build, cmake-build-*, out, node_modules) and the folders left out below");
         if (_hasResult && !reading)
         {
             ImGui::SameLine();
             ImGui::TextDisabled("%zu classes, %d files", _result.model.classes.size(), _result.filesRead);
         }
+        if (_hasResult)
+            RenderFolders();
 
         if (!_readError.empty())
             ImGui::TextColored(t.removed, "%s", _readError.c_str());
@@ -311,6 +355,81 @@ namespace dev_dash::ui
         // ----- Classes by namespace
 
         RenderScope(_tree, std::string(), 0);
+    }
+
+    // The folders of the project holding C++ files, with a box each: the
+    // unchecked ones are left out of the next reading, with all they hold.
+    void CodeGraphPanel::RenderFolders()
+    {
+        if (_directories.children.empty())
+            return;
+
+        const std::size_t total = _result.sourceDirectories.size();
+        const std::size_t read  = static_cast<std::size_t>(
+            std::count_if(_result.sourceDirectories.begin(), _result.sourceDirectories.end(),
+                          [&](const std::filesystem::path& directory) { return !IsExcluded(directory); }));
+        const bool expanded = ImGui::TreeNode("##folders", "Folders: %zu of %zu read", read, total);
+        StatusHint(_status, "The folders of the project holding C++ code: uncheck one to leave it out of the next "
+                            "reading. The first reading leaves out the folders named test and tests.");
+        if (expanded)
+        {
+            RenderDirectory(_directories, false);
+            ImGui::TreePop();
+        }
+    }
+
+    void CodeGraphPanel::RenderDirectory(const DirectoryNode& node, bool parentExcluded)
+    {
+        for (const auto& [name, child] : node.children)
+        {
+            ImGui::PushID(name.c_str());
+
+            // Checked when read; mixed when read but some folder inside is
+            // not. Inside an unchecked folder the boxes are disabled: the
+            // folder above decides.
+            const bool excluded = parentExcluded || _excluded.contains(child.relative);
+            bool       checked  = !excluded;
+            const bool mixed    = !excluded && HasExcludedBelow(child.relative);
+            ImGui::BeginDisabled(parentExcluded);
+            ImGui::PushItemFlag(ImGuiItemFlags_MixedValue, mixed);
+            if (ImGui::Checkbox("##read", &checked))
+                SetExcluded(child.relative, !checked);
+            ImGui::PopItemFlag();
+            ImGui::EndDisabled();
+            StatusHint(_status, parentExcluded ? child.relative.string() + ": inside a folder left out"
+                                               : child.relative.string() + ": check to read it, uncheck to leave it "
+                                                                           "out with all it holds");
+            ImGui::SameLine();
+
+            const ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanAvailWidth
+                                             | (child.children.empty() ? ImGuiTreeNodeFlags_Leaf : 0);
+            if (ImGui::TreeNodeEx(name.c_str(), flags))
+            {
+                RenderDirectory(child, excluded);
+                ImGui::TreePop();
+            }
+            ImGui::PopID();
+        }
+    }
+
+    bool CodeGraphPanel::IsExcluded(const std::filesystem::path& relative) const
+    {
+        return std::any_of(_excluded.begin(), _excluded.end(),
+                           [&](const std::filesystem::path& excluded) { return IsWithin(relative, excluded); });
+    }
+
+    bool CodeGraphPanel::HasExcludedBelow(const std::filesystem::path& relative) const
+    {
+        return std::any_of(_excluded.begin(), _excluded.end(), [&](const std::filesystem::path& excluded)
+                           { return excluded != relative && IsWithin(excluded, relative); });
+    }
+
+    // Excluding or including a folder settles the folders inside it too.
+    void CodeGraphPanel::SetExcluded(const std::filesystem::path& relative, bool excluded)
+    {
+        std::erase_if(_excluded, [&](const std::filesystem::path& other) { return IsWithin(other, relative); });
+        if (excluded)
+            _excluded.insert(relative);
     }
 
     void CodeGraphPanel::CollectVisible(const ScopeNode& node, std::vector<std::size_t>& visible) const
