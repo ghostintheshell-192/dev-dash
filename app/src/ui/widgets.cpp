@@ -1,4 +1,5 @@
 #include "widgets.h"
+#include "status_sink.h"
 #include "theme.h"
 
 namespace dev_dash::ui
@@ -22,17 +23,16 @@ namespace dev_dash::ui
         ImGui::Dummy(size);
     }
 
-    void HelpMarker(const char* text)
+    void StatusHint(StatusSink& status, std::string text)
+    {
+        if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+            status.SetHint(std::move(text));
+    }
+
+    void HelpMarker(StatusSink& status, const char* text)
     {
         ImGui::TextDisabled("(?)");
-        if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort))
-        {
-            ImGui::BeginTooltip();
-            ImGui::PushTextWrapPos(ImGui::GetFontSize() * 28.0f);
-            ImGui::TextUnformatted(text);
-            ImGui::PopTextWrapPos();
-            ImGui::EndTooltip();
-        }
+        StatusHint(status, text);
     }
 
     bool GhostButton(const char* label)

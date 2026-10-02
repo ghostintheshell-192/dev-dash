@@ -1,13 +1,13 @@
 ---
 type: feature
 priority: must-have
-status: planned
+status: in-progress
 category: ui
 related: [feature-ui-overhaul]
 depends_on: []
 decided_by: ../../reference/decisions/014-germen-coevolution-strategy.md
 created: 2026-04-26
-updated: 2026-09-26
+updated: 2026-10-01
 ---
 
 # Code Graph — class diagram on demand
@@ -140,20 +140,88 @@ fuori). Script e istruzioni per rifarlo in
 
 ### Fase 2 — Modello e generatore
 
-- [ ] Tipi in `core/`.
-- [ ] Interfaccia comune dell'estrattore in `services/` (ADR-017 §4).
-- [ ] Estrattore tree-sitter con il risolutore di nomi, portato in C++ dallo
-      script `extract_ts2.py` dell'esperimento. tree-sitter e la grammatica
-      C++ via CPM.
-- [ ] Relazioni incerte marcate nel modello (ADR-017 §2).
-- [ ] Generatore DOT: selezione + vicini fantasma → testo.
-- [ ] Test Catch2 del generatore (input modello, output DOT atteso).
+- [x] Tipi in `core/` (`core/code_model.h`): classe, membro, relazione con
+      il flag `certain`.
+- [x] Interfaccia comune dell'estrattore (ADR-017 §4): per ora è il modello
+      `core::CodeModel` che ogni estrattore restituisce. La classe base
+      virtuale arriva con il secondo estrattore (libclang), come vuole
+      ADR-010 (classi concrete finché non serve un punto di sostituzione).
+- [x] Estrattore tree-sitter con il risolutore di nomi
+      (`services/cpp_class_extractor.*`), portato in C++ da `extract_ts2.py`.
+      tree-sitter 0.26.13 e tree-sitter-cpp 0.23.4 via CPM. Verificato con
+      `compare.py` contro lo script: identico su `app/src` (72 classi,
+      140 relazioni, 526 membri), su `ImGuiDot/src` e sui casi difficili.
+      14 test Catch2, fra cui i sei casi difficili.
+- [x] Relazioni incerte marcate nel modello (ADR-017 §2): un nome che due
+      `using namespace` rendono ambiguo dà una relazione incerta (la prima
+      trovata, marcata). È l'unico caso per ora.
+- Limite noto: le classi in un namespace anonimo finiscono nel namespace che
+  lo contiene (come nello script); i dettagli interni di un `.cpp` compaiono
+  quindi fra le classi del progetto.
+- [x] Generatore DOT (`services/class_diagram_generator.*`): selezione +
+      vicini fantasma → testo. Scelte fatte:
+  - riquadro classe come `shape=record` (`{nome|attributi|metodi}`, righe
+    chiuse da `\l`), non label HTML: in ImGuiDot si appoggia sulle righe già
+    divise da Graphviz, lo stesso meccanismo delle etichette su più righe
+    (PR #18);
+  - scomparti vuoti omessi; costruttori, distruttore e operatori omessi;
+    overload in una riga sola (i parametri non sono nel modello);
+  - membri mostrati fino a un livello d'accesso scelto (`memberAccess`,
+    default solo pubblici): risponde in parte a OQ-2;
+  - ereditarietà scritta base → derivata (`dir=back`), così il layout mette
+    la base in alto;
+  - relazione incerta: linea punteggiata ed etichetta `?`;
+  - le etichette tolgono il namespace comune a tutte le classi disegnate;
+  - colori da una `DiagramPalette` passata dalla UI (i servizi non vedono
+    il tema); una voce vuota lascia il default del renderer.
+- [x] Test Catch2 del generatore (`tests/test_class_diagram_generator.cpp`):
+      un output DOT completo atteso, più una regola per test.
 
 ### Fase 3 — Interfaccia
 
-- [ ] Sezione della sidebar: albero per namespace/cartella, caselle a più
-      livelli, ricerca.
-- [ ] Pannello diagramma con ImGuiDot, opzione "mostra vicini".
+**Prima fetta visibile (2026-10-01)**: pannello "Code graph" (`ui/code_graph_panel.*`,
+pulsante nella top bar) con lettura in background e annullabile, elenco delle
+classi per scope con caselle (anche per scope intero) e filtro, opzioni
+"Neighbours" / "All members". "Create diagram" apre ogni diagramma in una
+scheda sua (US-2), con "Fit" e "Copy DOT": più diagrammi restano aperti
+insieme, e chiudere la scheda è il modo di toglierne uno. Le schede vivono a
+parte dall'elenco: chiudere l'elenco non le chiude. L'elenco sta nel
+pannello, non ancora nella sidebar: per ora la scheda nuova copre l'elenco
+nello stesso gruppo di schede, finché non si trascina altrove. Il generatore usa scatole semplici
+(`recordShapes = false`) finché ImGuiDot non disegna i record.
+
+Emerso usandolo (provato su dev-dash, su un progetto senza C++ e sui
+sorgenti di Graphviz, ~1800 file):
+
+- la radice del progetto include test e `poc/`: le strutture dei test
+  finiscono fra le classi. Si saltano solo le cartelle nascoste e di build.
+  Risolto il 2026-10-02: nodo "Folders" con l'albero delle cartelle che
+  contengono C++ e una casella a tre stati per cartella; la prima lettura
+  lascia fuori le cartelle `test` e `tests`, poi decide l'utente (la scelta
+  vale per la sessione, non è ancora salvata);
+- "file con errori di sintassi" era fuorviante: quasi tutti sono macro
+  (`TEST_CASE`, `SDLCALL`) o un limite della grammatica (`= {}` come argomento
+  di default). Ora si chiamano "letti in parte", con l'elenco nel tooltip;
+- un intero namespace con tutti i membri dà un diagramma largo e piatto,
+  illeggibile anche adattato alla vista: la selezione piccola è il caso d'uso;
+- ImGuiDot: scatole molto più grandi del testo (Graphviz misura con il suo
+  font, ImGui disegna con un altro), linee tratteggiate disegnate piene,
+  fantasma riempiti come le classi;
+- cambiare progetto durante una lettura lunga bloccava l'app finché la
+  lettura non finiva: ora la lettura si annulla (`std::stop_token`).
+
+- [x] Sezione della sidebar: albero per namespace, caselle a più livelli
+      (a tre stati: piena, vuota, mista), ricerca. Fatto il 2026-10-02: la
+      finestra "Code graph" e il suo pulsante non ci sono più, i diagrammi
+      restano schede del workspace. Una classe con classi annidate è un nodo
+      solo, la cui casella copre anche le annidate. La vista per cartella è
+      rimandata: utile per i progetti senza namespace.
+- [x] Pannello diagramma con ImGuiDot, opzione "mostra vicini". Navigazione
+      (2026-10-02): Ctrl+rotellina zooma attorno al punto sotto il mouse,
+      trascinamento (tasto sinistro o centrale), rotellina e Shift+rotellina
+      spostano la vista, "Fit" adatta e centra. Niente scrollbar: la tela
+      ha uno spostamento suo, così il punto sotto il mouse resta fermo anche
+      quando il diagramma è più piccolo della vista.
 - [ ] Estrazione in background e aggiornamento incrementale (osservazione
       dei file).
 
@@ -164,6 +232,11 @@ fuori). Script e istruzioni per rifarlo in
 
 ## Contributi a ImGuiDot
 
+> I difetti e le mancanze di ImGuiDot emersi usando il code graph sono
+> registrati come tech-debt con `upstream: ImGuiDot`, elencati a parte
+> nell'indice di [`tech-debt/`](../../tech-debt/README.md): lì si segue cosa è
+> già stato segnalato a Dario e cosa no.
+
 Il class diagram UML ha bisogno di funzioni che ImGuiDot oggi non ha. Vanno
 proposte a Dario come PR sul suo repo (ADR-014: contribuzione attiva
 upstream), dal fork `ghostintheshell-192/ImGuiDot`, una modifica per PR. Per
@@ -171,7 +244,7 @@ le scelte di design (nuove API) si chiede prima a Dario.
 
 | Serve per | In DOT | Stato in ImGuiDot | Tipo di contributo |
 |---|---|---|---|
-| Riquadro a scomparti | `shape=record` oppure label HTML | ❌ | Feature grossa: si segue la geometria dei campi calcolata da Graphviz |
+| Riquadro a scomparti | `shape=record` (scelto dal generatore) | ❌ | Feature grossa: si segue la geometria dei campi calcolata da Graphviz |
 | Dipendenza tratteggiata | `style=dashed` | ❌ stili di linea ignorati | Feature piccola, comportamento definito da Graphviz |
 | Clic su un nodo | — | ❌ | **Nuova API**: da discutere con Dario prima di scrivere codice |
 | Errori di parsing leggibili | — | ❌ silenziosi | **Nuova API**: da discutere |

@@ -15,6 +15,8 @@ namespace dev_dash::services
     class PromoteEngine;
     class ApplyEngine;
     class SnapshotService;
+    class CppClassExtractor;
+    class ClassDiagramGenerator;
 }
 
 namespace dev_dash::ui
@@ -25,6 +27,7 @@ namespace dev_dash::ui
     class ScaffoldDiffPanel;
     class SnapshotHistoryPanel;
     class DiagramPreviewPanel;
+    class CodeGraphPanel;
 
     // The workspace shell: top bar, navigation sidebar, central dockspace,
     // status bar. The sidebar holds structure (trees, lists — see Sidebar);
@@ -39,6 +42,8 @@ namespace dev_dash::ui
               services::PromoteEngine&      promoteEngine,
               services::ApplyEngine&        applyEngine,
               services::SnapshotService&    snapshotService,
+              services::CppClassExtractor&  classExtractor,
+              services::ClassDiagramGenerator& diagramGenerator,
               DocumentPanelHost&            docHost,
               const core::Project&          project,
               bool                          diagramsAvailable);
@@ -63,6 +68,7 @@ namespace dev_dash::ui
         std::unique_ptr<ScaffoldDiffPanel>    _diffView;
         std::unique_ptr<SnapshotHistoryPanel> _historyView;
         std::unique_ptr<DiagramPreviewPanel>  _diagramView;   // null when ImGuiDot is unavailable
+        std::unique_ptr<CodeGraphPanel>       _codeGraphView; // null when ImGuiDot is unavailable
 
         bool _configOpen  = true;
         bool _diffOpen    = false;

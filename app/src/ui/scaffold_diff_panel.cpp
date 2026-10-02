@@ -209,8 +209,7 @@ namespace dev_dash::ui
                     _selectedForPromote.clear();
                     RunDiff();
                 }
-                if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort))
-                    ImGui::SetTooltip("%s", _scaffolds[i].path.string().c_str());
+                StatusHint(_status, _scaffolds[i].path.string());
                 if (_scaffolds[i].isDefault)
                 {
                     ImGui::SameLine();
@@ -221,8 +220,7 @@ namespace dev_dash::ui
             }
             ImGui::EndCombo();
         }
-        if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort))
-            ImGui::SetTooltip("%s", _scaffolds[_selectedIdx].path.string().c_str());
+        StatusHint(_status, _scaffolds[_selectedIdx].path.string());
 
         ImGui::SameLine();
         ImGui::TextDisabled("vs");
@@ -263,7 +261,7 @@ namespace dev_dash::ui
             _showApplyConfirm = true;
         if (!applyableCount) ImGui::EndDisabled();
         ImGui::SameLine();
-        HelpMarker(kApplyHelp);
+        HelpMarker(_status, kApplyHelp);
         ImGui::SameLine();
 
         if (_selectedForPromote.empty()) ImGui::BeginDisabled();
@@ -271,7 +269,7 @@ namespace dev_dash::ui
             _showPromoteConfirm = true;
         if (_selectedForPromote.empty()) ImGui::EndDisabled();
         ImGui::SameLine();
-        HelpMarker(kPromoteHelp);
+        HelpMarker(_status, kPromoteHelp);
         ImGui::SameLine();
 
         if (ImGui::Button("Refresh"))
@@ -404,12 +402,8 @@ namespace dev_dash::ui
                     else
                         _docHost.OpenPanel(scaffoldFile);
                 }
-                if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort))
-                    ImGui::SetTooltip("scaffold: %s\nproject:  %s",
-                                      inScaffold
-                                          ? scaffoldFile.string().c_str() : "—",
-                                      inProject
-                                          ? projectFile.string().c_str() : "—");
+                StatusHint(_status, "scaffold: " + (inScaffold ? scaffoldFile.string() : std::string("—"))
+                                        + "  ·  project: " + (inProject ? projectFile.string() : std::string("—")));
 
                 // Select-for-promote checkbox, leftmost where it is seen.
                 ImGui::TableSetColumnIndex(0);

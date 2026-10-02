@@ -53,21 +53,32 @@
 - [feature-snapshot-history.md](specs/implemented/feature-snapshot-history.md) — Snapshot & History
 - [feature-ui-overhaul.md](specs/implemented/feature-ui-overhaul.md) — feature-ui-overhaul
 
-### specs/planned/ (2 files)
+### specs/in-progress/ (1 files)
 
-- [feature-code-graph.md](specs/planned/feature-code-graph.md) — Code Graph — class diagram on demand
+- [feature-code-graph.md](specs/in-progress/feature-code-graph.md) — Code Graph — class diagram on demand
+
+### specs/planned/ (1 files)
+
 - [feature-scaffold-templating.md](specs/planned/feature-scaffold-templating.md) — Scaffold Templating
 
-### tech-debt/ (8 files)
+### tech-debt/ (16 files)
 
 - [README.md](tech-debt/README.md) — Tech Debt Issues
 - [_TEMPLATE.md](tech-debt/_TEMPLATE.md) — [Issue Title]
 - [docs-update-orchestrator-hardcodes-generated-files.md](tech-debt/docs-update-orchestrator-hardcodes-generated-files.md) — `04-docs-update` declares it knows nothing about the generators, then hardcodes their outputs
+- [imguidot-box-size-font-metrics.md](tech-debt/imguidot-box-size-font-metrics.md) — ImGuiDot: node boxes far larger than their text
+- [imguidot-diagram-size-api.md](tech-debt/imguidot-diagram-size-api.md) — ImGuiDot: no API for the size of a diagram
+- [imguidot-fillcolor-without-filled.md](tech-debt/imguidot-fillcolor-without-filled.md) — ImGuiDot: `fillcolor` applied without `style=filled`
+- [imguidot-line-styles-ignored.md](tech-debt/imguidot-line-styles-ignored.md) — ImGuiDot: `style=dashed` and `style=dotted` ignored
+- [imguidot-record-shape.md](tech-debt/imguidot-record-shape.md) — ImGuiDot: `shape=record` not drawn
+- [imguidot-reserved-space-border.md](tech-debt/imguidot-reserved-space-border.md) — ImGuiDot: reserved space cuts the outer borders
+- [imguidot-style-leftovers.md](tech-debt/imguidot-style-leftovers.md) — ImGuiDot: two leftovers of the style colours (#19)
 - [line-level-promote.md](tech-debt/line-level-promote.md) — Promote e Apply operano solo sull'intero file
 - [markdown-code-block-styling.md](tech-debt/markdown-code-block-styling.md) — Fenced code blocks rendered as flat yellow text — no syntax highlighting
 - [non-markdown-files-rendered-as-markdown.md](tech-debt/non-markdown-files-rendered-as-markdown.md) — File non-Markdown renderizzati come Markdown (script, config)
 - [preprocess-imports-indented-fences.md](tech-debt/preprocess-imports-indented-fences.md) — PreprocessImports does not recognise indented fenced code blocks
 - [scanner-directory-include-silent.md](tech-debt/scanner-directory-include-silent.md) — ConfigFileScanner: @include verso directory accettato e poi fallisce in silenzio
+- [tree-sitter-cpp-default-argument-braces.md](tech-debt/tree-sitter-cpp-default-argument-braces.md) — tree-sitter-cpp: `= {}` default argument parsed as an error
 
 ### reference/decisions/ (17 files)
 

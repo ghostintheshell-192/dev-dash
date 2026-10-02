@@ -1,5 +1,6 @@
 #include "shell.h"
 
+#include "code_graph_panel.h"
 #include "diagram_preview_panel.h"
 #include "document_panel_host.h"
 #include "effective_config_panel.h"
@@ -25,6 +26,8 @@ namespace dev_dash::ui
                  services::PromoteEngine&      promoteEngine,
                  services::ApplyEngine&        applyEngine,
                  services::SnapshotService&    snapshotService,
+                 services::CppClassExtractor&  classExtractor,
+                 services::ClassDiagramGenerator& diagramGenerator,
                  DocumentPanelHost&            docHost,
                  const core::Project&          project,
                  bool                          diagramsAvailable)
@@ -44,7 +47,10 @@ namespace dev_dash::ui
             snapshotService, _status, project);
 
         if (diagramsAvailable)
-            _diagramView = std::make_unique<DiagramPreviewPanel>();
+        {
+            _diagramView   = std::make_unique<DiagramPreviewPanel>();
+            _codeGraphView = std::make_unique<CodeGraphPanel>(classExtractor, diagramGenerator, _status, project);
+        }
 
         Sidebar::Callbacks callbacks;
         callbacks.openDocument =
@@ -68,7 +74,7 @@ namespace dev_dash::ui
 
         _sidebar = std::make_unique<Sidebar>(
             configResolver, scaffoldRepository, snapshotService,
-            _status, project, std::move(callbacks));
+            _status, project, std::move(callbacks), _codeGraphView.get());
     }
 
     // The document host outlives the shell (it is owned by App): detach the
@@ -142,6 +148,10 @@ namespace dev_dash::ui
             ImGui::SetNextWindowDockID(_dockspaceId, ImGuiCond_FirstUseEver);
             _diagramView->Render(&_diagramOpen);
         }
+        // The class list lives in the sidebar; the diagram tabs render
+        // every frame, also with the sidebar section collapsed.
+        if (_codeGraphView)
+            _codeGraphView->RenderDiagrams(_dockspaceId);
 
         // The file diff viewer renders every frame, independently of the
         // scaffold diff panel that opened it: if it only rendered while
@@ -170,10 +180,9 @@ namespace dev_dash::ui
         const ImGuiStyle& style = ImGui::GetStyle();
         const float switchW  = ImGui::CalcTextSize("Change project...").x
                                + style.FramePadding.x * 2.0f;
-        const float diagramW = _diagramView
-            ? ImGui::CalcTextSize("Diagram").x + style.FramePadding.x * 2.0f
-                  + style.ItemSpacing.x
-            : 0.0f;
+        const auto buttonW = [&](const char* label)
+        { return ImGui::CalcTextSize(label).x + style.FramePadding.x * 2.0f + style.ItemSpacing.x; };
+        const float diagramW = _diagramView ? buttonW("Diagram") : 0.0f;
         ImGui::SameLine(ImGui::GetContentRegionAvail().x - switchW - diagramW
                         + ImGui::GetCursorPosX());
         if (_diagramView)
@@ -222,7 +231,11 @@ namespace dev_dash::ui
         ImGui::BeginChild("##statusbar", ImVec2(0, 0),
                           ImGuiChildFlags_AlwaysUseWindowPadding);
 
-        if (!_status.Message().empty())
+        if (const std::string hint = _status.TakeHint(); !hint.empty())
+        {
+            ImGui::TextUnformatted(hint.c_str());
+        }
+        else if (!_status.Message().empty())
         {
             const Theme& t = CurrentTheme();
             const ImVec4 color =

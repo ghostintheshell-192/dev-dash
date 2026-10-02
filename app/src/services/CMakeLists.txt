@@ -37,6 +37,10 @@ add_library(dev-dash-services STATIC
     snapshot_service.cpp
     scaffold_repository.h
     scaffold_repository.cpp
+    class_diagram_generator.h
+    class_diagram_generator.cpp
+    cpp_class_extractor.h
+    cpp_class_extractor.cpp
 )
 
 # Lets consumers include via "services/..." and "core/..." (the layer's own
@@ -45,6 +49,8 @@ target_include_directories(dev-dash-services PUBLIC ${CMAKE_SOURCE_DIR}/src)
 
 # nlohmann_json is used by SettingsParser; PUBLIC so the JSON headers reach
 # any consumer that transitively pulls a service header including it.
+# tree-sitter (runtime + C++ grammar) is used only inside CppClassExtractor's
+# implementation: PRIVATE, no tree-sitter header leaks into the services API.
 target_link_libraries(dev-dash-services
     PUBLIC  nlohmann_json::nlohmann_json
-    PRIVATE dev-dash-warnings)
+    PRIVATE dev-dash-warnings tree-sitter-cpp)

@@ -84,6 +84,13 @@ def extract_title(content: str) -> str:
     return "Untitled"
 
 
+def optional_value(raw: str) -> str:
+    """A frontmatter value that may be absent: "" for null, empty or missing.
+    Drops a trailing "# comment", as the template carries them on these lines."""
+    value = raw.split(' #', 1)[0].strip()
+    return '' if value in ('', 'null', '~') else value
+
+
 def scan_issues() -> List[Dict]:
     """Scan tech-debt folder and return list of issue info."""
     issues = []
@@ -103,6 +110,8 @@ def scan_issues() -> List[Dict]:
             'status': frontmatter.get('status', 'open'),
             'type': frontmatter.get('type', 'unknown'),
             'discovered': frontmatter.get('discovered', ''),
+            'upstream': optional_value(frontmatter.get('upstream', '')),
+            'upstream_link': optional_value(frontmatter.get('upstream_link', '')),
         })
 
     return issues
@@ -120,12 +129,16 @@ def generate_index_section(issues: List[Dict]) -> str:
         "",
     ]
 
-    # Group by priority
+    # Group by priority; upstream issues get a section of their own.
     by_priority: Dict[str, List[Dict]] = {p: [] for p in PRIORITY_ORDER}
+    upstream: Dict[str, List[Dict]] = {}
     for issue in issues:
         # "Current" means open: a resolved or dropped issue keeps its file (the
         # record of what was decided) but leaves this map.
         if issue['status'].lower() in ('resolved', 'dropped'):
+            continue
+        if issue['upstream']:
+            upstream.setdefault(issue['upstream'], []).append(issue)
             continue
         priority = issue['priority'].lower()
         if priority in by_priority:
@@ -150,6 +163,20 @@ def generate_index_section(issues: List[Dict]) -> str:
                 # Format: - `filename.md` - Title
                 lines.append(f"- `{issue['filename']}` - {issue['title']}")
 
+        lines.append("")
+
+    # Debt that lives in a dependency: to report there (an issue or a PR) when
+    # the time comes. The link says whether that has happened yet.
+    lines.append("### Upstream — to report to the dependencies")
+    lines.append("")
+    if not upstream:
+        lines.append("None currently")
+        lines.append("")
+    for dependency in sorted(upstream, key=str.lower):
+        lines.append(f"**{dependency}:**")
+        for issue in sorted(upstream[dependency], key=lambda x: x['filename']):
+            state = f"[reported]({issue['upstream_link']})" if issue['upstream_link'] else "not reported yet"
+            lines.append(f"- `{issue['filename']}` - {issue['title']} ({state})")
         lines.append("")
 
     return '\n'.join(lines)

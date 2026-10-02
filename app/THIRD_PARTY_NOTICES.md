@@ -85,8 +85,8 @@ draw list. Base of the code graph (`feature-code-graph`).
 - License: MIT
 - Pulled in at configure time via CPM, currently pinned to a commit of the
   fork <https://github.com/ghostintheshell-192/ImGuiDot> (branch
-  `fix/multiline-labels`, on top of `feature/style-colours`) pending its
-  merge upstream. Built with
+  `fix/label-font-size`, on top of `fix/multiline-labels` and
+  `feature/style-colours`) pending its merge upstream. Built with
   `BUILD_IMGUI OFF`: it links dev-dash's own ImGui target.
 
 ## Graphviz
@@ -102,6 +102,27 @@ Parses DOT and computes the diagram layout for ImGuiDot.
   `dev-dash` binary. Under EPL-2.0 a binary distribution must say where the
   Graphviz source is available: the URL and version above, unmodified apart
   from that build patch.
+
+## tree-sitter
+
+Parses the C++ source files of the code graph (`CppClassExtractor`, ADR-017).
+
+- Source: <https://github.com/tree-sitter/tree-sitter> by Max Brunsfeld
+- Version: 0.26.13
+- License: MIT
+- Pulled in at configure time via CPM; the runtime (`lib/src/lib.c`) is built
+  as a static library and linked into the `dev-dash` binary.
+
+## tree-sitter-cpp
+
+The C++ grammar for tree-sitter.
+
+- Source: <https://github.com/tree-sitter/tree-sitter-cpp> by Max Brunsfeld
+- Version: 0.23.4
+- License: MIT
+- Pulled in at configure time via CPM; the generated parser (`src/parser.c`,
+  `src/scanner.c`) is built as a static library and linked into the
+  `dev-dash` binary.
 
 ## vk-bootstrap
 
