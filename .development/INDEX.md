@@ -53,10 +53,11 @@
 - [feature-snapshot-history.md](specs/implemented/feature-snapshot-history.md) — Snapshot & History
 - [feature-ui-overhaul.md](specs/implemented/feature-ui-overhaul.md) — feature-ui-overhaul
 
-### specs/planned/ (2 files)
+### specs/planned/ (3 files)
 
 - [feature-code-graph.md](specs/planned/feature-code-graph.md) — Code Graph — class diagram on demand
 - [feature-scaffold-templating.md](specs/planned/feature-scaffold-templating.md) — Scaffold Templating
+- [feature-windows-build.md](specs/planned/feature-windows-build.md) — Windows build
 
 ### tech-debt/ (8 files)
 
