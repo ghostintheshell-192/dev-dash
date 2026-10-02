@@ -92,6 +92,7 @@ updated, workaround removed).
 - `imguidot-line-styles-ignored.md` - ImGuiDot: `style=dashed` and `style=dotted` ignored (not reported yet)
 - `imguidot-record-shape.md` - ImGuiDot: `shape=record` not drawn (not reported yet)
 - `imguidot-reserved-space-border.md` - ImGuiDot: reserved space cuts the outer borders (not reported yet)
+- `imguidot-style-leftovers.md` - ImGuiDot: two leftovers of the style colours (#19) (not reported yet)
 
 **tree-sitter-cpp:**
 - `tree-sitter-cpp-default-argument-braces.md` - tree-sitter-cpp: `= {}` default argument parsed as an error (not reported yet)

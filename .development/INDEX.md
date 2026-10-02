@@ -61,7 +61,7 @@
 
 - [feature-scaffold-templating.md](specs/planned/feature-scaffold-templating.md) — Scaffold Templating
 
-### tech-debt/ (15 files)
+### tech-debt/ (16 files)
 
 - [README.md](tech-debt/README.md) — Tech Debt Issues
 - [_TEMPLATE.md](tech-debt/_TEMPLATE.md) — [Issue Title]
@@ -72,6 +72,7 @@
 - [imguidot-line-styles-ignored.md](tech-debt/imguidot-line-styles-ignored.md) — ImGuiDot: `style=dashed` and `style=dotted` ignored
 - [imguidot-record-shape.md](tech-debt/imguidot-record-shape.md) — ImGuiDot: `shape=record` not drawn
 - [imguidot-reserved-space-border.md](tech-debt/imguidot-reserved-space-border.md) — ImGuiDot: reserved space cuts the outer borders
+- [imguidot-style-leftovers.md](tech-debt/imguidot-style-leftovers.md) — ImGuiDot: two leftovers of the style colours (#19)
 - [line-level-promote.md](tech-debt/line-level-promote.md) — Promote e Apply operano solo sull'intero file
 - [markdown-code-block-styling.md](tech-debt/markdown-code-block-styling.md) — Fenced code blocks rendered as flat yellow text — no syntax highlighting
 - [non-markdown-files-rendered-as-markdown.md](tech-debt/non-markdown-files-rendered-as-markdown.md) — File non-Markdown renderizzati come Markdown (script, config)
