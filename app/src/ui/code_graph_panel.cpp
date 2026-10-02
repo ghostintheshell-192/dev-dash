@@ -16,8 +16,7 @@
 
 #include <ImGuiDot.h>
 #include <imgui.h>
-// ImGuiItemFlags_MixedValue: the third state of the scope check boxes.
-#include <imgui_internal.h>
+#include <imgui_internal.h>   // ImGuiItemFlags_MixedValue: the third state of the check boxes
 
 namespace dev_dash::ui
 {

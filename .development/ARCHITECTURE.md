@@ -17,7 +17,6 @@ For detailed documentation, see `docs/`.
 | UI | `app/src/ui/` | ImGui panels ("panel as viewmodel", ADR-010), font library, markdown rendering on `imgui_md`. |
 | Services | `app/src/services/` | Domain logic: document loading, effective-configuration resolution, diff/apply, snapshots, scaffolds. |
 | Core | `app/src/core/` | Pure value types, header-only. |
-| PoC (reference) | `poc/src/` | Original monolithic `Renderer` class — kept as reference pre-refactor. |
 
 For what each directory actually contains, see the Project Tree below.
 
