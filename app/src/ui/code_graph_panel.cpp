@@ -73,6 +73,15 @@ namespace dev_dash::ui
             return pos == std::string::npos ? qualifiedName : qualifiedName.substr(pos + kScope.size());
         }
 
+        // An entry of the section that executes when clicked: a leaf of the
+        // tree, so its label lines up with the entries that open.
+        bool ActionEntry(const char* label)
+        {
+            ImGui::TreeNodeEx(label, ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen
+                                         | ImGuiTreeNodeFlags_SpanAvailWidth);
+            return ImGui::IsItemClicked(ImGuiMouseButton_Left);
+        }
+
         // Case-insensitive substring match, for the filter box.
         bool Matches(std::string_view text, std::string_view filter)
         {
@@ -287,9 +296,10 @@ namespace dev_dash::ui
                                                             _result.excludedDirectories.end());
     }
 
-    // The section is a stack of entries, like a menu: each one is an
-    // operation, greyed out while it is not available, with the reason in
-    // the status bar. The last one, Filter, opens on the classes read.
+    // The section is a stack of entries, like a menu: the nodes open (Read
+    // codebase, Project folders, Filters), the others execute (Analyze code,
+    // New diagram, Clear selection). An entry not available is greyed out,
+    // with the reason in the status bar.
     void CodeGraphPanel::RenderSidebarSection()
     {
         const Theme& t       = CurrentTheme();
@@ -298,81 +308,79 @@ namespace dev_dash::ui
         // The activity goes to the status bar; an item under the mouse
         // overrides it there while hovered.
         if (reading)
-            _status.SetHint("Code graph: reading the C++ classes of the project in background...");
+            _status.SetHint("Code graph: analyzing the C++ code of the project in background...");
 
-        // ----- Read code, and what the reading found
+        // ----- Read codebase: which folders, then the analysis
 
         const bool foldersChanged = FoldersChanged();
-        ImGui::BeginDisabled(reading);
-        if (foldersChanged)
-            ImGui::PushStyleColor(ImGuiCol_Text, t.accent);
-        if (ImGui::Selectable(reading ? "Reading code...###read" : "Read code###read"))
-            StartReading();
-        if (foldersChanged)
-            ImGui::PopStyleColor();
-        ImGui::EndDisabled();
-        StatusHint(_status, reading          ? "Reading the C++ classes of the project..."
-                            : foldersChanged ? "Read the code again: the folders to read changed"
-                            : _hasResult     ? "Read the C++ classes of the project again"
-                                             : "Read the C++ classes of the project, to draw their diagram");
-
-        ImGui::Indent();
-        if (!_readError.empty())
-            ImGui::TextColored(t.removed, "%s", _readError.c_str());
-        if (_hasResult)
+        // Open at first: it is where to start. Then it stays as the user
+        // leaves it.
+        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+        const bool readOpen = ImGui::TreeNodeEx("Read codebase", ImGuiTreeNodeFlags_SpanAvailWidth);
+        StatusHint(_status, "Choose the folders of the project, then analyze their C++ code");
+        if (readOpen)
         {
-            ImGui::TextDisabled("%d files, %zu classes", _result.filesRead, _result.model.classes.size());
-            StatusHint(_status, "Read from the folders chosen in \"Folders to read\"; hidden and build directories "
-                                "are always skipped");
-            if (!_result.partlyReadFiles.empty())
-                RenderPartlyRead();
-        }
-        ImGui::Unindent();
+            ImGui::BeginDisabled(!_hasResult || reading);
+            const bool foldersOpen = ImGui::TreeNodeEx("Project folders", ImGuiTreeNodeFlags_SpanAvailWidth);
+            ImGui::EndDisabled();
+            StatusHint(_status, _hasResult ? "The folders holding C++ code: uncheck those to leave out of the analysis"
+                                           : "Available after the first analysis, which finds the folders; it leaves "
+                                             "out those named test and tests");
+            if (foldersOpen)
+            {
+                RenderFolders();
+                ImGui::TreePop();
+            }
 
-        ImGui::BeginDisabled(!_hasResult || reading);
-        if (ImGui::Selectable("Folders to read..."))
-            ImGui::OpenPopup("##folders_to_read");
-        ImGui::EndDisabled();
-        StatusHint(_status, _hasResult ? "Choose the folders to read; the first reading leaves out those named test "
-                                         "and tests"
-                                       : "Available after the first reading, which finds the folders");
-        if (ImGui::BeginPopup("##folders_to_read"))
-        {
-            RenderFolders();
-            ImGui::EndPopup();
+            ImGui::BeginDisabled(reading);
+            if (foldersChanged)
+                ImGui::PushStyleColor(ImGuiCol_Text, t.accent);
+            if (ActionEntry(reading ? "Analyzing code...###analyze" : "Analyze code###analyze"))
+                StartReading();
+            if (foldersChanged)
+                ImGui::PopStyleColor();
+            ImGui::EndDisabled();
+            StatusHint(_status, reading          ? "Analyzing the C++ code of the project..."
+                                : foldersChanged ? "Analyze again: the project folders changed"
+                                : _hasResult     ? "Analyze the C++ code of the project again"
+                                                 : "Read the C++ classes of the project, to draw their diagram");
+
+            ImGui::Indent();
+            if (!_readError.empty())
+                ImGui::TextColored(t.removed, "%s", _readError.c_str());
+            if (_hasResult)
+            {
+                ImGui::TextDisabled("%d files, %zu classes", _result.filesRead, _result.model.classes.size());
+                StatusHint(_status, "Read from the project folders checked above; hidden and build directories are "
+                                    "always skipped");
+                if (!_result.partlyReadFiles.empty())
+                    RenderPartlyRead();
+            }
+            ImGui::Unindent();
+            ImGui::TreePop();
         }
 
-        // ----- Diagram and selection
+        // ----- New diagram
 
         ImGui::BeginDisabled(!_hasResult);
-        if (ImGui::Selectable("New diagram"))
+        if (ActionEntry("New diagram"))
         {
             if (_selection.empty())
             {
                 _openFilter = true;
-                _status.Set(StatusSink::Level::kInfo, "Code graph: check the classes to draw in Filter, then "
+                _status.Set(StatusSink::Level::kInfo, "Code graph: check the classes to draw in Filters, then "
                                                       "\"New diagram\" again");
             }
             else
                 CreateDiagram();
         }
         ImGui::EndDisabled();
-        StatusHint(_status, !_hasResult        ? "Available after reading the code"
-                            : _selection.empty() ? "Draw the checked classes: none yet, it opens Filter to check them"
+        StatusHint(_status, !_hasResult          ? "Available after analyzing the code"
+                            : _selection.empty() ? "Draw the checked classes: none yet, it opens Filters to check them"
                                                  : "Open the class diagram of the " + std::to_string(_selection.size())
                                                        + " checked classes in a new tab");
 
-        ImGui::BeginDisabled(_selection.empty());
-        const std::string clearLabel = _selection.empty()
-                                           ? std::string("Clear selection###clear")
-                                           : "Clear selection (" + std::to_string(_selection.size()) + ")###clear";
-        if (ImGui::Selectable(clearLabel.c_str()))
-            _selection.clear();
-        ImGui::EndDisabled();
-        StatusHint(_status, _selection.empty() ? "No class checked"
-                                               : "Uncheck all the classes, also those hidden by the filter");
-
-        // ----- Filter: the classes read
+        // ----- Filters: the classes analyzed
 
         ImGui::BeginDisabled(!_hasResult || _result.model.classes.empty());
         if (_openFilter)
@@ -380,12 +388,12 @@ namespace dev_dash::ui
             ImGui::SetNextItemOpen(true);
             _openFilter = false;
         }
-        const bool filterOpen = ImGui::TreeNodeEx("Filter", ImGuiTreeNodeFlags_SpanAvailWidth);
+        const bool filtersOpen = ImGui::TreeNodeEx("Filters", ImGuiTreeNodeFlags_SpanAvailWidth);
         ImGui::EndDisabled();
-        StatusHint(_status, !_hasResult ? "Available after reading the code: it lists the classes read"
-                            : _result.model.classes.empty() ? "No classes in the C++ files read"
-                                                            : "The classes read: check those to draw");
-        if (!filterOpen)
+        StatusHint(_status, !_hasResult ? "Available after analyzing the code: it lists the classes found"
+                            : _result.model.classes.empty() ? "No classes in the C++ files analyzed"
+                                                            : "The classes found: check those to draw");
+        if (!filtersOpen)
             return;
 
         ImGui::SetNextItemWidth(-1.0f);
@@ -398,6 +406,16 @@ namespace dev_dash::ui
         if (ImGui::RadioButton("folders", _view == ClassView::kFolders))
             _view = ClassView::kFolders;
         StatusHint(_status, "List the classes by the folder of their file");
+
+        ImGui::BeginDisabled(_selection.empty());
+        const std::string clearLabel = _selection.empty()
+                                           ? std::string("Clear selection###clear")
+                                           : "Clear selection (" + std::to_string(_selection.size()) + ")###clear";
+        if (ActionEntry(clearLabel.c_str()))
+            _selection.clear();
+        ImGui::EndDisabled();
+        StatusHint(_status, _selection.empty() ? "No class checked"
+                                               : "Uncheck all the classes, also those hidden by the search");
 
         RenderScope(_view == ClassView::kFolders ? _folderTree : _tree, std::string(), 0);
         ImGui::TreePop();
@@ -436,21 +454,18 @@ namespace dev_dash::ui
     }
 
     // The folders of the project holding C++ files, with a box each: the
-    // unchecked ones are left out of the next reading, with all they hold.
+    // unchecked ones are left out of the next analysis, with all they hold.
     void CodeGraphPanel::RenderFolders()
     {
         const std::size_t total = _result.sourceDirectories.size();
         const std::size_t read  = static_cast<std::size_t>(
             std::count_if(_result.sourceDirectories.begin(), _result.sourceDirectories.end(),
                           [&](const std::filesystem::path& directory) { return !IsExcluded(directory); }));
-        ImGui::TextDisabled("Folders to read: %zu of %zu", read, total);
-        ImGui::Separator();
+        ImGui::TextDisabled("%zu of %zu folders checked", read, total);
         if (_directories.children.empty())
             ImGui::TextDisabled("No folder holds C++ files.");
         else
             RenderDirectory(_directories, false);
-        ImGui::Separator();
-        ImGui::TextDisabled("Then \"Read code\" lists the classes they hold.");
     }
 
     void CodeGraphPanel::RenderDirectory(const DirectoryNode& node, bool parentExcluded)

@@ -40,8 +40,9 @@ namespace dev_dash::ui
         CodeGraphPanel(const CodeGraphPanel&)            = delete;
         CodeGraphPanel& operator=(const CodeGraphPanel&) = delete;
 
-        // The sidebar section: a stack of entries (read code, folders to
-        // read, new diagram, clear selection) and Filter, the classes read.
+        // The sidebar section, a stack of entries: Read codebase (Project
+        // folders, Analyze code), New diagram, Filters (search, view, Clear
+        // selection, the classes).
         void RenderSidebarSection();
         // The diagram tabs, docked into the workspace on first show. Called
         // every frame, also with the sidebar section collapsed: it collects
