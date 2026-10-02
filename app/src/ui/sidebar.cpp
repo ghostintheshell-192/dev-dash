@@ -275,10 +275,9 @@ namespace dev_dash::ui
 
         ImGui::PushID("code_graph");
         const bool open = ImGui::CollapsingHeader("Code graph", kSectionFlags);
-        StatusHint(_status, "The C++ classes of the project: check some, then \"diagram\" draws them");
+        StatusHint(_status, "The class diagram of the project: read the code, check classes in Filter, then \"New diagram\"");
         if (open)
         {
-            _codeGraph->RenderSectionActions();
             _codeGraph->RenderSidebarSection();
             ImGui::Spacing();
         }

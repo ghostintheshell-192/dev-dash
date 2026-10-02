@@ -40,12 +40,8 @@ namespace dev_dash::ui
         CodeGraphPanel(const CodeGraphPanel&)            = delete;
         CodeGraphPanel& operator=(const CodeGraphPanel&) = delete;
 
-        // The toolbar of the sidebar section, a strip under its title: read,
-        // create a diagram, clear the checked classes, and the menu (how to
-        // list the classes, the folders to read).
-        void RenderSectionActions();
-        // The body of the sidebar section: the state of the reading, the
-        // filter and the tree of the classes.
+        // The sidebar section: a stack of entries (read code, folders to
+        // read, new diagram, clear selection) and Filter, the classes read.
         void RenderSidebarSection();
         // The diagram tabs, docked into the workspace on first show. Called
         // every frame, also with the sidebar section collapsed: it collects
@@ -82,6 +78,7 @@ namespace dev_dash::ui
         void CollectReading();
         bool FoldersChanged() const;
         void RenderFolders();
+        void RenderPartlyRead();
         void RenderDirectory(const DirectoryNode& node, bool parentExcluded);
         bool IsExcluded(const std::filesystem::path& relative) const;
         bool HasExcludedBelow(const std::filesystem::path& relative) const;
@@ -109,6 +106,7 @@ namespace dev_dash::ui
         ScopeNode                               _tree;        // the global scope
         ScopeNode                               _folderTree;  // the project root, folders as scopes
         ClassView                               _view = ClassView::kNamespaces;
+        bool                                    _openFilter = false;   // open Filter on the next frame
         DirectoryNode                           _directories;   // the project root
 
         // The folders left out of the reading, relative to the project root.
