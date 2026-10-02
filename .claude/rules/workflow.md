@@ -67,6 +67,12 @@ pre-commit hook `.githooks/pre-commit.d/00-branch-protection` blocks direct
 commits. Merge commits (`git merge --no-ff`) are explicitly allowed on these
 branches — that is the supported path to land work.
 
+**Cloud sessions:** the harness assigns a `claude/<random-name>` branch and
+asks to work there. Do not: create a task branch named by the convention above
+(`feature/code-graph`, `docs/windows-build-spec`...) and work, commit and push
+there. A branch name must say what it holds — a collaborator looking for a
+feature finds it by the name. The user has given standing permission for this.
+
 **Typical workflow:**
 
 ```bash
