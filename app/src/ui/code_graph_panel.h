@@ -40,8 +40,12 @@ namespace dev_dash::ui
         CodeGraphPanel(const CodeGraphPanel&)            = delete;
         CodeGraphPanel& operator=(const CodeGraphPanel&) = delete;
 
-        // The content of the sidebar section: reading, diagram options and
-        // the tree of the classes.
+        // The toolbar of the sidebar section, a strip under its title: read,
+        // create a diagram, clear the checked classes, and the menu (how to
+        // list the classes, the folders to read).
+        void RenderSectionActions();
+        // The body of the sidebar section: the state of the reading, the
+        // filter and the tree of the classes.
         void RenderSidebarSection();
         // The diagram tabs, docked into the workspace on first show. Called
         // every frame, also with the sidebar section collapsed: it collects
@@ -65,10 +69,18 @@ namespace dev_dash::ui
             std::map<std::string, DirectoryNode> children;
         };
 
+        // How the tree lists the classes.
+        enum class ClassView
+        {
+            kNamespaces,   // by namespace (and enclosing class)
+            kFolders,      // by the folder of the file declaring them
+        };
+
         struct DiagramTab;
 
         void StartReading();
         void CollectReading();
+        bool FoldersChanged() const;
         void RenderFolders();
         void RenderDirectory(const DirectoryNode& node, bool parentExcluded);
         bool IsExcluded(const std::filesystem::path& relative) const;
@@ -78,6 +90,7 @@ namespace dev_dash::ui
         void RenderClass(std::size_t index);
         void CollectVisible(const ScopeNode& node, std::vector<std::size_t>& visible) const;
         void CreateDiagram();
+        void GenerateDiagram(DiagramTab& tab);
         void RenderDiagramTab(DiagramTab& tab);
         void HandleViewInput(DiagramTab& tab, const ImVec2& origin);
 
@@ -93,7 +106,9 @@ namespace dev_dash::ui
         services::ExtractionResult              _result;
         bool                                    _hasResult = false;
         std::string                             _readError;
-        ScopeNode                               _tree;      // the global scope
+        ScopeNode                               _tree;        // the global scope
+        ScopeNode                               _folderTree;  // the project root, folders as scopes
+        ClassView                               _view = ClassView::kNamespaces;
         DirectoryNode                           _directories;   // the project root
 
         // The folders left out of the reading, relative to the project root.

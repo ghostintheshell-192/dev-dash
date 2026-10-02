@@ -106,6 +106,11 @@ namespace dev_dash::ui
         std::string            title;           // shown on the tab
         std::string            dot;
         ImGuiDot::DiagramState state;
+        // What the diagram shows: its classes and its options, which the
+        // toolbar of the tab can change after it opens.
+        std::set<std::string>  classes;
+        bool                   showNeighbours = true;
+        bool                   allMembers     = false;
         float                  zoom         = 1.0f;
         bool                   fitPending   = true;   // fit the zoom to the view on the next frame
         bool                   focusPending = true;   // bring the new tab to the front
@@ -202,6 +207,17 @@ namespace dev_dash::ui
             node->classes.push_back(i);
             names.insert(name);
         }
+        // The same classes by the folder of their file.
+        _folderTree = ScopeNode{};
+        for (std::size_t i = 0; i < _result.model.classes.size(); ++i)
+        {
+            ScopeNode* node = &_folderTree;
+            for (const std::filesystem::path& part :
+                 _result.model.classes[i].file.parent_path().lexically_relative(_project.path))
+                if (part != ".")
+                    node = &node->children[part.string()];
+            node->classes.push_back(i);
+        }
         const auto sortClasses = [&](auto& self, ScopeNode& node) -> void
         {
             std::sort(node.classes.begin(), node.classes.end(), [&](std::size_t a, std::size_t b)
@@ -210,29 +226,18 @@ namespace dev_dash::ui
                 self(self, child);
         };
         sortClasses(sortClasses, _tree);
+        sortClasses(sortClasses, _folderTree);
         std::erase_if(_selection, [&](const std::string& name) { return !names.contains(name); });
     }
 
     void CodeGraphPanel::CreateDiagram()
     {
-        const Theme& t = CurrentTheme();
-
-        services::DiagramOptions options;
-        options.showNeighbours = _showNeighbours;
-        options.memberAccess   = _allMembers ? core::MemberAccess::kPrivate : core::MemberAccess::kPublic;
-        // ImGuiDot does not draw records yet: plain boxes, one line per member.
-        options.recordShapes        = false;
-        options.palette.classFill   = ToHex(t.panelBg);
-        options.palette.classBorder = ToHex(t.accent);
-        options.palette.text        = ToHex(t.text);
-        options.palette.ghostBorder = ToHex(t.textDim);
-        options.palette.ghostText   = ToHex(t.textDim);
-        options.palette.edge        = ToHex(t.textDim);
-
-        auto tab    = std::make_unique<DiagramTab>();
-        tab->number = _nextTabNumber++;
-        tab->dot    = _generator.Generate(_result.model, _selection, options);
-        ImGuiDot::Update(tab->state, tab->dot);
+        auto tab            = std::make_unique<DiagramTab>();
+        tab->number         = _nextTabNumber++;
+        tab->classes        = _selection;
+        tab->showNeighbours = _showNeighbours;
+        tab->allMembers     = _allMembers;
+        GenerateDiagram(*tab);
 
         // "Diagram 3: Shell, Sidebar +4": the first checked names say what
         // the diagram is about.
@@ -252,53 +257,157 @@ namespace dev_dash::ui
         _tabs.push_back(std::move(tab));
     }
 
+    // The DOT text of the tab from its classes and options, laid out again.
+    void CodeGraphPanel::GenerateDiagram(DiagramTab& tab)
+    {
+        const Theme& t = CurrentTheme();
+
+        services::DiagramOptions options;
+        options.showNeighbours = tab.showNeighbours;
+        options.memberAccess   = tab.allMembers ? core::MemberAccess::kPrivate : core::MemberAccess::kPublic;
+        // ImGuiDot does not draw records yet: plain boxes, one line per member.
+        options.recordShapes        = false;
+        options.palette.classFill   = ToHex(t.panelBg);
+        options.palette.classBorder = ToHex(t.accent);
+        options.palette.text        = ToHex(t.text);
+        options.palette.ghostBorder = ToHex(t.textDim);
+        options.palette.ghostText   = ToHex(t.textDim);
+        options.palette.edge        = ToHex(t.textDim);
+
+        tab.dot = _generator.Generate(_result.model, tab.classes, options);
+        ImGuiDot::Update(tab.state, tab.dot);
+    }
+
+    // The changed folders: those chosen differ from those of the classes
+    // listed, a new reading is due.
+    bool CodeGraphPanel::FoldersChanged() const
+    {
+        return _hasResult
+            && _excluded != std::set<std::filesystem::path>(_result.excludedDirectories.begin(),
+                                                            _result.excludedDirectories.end());
+    }
+
+    // The toolbar of the section, a strip under its title: the operations
+    // on the left, the menu on the right (the choices of what the section
+    // shows).
+    void CodeGraphPanel::RenderSectionActions()
+    {
+        const Theme&      t       = CurrentTheme();
+        const ImGuiStyle& style   = ImGui::GetStyle();
+        const bool        reading = _reading.valid();
+        const bool        canDraw = _hasResult && !_selection.empty();
+
+        const float height = ImGui::GetFrameHeight() + style.WindowPadding.y;
+        ImGui::PushStyleColor(ImGuiCol_ChildBg, t.sectionBg);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(style.FramePadding.x, style.WindowPadding.y / 2.0f));
+        ImGui::BeginChild("##toolbar", ImVec2(0.0f, height), ImGuiChildFlags_AlwaysUseWindowPadding,
+                          ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+        ImGui::PopStyleVar();
+
+        const bool foldersChanged = FoldersChanged();
+        ImGui::BeginDisabled(reading);
+        if (foldersChanged)
+            ImGui::PushStyleColor(ImGuiCol_Text, t.accent);
+        if (ImGui::SmallButton("read"))
+            StartReading();
+        if (foldersChanged)
+            ImGui::PopStyleColor();
+        ImGui::EndDisabled();
+        StatusHint(_status, reading          ? "Reading the C++ classes of the project..."
+                            : foldersChanged ? "Read again: the folders to read changed"
+                            : _hasResult     ? "Read the C++ classes of the project again"
+                                             : "Read the C++ classes of the project");
+
+        ImGui::SameLine();
+        ImGui::BeginDisabled(!canDraw);
+        if (ImGui::SmallButton("diagram"))
+            CreateDiagram();
+        ImGui::EndDisabled();
+        StatusHint(_status, canDraw ? "Open the class diagram of the " + std::to_string(_selection.size())
+                                          + " checked classes in a new tab"
+                                    : "Check at least one class to create its diagram");
+
+        ImGui::SameLine();
+        ImGui::BeginDisabled(_selection.empty());
+        if (ImGui::SmallButton("clear"))
+            _selection.clear();
+        ImGui::EndDisabled();
+        StatusHint(_status, "Uncheck all the classes, also those hidden by the filter");
+
+        ImGui::SameLine(ImGui::GetContentRegionAvail().x + ImGui::GetCursorPosX()
+                        - ImGui::CalcTextSize("...").x - style.FramePadding.x * 2.0f);
+        if (ImGui::SmallButton("..."))
+            ImGui::OpenPopup("##code_graph_menu");
+        StatusHint(_status, "How to list the classes, and which folders to read");
+
+        bool openFolders = false;
+        if (ImGui::BeginPopup("##code_graph_menu"))
+        {
+            if (ImGui::MenuItem("By namespace", nullptr, _view == ClassView::kNamespaces))
+                _view = ClassView::kNamespaces;
+            if (ImGui::MenuItem("By folder", nullptr, _view == ClassView::kFolders))
+                _view = ClassView::kFolders;
+            ImGui::Separator();
+            if (ImGui::MenuItem("Folders to read...", nullptr, false, _hasResult))
+                openFolders = true;
+            ImGui::EndPopup();
+        }
+        if (openFolders)
+            ImGui::OpenPopup("##folders_to_read");
+        if (ImGui::BeginPopup("##folders_to_read"))
+        {
+            RenderFolders();
+            ImGui::EndPopup();
+        }
+
+        ImGui::EndChild();
+        ImGui::PopStyleColor();
+    }
+
+    // The section body: the state of the reading, the filter, the classes.
     void CodeGraphPanel::RenderSidebarSection()
     {
         const Theme& t       = CurrentTheme();
         const bool   reading = _reading.valid();
-
-        // ----- Reading
 
         // The activity goes to the status bar; an item under the mouse
         // overrides it there while hovered.
         if (reading)
             _status.SetHint("Code graph: reading the C++ classes of the project in background...");
 
-        // The folders chosen differ from those of the classes listed.
-        const bool foldersChanged =
-            _hasResult
-            && _excluded != std::set<std::filesystem::path>(_result.excludedDirectories.begin(),
-                                                            _result.excludedDirectories.end());
-
-        ImGui::BeginDisabled(reading);
-        if (foldersChanged)
-            ImGui::PushStyleColor(ImGuiCol_Text, t.accent);
-        if (ImGui::Button(reading ? "Reading..." : _hasResult ? "Read again" : "Read the code"))
-            StartReading();
-        if (foldersChanged)
-            ImGui::PopStyleColor();
-        ImGui::EndDisabled();
-        StatusHint(_status, foldersChanged
-                                ? "The folders to read changed: read again to list the classes they hold"
-                                : "Read the C++ classes of the project, skipping hidden and build directories "
-                                  "(.git, build, cmake-build-*, out, node_modules) and the folders left out below");
-        if (_hasResult && !reading)
-        {
-            ImGui::SameLine();
-            ImGui::TextDisabled("%zu classes, %d files", _result.model.classes.size(), _result.filesRead);
-        }
-        if (_hasResult)
-            RenderFolders();
-
         if (!_readError.empty())
             ImGui::TextColored(t.removed, "%s", _readError.c_str());
-        if (_hasResult && !_result.partlyReadFiles.empty())
+
+        if (!_hasResult)
+        {
+            ImGui::TextDisabled(reading ? "Reading..." : "Not read yet");
+            if (!reading)
+                ImGui::TextWrapped("\"read\" lists the C++ classes of the project, to draw their diagram.");
+            return;
+        }
+
+        // ----- State of the reading
+
+        if (reading)
+            ImGui::TextDisabled("Reading...");
+        else
+            ImGui::TextDisabled("%d files, %zu classes", _result.filesRead, _result.model.classes.size());
+        StatusHint(_status, "Read from the folders chosen in \"...\" > \"Folders to read\"; hidden and build "
+                            "directories are always skipped");
+        if (FoldersChanged())
+        {
+            ImGui::SameLine();
+            ImGui::TextColored(t.accent, "folders changed");
+            StatusHint(_status, "The folders to read changed: \"read\" lists the classes they hold");
+        }
+
+        if (!_result.partlyReadFiles.empty())
         {
             // Neutral, not a warning: it tells the limits of the reader, not
             // a fault of the project.
             ImGui::PushStyleColor(ImGuiCol_Text, t.info);
             const bool expanded =
-                ImGui::TreeNode("##partly_read", "%zu files read in part", _result.partlyReadFiles.size());
+                ImGui::TreeNode("##partly_read", "%zu read in part", _result.partlyReadFiles.size());
             ImGui::PopStyleColor();
             StatusHint(_status, "Code the reader did not understand, the first place in each file: usually a macro "
                                 "(it has no preprocessor) or syntax its grammar misses. The rest is read.");
@@ -323,73 +432,38 @@ namespace dev_dash::ui
             }
         }
 
-        if (!_hasResult)
-        {
-            if (!reading)
-                ImGui::TextWrapped("Reads the C++ classes of the project, skipping hidden and build directories.");
-            return;
-        }
         if (_result.model.classes.empty())
         {
-            ImGui::TextWrapped(_result.filesRead == 0 ? "No C++ files in the project."
-                                                      : "No classes in the C++ files of the project.");
+            ImGui::TextWrapped(_result.filesRead == 0 ? "No C++ files in the folders read."
+                                                      : "No classes in the C++ files read.");
             return;
         }
 
-        // ----- Diagram options
-
-        ImGui::Separator();
-        ImGui::BeginDisabled(_selection.empty());
-        // The count rides on the button: the sidebar is too narrow for a
-        // third item on this row.
-        const std::string createLabel = _selection.empty()
-                                            ? std::string("Create diagram###create")
-                                            : "Create diagram (" + std::to_string(_selection.size()) + ")###create";
-        if (ImGui::Button(createLabel.c_str()))
-            CreateDiagram();
-        StatusHint(_status, _selection.empty() ? "Check at least one class to create a diagram"
-                                               : "Open the diagram of the checked classes in a new tab, "
-                                                 "with the options below");
-        ImGui::SameLine();
-        if (ImGui::Button("Clear"))
-            _selection.clear();
-        StatusHint(_status, "Uncheck all the classes, also those hidden by the filter");
-        ImGui::EndDisabled();
-        ImGui::Checkbox("Neighbours", &_showNeighbours);
-        StatusHint(_status, "Also draw the classes one step away from the checked ones, dimmed and "
-                            "with their name only");
-        ImGui::SameLine();
-        ImGui::Checkbox("All members", &_allMembers);
-        StatusHint(_status, "Show the protected and private members too, not only the public ones");
+        // ----- Filter and classes
 
         ImGui::SetNextItemWidth(-1.0f);
         ImGui::InputTextWithHint("##filter", "Filter classes", _filter.data(), _filter.size());
         StatusHint(_status, "Show only the classes whose full name contains this text (case ignored)");
 
-        // ----- Classes by namespace
-
-        RenderScope(_tree, std::string(), 0);
+        RenderScope(_view == ClassView::kFolders ? _folderTree : _tree, std::string(), 0);
     }
 
     // The folders of the project holding C++ files, with a box each: the
     // unchecked ones are left out of the next reading, with all they hold.
     void CodeGraphPanel::RenderFolders()
     {
-        if (_directories.children.empty())
-            return;
-
         const std::size_t total = _result.sourceDirectories.size();
         const std::size_t read  = static_cast<std::size_t>(
             std::count_if(_result.sourceDirectories.begin(), _result.sourceDirectories.end(),
                           [&](const std::filesystem::path& directory) { return !IsExcluded(directory); }));
-        const bool expanded = ImGui::TreeNode("##folders", "Folders: %zu of %zu read", read, total);
-        StatusHint(_status, "The folders of the project holding C++ code: uncheck one to leave it out of the next "
-                            "reading. The first reading leaves out the folders named test and tests.");
-        if (expanded)
-        {
+        ImGui::TextDisabled("Folders to read: %zu of %zu", read, total);
+        ImGui::Separator();
+        if (_directories.children.empty())
+            ImGui::TextDisabled("No folder holds C++ files.");
+        else
             RenderDirectory(_directories, false);
-            ImGui::TreePop();
-        }
+        ImGui::Separator();
+        ImGui::TextDisabled("Then \"read\" lists the classes they hold.");
     }
 
     void CodeGraphPanel::RenderDirectory(const DirectoryNode& node, bool parentExcluded)
@@ -463,6 +537,8 @@ namespace dev_dash::ui
     {
         const bool             filtering = _filter[0] != '\0';
         const std::string_view filter(_filter.data());
+        const bool             byFolder  = _view == ClassView::kFolders;
+        const std::string      separator = byFolder ? "/" : std::string(kScope);
 
         // The class of node named like a nested scope, if any.
         const auto classNamed = [&](const std::string& name) -> std::optional<std::size_t>
@@ -474,9 +550,20 @@ namespace dev_dash::ui
         };
         std::set<std::size_t> classesAsScopes;
 
-        for (const auto& [name, child] : node.children)
+        for (const auto& [childName, childNode] : node.children)
         {
-            const std::optional<std::size_t> ownClass = classNamed(name);
+            // By folder, a chain of folders with nothing but one folder each
+            // is one node: "app/src" rather than "app" then "src".
+            std::string      name  = childName;
+            const ScopeNode* chain = &childNode;
+            while (byFolder && chain->classes.empty() && chain->children.size() == 1)
+            {
+                name += "/" + chain->children.begin()->first;
+                chain = &chain->children.begin()->second;
+            }
+            const ScopeNode& child = *chain;
+
+            const std::optional<std::size_t> ownClass = byFolder ? std::nullopt : classNamed(childName);
             if (ownClass)
                 classesAsScopes.insert(*ownClass);
 
@@ -488,7 +575,7 @@ namespace dev_dash::ui
             if (visible.empty())
                 continue;
 
-            const std::string childPath = path.empty() ? name : path + std::string(kScope) + name;
+            const std::string childPath = path.empty() ? name : path + separator + name;
             ImGui::PushID(name.c_str());
 
             // One box for the whole scope, nested scopes included: checked
@@ -503,7 +590,8 @@ namespace dev_dash::ui
             const bool changed = ImGui::Checkbox("##all", &all);
             ImGui::PopItemFlag();
             StatusHint(_status, "Check or uncheck " + std::string(ownClass ? "the class " : "every class of ") + childPath
-                                    + (ownClass ? " and the classes nested in it" : ", nested scopes included")
+                                    + (ownClass ? " and the classes nested in it"
+                                                : byFolder ? ", nested folders included" : ", nested scopes included")
                                     + " shown by the filter");
             if (changed)
                 for (const std::size_t index : visible)
@@ -648,6 +736,23 @@ namespace dev_dash::ui
         }
         StatusHint(_status, "Copy the DOT text of this diagram, to check it or render it elsewhere "
                             "(the Diagram panel, Graphviz)");
+        // The options of this diagram; the last ones chosen are those of the
+        // next diagram.
+        ImGui::SameLine();
+        if (ImGui::Checkbox("Neighbours", &tab.showNeighbours))
+        {
+            _showNeighbours = tab.showNeighbours;
+            GenerateDiagram(tab);
+        }
+        StatusHint(_status, "Also draw the classes one step away from those of the diagram, dimmed and with "
+                            "their name only");
+        ImGui::SameLine();
+        if (ImGui::Checkbox("All members", &tab.allMembers))
+        {
+            _allMembers = tab.allMembers;
+            GenerateDiagram(tab);
+        }
+        StatusHint(_status, "Show the protected and private members too, not only the public ones");
         ImGui::Separator();
 
         // The canvas has no scroll bars: the diagram is drawn at pan from
