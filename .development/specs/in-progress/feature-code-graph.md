@@ -212,7 +212,12 @@ sorgenti di Graphviz, ~1800 file):
       restano schede del workspace. Una classe con classi annidate è un nodo
       solo, la cui casella copre anche le annidate. La vista per cartella è
       rimandata: utile per i progetti senza namespace.
-- [ ] Pannello diagramma con ImGuiDot, opzione "mostra vicini".
+- [x] Pannello diagramma con ImGuiDot, opzione "mostra vicini". Navigazione
+      (2026-10-02): Ctrl+rotellina zooma attorno al punto sotto il mouse,
+      trascinamento (tasto sinistro o centrale), rotellina e Shift+rotellina
+      spostano la vista, "Fit" adatta e centra. Niente scrollbar: la tela
+      ha uno spostamento suo, così il punto sotto il mouse resta fermo anche
+      quando il diagramma è più piccolo della vista.
 - [ ] Estrazione in background e aggiornamento incrementale (osservazione
       dei file).
 

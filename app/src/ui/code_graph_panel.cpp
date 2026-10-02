@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <cctype>
 #include <chrono>
+#include <cmath>
 #include <cstdio>
 #include <exception>
 #include <map>
@@ -28,6 +29,14 @@ namespace dev_dash::ui
         constexpr float kMaxZoom = 4.0f;
         // Fitting never enlarges a small diagram past this.
         constexpr float kMaxFitZoom = 1.5f;
+        // Each notch of Ctrl+wheel multiplies the zoom by this.
+        constexpr float kWheelZoomStep = 1.15f;
+        // Each notch of the wheel moves the view by this. [pixel]
+        constexpr float kWheelPanStep = 60.0f;
+        // Space left around a fitted diagram. [pixel]
+        constexpr float kFitMargin = 16.0f;
+        // How much of the diagram always stays in view. [pixel]
+        constexpr float kKeepInView = 40.0f;
 
         std::string ScopeOf(const std::string& qualifiedName)
         {
@@ -93,6 +102,9 @@ namespace dev_dash::ui
         float                  zoom         = 1.0f;
         bool                   fitPending   = true;   // fit the zoom to the view on the next frame
         bool                   focusPending = true;   // bring the new tab to the front
+        ImVec2                 pan;                   // top left corner of the diagram in the canvas [pixel]
+        float                  drawnZoom    = 0.0f;   // the zoom of the last frame drawn, 0 before the first
+        bool                   panning      = false;  // the view follows the mouse, dragged with a button down
         bool                   open         = true;
 
         DiagramTab() = default;
@@ -434,6 +446,49 @@ namespace dev_dash::ui
         std::erase_if(_tabs, [](const std::unique_ptr<DiagramTab>& tab) { return !tab->open; });
     }
 
+    // Ctrl+wheel zooms around the point under the mouse, the wheel moves the
+    // view up and down (with Shift, left and right), dragging with the left
+    // or middle button moves it anywhere. Called before the diagram is drawn,
+    // so the new view is drawn in this frame.
+    void CodeGraphPanel::HandleViewInput(DiagramTab& tab, const ImVec2& origin)
+    {
+        const ImGuiIO& io      = ImGui::GetIO();
+        const bool     hovered = ImGui::IsWindowHovered();
+
+        if (hovered && io.MouseWheel != 0.0f)
+        {
+            if (io.KeyCtrl)
+            {
+                const float newZoom =
+                    std::clamp(tab.zoom * std::pow(kWheelZoomStep, io.MouseWheel), kMinZoom, kMaxZoom);
+                // The point of the diagram under the mouse stays there.
+                const float ratio = newZoom / tab.zoom;
+                const ImVec2 mouse(io.MousePos.x - origin.x, io.MousePos.y - origin.y);
+                tab.pan  = ImVec2(mouse.x - (mouse.x - tab.pan.x) * ratio, mouse.y - (mouse.y - tab.pan.y) * ratio);
+                tab.zoom = newZoom;
+            }
+            else if (io.KeyShift)
+                tab.pan.x += io.MouseWheel * kWheelPanStep;
+            else
+                tab.pan.y += io.MouseWheel * kWheelPanStep;
+        }
+        if (hovered && io.MouseWheelH != 0.0f)
+            tab.pan.x += io.MouseWheelH * kWheelPanStep;
+
+        if (hovered && (ImGui::IsMouseClicked(ImGuiMouseButton_Left) || ImGui::IsMouseClicked(ImGuiMouseButton_Middle)))
+            tab.panning = true;
+        if (tab.panning)
+        {
+            if (!ImGui::IsMouseDown(ImGuiMouseButton_Left) && !ImGui::IsMouseDown(ImGuiMouseButton_Middle))
+                tab.panning = false;
+            else
+            {
+                ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeAll);
+                tab.pan = ImVec2(tab.pan.x + io.MouseDelta.x, tab.pan.y + io.MouseDelta.y);
+            }
+        }
+    }
+
     void CodeGraphPanel::RenderDiagramTab(DiagramTab& tab)
     {
         // The number after ### keeps the window identity when titles repeat.
@@ -446,11 +501,12 @@ namespace dev_dash::ui
 
         ImGui::SetNextItemWidth(160.0f);
         ImGui::SliderFloat("Zoom", &tab.zoom, kMinZoom, kMaxZoom, "%.2fx", ImGuiSliderFlags_Logarithmic);
-        StatusHint(_status, "Zoom of the diagram (Ctrl+click to type a value)");
+        StatusHint(_status, "Zoom of the diagram (Ctrl+click to type a value). On the diagram: Ctrl+wheel zooms "
+                            "around the mouse; dragging, the wheel and Shift+wheel move the view");
         ImGui::SameLine();
         if (ImGui::Button("Fit"))
             tab.fitPending = true;
-        StatusHint(_status, "Zoom so that the whole diagram fits the view");
+        StatusHint(_status, "Zoom so that the whole diagram fits the view, and centre it");
         ImGui::SameLine();
         if (ImGui::Button("Copy DOT"))
         {
@@ -461,27 +517,46 @@ namespace dev_dash::ui
                             "(the Diagram panel, Graphviz)");
         ImGui::Separator();
 
-        // The padding keeps the outer borders reachable: they lie exactly on
-        // the edge of the space ImGuiDot reserves, and without it the scroll
-        // stops there and clips them.
-        ImGui::BeginChild("##canvas", ImVec2(0.0f, 0.0f), ImGuiChildFlags_AlwaysUseWindowPadding,
-                          ImGuiWindowFlags_HorizontalScrollbar);
+        // The canvas has no scroll bars: the diagram is drawn at pan from
+        // the top left corner, so it can go anywhere, also when smaller than
+        // the view, and zooming keeps the point under the mouse in place.
+        ImGui::BeginChild("##canvas", ImVec2(0.0f, 0.0f), ImGuiChildFlags_None,
+                          ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+        const ImVec2 origin    = ImGui::GetCursorScreenPos();
         const ImVec2 available = ImGui::GetContentRegionAvail();
-        // Fitting measures the diagram drawn at the current zoom: ImGuiDot
-        // reserves its size with an item, unshifted when the pivot is 0.
-        ImGuiDot::Draw(tab.state, tab.zoom, tab.fitPending ? ImVec2(0.0f, 0.0f) : ImVec2(0.5f, 0.0f));
-        if (tab.fitPending)
+        // A zoom changed by the slider keeps the centre of the view in place.
+        if (tab.drawnZoom > 0.0f && tab.zoom != tab.drawnZoom)
         {
-            const ImVec2 drawn = ImGui::GetItemRectSize();
-            if (drawn.x > 0.0f && drawn.y > 0.0f && available.x > 0.0f && available.y > 0.0f)
-            {
-                const float scale = std::min(available.x / drawn.x, available.y / drawn.y);
-                tab.zoom = std::clamp(tab.zoom * scale, kMinZoom, kMaxFitZoom);
-                ImGui::SetScrollX(0.0f);
-                ImGui::SetScrollY(0.0f);
-                tab.fitPending = false;
-            }
+            const float  ratio = tab.zoom / tab.drawnZoom;
+            const ImVec2 centre(available.x / 2.0f, available.y / 2.0f);
+            tab.pan = ImVec2(centre.x - (centre.x - tab.pan.x) * ratio, centre.y - (centre.y - tab.pan.y) * ratio);
         }
+        HandleViewInput(tab, origin);
+
+        ImGui::SetCursorScreenPos(ImVec2(origin.x + tab.pan.x, origin.y + tab.pan.y));
+        ImGuiDot::Draw(tab.state, tab.zoom);
+        const ImVec2 drawn = ImGui::GetItemRectSize();
+
+        // Fitting measures the diagram drawn at the current zoom, then
+        // centres it: its size grows with the zoom.
+        if (tab.fitPending && drawn.x > 0.0f && drawn.y > 0.0f && available.x > 0.0f && available.y > 0.0f)
+        {
+            const ImVec2 room(available.x - 2.0f * kFitMargin, available.y - 2.0f * kFitMargin);
+            const float  newZoom =
+                std::clamp(tab.zoom * std::min(room.x / drawn.x, room.y / drawn.y), kMinZoom, kMaxFitZoom);
+            const float ratio = newZoom / tab.zoom;
+            tab.zoom          = newZoom;
+            tab.pan           = ImVec2((available.x - drawn.x * ratio) / 2.0f, (available.y - drawn.y * ratio) / 2.0f);
+            tab.fitPending    = false;
+        }
+        else
+        {
+            // Keep a corner of the diagram in view: it cannot be lost by
+            // dragging it out.
+            tab.pan.x = std::clamp(tab.pan.x, kKeepInView - drawn.x, available.x - kKeepInView);
+            tab.pan.y = std::clamp(tab.pan.y, kKeepInView - drawn.y, available.y - kKeepInView);
+        }
+        tab.drawnZoom = tab.zoom;
         ImGui::EndChild();
 
         ImGui::End();

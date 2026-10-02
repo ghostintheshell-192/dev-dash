@@ -65,6 +65,7 @@ namespace dev_dash::ui
         void CollectVisible(const ScopeNode& node, std::vector<std::size_t>& visible) const;
         void CreateDiagram();
         void RenderDiagramTab(DiagramTab& tab);
+        void HandleViewInput(DiagramTab& tab, const ImVec2& origin);
 
         services::CppClassExtractor&     _extractor;
         services::ClassDiagramGenerator& _generator;
