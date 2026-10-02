@@ -5,8 +5,10 @@
 ## Project Phase
 
 **Phase**: Wedge completa, prima pre-release utilizzabile: `v0.1.1`,
-verificata su Debian 12 (`v0.1.0` non partiva lì). Prossimo lavoro di prodotto: scaffold templating (ADR-015) e,
-sul fronte grafi, la collaborazione con Dario su ImGuiDot.
+verificata su Debian 12 (`v0.1.0` non partiva lì). Il **code graph** è
+usabile (fasi 2 e 3 in buona parte, in `develop` dal 2026-10-02): prossimo
+passo la sidebar ripensata fra navigazione e toolbar. Poi scaffold
+templating (ADR-015).
 
 Il pivot a **C++20 + Dear ImGui + SDL3 + Vulkan** è validato e in produzione.
 Le tre wedge feature (effective config view, scaffold management, snapshot &
@@ -20,7 +22,8 @@ Stato attuale del codebase:
   ADR-010). `services/` è anche libreria statica `dev-dash-services`, linkata
   dai test senza stack grafico.
 - `app/tests/` — Catch2 v3: `SnapshotService`, `ApplyEngine`, `ConfigResolver`
-  (una cartella di prova per ogni regola di caricamento di Claude Code).
+  (una cartella di prova per ogni regola di caricamento di Claude Code),
+  `CppClassExtractor`, `ClassDiagramGenerator`.
 - Versione `0.1.1` in `app/CMakeLists.txt`. Tag `v0.1.0` e `v0.1.1` su
   `main` (pre-release GitHub); la release si compila su Ubuntu 22.04 con g++-12 e
   controlla di restare entro glibc 2.36 / `GLIBCXX_3.4.30` (Debian 12).
@@ -35,6 +38,26 @@ Stato attuale del codebase:
   `git checkout legacy/avalonia-final`.
 
 ## Recent Work
+
+### 2026-10-01/02: Code graph visibile e navigabile
+
+- **Fase 2**: `core/code_model.h`, `services/cpp_class_extractor.*`
+  (tree-sitter 0.26.13 + tree-sitter-cpp 0.23.4 via CPM, port di
+  `extract_ts2.py`), `services/class_diagram_generator.*` (DOT).
+- **Fase 3**: sezione "Code graph" nella sidebar con l'albero delle classi
+  per namespace (caselle a tre stati, filtro), ogni diagramma in una scheda
+  del workspace. Tela senza scrollbar: Ctrl+rotellina zooma attorno al
+  mouse, trascinamento e rotellina spostano la vista, Fit adatta e centra.
+- **Cartelle da leggere**: la prima lettura lascia fuori `test`/`tests`,
+  poi decide l'utente (per sessione, non ancora salvata). I file "letti in
+  parte" mostrano riga e testo del punto non capito.
+- Convenzione UI: spiegazioni nella status bar, mai tooltip
+  (`coding-standards.md`). Tech-debt con `upstream:` per ImGuiDot e
+  tree-sitter-cpp (il difetto di `= {}` c'è ancora sul `master` della
+  grammatica).
+- ImGuiDot: #19 (colori dello stile) unita da Dario; #18 (etichette su più
+  righe) aggiornata dopo la review. Il pin CPM resta sul fork
+  (`c828e70`, correzione della dimensione del testo) fino al merge.
 
 ### 2026-09-30: Prima release, e la correzione per Debian 12
 
@@ -300,14 +323,13 @@ Le sessioni 2025-12 / 2026-01 hanno costruito la v0.2.x in Avalonia
 1. **`feature-scaffold-templating`** (planned, ADR-015) — prossima feature
    di prodotto.
 
-2. **Diagramma del progetto aperto** — spec
-   [`feature-code-graph`](specs/planned/feature-code-graph.md): class diagram
-   UML on demand (l'utente seleziona le classi, vicini diretti come nodi
-   fantasma), C++ come primo linguaggio, rendering con ImGuiDot. Fase 1 chiusa
-   ([ADR-017](reference/decisions/017-code-graph-extraction.md): tree-sitter +
-   risolutore di base, libclang opzionale). Prossimo: Fase 2 (modello,
-   estrattore in C++, generatore DOT), che richiede le due PR aperte su
-   ImGuiDot mergiate.
+2. **Code graph** — spec
+   [`feature-code-graph`](specs/in-progress/feature-code-graph.md), in
+   corso. Prossimo: ripensare la sezione della sidebar separando
+   navigazione (alberi, filtri, viste) e azioni (toolbar: leggi, crea
+   diagramma, opzioni), poi salvataggio per progetto della scelta delle
+   cartelle e vista per cartella. Fase 4 (clic sui nodi fantasma) richiede
+   una API nuova in ImGuiDot, da discutere con Dario.
 
 ### Più avanti
 
