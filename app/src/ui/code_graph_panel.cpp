@@ -14,6 +14,8 @@
 
 #include <ImGuiDot.h>
 #include <imgui.h>
+// ImGuiItemFlags_MixedValue: the third state of the scope check boxes.
+#include <imgui_internal.h>
 
 namespace dev_dash::ui
 {
@@ -30,6 +32,22 @@ namespace dev_dash::ui
         {
             const std::size_t pos = qualifiedName.rfind(kScope);
             return pos == std::string::npos ? std::string() : qualifiedName.substr(0, pos);
+        }
+
+        // "a::b::c" → {"a", "b", "c"}; "" → {}.
+        std::vector<std::string> SplitScope(const std::string& scope)
+        {
+            std::vector<std::string> parts;
+            std::size_t start = 0;
+            while (start < scope.size())
+            {
+                const std::size_t end = scope.find(kScope, start);
+                parts.push_back(scope.substr(start, end == std::string::npos ? std::string::npos : end - start));
+                if (end == std::string::npos)
+                    break;
+                start = end + kScope.size();
+            }
+            return parts;
         }
 
         std::string ShortNameOf(const std::string& qualifiedName)
@@ -129,22 +147,27 @@ namespace dev_dash::ui
                     "Code graph: " + std::to_string(_result.model.classes.size()) + " classes read from "
                         + std::to_string(_result.filesRead) + " files");
 
-        // Group by scope; drop the checked classes that no longer exist.
-        std::map<std::string, std::vector<std::size_t>> byScope;
+        // The tree of the scopes; drop the checked classes that no longer
+        // exist.
+        _tree = ScopeNode{};
         std::set<std::string> names;
         for (std::size_t i = 0; i < _result.model.classes.size(); ++i)
         {
             const std::string& name = _result.model.classes[i].qualifiedName;
-            byScope[ScopeOf(name)].push_back(i);
+            ScopeNode* node = &_tree;
+            for (const std::string& part : SplitScope(ScopeOf(name)))
+                node = &node->children[part];
+            node->classes.push_back(i);
             names.insert(name);
         }
-        _groups.clear();
-        for (auto& [scope, classes] : byScope)
+        const auto sortClasses = [&](auto& self, ScopeNode& node) -> void
         {
-            std::sort(classes.begin(), classes.end(), [&](std::size_t a, std::size_t b)
+            std::sort(node.classes.begin(), node.classes.end(), [&](std::size_t a, std::size_t b)
                       { return _result.model.classes[a].qualifiedName < _result.model.classes[b].qualifiedName; });
-            _groups.push_back(Group{scope, std::move(classes)});
-        }
+            for (auto& [name, child] : node.children)
+                self(self, child);
+        };
+        sortClasses(sortClasses, _tree);
         std::erase_if(_selection, [&](const std::string& name) { return !names.contains(name); });
     }
 
@@ -187,21 +210,7 @@ namespace dev_dash::ui
         _tabs.push_back(std::move(tab));
     }
 
-    void CodeGraphPanel::Render(bool* open)
-    {
-        CollectReading();
-
-        if (!ImGui::Begin("Code graph", open))
-        {
-            ImGui::End();
-            return;
-        }
-
-        RenderClassList();
-        ImGui::End();
-    }
-
-    void CodeGraphPanel::RenderClassList()
+    void CodeGraphPanel::RenderSidebarSection()
     {
         const Theme& t       = CurrentTheme();
         const bool   reading = _reading.valid();
@@ -282,70 +291,105 @@ namespace dev_dash::ui
         ImGui::SetNextItemWidth(-1.0f);
         ImGui::InputTextWithHint("##filter", "Filter classes", _filter.data(), _filter.size());
         StatusHint(_status, "Show only the classes whose full name contains this text (case ignored)");
+
+        // ----- Classes by namespace
+
+        RenderScope(_tree, std::string(), 0);
+    }
+
+    void CodeGraphPanel::CollectVisible(const ScopeNode& node, std::vector<std::size_t>& visible) const
+    {
         const std::string_view filter(_filter.data());
+        for (const std::size_t index : node.classes)
+            if (Matches(_result.model.classes[index].qualifiedName, filter))
+                visible.push_back(index);
+        for (const auto& [name, child] : node.children)
+            CollectVisible(child, visible);
+    }
 
-        // ----- Classes by scope
+    // The scopes nested in node, then its own classes. A scope with no class
+    // shown by the filter is left out.
+    void CodeGraphPanel::RenderScope(const ScopeNode& node, const std::string& path, int depth)
+    {
+        const bool filtering = _filter[0] != '\0';
 
-        ImGui::BeginChild("##class_tree");
-        for (const Group& group : _groups)
+        for (const auto& [name, child] : node.children)
         {
             std::vector<std::size_t> visible;
-            for (const std::size_t index : group.classes)
-                if (Matches(_result.model.classes[index].qualifiedName, filter))
-                    visible.push_back(index);
+            CollectVisible(child, visible);
             if (visible.empty())
                 continue;
 
-            ImGui::PushID(group.scope.c_str());
+            const std::string childPath = path.empty() ? name : path + std::string(kScope) + name;
+            ImGui::PushID(name.c_str());
 
-            // One box for the whole scope: checked when all its visible
-            // classes are; a click checks or clears them all.
-            bool all = std::all_of(visible.begin(), visible.end(), [&](std::size_t index)
-                                   { return _selection.contains(_result.model.classes[index].qualifiedName); });
+            // One box for the whole scope, nested scopes included: checked
+            // when all its classes shown by the filter are, mixed when some
+            // are; a click checks them all, or clears them when all are.
+            const std::size_t checkedCount = static_cast<std::size_t>(
+                std::count_if(visible.begin(), visible.end(), [&](std::size_t index)
+                              { return _selection.contains(_result.model.classes[index].qualifiedName); }));
+            bool       all   = checkedCount == visible.size();
+            const bool mixed = checkedCount > 0 && !all;
+            ImGui::PushItemFlag(ImGuiItemFlags_MixedValue, mixed);
             const bool changed = ImGui::Checkbox("##all", &all);
-            StatusHint(_status, "Check or uncheck every class of "
-                                    + (group.scope.empty() ? std::string("the global scope") : group.scope)
-                                    + " shown by the filter");
+            ImGui::PopItemFlag();
+            StatusHint(_status, "Check or uncheck every class of " + childPath + " shown by the filter, "
+                                    "nested scopes included");
             if (changed)
                 for (const std::size_t index : visible)
                 {
-                    const std::string& name = _result.model.classes[index].qualifiedName;
+                    const std::string& qualifiedName = _result.model.classes[index].qualifiedName;
                     if (all)
-                        _selection.insert(name);
+                        _selection.insert(qualifiedName);
                     else
-                        _selection.erase(name);
+                        _selection.erase(qualifiedName);
                 }
             ImGui::SameLine();
 
-            const std::string label = group.scope.empty() ? "(global scope)" : group.scope;
-            if (ImGui::TreeNodeEx(label.c_str(), ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanAvailWidth))
+            // The outer namespaces start open; while filtering, every scope
+            // with a match opens to show it.
+            if (filtering)
+                ImGui::SetNextItemOpen(true);
+            const ImGuiTreeNodeFlags flags =
+                ImGuiTreeNodeFlags_SpanAvailWidth | (depth == 0 ? ImGuiTreeNodeFlags_DefaultOpen : 0);
+            const bool open = ImGui::TreeNodeEx(name.c_str(), flags);
+            StatusHint(_status, childPath + "  ·  " + std::to_string(visible.size()) + " classes");
+            if (open)
             {
-                for (const std::size_t index : visible)
-                {
-                    const core::CodeClass& cls = _result.model.classes[index];
-                    bool checked = _selection.contains(cls.qualifiedName);
-                    ImGui::PushID(static_cast<int>(index));
-                    if (ImGui::Checkbox(ShortNameOf(cls.qualifiedName).c_str(), &checked))
-                    {
-                        if (checked)
-                            _selection.insert(cls.qualifiedName);
-                        else
-                            _selection.erase(cls.qualifiedName);
-                    }
-                    StatusHint(_status, cls.qualifiedName + "  ·  "
-                                            + cls.file.lexically_relative(_project.path).string() + "  ·  "
-                                            + std::to_string(cls.members.size()) + " members");
-                    ImGui::PopID();
-                }
+                RenderScope(child, childPath, depth + 1);
                 ImGui::TreePop();
             }
             ImGui::PopID();
         }
-        ImGui::EndChild();
+
+        const std::string_view filter(_filter.data());
+        for (const std::size_t index : node.classes)
+            if (Matches(_result.model.classes[index].qualifiedName, filter))
+                RenderClass(index);
+    }
+
+    void CodeGraphPanel::RenderClass(std::size_t index)
+    {
+        const core::CodeClass& cls = _result.model.classes[index];
+        bool checked = _selection.contains(cls.qualifiedName);
+        ImGui::PushID(static_cast<int>(index));
+        if (ImGui::Checkbox(ShortNameOf(cls.qualifiedName).c_str(), &checked))
+        {
+            if (checked)
+                _selection.insert(cls.qualifiedName);
+            else
+                _selection.erase(cls.qualifiedName);
+        }
+        StatusHint(_status, cls.qualifiedName + "  ·  " + cls.file.lexically_relative(_project.path).string() + "  ·  "
+                                + std::to_string(cls.members.size()) + " members");
+        ImGui::PopID();
     }
 
     void CodeGraphPanel::RenderDiagrams(ImGuiID dockspaceId)
     {
+        CollectReading();
+
         for (const std::unique_ptr<DiagramTab>& tab : _tabs)
         {
             ImGui::SetNextWindowDockID(dockspaceId, ImGuiCond_FirstUseEver);

@@ -74,7 +74,6 @@ namespace dev_dash::ui
         bool _diffOpen    = false;
         bool _historyOpen = false;
         bool _diagramOpen = false;
-        bool _codeGraphOpen = false;
 
         float   _sidebarWidth       = 240.0f;
         ImGuiID _dockspaceId        = 0;

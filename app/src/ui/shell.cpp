@@ -74,7 +74,7 @@ namespace dev_dash::ui
 
         _sidebar = std::make_unique<Sidebar>(
             configResolver, scaffoldRepository, snapshotService,
-            _status, project, std::move(callbacks));
+            _status, project, std::move(callbacks), _codeGraphView.get());
     }
 
     // The document host outlives the shell (it is owned by App): detach the
@@ -148,13 +148,8 @@ namespace dev_dash::ui
             ImGui::SetNextWindowDockID(_dockspaceId, ImGuiCond_FirstUseEver);
             _diagramView->Render(&_diagramOpen);
         }
-        if (_codeGraphOpen && _codeGraphView)
-        {
-            ImGui::SetNextWindowDockID(_dockspaceId, ImGuiCond_FirstUseEver);
-            _codeGraphView->Render(&_codeGraphOpen);
-        }
-        // The diagram tabs render every frame, apart from the class list
-        // that opens them: closing the list must not close the diagrams.
+        // The class list lives in the sidebar; the diagram tabs render
+        // every frame, also with the sidebar section collapsed.
         if (_codeGraphView)
             _codeGraphView->RenderDiagrams(_dockspaceId);
 
@@ -187,18 +182,9 @@ namespace dev_dash::ui
                                + style.FramePadding.x * 2.0f;
         const auto buttonW = [&](const char* label)
         { return ImGui::CalcTextSize(label).x + style.FramePadding.x * 2.0f + style.ItemSpacing.x; };
-        const float diagramW = _diagramView ? buttonW("Code graph") + buttonW("Diagram") : 0.0f;
+        const float diagramW = _diagramView ? buttonW("Diagram") : 0.0f;
         ImGui::SameLine(ImGui::GetContentRegionAvail().x - switchW - diagramW
                         + ImGui::GetCursorPosX());
-        if (_codeGraphView)
-        {
-            if (ImGui::SmallButton("Code graph"))
-            {
-                _codeGraphOpen = true;
-                ImGui::SetWindowFocus("Code graph");
-            }
-            ImGui::SameLine();
-        }
         if (_diagramView)
         {
             if (ImGui::SmallButton("Diagram"))

@@ -20,6 +20,7 @@ namespace dev_dash::services
 
 namespace dev_dash::ui
 {
+    class CodeGraphPanel;
     class StatusSink;
 
     // VS Code-style navigation sidebar: collapsible sections with trees and
@@ -42,7 +43,8 @@ namespace dev_dash::ui
                 services::SnapshotService&    snapshotService,
                 StatusSink&                   status,
                 const core::Project&          project,
-                Callbacks                     callbacks);
+                Callbacks                     callbacks,
+                CodeGraphPanel*               codeGraph);
 
         // Renders the sidebar content (the shell owns the surrounding child
         // window and splitter).
@@ -60,6 +62,7 @@ namespace dev_dash::ui
         void RenderScaffoldsSection();
         void RenderScaffoldMenu(const core::Scaffold& scaffold);
         void RenderHistorySection();
+        void RenderCodeGraphSection();
         void RenderFileTree(const FileTree&              node,
                             const std::filesystem::path& root,
                             const std::filesystem::path& relBase);
@@ -75,6 +78,7 @@ namespace dev_dash::ui
         StatusSink&                   _status;
         core::Project                 _project;
         Callbacks                     _callbacks;
+        CodeGraphPanel*               _codeGraph;   // null when diagrams are unavailable
 
         core::EffectiveConfig           _config;
         std::vector<core::Scaffold>     _scaffolds;

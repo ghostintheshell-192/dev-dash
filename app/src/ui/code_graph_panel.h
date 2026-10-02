@@ -2,6 +2,7 @@
 
 #include <array>
 #include <future>
+#include <map>
 #include <memory>
 #include <set>
 #include <stop_token>
@@ -20,13 +21,12 @@ namespace dev_dash::ui
     class StatusSink;
 
     // The code graph (feature-code-graph): reads the C++ classes of the
-    // project in the background and lists them by scope with a check box
-    // each. "Create diagram" opens the class diagram of the checked classes,
-    // with their direct neighbours, in a tab of its own: several diagrams can
-    // stay open side by side, and closing a tab is how a diagram goes away.
-    // The tabs live apart from the list: closing the list leaves them open.
-    // The list moves to the sidebar later (US-1). ImGuiDot::Initialize()
-    // must have succeeded.
+    // project in the background and lists them in a section of the sidebar,
+    // as a tree of namespaces with a check box at every level (US-1).
+    // "Create diagram" opens the class diagram of the checked classes, with
+    // their direct neighbours, in a tab of its own in the workspace (US-2):
+    // several diagrams can stay open side by side, and closing a tab is how
+    // a diagram goes away. ImGuiDot::Initialize() must have succeeded.
     class CodeGraphPanel
     {
     public:
@@ -39,25 +39,30 @@ namespace dev_dash::ui
         CodeGraphPanel(const CodeGraphPanel&)            = delete;
         CodeGraphPanel& operator=(const CodeGraphPanel&) = delete;
 
-        // The class list window.
-        void Render(bool* open);
+        // The content of the sidebar section: reading, diagram options and
+        // the tree of the classes.
+        void RenderSidebarSection();
         // The diagram tabs, docked into the workspace on first show. Called
-        // every frame, whether the list window is open or not.
+        // every frame, also with the sidebar section collapsed: it collects
+        // the reading when it is done.
         void RenderDiagrams(ImGuiID dockspaceId);
 
     private:
-        // The classes of one scope (namespace or enclosing class), sorted.
-        struct Group
+        // A scope (namespace or enclosing class) in the tree of the classes:
+        // the scopes nested in it, by name, and its own classes, sorted.
+        struct ScopeNode
         {
-            std::string scope;
-            std::vector<std::size_t> classes;   // indices into the model
+            std::map<std::string, ScopeNode> children;
+            std::vector<std::size_t>         classes;   // indices into the model
         };
 
         struct DiagramTab;
 
         void StartReading();
         void CollectReading();
-        void RenderClassList();
+        void RenderScope(const ScopeNode& node, const std::string& path, int depth);
+        void RenderClass(std::size_t index);
+        void CollectVisible(const ScopeNode& node, std::vector<std::size_t>& visible) const;
         void CreateDiagram();
         void RenderDiagramTab(DiagramTab& tab);
 
@@ -73,7 +78,7 @@ namespace dev_dash::ui
         services::ExtractionResult              _result;
         bool                                    _hasResult = false;
         std::string                             _readError;
-        std::vector<Group>                      _groups;
+        ScopeNode                               _tree;      // the global scope
 
         std::set<std::string>  _selection;
         std::array<char, 128>  _filter{};

@@ -1,4 +1,5 @@
 #include "sidebar.h"
+#include "code_graph_panel.h"
 #include "status_sink.h"
 #include "theme.h"
 #include "widgets.h"
@@ -55,13 +56,15 @@ namespace dev_dash::ui
                      services::SnapshotService&    snapshotService,
                      StatusSink&                   status,
                      const core::Project&          project,
-                     Callbacks                     callbacks)
+                     Callbacks                     callbacks,
+                     CodeGraphPanel*               codeGraph)
         : _configResolver(configResolver)
         , _scaffoldRepo(scaffoldRepository)
         , _snapshotService(snapshotService)
         , _status(status)
         , _project(project)
         , _callbacks(std::move(callbacks))
+        , _codeGraph(codeGraph)
         , _projectSlug(core::MakeProjectSlug(project.path))
     {
     }
@@ -85,6 +88,7 @@ namespace dev_dash::ui
         RenderConfigSection();
         RenderScaffoldsSection();
         RenderHistorySection();
+        RenderCodeGraphSection();
 
         RenderNewScaffoldModal();
         RenderDeleteConfirmModal();
@@ -261,6 +265,25 @@ namespace dev_dash::ui
     }
 
     // ── File tree ─────────────────────────────────────────────────────────────
+
+    // ── Code graph ────────────────────────────────────────────────────────────
+
+    void Sidebar::RenderCodeGraphSection()
+    {
+        if (!_codeGraph)
+            return;
+
+        const bool open = ImGui::CollapsingHeader("Code graph", kSectionFlags);
+        StatusHint(_status, "The C++ classes of the project by namespace: check some, then create their "
+                            "class diagram");
+        if (!open)
+            return;
+
+        ImGui::PushID("code_graph");
+        _codeGraph->RenderSidebarSection();
+        ImGui::PopID();
+        ImGui::Spacing();
+    }
 
     Sidebar::FileTree Sidebar::BuildFileTree(const std::vector<std::string>& paths)
     {
