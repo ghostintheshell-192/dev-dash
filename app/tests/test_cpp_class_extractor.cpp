@@ -327,7 +327,8 @@ TEST_CASE("a file with a syntax error is listed and still read", "[extractor]")
     Extraction e("namespace s { struct Fine { int x; }; struct Broken { int y }; }");
 
     REQUIRE(e.result.partlyReadFiles.size() == 1);
-    CHECK(e.result.partlyReadFiles[0].filename() == "code.h");
+    CHECK(e.result.partlyReadFiles[0].file.filename() == "code.h");
+    CHECK(e.result.partlyReadFiles[0].line == 1);
     CHECK(e.Class("s::Fine") != nullptr);
 }
 
@@ -369,4 +370,20 @@ TEST_CASE("the excluded directories asked for replace the default rule", "[extra
 
     // Nothing excluded: everything is read.
     CHECK(CppClassExtractor().Extract(root.Path(), {}, Paths{}).filesRead == 3);
+}
+
+TEST_CASE("a file read in part keeps the line the parser did not understand", "[extractor]")
+{
+    Extraction e("namespace m\n"
+                 "{\n"
+                 "    struct Dialog\n"
+                 "    {\n"
+                 "        static void SDLCALL Callback(void* data);\n"
+                 "    };\n"
+                 "}\n");
+
+    REQUIRE(e.result.partlyReadFiles.size() == 1);
+    CHECK(e.result.partlyReadFiles[0].line == 5);
+    CHECK(e.result.partlyReadFiles[0].text == "static void SDLCALL Callback(void* data);");
+    CHECK(e.Class("m::Dialog") != nullptr);
 }

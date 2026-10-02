@@ -3,21 +3,30 @@
 #include <filesystem>
 #include <optional>
 #include <stop_token>
+#include <string>
 #include <vector>
 
 #include "../core/code_model.h"
 
 namespace dev_dash::services
 {
+    // A file with code the parser did not understand: macros it cannot
+    // expand (TEST_CASE(...), SDLCALL), syntax the grammar misses (a default
+    // argument "= {}"), or real errors. tree-sitter recovers around them, so
+    // the rest of the file is read. The first such place is kept, for the
+    // reader to tell which case it is.
+    struct PartlyReadFile
+    {
+        std::filesystem::path file;
+        int                   line = 0;   // 1-based
+        std::string           text;       // that line, trimmed
+    };
+
     struct ExtractionResult
     {
         core::CodeModel model;
         int filesRead = 0;
-        // Files with code the parser did not understand: macros it cannot
-        // expand (TEST_CASE(...), SDLCALL), syntax the grammar misses (a
-        // default argument "= {}"), or real errors. tree-sitter recovers
-        // around them, so the rest of the file is read.
-        std::vector<std::filesystem::path> partlyReadFiles;
+        std::vector<PartlyReadFile> partlyReadFiles;
         bool cancelled = false;         // stopped before the end: the model is partial
         // Every directory holding C++ files, at any depth, relative to the
         // root and sorted: the excluded ones too, for the caller to offer

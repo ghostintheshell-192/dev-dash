@@ -623,6 +623,47 @@ namespace dev_dash::services
                 != kSourceExtensions.end();
         }
 
+        // The first place of the tree the parser did not understand: an
+        // ERROR node (text it skipped) or a MISSING one (a token it had to
+        // assume), with the line it starts on.
+        std::optional<TSNode> FindProblem(TSNode node)
+        {
+            if (ts_node_is_error(node) || ts_node_is_missing(node))
+                return node;
+            if (!ts_node_has_error(node))
+                return std::nullopt;
+            const std::uint32_t count = ts_node_child_count(node);
+            for (std::uint32_t i = 0; i < count; ++i)
+                if (const std::optional<TSNode> found = FindProblem(ts_node_child(node, i)))
+                    return found;
+            return std::nullopt;
+        }
+
+        PartlyReadFile FirstProblem(TSNode root, const SourceFile& file)
+        {
+            PartlyReadFile partly{file.path, 0, {}};
+            const std::optional<TSNode> problem = FindProblem(root);
+            if (!problem)
+                return partly;
+
+            const TSPoint     start = ts_node_start_point(*problem);
+            const std::size_t at    = ts_node_start_byte(*problem);
+            partly.line             = static_cast<int>(start.row) + 1;
+
+            const std::size_t lineStart = at - start.column;
+            std::size_t       lineEnd   = file.text.find('\n', lineStart);
+            if (lineEnd == std::string::npos)
+                lineEnd = file.text.size();
+            std::string_view text(file.text.data() + lineStart, lineEnd - lineStart);
+            const auto isSpace = [](char c) { return c == ' ' || c == '\t' || c == '\r'; };
+            while (!text.empty() && isSpace(text.front()))
+                text.remove_prefix(1);
+            while (!text.empty() && isSpace(text.back()))
+                text.remove_suffix(1);
+            partly.text = std::string(text);
+            return partly;
+        }
+
         std::string ReadFile(const std::filesystem::path& path)
         {
             std::ifstream in(path, std::ios::binary);
@@ -723,7 +764,7 @@ namespace dev_dash::services
             const TSNode rootNode = ts_tree_root_node(file->tree.get());
             ++result.filesRead;
             if (ts_node_has_error(rootNode))
-                result.partlyReadFiles.push_back(path);
+                result.partlyReadFiles.push_back(FirstProblem(rootNode, *file));
             index.Collect(rootNode, "", *file);
             files.push_back(std::move(file));
         }

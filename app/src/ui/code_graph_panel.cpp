@@ -295,16 +295,31 @@ namespace dev_dash::ui
             ImGui::TextColored(t.removed, "%s", _readError.c_str());
         if (_hasResult && !_result.partlyReadFiles.empty())
         {
-            ImGui::PushStyleColor(ImGuiCol_Text, t.modified);
+            // Neutral, not a warning: it tells the limits of the reader, not
+            // a fault of the project.
+            ImGui::PushStyleColor(ImGuiCol_Text, t.info);
             const bool expanded =
                 ImGui::TreeNode("##partly_read", "%zu files read in part", _result.partlyReadFiles.size());
             ImGui::PopStyleColor();
-            StatusHint(_status, "Code the reader did not understand: macros it cannot expand, syntax its "
-                                "grammar misses, or real errors. The rest of each file is read.");
+            StatusHint(_status, "Code the reader did not understand, the first place in each file: usually a macro "
+                                "(it has no preprocessor) or syntax its grammar misses. The rest is read.");
             if (expanded)
             {
-                for (const std::filesystem::path& file : _result.partlyReadFiles)
-                    ImGui::TextDisabled("%s", file.lexically_relative(_project.path).string().c_str());
+                for (const services::PartlyReadFile& partly : _result.partlyReadFiles)
+                {
+                    // The file name keeps the line number in view in the
+                    // narrow sidebar; the hint gives the whole path.
+                    const std::string line  = ":" + std::to_string(partly.line);
+                    const std::string where = partly.file.lexically_relative(_project.path).string() + line;
+                    ImGui::TextUnformatted((partly.file.filename().string() + line).c_str());
+                    StatusHint(_status, where + "  ·  " + partly.text);
+                    ImGui::Indent();
+                    ImGui::PushStyleColor(ImGuiCol_Text, t.textDim);
+                    ImGui::TextUnformatted(partly.text.c_str());
+                    ImGui::PopStyleColor();
+                    StatusHint(_status, where + "  ·  " + partly.text);
+                    ImGui::Unindent();
+                }
                 ImGui::TreePop();
             }
         }
