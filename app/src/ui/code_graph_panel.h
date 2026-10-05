@@ -22,12 +22,13 @@ namespace dev_dash::ui
     class StatusSink;
 
     // The code graph (feature-code-graph): reads the C++ classes of the
-    // project in the background and lists them in a section of the sidebar,
-    // as a tree of namespaces with a check box at every level (US-1).
-    // "Create diagram" opens the class diagram of the checked classes, with
-    // their direct neighbours, in a tab of its own in the workspace (US-2):
-    // several diagrams can stay open side by side, and closing a tab is how
-    // a diagram goes away. ImGuiDot::Initialize() must have succeeded.
+    // project in the background (US-0) and lists them as a tree of
+    // namespaces with a check box at every level (US-1). "New diagram"
+    // opens the class diagram of the checked classes, with their direct
+    // neighbours, in a tab of its own in the workspace (US-2): several
+    // diagrams can stay open side by side, and closing a tab is how a
+    // diagram goes away. What was read, and from which folders, is in the
+    // Code analysis tab. ImGuiDot::Initialize() must have succeeded.
     class CodeGraphPanel
     {
     public:
@@ -40,14 +41,13 @@ namespace dev_dash::ui
         CodeGraphPanel(const CodeGraphPanel&)            = delete;
         CodeGraphPanel& operator=(const CodeGraphPanel&) = delete;
 
-        // The sidebar section, a stack of entries: Read codebase (Project
-        // folders, Analyze code), New diagram, Filters (search, view, Clear
-        // selection, the classes).
+        // The sidebar section: the commands Analyze code and New diagram,
+        // then Filters (search, view, Clear selection, the classes).
         void RenderSidebarSection();
-        // The diagram tabs, docked into the workspace on first show. Called
-        // every frame, also with the sidebar section collapsed: it collects
-        // the reading when it is done.
-        void RenderDiagrams(ImGuiID dockspaceId);
+        // The Code analysis tab and the diagram tabs, docked into the
+        // workspace on first show. Called every frame, also with the sidebar
+        // section collapsed: it collects the reading when it is done.
+        void RenderTabs(ImGuiID dockspaceId);
 
     private:
         // A scope (namespace or enclosing class) in the tree of the classes:
@@ -78,7 +78,10 @@ namespace dev_dash::ui
         void StartReading();
         void CollectReading();
         bool FoldersChanged() const;
+        void OpenAnalysis();
+        void RenderAnalysisTab();
         void RenderFolders();
+        void RenderFilesRead();
         void RenderPartlyRead();
         void RenderDirectory(const DirectoryNode& node, bool parentExcluded);
         bool IsExcluded(const std::filesystem::path& relative) const;
@@ -104,6 +107,7 @@ namespace dev_dash::ui
         services::ExtractionResult              _result;
         bool                                    _hasResult = false;
         std::string                             _readError;
+        std::string                             _readAt;      // "14:32", when the result was collected
         ScopeNode                               _tree;        // the global scope
         ScopeNode                               _folderTree;  // the project root, folders as scopes
         ClassView                               _view = ClassView::kNamespaces;
@@ -120,6 +124,11 @@ namespace dev_dash::ui
         std::array<char, 128>  _filter{};
         bool                   _showNeighbours = true;
         bool                   _allMembers     = false;
+
+        // The Code analysis tab: shown, and brought to the front on the
+        // next frame.
+        bool _analysisOpen  = false;
+        bool _analysisFocus = false;
 
         std::vector<std::unique_ptr<DiagramTab>> _tabs;
         int                                      _nextTabNumber = 1;

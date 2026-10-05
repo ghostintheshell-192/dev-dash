@@ -25,7 +25,8 @@ namespace dev_dash::services
     struct ExtractionResult
     {
         core::CodeModel model;
-        int filesRead = 0;
+        // The files read, in path order (the partly read ones too).
+        std::vector<std::filesystem::path> filesRead;
         std::vector<PartlyReadFile> partlyReadFiles;
         bool cancelled = false;         // stopped before the end: the model is partial
         // Every directory holding C++ files, at any depth, relative to the

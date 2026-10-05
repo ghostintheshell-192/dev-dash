@@ -151,7 +151,7 @@ namespace dev_dash::ui
         // The class list lives in the sidebar; the diagram tabs render
         // every frame, also with the sidebar section collapsed.
         if (_codeGraphView)
-            _codeGraphView->RenderDiagrams(_dockspaceId);
+            _codeGraphView->RenderTabs(_dockspaceId);
 
         // The file diff viewer renders every frame, independently of the
         // scaffold diff panel that opened it: if it only rendered while

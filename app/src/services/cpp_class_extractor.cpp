@@ -762,7 +762,7 @@ namespace dev_dash::services
                 continue;
 
             const TSNode rootNode = ts_tree_root_node(file->tree.get());
-            ++result.filesRead;
+            result.filesRead.push_back(path);
             if (ts_node_has_error(rootNode))
                 result.partlyReadFiles.push_back(FirstProblem(rootNode, *file));
             index.Collect(rootNode, "", *file);
