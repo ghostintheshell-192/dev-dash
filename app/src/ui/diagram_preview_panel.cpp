@@ -43,7 +43,7 @@ namespace dev_dash::ui
 
     void DiagramPreviewPanel::Render(bool* open)
     {
-        if (!ImGui::Begin("Diagram", open))
+        if (!ImGui::Begin("DOT preview", open))
         {
             ImGui::End();
             return;

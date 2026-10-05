@@ -44,6 +44,9 @@ namespace dev_dash::ui
 
         // The sidebar section: the commands Analyze code and New diagram.
         void RenderSidebarSection();
+        // The Code analysis tab, for the View menu.
+        bool IsAnalysisOpen() const { return _analysisOpen; }
+        void ShowAnalysis(bool show);
         // The Code analysis tab and the diagram tabs, docked into the
         // workspace on first show. Called every frame, also with the sidebar
         // section collapsed: it collects the reading when it is done.
@@ -78,7 +81,6 @@ namespace dev_dash::ui
         void StartReading();
         void CollectReading();
         bool FoldersChanged() const;
-        void OpenAnalysis();
         void RenderAnalysisTab();
         void RenderFolders();
         void RenderFilesRead();

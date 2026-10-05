@@ -317,10 +317,10 @@ namespace dev_dash::ui
                                                             _result.excludedDirectories.end());
     }
 
-    void CodeGraphPanel::OpenAnalysis()
+    void CodeGraphPanel::ShowAnalysis(bool show)
     {
-        _analysisOpen  = true;
-        _analysisFocus = true;
+        _analysisOpen  = show;
+        _analysisFocus = show;
     }
 
     // The section holds commands: Analyze code, New diagram. Then Filters,
@@ -342,7 +342,7 @@ namespace dev_dash::ui
         {
             if (!_hasResult && !reading)
                 StartReading();
-            OpenAnalysis();
+            ShowAnalysis(true);
         }
         StatusHint(_status, reading      ? "Analyzing the C++ code of the project: open the analysis"
                             : _hasResult ? "Open the analysis: the files read, the folders, what was read in part"
@@ -784,7 +784,7 @@ namespace dev_dash::ui
             _status.Set(StatusSink::Level::kInfo, "Code graph: DOT text of " + tab.title + " copied to the clipboard");
         }
         StatusHint(_status, "Copy the DOT text of this diagram, to check it or render it elsewhere "
-                            "(the Diagram panel, Graphviz)");
+                            "(the DOT preview, Graphviz)");
 
         ImGui::SameLine();
         ImGui::TextDisabled("|");
