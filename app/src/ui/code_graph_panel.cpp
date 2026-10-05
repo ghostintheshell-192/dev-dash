@@ -459,12 +459,38 @@ namespace dev_dash::ui
             ("Files read (" + std::to_string(_result.filesRead.size()) + ")###files_read").c_str());
         StatusHint(_status, "The C++ files read, from the folders checked above; hidden and build directories are "
                             "always skipped");
-        if (!open)
+        if (!open || _result.filesRead.empty())
             return;
-        ImGui::Indent();
+
+        // As many columns as the longest path allows, filled top to bottom
+        // and then left to right, so that the path order reads down each
+        // column.
+        std::vector<std::string> paths;
+        float                    widest = 0.0f;
         for (const std::filesystem::path& file : _result.filesRead)
-            ImGui::TextUnformatted(file.lexically_relative(_project.path).string().c_str());
-        ImGui::Unindent();
+        {
+            paths.push_back(file.lexically_relative(_project.path).string());
+            widest = std::max(widest, ImGui::CalcTextSize(paths.back().c_str()).x);
+        }
+        const float       columnWidth = widest + 2.0f * ImGui::GetStyle().ItemSpacing.x + ImGui::GetFontSize();
+        const std::size_t columns     = std::clamp<std::size_t>(
+            static_cast<std::size_t>(ImGui::GetContentRegionAvail().x / columnWidth), 1, paths.size());
+        const std::size_t rows = (paths.size() + columns - 1) / columns;
+
+        if (!ImGui::BeginTable("##files_read_table", static_cast<int>(columns), ImGuiTableFlags_SizingStretchSame))
+            return;
+        for (std::size_t row = 0; row < rows; ++row)
+        {
+            ImGui::TableNextRow();
+            for (std::size_t column = 0; column < columns; ++column)
+            {
+                ImGui::TableNextColumn();
+                const std::size_t index = column * rows + row;
+                if (index < paths.size())
+                    ImGui::TextUnformatted(paths[index].c_str());
+            }
+        }
+        ImGui::EndTable();
     }
 
     // The files read in part, one row each: where the reader stopped
