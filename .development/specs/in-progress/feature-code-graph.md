@@ -128,7 +128,7 @@ dei filtri invece sfoglia soltanto le classi già lette.
 **3. Le schede di diagramma: ogni diagramma ha i suoi filtri.**
 
 **Ogni diagramma ha la sua selezione** (scelto il 2026-10-05), e i filtri che
-la mostrano e la modificano vivono **dentro la scheda**: un riquadro a lato del
+la mostrano e la modificano vivono **dentro la scheda**: un riquadro a destra del
 diagramma, che si apre e si chiude da un pulsante della toolbar della scheda.
 Contiene la ricerca, la scelta della vista (namespace | cartelle), l'albero
 delle classi con le caselle e "Clear selection". Ogni modifica rigenera il

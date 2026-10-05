@@ -98,7 +98,7 @@ namespace dev_dash::ui
         void GenerateDiagram(DiagramTab& tab);
         void RenderDiagramTab(DiagramTab& tab);
         void RenderToolbar(DiagramTab& tab);
-        void RenderCanvas(DiagramTab& tab);
+        void RenderCanvas(DiagramTab& tab, float width);
         void HandleViewInput(DiagramTab& tab, const ImVec2& origin);
 
         services::CppClassExtractor&     _extractor;

@@ -37,8 +37,14 @@ namespace dev_dash::ui
         constexpr float kFitMargin = 16.0f;
         // How much of the diagram always stays in view. [pixel]
         constexpr float kKeepInView = 40.0f;
-        // First width of the filters pane of a diagram, in font sizes.
-        constexpr float kFiltersWidthEm = 16.0f;
+        // Width of the filters pane of a diagram, in font sizes: at first,
+        // and the narrowest it can be dragged to.
+        constexpr float kFiltersWidthEm    = 16.0f;
+        constexpr float kFiltersMinWidthEm = 8.0f;
+        // The share of the tab the filters pane can take at most.
+        constexpr float kFiltersMaxShare = 0.7f;
+        // The bar between the diagram and its filters, dragged to resize them. [pixel]
+        constexpr float kSplitterWidth = 4.0f;
 
         std::string ScopeOf(const std::string& qualifiedName)
         {
@@ -125,7 +131,8 @@ namespace dev_dash::ui
         bool                         showNeighbours = true;
         std::set<core::MemberAccess> shownAccess    = {core::MemberAccess::kPublic};
         // The filters pane: shown, its search text, how it lists the classes.
-        bool                   showFilters = true;
+        bool                   showFilters  = true;
+        float                  filtersWidth = 0.0f;   // [pixel], 0 until the first frame
         std::array<char, 128>  filter{};
         ClassView              view = ClassView::kNamespaces;
         float                  zoom         = 1.0f;
@@ -747,17 +754,36 @@ namespace dev_dash::ui
         RenderToolbar(tab);
         ImGui::Separator();
 
-        // The filters at the left of the diagram, resizable; closed, the
-        // whole width goes to the diagram.
-        if (tab.showFilters)
+        // The filters at the right of the diagram, resized by dragging the
+        // bar between them; closed, the whole width goes to the diagram.
+        if (!tab.showFilters)
         {
-            ImGui::BeginChild("##filters", ImVec2(kFiltersWidthEm * ImGui::GetFontSize(), 0.0f),
-                              ImGuiChildFlags_ResizeX | ImGuiChildFlags_Borders);
-            RenderFilters(tab);
-            ImGui::EndChild();
-            ImGui::SameLine();
+            RenderCanvas(tab, 0.0f);
+            ImGui::End();
+            return;
         }
-        RenderCanvas(tab);
+        const float available = ImGui::GetContentRegionAvail().x;
+        const float minWidth  = kFiltersMinWidthEm * ImGui::GetFontSize();
+        if (tab.filtersWidth <= 0.0f)
+            tab.filtersWidth = kFiltersWidthEm * ImGui::GetFontSize();
+        tab.filtersWidth = std::clamp(tab.filtersWidth, minWidth, std::max(minWidth, available * kFiltersMaxShare));
+
+        RenderCanvas(tab, available - tab.filtersWidth - kSplitterWidth);
+        ImGui::SameLine(0.0f, 0.0f);
+        ImGui::InvisibleButton("##filters_splitter", ImVec2(kSplitterWidth, -1.0f));
+        if (ImGui::IsItemActive())
+            tab.filtersWidth -= ImGui::GetIO().MouseDelta.x;
+        if (ImGui::IsItemHovered() || ImGui::IsItemActive())
+            ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+        StatusHint(_status, "Drag to resize the filters");
+        const Theme& t = CurrentTheme();
+        ImGui::GetWindowDrawList()->AddRectFilled(
+            ImGui::GetItemRectMin(), ImGui::GetItemRectMax(),
+            ImGui::GetColorU32(ImGui::IsItemActive() ? t.accent : ImGui::IsItemHovered() ? t.accentHover : t.border));
+        ImGui::SameLine(0.0f, 0.0f);
+        ImGui::BeginChild("##filters", ImVec2(tab.filtersWidth, 0.0f), ImGuiChildFlags_AlwaysUseWindowPadding);
+        RenderFilters(tab);
+        ImGui::EndChild();
 
         ImGui::End();
     }
@@ -864,18 +890,19 @@ namespace dev_dash::ui
             GenerateDiagram(tab);
     }
 
-    void CodeGraphPanel::RenderCanvas(DiagramTab& tab)
+    // width 0: all the width left.
+    void CodeGraphPanel::RenderCanvas(DiagramTab& tab, float width)
     {
         // The canvas has no scroll bars: the diagram is drawn at pan from
         // the top left corner, so it can go anywhere, also when smaller than
         // the view, and zooming keeps the point under the mouse in place.
-        ImGui::BeginChild("##canvas", ImVec2(0.0f, 0.0f), ImGuiChildFlags_None,
+        ImGui::BeginChild("##canvas", ImVec2(width, 0.0f), ImGuiChildFlags_None,
                           ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
         const ImVec2 origin    = ImGui::GetCursorScreenPos();
         const ImVec2 available = ImGui::GetContentRegionAvail();
         if (tab.classes.empty())
         {
-            ImGui::TextDisabled(tab.showFilters ? "Check the classes to draw in the filters at the left."
+            ImGui::TextDisabled(tab.showFilters ? "Check the classes to draw in the filters at the right."
                                                 : "Check the classes to draw: open the Filters.");
             ImGui::EndChild();
             return;
