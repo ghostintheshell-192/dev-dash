@@ -20,6 +20,22 @@ namespace dev_dash::services
         std::filesystem::path file;
         int                   line = 0;   // 1-based
         std::string           text;       // that line, trimmed
+        // What the parser did not understand there: "missing \";\"",
+        // "expected a type identifier", or "not understood: \"SDLCALL ...\"
+        // (a macro?)".
+        std::string           reason;
+    };
+
+    // The folders of a source tree, found without reading the code: what the
+    // first analysis is about to read.
+    struct SourceScan
+    {
+        // Every directory holding C++ files, at any depth, relative to the
+        // root and sorted. The skipped ones (hidden, build trees) are not
+        // listed.
+        std::vector<std::filesystem::path> sourceDirectories;
+        // Those the default rule leaves out: the test directories.
+        std::vector<std::filesystem::path> excludedDirectories;
     };
 
     struct ExtractionResult
@@ -81,6 +97,11 @@ namespace dev_dash::services
         ExtractionResult Extract(const std::filesystem::path& root,
                                  std::stop_token stop = {},
                                  const std::optional<std::vector<std::filesystem::path>>& excludedDirectories = {}) const;
+
+        // The folders under root that Extract() would find, with those the
+        // default rule leaves out, without reading any file. Quick: one walk
+        // of the tree.
+        SourceScan Scan(const std::filesystem::path& root) const;
 
         // The default rule: a directory named test or tests.
         static bool IsTestDirectory(const std::filesystem::path& directory);

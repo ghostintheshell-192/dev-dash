@@ -334,6 +334,37 @@ TEST_CASE("a file with a syntax error is listed and still read", "[extractor]")
     CHECK(e.Class("s::Fine") != nullptr);
 }
 
+TEST_CASE("a file read in part tells why", "[extractor]")
+{
+    SECTION("a token the parser had to assume")
+    {
+        Extraction e("struct Broken { int y };");
+        REQUIRE(e.result.partlyReadFiles.size() == 1);
+        CHECK(e.result.partlyReadFiles[0].reason == "missing \";\"");
+    }
+
+    SECTION("text it skipped, a macro when in capitals")
+    {
+        Extraction e("struct Fine {};\nvoid SDLCALL Callback(void* data);");
+        REQUIRE(e.result.partlyReadFiles.size() == 1);
+        const std::string& reason = e.result.partlyReadFiles[0].reason;
+        CHECK(reason.starts_with("not understood: \""));
+        CHECK(reason.ends_with("(a macro?)"));
+    }
+}
+
+TEST_CASE("the folders are found without reading the code", "[extractor]")
+{
+    TempDir root{"extractor-scan"};
+    WriteFile(root.Path() / "src" / "core" / "model.h", "struct Model {};");
+    WriteFile(root.Path() / "tests" / "fixture.h", "struct Fixture {};");
+    WriteFile(root.Path() / "build" / "gen.h", "struct Generated {};");
+
+    const services::SourceScan scan = CppClassExtractor().Scan(root.Path());
+    CHECK(scan.sourceDirectories == std::vector<std::filesystem::path>{"src", "src/core", "tests"});
+    CHECK(scan.excludedDirectories == std::vector<std::filesystem::path>{"tests"});
+}
+
 TEST_CASE("test directories stay out by default, and are listed", "[extractor]")
 {
     TempDir root{"extractor-default-exclusion"};

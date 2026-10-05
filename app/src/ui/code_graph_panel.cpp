@@ -179,6 +179,54 @@ namespace dev_dash::ui
                                excluded = std::move(excluded)] { return extractor.Extract(root, stop, excluded); });
     }
 
+    void CodeGraphPanel::StartScan()
+    {
+        _scanning = std::async(std::launch::async,
+                               [&extractor = _extractor, root = _project.path] { return extractor.Scan(root); });
+    }
+
+    void CodeGraphPanel::CollectScan()
+    {
+        if (!_scanning.valid() || _scanning.wait_for(std::chrono::seconds(0)) != std::future_status::ready)
+            return;
+        services::SourceScan scan;
+        try
+        {
+            scan = _scanning.get();
+        }
+        catch (const std::exception& e)
+        {
+            _readError = std::string("Finding the folders failed: ") + e.what();
+            return;
+        }
+        _scanned = true;
+        if (!_excludedChosen)
+        {
+            _excluded.insert(scan.excludedDirectories.begin(), scan.excludedDirectories.end());
+            _excludedChosen = true;
+        }
+        if (!_hasResult)
+            SetSourceDirectories(scan.sourceDirectories);
+    }
+
+    // The tree of the folders to read.
+    void CodeGraphPanel::SetSourceDirectories(const std::vector<std::filesystem::path>& directories)
+    {
+        _sourceDirectories = directories;
+        _directories       = DirectoryNode{};
+        for (const std::filesystem::path& directory : directories)
+        {
+            DirectoryNode*        node = &_directories;
+            std::filesystem::path relative;
+            for (const std::filesystem::path& part : directory)
+            {
+                relative /= part;
+                node           = &node->children[part.string()];
+                node->relative = relative;
+            }
+        }
+    }
+
     void CodeGraphPanel::CollectReading()
     {
         if (!_reading.valid() || _reading.wait_for(std::chrono::seconds(0)) != std::future_status::ready)
@@ -191,36 +239,26 @@ namespace dev_dash::ui
         }
         catch (const std::exception& e)
         {
-            _readError = e.what();
-            _status.Set(StatusSink::Level::kError, "Code graph: reading failed: " + _readError);
+            _readError = std::string("Analysis failed: ") + e.what();
+            _status.Set(StatusSink::Level::kError, "Code graph: " + _readError);
             return;
         }
         _status.Set(StatusSink::Level::kInfo,
                     "Code graph: " + std::to_string(_result.model.classes.size()) + " classes read from "
                         + std::to_string(_result.filesRead.size()) + " files");
+        _closeFolders = true;
         const std::time_t now = std::time(nullptr);
         char              readAt[8];
         std::strftime(readAt, sizeof(readAt), "%H:%M", std::localtime(&now));
         _readAt = readAt;
 
-        // The first reading tells which folders the default rule left out.
+        // The folders may have changed since they were found.
         if (!_excludedChosen)
         {
             _excluded.insert(_result.excludedDirectories.begin(), _result.excludedDirectories.end());
             _excludedChosen = true;
         }
-        _directories = DirectoryNode{};
-        for (const std::filesystem::path& directory : _result.sourceDirectories)
-        {
-            DirectoryNode* node = &_directories;
-            std::filesystem::path relative;
-            for (const std::filesystem::path& part : directory)
-            {
-                relative /= part;
-                node           = &node->children[part.string()];
-                node->relative = relative;
-            }
-        }
+        SetSourceDirectories(_result.sourceDirectories);
 
         // The tree of the scopes; drop the checked classes that no longer
         // exist.
@@ -324,14 +362,17 @@ namespace dev_dash::ui
                                                             _result.excludedDirectories.end());
     }
 
+    // Opening the tab the first time finds the folders, to choose before
+    // the first analysis.
     void CodeGraphPanel::ShowAnalysis(bool show)
     {
         _analysisOpen  = show;
         _analysisFocus = show;
+        if (show && !_scanned && !_scanning.valid() && !_hasResult)
+            StartScan();
     }
 
-    // The section holds commands: Analyze code, New diagram. Then Filters,
-    // the classes analyzed (until it becomes a panel of its own). An entry
+    // The section holds commands: New code analysis, New diagram. An entry
     // not available is greyed out, with the reason in the status bar.
     void CodeGraphPanel::RenderSidebarSection()
     {
@@ -342,18 +383,13 @@ namespace dev_dash::ui
         if (reading)
             _status.SetHint("Code graph: analyzing the C++ code of the project in background...");
 
-        // ----- Analyze code: the first time it reads, then it shows what
-        // was read; reading again is asked from the tab.
+        // ----- New code analysis: the tab where the folders are chosen and
+        // the analysis is started.
 
-        if (ActionEntry(reading ? "Analyzing code...###analyze" : "Analyze code###analyze"))
-        {
-            if (!_hasResult && !reading)
-                StartReading();
+        if (ActionEntry("New code analysis"))
             ShowAnalysis(true);
-        }
-        StatusHint(_status, reading      ? "Analyzing the C++ code of the project: open the analysis"
-                            : _hasResult ? "Open the analysis: the files read, the folders, what was read in part"
-                                         : "Read the C++ classes of the project, to draw their diagram");
+        StatusHint(_status, reading ? "Open the code analysis: analyzing the C++ code of the project..."
+                                    : "Open the code analysis: choose the folders to read, then Analyze");
 
         // ----- New diagram
 
@@ -366,8 +402,8 @@ namespace dev_dash::ui
                                        : "Available after analyzing the code");
     }
 
-    // What the analysis read and from where: the summary, the folders to
-    // read with Analyze again, the files read, the files read in part.
+    // The code analysis: Analyze with what it last read, the folders to
+    // read, open, then the files read and those read in part, once read.
     void CodeGraphPanel::RenderAnalysisTab()
     {
         if (!ImGui::Begin("Code analysis", &_analysisOpen))
@@ -378,38 +414,41 @@ namespace dev_dash::ui
 
         const Theme& t              = CurrentTheme();
         const bool   reading        = _reading.valid();
+        const bool   scanning       = _scanning.valid();
         const bool   foldersChanged = FoldersChanged();
 
-        ImGui::BeginDisabled(reading);
+        ImGui::BeginDisabled(reading || scanning);
         if (foldersChanged)
             ImGui::PushStyleColor(ImGuiCol_Text, t.accent);
-        if (ImGui::Button(reading ? "Analyzing...###again" : "Analyze again###again"))
+        if (ImGui::Button("Analyze"))
             StartReading();
         if (foldersChanged)
             ImGui::PopStyleColor();
         ImGui::EndDisabled();
         StatusHint(_status, reading          ? "Analyzing the C++ code of the project..."
-                            : foldersChanged ? "Analyze again: the folders to read changed"
-                                             : "Read the C++ code of the project again");
+                            : foldersChanged ? "Analyze: the folders to read changed since the last analysis"
+                                             : "Read the C++ code of the folders checked below");
         ImGui::SameLine();
-        if (_hasResult)
+        if (reading)
+            ImGui::TextDisabled("Reading the C++ files of the project...");
+        else if (_hasResult)
             ImGui::TextDisabled("%zu files, %zu classes, read at %s", _result.filesRead.size(),
                                 _result.model.classes.size(), _readAt.c_str());
-        else if (reading)
-            ImGui::TextDisabled("Reading the C++ files of the project...");
+        else
+            ImGui::TextDisabled("Not analyzed yet: check the folders to read, then Analyze.");
         if (!_readError.empty())
             ImGui::TextColored(t.removed, "%s", _readError.c_str());
-        ImGui::Separator();
 
+        ImGui::BeginChild("##analysis");
+        RenderFolders();
         if (_hasResult)
         {
-            ImGui::BeginChild("##analysis");
-            RenderFolders();
+            ImGui::Spacing();
             RenderFilesRead();
             if (!_result.partlyReadFiles.empty())
                 RenderPartlyRead();
-            ImGui::EndChild();
         }
+        ImGui::EndChild();
         ImGui::End();
     }
 
@@ -420,16 +459,42 @@ namespace dev_dash::ui
             ("Files read (" + std::to_string(_result.filesRead.size()) + ")###files_read").c_str());
         StatusHint(_status, "The C++ files read, from the folders checked above; hidden and build directories are "
                             "always skipped");
-        if (!open)
+        if (!open || _result.filesRead.empty())
             return;
-        ImGui::Indent();
+
+        // As many columns as the longest path allows, filled top to bottom
+        // and then left to right, so that the path order reads down each
+        // column.
+        std::vector<std::string> paths;
+        float                    widest = 0.0f;
         for (const std::filesystem::path& file : _result.filesRead)
-            ImGui::TextUnformatted(file.lexically_relative(_project.path).string().c_str());
-        ImGui::Unindent();
+        {
+            paths.push_back(file.lexically_relative(_project.path).string());
+            widest = std::max(widest, ImGui::CalcTextSize(paths.back().c_str()).x);
+        }
+        const float       columnWidth = widest + 2.0f * ImGui::GetStyle().ItemSpacing.x + ImGui::GetFontSize();
+        const std::size_t columns     = std::clamp<std::size_t>(
+            static_cast<std::size_t>(ImGui::GetContentRegionAvail().x / columnWidth), 1, paths.size());
+        const std::size_t rows = (paths.size() + columns - 1) / columns;
+
+        if (!ImGui::BeginTable("##files_read_table", static_cast<int>(columns), ImGuiTableFlags_SizingStretchSame))
+            return;
+        for (std::size_t row = 0; row < rows; ++row)
+        {
+            ImGui::TableNextRow();
+            for (std::size_t column = 0; column < columns; ++column)
+            {
+                ImGui::TableNextColumn();
+                const std::size_t index = column * rows + row;
+                if (index < paths.size())
+                    ImGui::TextUnformatted(paths[index].c_str());
+            }
+        }
+        ImGui::EndTable();
     }
 
-    // The files read in part: the first place in each that the reader did
-    // not understand.
+    // The files read in part, one row each: where the reader stopped
+    // understanding, why, and the line of code.
     void CodeGraphPanel::RenderPartlyRead()
     {
         const Theme& t = CurrentTheme();
@@ -444,36 +509,58 @@ namespace dev_dash::ui
                             "(it has no preprocessor) or syntax its grammar misses. The rest is read.");
         if (!open)
             return;
-        ImGui::Indent();
+
+        constexpr ImGuiTableFlags kFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg
+                                           | ImGuiTableFlags_Resizable | ImGuiTableFlags_SizingStretchProp;
+        if (!ImGui::BeginTable("##partly_read_table", 4, kFlags))
+            return;
+        ImGui::TableSetupColumn("File", ImGuiTableColumnFlags_WidthStretch, 3.0f);
+        ImGui::TableSetupColumn("Line", ImGuiTableColumnFlags_WidthFixed);
+        ImGui::TableSetupColumn("Not understood", ImGuiTableColumnFlags_WidthStretch, 3.0f);
+        ImGui::TableSetupColumn("Code", ImGuiTableColumnFlags_WidthStretch, 4.0f);
+        ImGui::TableHeadersRow();
         for (const services::PartlyReadFile& partly : _result.partlyReadFiles)
         {
-            const std::string where =
-                partly.file.lexically_relative(_project.path).string() + ":" + std::to_string(partly.line);
-            ImGui::TextUnformatted(where.c_str());
-            ImGui::SameLine();
+            ImGui::TableNextRow();
+            ImGui::TableNextColumn();
+            ImGui::TextUnformatted(partly.file.lexically_relative(_project.path).string().c_str());
+            ImGui::TableNextColumn();
+            ImGui::Text("%d", partly.line);
+            ImGui::TableNextColumn();
+            ImGui::TextUnformatted(partly.reason.c_str());
+            ImGui::TableNextColumn();
             ImGui::PushStyleColor(ImGuiCol_Text, t.textDim);
             ImGui::TextUnformatted(partly.text.c_str());
             ImGui::PopStyleColor();
         }
-        ImGui::Unindent();
+        ImGui::EndTable();
     }
 
     // The folders of the project holding C++ files, with a box each: the
     // unchecked ones are left out of the next analysis, with all they hold.
     void CodeGraphPanel::RenderFolders()
     {
-        const std::size_t total = _result.sourceDirectories.size();
+        const std::size_t total = _sourceDirectories.size();
         const std::size_t read  = static_cast<std::size_t>(
-            std::count_if(_result.sourceDirectories.begin(), _result.sourceDirectories.end(),
+            std::count_if(_sourceDirectories.begin(), _sourceDirectories.end(),
                           [&](const std::filesystem::path& directory) { return !IsExcluded(directory); }));
+        // Open until the first reading, as it is the choice to make; closed
+        // when a reading is done, to leave the room to what it found.
+        if (_closeFolders)
+        {
+            ImGui::SetNextItemOpen(false);
+            _closeFolders = false;
+        }
         const bool open = ImGui::CollapsingHeader(
             ("Folders to read (" + std::to_string(read) + " of " + std::to_string(total) + ")###folders").c_str(),
             ImGuiTreeNodeFlags_DefaultOpen);
-        StatusHint(_status, "The folders holding C++ code: uncheck those to leave out, then Analyze again. Names are "
+        StatusHint(_status, "The folders holding C++ code: uncheck those to leave out, then Analyze. Names are "
                             "linked to classes only among the files read");
         if (!open)
             return;
-        if (_directories.children.empty())
+        if (_scanning.valid())
+            ImGui::TextDisabled("Finding the folders...");
+        else if (_directories.children.empty())
             ImGui::TextDisabled("No folder holds C++ files.");
         else
             RenderDirectory(_directories, false);
@@ -502,7 +589,8 @@ namespace dev_dash::ui
                                                                            "out with all it holds");
             ImGui::SameLine();
 
-            const ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanAvailWidth
+            // All open: the whole tree is the choice.
+            const ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_DefaultOpen
                                              | (child.children.empty() ? ImGuiTreeNodeFlags_Leaf : 0);
             if (ImGui::TreeNodeEx(name.c_str(), flags))
             {
@@ -671,6 +759,7 @@ namespace dev_dash::ui
 
     void CodeGraphPanel::RenderTabs(ImGuiID dockspaceId)
     {
+        CollectScan();
         CollectReading();
 
         if (_analysisOpen)
