@@ -7,7 +7,7 @@ related: [feature-ui-overhaul]
 depends_on: []
 decided_by: ../../reference/decisions/014-germen-coevolution-strategy.md
 created: 2026-04-26
-updated: 2026-10-01
+updated: 2026-10-05
 ---
 
 # Code Graph — class diagram on demand
@@ -43,12 +43,18 @@ ImGuiDot: tre progetti reali su cui provarlo fin da subito.
 
 ## User stories
 
-- **US-1 — Scegliere cosa vedere**: nella sidebar vedo le classi del progetto
-  in un albero per namespace/cartella. Ogni voce ha una casella di spunta, a
-  qualunque livello (un clic seleziona un modulo intero), e in cima c'è un
-  campo di ricerca.
-- **US-2 — Creare il diagramma**: clicco "Crea diagramma" e si apre una
-  scheda ancorabile col class diagram delle classi selezionate.
+- **US-0 — Leggere il codice**: clicco "Analyze code" e il progetto viene
+  letto. Si apre una scheda che mi dice cosa è stato letto: i file, gli
+  avvisi, i file letti solo in parte e perché. Nella stessa scheda scelgo le
+  cartelle da leggere e rileggo.
+- **US-1 — Scegliere cosa vedere**: accanto al diagramma, dentro la sua
+  scheda, vedo le classi del progetto in un albero per namespace o per
+  cartella. Ogni voce ha una casella di spunta, a qualunque livello (un clic
+  seleziona un modulo intero), e in cima c'è un campo di ricerca. Quello che
+  spunto lì cambia quel diagramma, e solo quello.
+- **US-2 — Creare il diagramma**: clicco "New diagram" e si apre una scheda
+  ancorabile, con i filtri aperti; quello che spunto entra nel diagramma,
+  che si aggiorna subito.
 - **US-3 — Vedere i vicini**: nel diagramma compaiono anche i vicini diretti
   (a un passo) delle classi selezionate, come **nodi fantasma**: attenuati,
   solo col nome, senza membri. Posso nasconderli con un'opzione.
@@ -79,11 +85,97 @@ algoritmo di layout proprio: si usa Graphviz, tramite ImGuiDot.
 | ----- | ------------- |
 | `core/` | Tipi dei dati: classe (nome, namespace, file, membri), membro (nome, tipo, visibilità, metodo/attributo), relazione (da, a, tipo). |
 | `services/` | **Estrattore** (codice → modello, vedi Fase 1) e **generatore DOT** (modello + selezione → testo). Il generatore è una funzione pura, testabile con Catch2 senza stack grafico. |
-| `ui/` | Sezione della sidebar con l'albero delle classi; pannello del diagramma che usa ImGuiDot con l'interfaccia a stato in cache (`Update` quando cambia il DOT, `Draw` a ogni frame). |
+| `ui/` | Sezione Code graph della sidebar (comandi), scheda dell'analisi, schede di diagramma con i loro filtri, che usano ImGuiDot con l'interfaccia a stato in cache (`Update` quando cambia il DOT, `Draw` a ogni frame). Menu View nella top bar. Vedi *Interazione*. |
 
 Segue la regola del `feature-ui-overhaul`: sidebar = struttura, area di lavoro
 = contenuto. La selezione a caselle riprende il modello d'interazione della
-vista Compare.
+vista Compare. I filtri, che sono dati di un diagramma, stanno nella sua
+scheda, non nella sidebar.
+
+### Interazione (decisa il 2026-10-05)
+
+Il prototipo della sidebar a voci annidate (`experiment/sidebar-toolbar`,
+2026-10-02) ha mostrato due difetti. Le voci che *eseguono* qualcosa
+("Analyze code", "Project folders") non si riconoscono come comandi: in una
+sidebar l'occhio legge navigazione. E la scelta delle cartelle da leggere e la
+vista per cartella dei filtri sembravano la stessa cosa due volte. Da qui la
+divisione in tre luoghi, ciascuno con un compito solo, più un menu.
+
+**1. La sezione Code graph della sidebar: poche voci, tutte comandi chiari.**
+
+- **Analyze code**, prima voce, sempre attiva. Al primo clic legge il
+  progetto e apre la scheda dell'analisi; dopo, riapre la scheda (la
+  rilettura si chiede da lì).
+- **New diagram**: apre una scheda di diagramma vuota, con i filtri aperti.
+  Oscurata finché il codice non è stato letto.
+
+**2. La scheda dell'analisi: cosa è stato letto e da dove.**
+
+Una scheda del workspace, come i diagrammi. Contiene:
+
+- quanti file e quante classi sono stati letti, e quando;
+- i file letti solo in parte, con file:riga e la riga di codice (oggi nella
+  sidebar), e gli altri avvisi della lettura;
+- **l'albero delle cartelle da leggere**, con le caselle a tre stati, e il
+  pulsante per rileggere. Si sposta qui da "Project folders".
+
+La scelta delle cartelle sta qui, accanto al suo effetto, e non fra i filtri,
+perché non è un filtro: decide fra quali file si cercano i nomi delle classi.
+Leggere anche una cartella che contiene copie delle stesse classi (`poc/`)
+renderebbe ambigue le relazioni di tutto il progetto. La vista per cartella
+dei filtri invece sfoglia soltanto le classi già lette.
+
+**3. Le schede di diagramma: ogni diagramma ha i suoi filtri.**
+
+**Ogni diagramma ha la sua selezione** (scelto il 2026-10-05), e i filtri che
+la mostrano e la modificano vivono **dentro la scheda**: un riquadro a lato del
+diagramma, che si apre e si chiude da un pulsante della toolbar della scheda.
+Contiene la ricerca, la scelta della vista (namespace | cartelle), l'albero
+delle classi con le caselle e "Clear selection". Ogni modifica rigenera il
+diagramma della scheda.
+
+Il legame fra filtri e diagramma è così spaziale, e non si può sbagliare: con
+due diagrammi affiancati, ognuno ha i suoi filtri sotto gli occhi. Il docking
+non cambia: si aggancia e si sposta la scheda intera, filtri compresi. Il costo
+è la larghezza che l'albero toglie al diagramma, per questo il riquadro si
+chiude e lascia tutta la tela al diagramma.
+
+La toolbar della scheda contiene anche "Neighbours" e la scelta dei membri da
+mostrare, sempre visibile perché chi guarda il diagramma si accorga di cosa
+esclude (risolve OQ-2):
+
+`Members: [x] public  [ ] protected  [ ] private`
+
+Tre caselle indipendenti: pubblici spuntati, protetti e privati no. Si può
+chiedere anche "solo privati". Sostituiscono "All members"; il generatore
+passa da una soglia d'accesso (`memberAccess`) a un insieme di livelli.
+
+Alternative scartate:
+
+- **Un pannello dei filtri unico e mobile**, alla Photoshop, legato alla
+  scheda attiva. Il legame sarebbe invisibile: con due diagrammi affiancati,
+  "attivo" è l'ultimo cliccato, e si modifica facilmente quello sbagliato. I
+  pannelli di Photoshop reggono perché sono strumenti generici; i filtri sono
+  dati del diagramma, e stanno con lui. I pannelli mobili restano adatti agli
+  strumenti davvero generici.
+- **I filtri preparano, "New diagram" fotografa** (il modello del prototipo):
+  semplice, ma il diagramma non si può più correggere.
+- **Snapshot dei filtri** caricati esplicitamente: chiaro, ma ogni modifica
+  diventa salva-carica. È però l'idea delle **viste salvate**, che arriva dopo,
+  sopra questo modello: un diagramma si salva come vista e, riaperto, la
+  scheda dice da quale vista viene (vedi *Out of Scope*).
+
+**4. Il menu View nella top bar** (risolve OQ-5): apre le viste del workspace,
+cioè Config, History, Compare, Code analysis e l'anteprima DOT (oggi il
+pulsante "Diagram" della top bar, che si confonde con "New diagram").
+
+**La disposizione dei pannelli si ricorda** fra un avvio e l'altro, in
+`~/.devdash/layout.ini` (prima ImGui non la salvava: `io.IniFilename =
+nullptr`).
+
+I pannelli restano dentro la finestra dell'app: portarli fuori, in finestre
+del sistema operativo (il *multi-viewport* di ImGui, per esempio per usare un
+secondo monitor), è fuori scope.
 
 ### Notazione (UML pragmatico, non puristico)
 
@@ -225,6 +317,25 @@ sorgenti di Graphviz, ~1800 file):
 - [ ] Estrazione in background e aggiornamento incrementale (osservazione
       dei file).
 
+Dall'interazione decisa il 2026-10-05 (vedi *Interazione*). Il prototipo
+`experiment/sidebar-toolbar` è il punto di partenza; della sua struttura a
+voci annidate restano la vista per cartella e "Neighbours"/"All members"
+nella toolbar della scheda.
+
+- [ ] Sezione Code graph della sidebar con due comandi: "Analyze code"
+      (prima voce, sempre attiva) e "New diagram".
+- [ ] Scheda dell'analisi: file letti, avvisi, file letti in parte, albero
+      delle cartelle da leggere con "Analyze again".
+- [ ] Disposizione dei pannelli salvata fra un avvio e l'altro.
+- [ ] Selezione per diagramma: ogni scheda ha la sua, e cambiarla rigenera
+      il diagramma.
+- [ ] Filtri nella scheda di diagramma, in un riquadro che si apre e si
+      chiude dalla toolbar. Via la sezione Filters dalla sidebar.
+- [ ] Caselle dei membri (public, protected, private) nella toolbar; il
+      generatore accetta un insieme di livelli d'accesso.
+- [ ] Menu View nella top bar, con le viste del workspace e l'anteprima DOT
+      al posto del pulsante "Diagram".
+
 ### Fase 4 — Esplorazione
 
 - [ ] Clic su un nodo fantasma → lo aggiunge alla selezione. Richiede
@@ -260,14 +371,17 @@ le scelte di design (nuove API) si chiede prima a Dario.
   libclang.
 - **Analisi avanzata con libclang** (ADR-017 §3): componente opzionale, dopo
   il lettore di base.
-- **Viste salvate**: una selezione con un nome, riapribile e sempre
-  rigenerata dal codice. È documentazione che non invecchia; è il passo
-  naturale dopo questa spec.
+- **Viste salvate**: un diagramma salvato con un nome (la sua selezione e le
+  sue opzioni, per esempio in `shell-sidebar.json`), riapribile e sempre
+  rigenerato dal codice; la scheda dice da quale vista viene. È
+  documentazione che non invecchia, e il passo naturale dopo questa spec.
 - **Vista testuale per Claude** dallo stesso modello (idea della versione di
   aprile: una lista di adiacenza caricata a inizio sessione, per consultare le
   relazioni invece di cercare nei file). Il modello di questa spec la rende
   possibile; va pesata sul costo in token.
 - **Diagrammi a livello modulo** (stile C4) e altri tipi di diagramma.
+- **Pannelli fuori dalla finestra** dell'app (multi-viewport di ImGui):
+  con SDL3 e Vulkan è delicato, e per ora non serve.
 - **Layout stabile**: aggiungendo una classe Graphviz ricalcola tutto e i nodi
   si spostano. Per la prima versione si accetta.
 
@@ -277,12 +391,21 @@ le scelte di design (nuove API) si chiede prima a Dario.
 - **OQ-1b**: come arriva libclang sulla macchina dell'utente (pacchetto di
   sistema o download gestito da dev-dash) e come si presenta nell'interfaccia
   l'offerta dell'analisi avanzata.
-- **OQ-2**: quali membri mostrare di default (solo pubblici? anche i
-  protetti?), e se renderlo un'opzione del pannello.
+- ~~**OQ-2**: quali membri mostrare di default?~~ Risolta il 2026-10-05:
+  pubblici di default, con tre caselle visibili nella toolbar del diagramma
+  (vedi *Interazione*).
 - **OQ-3**: osservazione dei file: inotify o controllo periodico? Va deciso
   anche pensando a Windows (ADR-011: Linux-first, non Linux-only).
 - **OQ-4**: dove vive il modello estratto: solo in memoria o anche su disco
   (cache per non ri-estrarre tutto a ogni avvio)?
+- ~~**OQ-5**: da quale menu si mostrano i pannelli?~~ Risolta il
+  2026-10-05: un menu View nella top bar. I filtri non ne hanno bisogno,
+  stanno nella scheda.
+- **OQ-6**: cosa si salva per progetto (in
+  `~/.devdash/projects/<slug>/code-graph.json`): le cartelle escluse
+  certamente; i diagrammi aperti con le loro selezioni forse, e sarebbero un
+  primo passo verso le viste salvate. E se rileggere da solo il codice
+  all'apertura di un progetto già letto.
 
 ## Related
 
