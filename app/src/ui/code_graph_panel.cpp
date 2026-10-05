@@ -37,6 +37,8 @@ namespace dev_dash::ui
         constexpr float kFitMargin = 16.0f;
         // How much of the diagram always stays in view. [pixel]
         constexpr float kKeepInView = 40.0f;
+        // First width of the filters pane of a diagram, in font sizes.
+        constexpr float kFiltersWidthEm = 16.0f;
 
         std::string ScopeOf(const std::string& qualifiedName)
         {
@@ -108,19 +110,24 @@ namespace dev_dash::ui
         }
     }
 
-    // One diagram, in a tab of its own: the DOT text it was made from (kept
-    // for Copy DOT) and the state ImGuiDot laid out from it.
+    // One diagram, in a tab of its own: its selection and its filters, the
+    // DOT text made from them (kept for Copy DOT) and the state ImGuiDot laid
+    // out from it.
     struct CodeGraphPanel::DiagramTab
     {
         int                    number = 0;
         std::string            title;           // shown on the tab
         std::string            dot;
         ImGuiDot::DiagramState state;
-        // What the diagram shows: its classes and its options, which the
-        // toolbar of the tab can change after it opens.
-        std::set<std::string>  classes;
-        bool                   showNeighbours = true;
-        bool                   allMembers     = false;
+        // What the diagram shows: its classes and its options. The filters
+        // and the toolbar of the tab change them, and the diagram follows.
+        std::set<std::string>        classes;
+        bool                         showNeighbours = true;
+        std::set<core::MemberAccess> shownAccess    = {core::MemberAccess::kPublic};
+        // The filters pane: shown, its search text, how it lists the classes.
+        bool                   showFilters = true;
+        std::array<char, 128>  filter{};
+        ClassView              view = ClassView::kNamespaces;
         float                  zoom         = 1.0f;
         bool                   fitPending   = true;   // fit the zoom to the view on the next frame
         bool                   focusPending = true;   // bring the new tab to the front
@@ -241,44 +248,50 @@ namespace dev_dash::ui
         };
         sortClasses(sortClasses, _tree);
         sortClasses(sortClasses, _folderTree);
-        std::erase_if(_selection, [&](const std::string& name) { return !names.contains(name); });
+
+        // The open diagrams follow the new reading: the classes that no
+        // longer exist leave their selection.
+        for (const std::unique_ptr<DiagramTab>& tab : _tabs)
+        {
+            std::erase_if(tab->classes, [&](const std::string& name) { return !names.contains(name); });
+            GenerateDiagram(*tab);
+        }
     }
 
+    // An empty diagram, with its filters open: what is checked there is drawn.
     void CodeGraphPanel::CreateDiagram()
     {
         auto tab            = std::make_unique<DiagramTab>();
         tab->number         = _nextTabNumber++;
-        tab->classes        = _selection;
         tab->showNeighbours = _showNeighbours;
-        tab->allMembers     = _allMembers;
+        tab->shownAccess    = _shownAccess;
         GenerateDiagram(*tab);
+        _status.Set(StatusSink::Level::kInfo, "Code graph: " + tab->title + " opened: check the classes to draw");
+        _tabs.push_back(std::move(tab));
+    }
 
+    // The DOT text of the tab from its classes and options, laid out again,
+    // and the title that says what it shows.
+    void CodeGraphPanel::GenerateDiagram(DiagramTab& tab)
+    {
         // "Diagram 3: Shell, Sidebar +4": the first checked names say what
         // the diagram is about.
         constexpr std::size_t kNamesInTitle = 2;
         std::string names;
         std::size_t count = 0;
-        for (const std::string& name : _selection)
+        for (const std::string& name : tab.classes)
         {
             if (count++ < kNamesInTitle)
                 names += (names.empty() ? "" : ", ") + ShortNameOf(name);
         }
         if (count > kNamesInTitle)
             names += " +" + std::to_string(count - kNamesInTitle);
-        tab->title = "Diagram " + std::to_string(tab->number) + ": " + names;
+        tab.title = "Diagram " + std::to_string(tab.number) + (names.empty() ? std::string() : ": " + names);
 
-        _status.Set(StatusSink::Level::kInfo, "Code graph: " + tab->title + " opened");
-        _tabs.push_back(std::move(tab));
-    }
-
-    // The DOT text of the tab from its classes and options, laid out again.
-    void CodeGraphPanel::GenerateDiagram(DiagramTab& tab)
-    {
         const Theme& t = CurrentTheme();
-
         services::DiagramOptions options;
         options.showNeighbours = tab.showNeighbours;
-        options.memberAccess   = tab.allMembers ? core::MemberAccess::kPrivate : core::MemberAccess::kPublic;
+        options.shownAccess    = tab.shownAccess;
         // ImGuiDot does not draw records yet: plain boxes, one line per member.
         options.recordShapes        = false;
         options.palette.classFill   = ToHex(t.panelBg);
@@ -290,6 +303,9 @@ namespace dev_dash::ui
 
         tab.dot = _generator.Generate(_result.model, tab.classes, options);
         ImGuiDot::Update(tab.state, tab.dot);
+        // The layout starts over with every change: fit the new diagram, or
+        // part of it falls outside the view.
+        tab.fitPending = true;
     }
 
     // The changed folders: those chosen differ from those of the classes
@@ -336,61 +352,11 @@ namespace dev_dash::ui
 
         ImGui::BeginDisabled(!_hasResult);
         if (ActionEntry("New diagram"))
-        {
-            if (_selection.empty())
-            {
-                _openFilter = true;
-                _status.Set(StatusSink::Level::kInfo, "Code graph: check the classes to draw in Filters, then "
-                                                      "\"New diagram\" again");
-            }
-            else
-                CreateDiagram();
-        }
+            CreateDiagram();
         ImGui::EndDisabled();
-        StatusHint(_status, !_hasResult          ? "Available after analyzing the code"
-                            : _selection.empty() ? "Draw the checked classes: none yet, it opens Filters to check them"
-                                                 : "Open the class diagram of the " + std::to_string(_selection.size())
-                                                       + " checked classes in a new tab");
-
-        // ----- Filters: the classes analyzed
-
-        ImGui::BeginDisabled(!_hasResult || _result.model.classes.empty());
-        if (_openFilter)
-        {
-            ImGui::SetNextItemOpen(true);
-            _openFilter = false;
-        }
-        const bool filtersOpen = ImGui::TreeNodeEx("Filters", ImGuiTreeNodeFlags_SpanAvailWidth);
-        ImGui::EndDisabled();
-        StatusHint(_status, !_hasResult ? "Available after analyzing the code: it lists the classes found"
-                            : _result.model.classes.empty() ? "No classes in the C++ files analyzed"
-                                                            : "The classes found: check those to draw");
-        if (!filtersOpen)
-            return;
-
-        ImGui::SetNextItemWidth(-1.0f);
-        ImGui::InputTextWithHint("##filter", "Name contains...", _filter.data(), _filter.size());
-        StatusHint(_status, "Show only the classes whose full name contains this text (case ignored)");
-        if (ImGui::RadioButton("namespaces", _view == ClassView::kNamespaces))
-            _view = ClassView::kNamespaces;
-        StatusHint(_status, "List the classes by namespace");
-        ImGui::SameLine();
-        if (ImGui::RadioButton("folders", _view == ClassView::kFolders))
-            _view = ClassView::kFolders;
-        StatusHint(_status, "List the classes by the folder of their file");
-
-        ImGui::BeginDisabled(_selection.empty());
-        const std::string clearLabel = _selection.empty()
-                                           ? std::string("Clear selection###clear")
-                                           : "Clear selection (" + std::to_string(_selection.size()) + ")###clear";
-        if (ActionEntry(clearLabel.c_str()))
-            _selection.clear();
-        ImGui::EndDisabled();
-        StatusHint(_status, _selection.empty() ? "No class checked"
-                                               : "Uncheck all the classes, also those hidden by the search");
-
-        RenderScope(_view == ClassView::kFolders ? _folderTree : _tree, std::string(), 0);
-        ImGui::TreePop();
+        StatusHint(_status, _hasResult ? "Open an empty diagram in a new tab, with its filters: the classes checked "
+                                         "there are drawn"
+                                       : "Available after analyzing the code");
     }
 
     // What the analysis read and from where: the summary, the folders to
@@ -560,24 +526,26 @@ namespace dev_dash::ui
             _excluded.insert(relative);
     }
 
-    void CodeGraphPanel::CollectVisible(const ScopeNode& node, std::vector<std::size_t>& visible) const
+    void CodeGraphPanel::CollectVisible(const DiagramTab& tab, const ScopeNode& node,
+                                        std::vector<std::size_t>& visible) const
     {
-        const std::string_view filter(_filter.data());
+        const std::string_view filter(tab.filter.data());
         for (const std::size_t index : node.classes)
             if (Matches(_result.model.classes[index].qualifiedName, filter))
                 visible.push_back(index);
         for (const auto& [name, child] : node.children)
-            CollectVisible(child, visible);
+            CollectVisible(tab, child, visible);
     }
 
     // The scopes nested in node, then its own classes. A scope with no class
     // shown by the filter is left out. A class with nested classes is one
     // node: its box covers the class and the classes nested in it.
-    void CodeGraphPanel::RenderScope(const ScopeNode& node, const std::string& path, int depth)
+    bool CodeGraphPanel::RenderScope(DiagramTab& tab, const ScopeNode& node, const std::string& path, int depth)
     {
-        const bool             filtering = _filter[0] != '\0';
-        const std::string_view filter(_filter.data());
-        const bool             byFolder  = _view == ClassView::kFolders;
+        const bool             filtering = tab.filter[0] != '\0';
+        const std::string_view filter(tab.filter.data());
+        const bool             byFolder  = tab.view == ClassView::kFolders;
+        bool                   changedAny = false;
         const std::string      separator = byFolder ? "/" : std::string(kScope);
 
         // The class of node named like a nested scope, if any.
@@ -608,7 +576,7 @@ namespace dev_dash::ui
                 classesAsScopes.insert(*ownClass);
 
             std::vector<std::size_t> visible;
-            CollectVisible(child, visible);
+            CollectVisible(tab, child, visible);
             const std::size_t nestedCount = visible.size();
             if (ownClass && Matches(_result.model.classes[*ownClass].qualifiedName, filter))
                 visible.push_back(*ownClass);
@@ -623,7 +591,7 @@ namespace dev_dash::ui
             // are; a click checks them all, or clears them when all are.
             const std::size_t checkedCount = static_cast<std::size_t>(
                 std::count_if(visible.begin(), visible.end(), [&](std::size_t index)
-                              { return _selection.contains(_result.model.classes[index].qualifiedName); }));
+                              { return tab.classes.contains(_result.model.classes[index].qualifiedName); }));
             bool       all   = checkedCount == visible.size();
             const bool mixed = checkedCount > 0 && !all;
             ImGui::PushItemFlag(ImGuiItemFlags_MixedValue, mixed);
@@ -633,14 +601,15 @@ namespace dev_dash::ui
                                     + (ownClass ? " and the classes nested in it"
                                                 : byFolder ? ", nested folders included" : ", nested scopes included")
                                     + " shown by the filter");
+            changedAny |= changed;
             if (changed)
                 for (const std::size_t index : visible)
                 {
                     const std::string& qualifiedName = _result.model.classes[index].qualifiedName;
                     if (all)
-                        _selection.insert(qualifiedName);
+                        tab.classes.insert(qualifiedName);
                     else
-                        _selection.erase(qualifiedName);
+                        tab.classes.erase(qualifiedName);
                 }
             ImGui::SameLine();
 
@@ -662,7 +631,7 @@ namespace dev_dash::ui
                 StatusHint(_status, childPath + "  ·  " + std::to_string(visible.size()) + " classes");
             if (open)
             {
-                RenderScope(child, childPath, depth + 1);
+                changedAny |= RenderScope(tab, child, childPath, depth + 1);
                 ImGui::TreePop();
             }
             ImGui::PopID();
@@ -670,24 +639,27 @@ namespace dev_dash::ui
 
         for (const std::size_t index : node.classes)
             if (!classesAsScopes.contains(index) && Matches(_result.model.classes[index].qualifiedName, filter))
-                RenderClass(index);
+                changedAny |= RenderClass(tab, index);
+        return changedAny;
     }
 
-    void CodeGraphPanel::RenderClass(std::size_t index)
+    bool CodeGraphPanel::RenderClass(DiagramTab& tab, std::size_t index)
     {
         const core::CodeClass& cls = _result.model.classes[index];
-        bool checked = _selection.contains(cls.qualifiedName);
+        bool checked = tab.classes.contains(cls.qualifiedName);
         ImGui::PushID(static_cast<int>(index));
-        if (ImGui::Checkbox(ShortNameOf(cls.qualifiedName).c_str(), &checked))
+        const bool changed = ImGui::Checkbox(ShortNameOf(cls.qualifiedName).c_str(), &checked);
+        if (changed)
         {
             if (checked)
-                _selection.insert(cls.qualifiedName);
+                tab.classes.insert(cls.qualifiedName);
             else
-                _selection.erase(cls.qualifiedName);
+                tab.classes.erase(cls.qualifiedName);
         }
         StatusHint(_status, cls.qualifiedName + "  ·  " + cls.file.lexically_relative(_project.path).string() + "  ·  "
                                 + std::to_string(cls.members.size()) + " members");
         ImGui::PopID();
+        return changed;
     }
 
     void CodeGraphPanel::RenderTabs(ImGuiID dockspaceId)
@@ -763,7 +735,8 @@ namespace dev_dash::ui
 
     void CodeGraphPanel::RenderDiagramTab(DiagramTab& tab)
     {
-        // The number after ### keeps the window identity when titles repeat.
+        // The number after ### keeps the window identity when the title
+        // changes with the selection.
         const std::string windowName = tab.title + "###code_graph_diagram_" + std::to_string(tab.number);
         if (!ImGui::Begin(windowName.c_str(), &tab.open))
         {
@@ -771,7 +744,32 @@ namespace dev_dash::ui
             return;
         }
 
-        ImGui::SetNextItemWidth(160.0f);
+        RenderToolbar(tab);
+        ImGui::Separator();
+
+        // The filters at the left of the diagram, resizable; closed, the
+        // whole width goes to the diagram.
+        if (tab.showFilters)
+        {
+            ImGui::BeginChild("##filters", ImVec2(kFiltersWidthEm * ImGui::GetFontSize(), 0.0f),
+                              ImGuiChildFlags_ResizeX | ImGuiChildFlags_Borders);
+            RenderFilters(tab);
+            ImGui::EndChild();
+            ImGui::SameLine();
+        }
+        RenderCanvas(tab);
+
+        ImGui::End();
+    }
+
+    // The options of the diagram, always in view: what it leaves out must
+    // not go unnoticed. The last ones chosen are those of the next diagram.
+    void CodeGraphPanel::RenderToolbar(DiagramTab& tab)
+    {
+        ImGui::Checkbox("Filters", &tab.showFilters);
+        StatusHint(_status, "Show or hide the classes to check for this diagram");
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(140.0f);
         ImGui::SliderFloat("Zoom", &tab.zoom, kMinZoom, kMaxZoom, "%.2fx", ImGuiSliderFlags_Logarithmic);
         StatusHint(_status, "Zoom of the diagram (Ctrl+click to type a value). On the diagram: Ctrl+wheel zooms "
                             "around the mouse; dragging, the wheel and Shift+wheel move the view");
@@ -787,25 +785,87 @@ namespace dev_dash::ui
         }
         StatusHint(_status, "Copy the DOT text of this diagram, to check it or render it elsewhere "
                             "(the Diagram panel, Graphviz)");
-        // The options of this diagram; the last ones chosen are those of the
-        // next diagram.
+
         ImGui::SameLine();
+        ImGui::TextDisabled("|");
+        ImGui::SameLine();
+        bool changed = false;
         if (ImGui::Checkbox("Neighbours", &tab.showNeighbours))
         {
             _showNeighbours = tab.showNeighbours;
-            GenerateDiagram(tab);
+            changed         = true;
         }
         StatusHint(_status, "Also draw the classes one step away from those of the diagram, dimmed and with "
                             "their name only");
+
         ImGui::SameLine();
-        if (ImGui::Checkbox("All members", &tab.allMembers))
+        ImGui::TextDisabled("|");
+        ImGui::SameLine();
+        ImGui::TextUnformatted("Members:");
+        const auto accessBox = [&](const char* label, core::MemberAccess access, const char* hint)
         {
-            _allMembers = tab.allMembers;
+            ImGui::SameLine();
+            bool shown = tab.shownAccess.contains(access);
+            if (ImGui::Checkbox(label, &shown))
+            {
+                if (shown)
+                    tab.shownAccess.insert(access);
+                else
+                    tab.shownAccess.erase(access);
+                _shownAccess = tab.shownAccess;
+                changed      = true;
+            }
+            StatusHint(_status, hint);
+        };
+        accessBox("public", core::MemberAccess::kPublic, "Show the public members in the class boxes");
+        accessBox("protected", core::MemberAccess::kProtected, "Show the protected members in the class boxes");
+        accessBox("private", core::MemberAccess::kPrivate, "Show the private members in the class boxes");
+
+        if (changed)
             GenerateDiagram(tab);
+    }
+
+    // The classes analyzed, to check for this diagram: search, view, Clear
+    // selection, the tree. Every change draws the diagram again.
+    void CodeGraphPanel::RenderFilters(DiagramTab& tab)
+    {
+        ImGui::SetNextItemWidth(-1.0f);
+        ImGui::InputTextWithHint("##filter", "Name contains...", tab.filter.data(), tab.filter.size());
+        StatusHint(_status, "Show only the classes whose full name contains this text (case ignored)");
+        if (ImGui::RadioButton("namespaces", tab.view == ClassView::kNamespaces))
+            tab.view = ClassView::kNamespaces;
+        StatusHint(_status, "List the classes by namespace");
+        ImGui::SameLine();
+        if (ImGui::RadioButton("folders", tab.view == ClassView::kFolders))
+            tab.view = ClassView::kFolders;
+        StatusHint(_status, "List the classes by the folder of their file");
+
+        bool changed = false;
+        ImGui::BeginDisabled(tab.classes.empty());
+        const std::string clearLabel = tab.classes.empty()
+                                           ? std::string("Clear selection###clear")
+                                           : "Clear selection (" + std::to_string(tab.classes.size()) + ")###clear";
+        if (ImGui::SmallButton(clearLabel.c_str()))
+        {
+            tab.classes.clear();
+            changed = true;
         }
-        StatusHint(_status, "Show the protected and private members too, not only the public ones");
+        ImGui::EndDisabled();
+        StatusHint(_status, tab.classes.empty() ? "No class checked"
+                                                : "Uncheck all the classes, also those hidden by the search");
         ImGui::Separator();
 
+        if (_result.model.classes.empty())
+            ImGui::TextDisabled("No classes in the C++ files analyzed.");
+        else
+            changed |= RenderScope(tab, tab.view == ClassView::kFolders ? _folderTree : _tree, std::string(), 0);
+
+        if (changed)
+            GenerateDiagram(tab);
+    }
+
+    void CodeGraphPanel::RenderCanvas(DiagramTab& tab)
+    {
         // The canvas has no scroll bars: the diagram is drawn at pan from
         // the top left corner, so it can go anywhere, also when smaller than
         // the view, and zooming keeps the point under the mouse in place.
@@ -813,6 +873,13 @@ namespace dev_dash::ui
                           ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
         const ImVec2 origin    = ImGui::GetCursorScreenPos();
         const ImVec2 available = ImGui::GetContentRegionAvail();
+        if (tab.classes.empty())
+        {
+            ImGui::TextDisabled(tab.showFilters ? "Check the classes to draw in the filters at the left."
+                                                : "Check the classes to draw: open the Filters.");
+            ImGui::EndChild();
+            return;
+        }
         // A zoom changed by the slider keeps the centre of the view in place.
         if (tab.drawnZoom > 0.0f && tab.zoom != tab.drawnZoom)
         {
@@ -847,7 +914,5 @@ namespace dev_dash::ui
         }
         tab.drawnZoom = tab.zoom;
         ImGui::EndChild();
-
-        ImGui::End();
     }
 }

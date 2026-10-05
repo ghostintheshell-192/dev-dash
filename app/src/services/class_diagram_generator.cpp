@@ -112,17 +112,6 @@ namespace dev_dash::services
             return prefix;
         }
 
-        int Visibility(core::MemberAccess access)
-        {
-            switch (access)
-            {
-            case core::MemberAccess::kPublic:    return 0;
-            case core::MemberAccess::kProtected: return 1;
-            case core::MemberAccess::kPrivate:   return 2;
-            }
-            return 2;
-        }
-
         char AccessSymbol(core::MemberAccess access)
         {
             switch (access)
@@ -152,7 +141,7 @@ namespace dev_dash::services
         }
 
         std::string ClassLabel(const core::CodeClass& cls, std::string_view displayName,
-                               core::MemberAccess memberAccess, bool recordShape)
+                               const std::set<core::MemberAccess>& shownAccess, bool recordShape)
         {
             const std::string className = ShortName(cls.qualifiedName);
             std::vector<std::string> attributes;
@@ -160,7 +149,7 @@ namespace dev_dash::services
 
             for (const core::CodeMember& member : cls.members)
             {
-                if (Visibility(member.access) > Visibility(memberAccess) || IsSpecialMember(member, className))
+                if (!shownAccess.contains(member.access) || IsSpecialMember(member, className))
                     continue;
 
                 std::string line = std::string(1, AccessSymbol(member.access)) + ' ' + member.name;
@@ -320,7 +309,7 @@ namespace dev_dash::services
             dot += "\n";
         for (const core::CodeClass* cls : selected)
             dot += "    " + Quote(cls->qualifiedName) + " [label="
-                 + Quote(ClassLabel(*cls, displayName(cls->qualifiedName), options.memberAccess,
+                 + Quote(ClassLabel(*cls, displayName(cls->qualifiedName), options.shownAccess,
                                     options.recordShapes)) + "];\n";
 
         if (!ghosts.empty())

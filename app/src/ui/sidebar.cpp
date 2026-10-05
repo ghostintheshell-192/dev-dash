@@ -275,7 +275,7 @@ namespace dev_dash::ui
 
         ImGui::PushID("code_graph");
         const bool open = ImGui::CollapsingHeader("Code graph", kSectionFlags);
-        StatusHint(_status, "The class diagram of the project: read the codebase, check classes in Filters, then \"New diagram\"");
+        StatusHint(_status, "The class diagram of the project: analyze the code, then open a diagram and check its classes");
         if (open)
         {
             _codeGraph->RenderSidebarSection();
