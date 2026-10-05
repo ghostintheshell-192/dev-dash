@@ -54,6 +54,19 @@ Promote to virtual interface only when a concrete seam emerges.
 - **imgui_md** — vendored bridge MD4C → ImGui rendering
 - **CMake ≥ 3.28** + Ninja
 
+## Language
+
+Decided 2026-10-05 (until then it was only the practice):
+
+- **Italian**: the design reasoning of the project — specs, ADR bodies,
+  `CURRENT-STATUS.md`, handoffs. Product terms and UI labels stay as they
+  are in the app ("Analyze code", "New diagram").
+- **English**: what touches the code or leaves the project — code,
+  comments, commit messages, `.claude/rules/`, tech-debt meant for
+  upstream, public `docs/`.
+
+Chat replies to the user are in Italian.
+
 ## Key Documents
 
 - [.development/CURRENT-STATUS.md](.development/CURRENT-STATUS.md) - Current project state
