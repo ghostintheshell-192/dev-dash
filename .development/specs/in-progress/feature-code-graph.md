@@ -322,19 +322,23 @@ Dall'interazione decisa il 2026-10-05 (vedi *Interazione*). Il prototipo
 voci annidate restano la vista per cartella e "Neighbours"/"All members"
 nella toolbar della scheda.
 
-- [ ] Sezione Code graph della sidebar con due comandi: "Analyze code"
+- [x] Sezione Code graph della sidebar con due comandi: "Analyze code"
       (prima voce, sempre attiva) e "New diagram".
-- [ ] Scheda dell'analisi: file letti, avvisi, file letti in parte, albero
+- [x] Scheda dell'analisi: file letti, avvisi, file letti in parte, albero
       delle cartelle da leggere con "Analyze again".
-- [ ] Disposizione dei pannelli salvata fra un avvio e l'altro.
-- [ ] Selezione per diagramma: ogni scheda ha la sua, e cambiarla rigenera
+- [x] Disposizione dei pannelli salvata fra un avvio e l'altro.
+- [x] Selezione per diagramma: ogni scheda ha la sua, e cambiarla rigenera
       il diagramma.
-- [ ] Filtri nella scheda di diagramma, in un riquadro che si apre e si
+- [x] Filtri nella scheda di diagramma, in un riquadro che si apre e si
       chiude dalla toolbar. Via la sezione Filters dalla sidebar.
-- [ ] Caselle dei membri (public, protected, private) nella toolbar; il
+- [x] Caselle dei membri (public, protected, private) nella toolbar; il
       generatore accetta un insieme di livelli d'accesso.
-- [ ] Menu View nella top bar, con le viste del workspace e l'anteprima DOT
+- [x] Menu View nella top bar, con le viste del workspace e l'anteprima DOT
       al posto del pulsante "Diagram".
+
+Fatto il 2026-10-05 (`feature/code-graph-panels`). Emerso usandolo: ogni
+modifica della selezione rifà il layout da capo, quindi il diagramma si
+riadatta alla vista dopo ogni cambio, altrimenti finisce in parte fuori.
 
 ### Fase 4 — Esplorazione
 

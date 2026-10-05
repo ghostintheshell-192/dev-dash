@@ -1,13 +1,14 @@
 # DevDash - Current Status
 
-*Last updated: 2026-09-30*
+*Last updated: 2026-10-05*
 
 ## Project Phase
 
 **Phase**: Wedge completa, prima pre-release utilizzabile: `v0.1.1`,
 verificata su Debian 12 (`v0.1.0` non partiva lì). Il **code graph** è
-usabile (fasi 2 e 3 in buona parte, in `develop` dal 2026-10-02): prossimo
-passo la sidebar ripensata fra navigazione e toolbar. Poi scaffold
+usabile (fasi 2 e 3 in buona parte, in `develop` dal 2026-10-02) e dal
+2026-10-05 ha l'interazione decisa: comandi nella sidebar, scheda
+dell'analisi, filtri dentro ogni diagramma, menu View. Poi scaffold
 templating (ADR-015).
 
 Il pivot a **C++20 + Dear ImGui + SDL3 + Vulkan** è validato e in produzione.
@@ -38,6 +39,23 @@ Stato attuale del codebase:
   `git checkout legacy/avalonia-final`.
 
 ## Recent Work
+
+### 2026-10-05: Interazione del code graph
+
+- **Spec**: sezione *Interazione* di `feature-code-graph`. Tre luoghi con un
+  compito ciascuno: la sidebar ha due comandi (Analyze code, New diagram),
+  la scheda Code analysis dice cosa è stato letto e da quali cartelle, ogni
+  diagramma ha la sua selezione e i suoi filtri dentro la scheda. Scartati
+  il pannello dei filtri unico e mobile (legame invisibile con il diagramma
+  attivo) e la fotografia della selezione. OQ-2 e OQ-5 chiuse.
+- **Codice** (`feature/code-graph-panels`): disposizione dei pannelli
+  salvata in `~/.devdash/layout.ini`; scheda Code analysis (cartelle da
+  leggere, file letti, letti in parte); filtri nella scheda di diagramma,
+  con caselle dei membri public/protected/private; menu View nella top bar,
+  il pulsante "Diagram" diventa "DOT preview".
+- Lingua della documentazione messa per iscritto (`overview.md`).
+- ImGuiDot: #18 unita da Dario; aperte due PR dal fork (dimensione del
+  font in pixel, due avanzi dei colori dello stile).
 
 ### 2026-10-01/02: Code graph visibile e navigabile
 
@@ -325,11 +343,9 @@ Le sessioni 2025-12 / 2026-01 hanno costruito la v0.2.x in Avalonia
 
 2. **Code graph** — spec
    [`feature-code-graph`](specs/in-progress/feature-code-graph.md), in
-   corso. Prossimo: ripensare la sezione della sidebar separando
-   navigazione (alberi, filtri, viste) e azioni (toolbar: leggi, crea
-   diagramma, opzioni), poi salvataggio per progetto della scelta delle
-   cartelle e vista per cartella. Fase 4 (clic sui nodi fantasma) richiede
-   una API nuova in ImGuiDot, da discutere con Dario.
+   corso. Prossimo: salvataggio per progetto (OQ-6: cartelle escluse,
+   forse i diagrammi aperti), poi le viste salvate. Fase 4 (clic sui nodi
+   fantasma) richiede una API nuova in ImGuiDot, da discutere con Dario.
 
 ### Più avanti
 
