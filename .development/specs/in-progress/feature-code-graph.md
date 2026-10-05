@@ -119,7 +119,8 @@ Una scheda del workspace, come i diagrammi. Dall'alto (rivista il
   "not analyzed yet";
 - l'eventuale errore della lettura, con il messaggio catturato;
 - **l'albero delle cartelle da leggere**, visibile da subito e tutto aperto,
-  perché si capisca che è un selettore. Le cartelle si trovano all'apertura
+  perché si capisca che è un selettore. Dopo una lettura si chiude, per
+  lasciare spazio ai risultati; si riapre con un clic. Le cartelle si trovano all'apertura
   della scheda con una sola visita dell'albero, senza leggere il codice
   (`CppClassExtractor::Scan`); la regola di default lascia fuori `test` e
   `tests`;

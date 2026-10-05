@@ -114,6 +114,9 @@ namespace dev_dash::ui
         std::future<services::SourceScan>  _scanning;
         std::vector<std::filesystem::path> _sourceDirectories;   // relative to the project root
         bool                               _scanned = false;
+        // Close the folders on the next frame: a reading is done, the room
+        // goes to what it found.
+        bool                               _closeFolders = false;
 
         // Reading runs on a worker thread; the result is collected on the UI
         // thread once ready.

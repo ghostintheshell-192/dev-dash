@@ -246,6 +246,7 @@ namespace dev_dash::ui
         _status.Set(StatusSink::Level::kInfo,
                     "Code graph: " + std::to_string(_result.model.classes.size()) + " classes read from "
                         + std::to_string(_result.filesRead.size()) + " files");
+        _closeFolders = true;
         const std::time_t now = std::time(nullptr);
         char              readAt[8];
         std::strftime(readAt, sizeof(readAt), "%H:%M", std::localtime(&now));
@@ -517,9 +518,20 @@ namespace dev_dash::ui
         const std::size_t read  = static_cast<std::size_t>(
             std::count_if(_sourceDirectories.begin(), _sourceDirectories.end(),
                           [&](const std::filesystem::path& directory) { return !IsExcluded(directory); }));
-        ImGui::SeparatorText(("Folders to read (" + std::to_string(read) + " of " + std::to_string(total) + ")").c_str());
+        // Open until the first reading, as it is the choice to make; closed
+        // when a reading is done, to leave the room to what it found.
+        if (_closeFolders)
+        {
+            ImGui::SetNextItemOpen(false);
+            _closeFolders = false;
+        }
+        const bool open = ImGui::CollapsingHeader(
+            ("Folders to read (" + std::to_string(read) + " of " + std::to_string(total) + ")###folders").c_str(),
+            ImGuiTreeNodeFlags_DefaultOpen);
         StatusHint(_status, "The folders holding C++ code: uncheck those to leave out, then Analyze. Names are "
                             "linked to classes only among the files read");
+        if (!open)
+            return;
         if (_scanning.valid())
             ImGui::TextDisabled("Finding the folders...");
         else if (_directories.children.empty())
