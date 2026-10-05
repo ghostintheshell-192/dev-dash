@@ -21,6 +21,7 @@ namespace dev_dash::platform
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
         io.ConfigWindowsResizeFromEdges = true;
+        // No layout file here: the app sets one once it knows where it goes.
         io.IniFilename = nullptr;
 
         ImGui::GetPlatformIO().Platform_LocaleDecimalPoint =
