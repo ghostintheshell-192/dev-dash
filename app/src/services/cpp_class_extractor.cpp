@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cctype>
 #include <cstdint>
 #include <fstream>
 #include <iterator>
@@ -639,9 +640,47 @@ namespace dev_dash::services
             return std::nullopt;
         }
 
+        // What the parser did there, in words: the token it had to assume, or
+        // the start of the text it skipped. A word in capitals before the
+        // text is most likely a macro, which the reader cannot expand.
+        std::string ProblemReason(TSNode problem, const SourceFile& file)
+        {
+            // A token is named by its text (";"), a construct by its symbol in
+            // the grammar (type_identifier), written out in words.
+            if (ts_node_is_missing(problem))
+            {
+                std::string type = ts_node_type(problem);
+                if (!ts_node_is_named(problem))
+                    return "missing \"" + type + "\"";
+                std::replace(type.begin(), type.end(), '_', ' ');
+                return "expected a " + type;
+            }
+
+            constexpr std::size_t kMaxSkipped = 40;
+            const std::size_t     begin = ts_node_start_byte(problem);
+            const std::size_t     end   = std::min<std::size_t>(ts_node_end_byte(problem), file.text.size());
+            std::string_view      skipped(file.text.data() + begin, end - begin);
+            skipped = skipped.substr(0, std::min(skipped.find('\n'), kMaxSkipped));
+
+            // The identifier the skipped text starts with, if any.
+            std::size_t length = 0;
+            while (length < skipped.size()
+                   && (std::isalnum(static_cast<unsigned char>(skipped[length])) || skipped[length] == '_'))
+                ++length;
+            const std::string_view word = skipped.substr(0, length);
+            const bool capitals = word.size() > 1 && std::none_of(word.begin(), word.end(), [](char c)
+                                                                   { return std::islower(static_cast<unsigned char>(c)); })
+                                  && std::any_of(word.begin(), word.end(), [](char c)
+                                                 { return std::isupper(static_cast<unsigned char>(c)); });
+            std::string reason = "not understood: \"" + std::string(skipped) + "\"";
+            if (capitals)
+                reason += " (a macro?)";
+            return reason;
+        }
+
         PartlyReadFile FirstProblem(TSNode root, const SourceFile& file)
         {
-            PartlyReadFile partly{file.path, 0, {}};
+            PartlyReadFile partly{file.path, 0, {}, {}};
             const std::optional<TSNode> problem = FindProblem(root);
             if (!problem)
                 return partly;
@@ -649,6 +688,7 @@ namespace dev_dash::services
             const TSPoint     start = ts_node_start_point(*problem);
             const std::size_t at    = ts_node_start_byte(*problem);
             partly.line             = static_cast<int>(start.row) + 1;
+            partly.reason           = ProblemReason(*problem, file);
 
             const std::size_t lineStart = at - start.column;
             std::size_t       lineEnd   = file.text.find('\n', lineStart);
@@ -677,65 +717,96 @@ namespace dev_dash::services
         return name == "test" || name == "tests";
     }
 
+    namespace
+    {
+        struct SourceFiles
+        {
+            std::vector<std::filesystem::path> paths;               // to read, sorted
+            std::vector<std::filesystem::path> sourceDirectories;   // relative, sorted
+            std::vector<std::filesystem::path> excludedDirectories; // relative, sorted
+        };
+
+        // The C++ files under root to read, and the directories holding
+        // C++ files, read or not. Without excludedDirectories, the default
+        // rule leaves the test directories out.
+        SourceFiles FindSources(const std::filesystem::path& root,
+                                const std::optional<std::vector<std::filesystem::path>>& excludedDirectories)
+        {
+            SourceFiles sources;
+
+            // Inside an excluded directory, at any depth.
+            const auto isExcluded = [&](const std::filesystem::path& relative)
+            {
+                for (const std::filesystem::path& excluded : sources.excludedDirectories)
+                {
+                    if (excluded.empty())
+                        continue;
+                    const auto [end, unused] =
+                        std::mismatch(excluded.begin(), excluded.end(), relative.begin(), relative.end());
+                    if (end == excluded.end())
+                        return true;
+                }
+                return false;
+            };
+
+            std::vector<std::filesystem::path>& paths = sources.paths;
+            std::set<std::filesystem::path>     sourceDirectories;
+            std::error_code ec;
+            for (auto it = std::filesystem::recursive_directory_iterator(
+                     root, std::filesystem::directory_options::skip_permission_denied, ec);
+                 !ec && it != std::filesystem::recursive_directory_iterator(); it.increment(ec))
+            {
+                if (it->is_directory(ec))
+                {
+                    if (IsSkippedDirectory(it->path()))
+                        it.disable_recursion_pending();
+                    // The default rule takes the outermost test directories.
+                    else if (!excludedDirectories && CppClassExtractor::IsTestDirectory(it->path()))
+                    {
+                        const std::filesystem::path relative = it->path().lexically_relative(root);
+                        if (!isExcluded(relative))
+                            sources.excludedDirectories.push_back(relative);
+                    }
+                }
+                else if (it->is_regular_file(ec) && IsSourceFile(it->path()))
+                    paths.push_back(it->path());
+            }
+            if (excludedDirectories)
+                sources.excludedDirectories = *excludedDirectories;
+            std::sort(sources.excludedDirectories.begin(), sources.excludedDirectories.end());
+
+            // Every directory holding C++ files, with its parents; the files of
+            // the excluded ones are not read.
+            std::erase_if(paths, [&](const std::filesystem::path& path)
+                          {
+                              const std::filesystem::path directory = path.parent_path().lexically_relative(root);
+                              for (std::filesystem::path d = directory; !d.empty() && d != "."; d = d.parent_path())
+                                  sourceDirectories.insert(d);
+                              return isExcluded(directory);
+                          });
+            sources.sourceDirectories.assign(sourceDirectories.begin(), sourceDirectories.end());
+            std::sort(paths.begin(), paths.end());
+
+            return sources;
+        }
+    }
+
+    SourceScan CppClassExtractor::Scan(const std::filesystem::path& root) const
+    {
+        SourceFiles sources = FindSources(root, std::nullopt);
+        return SourceScan{std::move(sources.sourceDirectories), std::move(sources.excludedDirectories)};
+    }
+
     ExtractionResult CppClassExtractor::Extract(
         const std::filesystem::path& root,
         std::stop_token stop,
         const std::optional<std::vector<std::filesystem::path>>& excludedDirectories) const
     {
         ExtractionResult result;
-
-        // Inside an excluded directory, at any depth.
-        const auto isExcluded = [&](const std::filesystem::path& relative)
-        {
-            for (const std::filesystem::path& excluded : result.excludedDirectories)
-            {
-                if (excluded.empty())
-                    continue;
-                const auto [end, unused] =
-                    std::mismatch(excluded.begin(), excluded.end(), relative.begin(), relative.end());
-                if (end == excluded.end())
-                    return true;
-            }
-            return false;
-        };
-
-        std::vector<std::filesystem::path> paths;
-        std::set<std::filesystem::path>    sourceDirectories;
-        std::error_code ec;
-        for (auto it = std::filesystem::recursive_directory_iterator(
-                 root, std::filesystem::directory_options::skip_permission_denied, ec);
-             !ec && it != std::filesystem::recursive_directory_iterator(); it.increment(ec))
-        {
-            if (it->is_directory(ec))
-            {
-                if (IsSkippedDirectory(it->path()))
-                    it.disable_recursion_pending();
-                // The default rule takes the outermost test directories.
-                else if (!excludedDirectories && IsTestDirectory(it->path()))
-                {
-                    const std::filesystem::path relative = it->path().lexically_relative(root);
-                    if (!isExcluded(relative))
-                        result.excludedDirectories.push_back(relative);
-                }
-            }
-            else if (it->is_regular_file(ec) && IsSourceFile(it->path()))
-                paths.push_back(it->path());
-        }
-        if (excludedDirectories)
-            result.excludedDirectories = *excludedDirectories;
-        std::sort(result.excludedDirectories.begin(), result.excludedDirectories.end());
-
-        // Every directory holding C++ files, with its parents; the files of
-        // the excluded ones are not read.
-        std::erase_if(paths, [&](const std::filesystem::path& path)
-                      {
-                          const std::filesystem::path directory = path.parent_path().lexically_relative(root);
-                          for (std::filesystem::path d = directory; !d.empty() && d != "."; d = d.parent_path())
-                              sourceDirectories.insert(d);
-                          return isExcluded(directory);
-                      });
-        result.sourceDirectories.assign(sourceDirectories.begin(), sourceDirectories.end());
-        std::sort(paths.begin(), paths.end());
+        SourceFiles      sources = FindSources(root, excludedDirectories);
+        result.sourceDirectories   = std::move(sources.sourceDirectories);
+        result.excludedDirectories = std::move(sources.excludedDirectories);
+        const std::vector<std::filesystem::path>& paths = sources.paths;
 
         // ----- Parse every file and index the names. The files stay alive:
         // the class entries point into their trees and texts.

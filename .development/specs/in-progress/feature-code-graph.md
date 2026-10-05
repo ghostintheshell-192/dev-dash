@@ -43,10 +43,10 @@ ImGuiDot: tre progetti reali su cui provarlo fin da subito.
 
 ## User stories
 
-- **US-0 — Leggere il codice**: clicco "Analyze code" e il progetto viene
-  letto. Si apre una scheda che mi dice cosa è stato letto: i file, gli
-  avvisi, i file letti solo in parte e perché. Nella stessa scheda scelgo le
-  cartelle da leggere e rileggo.
+- **US-0 — Leggere il codice**: clicco "New code analysis" e si apre una
+  scheda con le cartelle del progetto che contengono C++. Scelgo quali
+  leggere e clicco "Analyze". La scheda mi dice cosa è stato letto: i file,
+  i file letti solo in parte, dove e perché.
 - **US-1 — Scegliere cosa vedere**: accanto al diagramma, dentro la sua
   scheda, vedo le classi del progetto in un albero per namespace o per
   cartella. Ogni voce ha una casella di spunta, a qualunque livello (un clic
@@ -103,21 +103,31 @@ divisione in tre luoghi, ciascuno con un compito solo, più un menu.
 
 **1. La sezione Code graph della sidebar: poche voci, tutte comandi chiari.**
 
-- **Analyze code**, prima voce, sempre attiva. Al primo clic legge il
-  progetto e apre la scheda dell'analisi; dopo, riapre la scheda (la
-  rilettura si chiede da lì).
+- **New code analysis**, prima voce, sempre attiva: apre la scheda
+  dell'analisi. Non legge niente da sola: la lettura parte dal pulsante
+  "Analyze" della scheda, dopo aver visto le cartelle.
 - **New diagram**: apre una scheda di diagramma vuota, con i filtri aperti.
   Oscurata finché il codice non è stato letto.
 
 **2. La scheda dell'analisi: cosa è stato letto e da dove.**
 
-Una scheda del workspace, come i diagrammi. Contiene:
+Una scheda del workspace, come i diagrammi. Dall'alto (rivista il
+2026-10-05 dopo la prima prova):
 
-- quanti file e quante classi sono stati letti, e quando;
-- i file letti solo in parte, con file:riga e la riga di codice (oggi nella
-  sidebar), e gli altri avvisi della lettura;
-- **l'albero delle cartelle da leggere**, con le caselle a tre stati, e il
-  pulsante per rileggere. Si sposta qui da "Project folders".
+- il pulsante **"Analyze"**, sempre con questo nome (anche per rileggere),
+  e accanto quanti file e quante classi sono stati letti e quando, oppure
+  "not analyzed yet";
+- l'eventuale errore della lettura, con il messaggio catturato;
+- **l'albero delle cartelle da leggere**, visibile da subito e tutto aperto,
+  perché si capisca che è un selettore. Le cartelle si trovano all'apertura
+  della scheda con una sola visita dell'albero, senza leggere il codice
+  (`CppClassExtractor::Scan`); la regola di default lascia fuori `test` e
+  `tests`;
+- dopo la lettura, e solo allora: i **file letti** (chiusi) e i **file letti
+  in parte**, in una tabella con colonne etichettate: *File*, *Line*, *Not
+  understood* (il motivo: un token mancante, "expected a type identifier",
+  o il testo saltato, con "(a macro?)" se comincia con una parola in
+  maiuscolo), *Code* (la riga).
 
 La scelta delle cartelle sta qui, accanto al suo effetto, e non fra i filtri,
 perché non è un filtro: decide fra quali file si cercano i nomi delle classi.
@@ -335,6 +345,13 @@ nella toolbar della scheda.
       generatore accetta un insieme di livelli d'accesso.
 - [x] Menu View nella top bar, con le viste del workspace e l'anteprima DOT
       al posto del pulsante "Diagram".
+- [x] Scheda dell'analisi rivista: "New code analysis", cartelle visibili
+      prima della lettura, "Analyze", tabella dei file letti in parte con il
+      motivo.
+- [ ] La casella "Filters" della toolbar si nota poco e non si capisce che
+      apre la colonna dei filtri: va spostata nel menu View, come voce che
+      mostra o nasconde i filtri del diagramma attivo. Fino ad allora resta
+      nella toolbar.
 
 Fatto il 2026-10-05 (`feature/code-graph-panels`). Emerso usandolo: ogni
 modifica della selezione rifà il layout da capo, quindi il diagramma si

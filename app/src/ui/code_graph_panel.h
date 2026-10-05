@@ -78,6 +78,9 @@ namespace dev_dash::ui
 
         struct DiagramTab;
 
+        void StartScan();
+        void CollectScan();
+        void SetSourceDirectories(const std::vector<std::filesystem::path>& directories);
         void StartReading();
         void CollectReading();
         bool FoldersChanged() const;
@@ -106,6 +109,12 @@ namespace dev_dash::ui
         StatusSink&                      _status;
         core::Project                    _project;
 
+        // The folders are found when the analysis tab first opens, before
+        // any reading: a walk of the tree, on a worker thread.
+        std::future<services::SourceScan>  _scanning;
+        std::vector<std::filesystem::path> _sourceDirectories;   // relative to the project root
+        bool                               _scanned = false;
+
         // Reading runs on a worker thread; the result is collected on the UI
         // thread once ready.
         std::future<services::ExtractionResult> _reading;
@@ -119,8 +128,8 @@ namespace dev_dash::ui
         DirectoryNode                           _directories;   // the project root
 
         // The folders left out of the reading, relative to the project root.
-        // Empty until the first reading, which applies the default rule of
-        // the extractor (test directories out) and fills it.
+        // Empty until the folders are found, with the default rule of the
+        // extractor (test directories out).
         std::set<std::filesystem::path> _excluded;
         bool                            _excludedChosen = false;
 
