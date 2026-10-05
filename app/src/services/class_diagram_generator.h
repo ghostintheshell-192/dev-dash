@@ -26,9 +26,10 @@ namespace dev_dash::services
         // Draw the direct neighbours of the selected classes as ghost nodes:
         // name only, no members.
         bool showNeighbours = true;
-        // Least visible access shown in the class boxes: kPublic shows only the
-        // public members, kPrivate shows all of them.
-        core::MemberAccess memberAccess = core::MemberAccess::kPublic;
+        // The access levels whose members the class boxes show, each on its
+        // own: {kPublic} by default, {} shows no member, {kPrivate} only the
+        // private ones.
+        std::set<core::MemberAccess> shownAccess = {core::MemberAccess::kPublic};
         // Class boxes as records ({name|attributes|methods}), the UML
         // compartments. Off: plain boxes with the name and the members on
         // separate lines, for renderers without records (ImGuiDot, for now).

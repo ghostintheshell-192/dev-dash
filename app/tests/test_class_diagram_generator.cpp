@@ -115,9 +115,16 @@ TEST_CASE("the class box shows the members, without the special ones", "[diagram
     SECTION("all the members on request, with their access symbol")
     {
         DiagramOptions options;
-        options.memberAccess = MemberAccess::kPrivate;
+        options.shownAccess = {MemberAccess::kPublic, MemberAccess::kProtected, MemberAccess::kPrivate};
         CHECK(Contains(Generate(model, {"ns::Panel"}, options),
                        "label=\"{Panel|- _size : int\\l|+ Render()\\l+ Find() : int\\l# Layout()\\l}\""));
+    }
+
+    SECTION("each access level on its own: the private members only")
+    {
+        DiagramOptions options;
+        options.shownAccess = {MemberAccess::kPrivate};
+        CHECK(Contains(Generate(model, {"ns::Panel"}, options), "label=\"{Panel|- _size : int\\l}\""));
     }
 }
 

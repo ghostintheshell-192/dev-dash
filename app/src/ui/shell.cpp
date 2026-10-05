@@ -8,6 +8,7 @@
 #include "sidebar.h"
 #include "snapshot_history_panel.h"
 #include "theme.h"
+#include "widgets.h"
 
 #include <algorithm>
 
@@ -151,7 +152,7 @@ namespace dev_dash::ui
         // The class list lives in the sidebar; the diagram tabs render
         // every frame, also with the sidebar section collapsed.
         if (_codeGraphView)
-            _codeGraphView->RenderDiagrams(_dockspaceId);
+            _codeGraphView->RenderTabs(_dockspaceId);
 
         // The file diff viewer renders every frame, independently of the
         // scaffold diff panel that opened it: if it only rendered while
@@ -172,6 +173,8 @@ namespace dev_dash::ui
         ImGui::BeginChild("##topbar", ImVec2(0, ImGui::GetFrameHeight() + 12),
                           ImGuiChildFlags_AlwaysUseWindowPadding);
 
+        RenderViewMenu();
+        ImGui::SameLine();
         ImGui::TextColored(CurrentTheme().accent, "%s",
                            _project.path.filename().string().c_str());
         ImGui::SameLine();
@@ -180,26 +183,50 @@ namespace dev_dash::ui
         const ImGuiStyle& style = ImGui::GetStyle();
         const float switchW  = ImGui::CalcTextSize("Change project...").x
                                + style.FramePadding.x * 2.0f;
-        const auto buttonW = [&](const char* label)
-        { return ImGui::CalcTextSize(label).x + style.FramePadding.x * 2.0f + style.ItemSpacing.x; };
-        const float diagramW = _diagramView ? buttonW("Diagram") : 0.0f;
-        ImGui::SameLine(ImGui::GetContentRegionAvail().x - switchW - diagramW
-                        + ImGui::GetCursorPosX());
-        if (_diagramView)
-        {
-            if (ImGui::SmallButton("Diagram"))
-            {
-                _diagramOpen = true;
-                ImGui::SetWindowFocus("Diagram");
-            }
-            ImGui::SameLine();
-        }
+        ImGui::SameLine(ImGui::GetContentRegionAvail().x - switchW + ImGui::GetCursorPosX());
         if (ImGui::SmallButton("Change project..."))
             _wantsProjectSwitch = true;
 
         ImGui::EndChild();
         ImGui::PopStyleVar();
         ImGui::Separator();
+    }
+
+    // The views of the workspace, each checked while open: a click opens it
+    // in front, or closes it.
+    void Shell::RenderViewMenu()
+    {
+        if (ImGui::SmallButton("View"))
+            ImGui::OpenPopup("##view_menu");
+        StatusHint(_status, "Open or close the views of the workspace");
+        // Below the button, like a menu bar, not at the mouse.
+        ImGui::SetNextWindowPos(ImVec2(ImGui::GetItemRectMin().x, ImGui::GetItemRectMax().y), ImGuiCond_Appearing);
+        if (!ImGui::BeginPopup("##view_menu"))
+            return;
+
+        const auto viewItem = [&](const char* name, bool& open, const char* hint)
+        {
+            if (ImGui::MenuItem(name, nullptr, open))
+            {
+                open = !open;
+                if (open)
+                    ImGui::SetWindowFocus(name);
+            }
+            StatusHint(_status, hint);
+        };
+        viewItem("Config", _configOpen, "The effective Claude Code configuration of the project, layer by layer");
+        viewItem("History", _historyOpen, "The snapshots of the project configuration");
+        viewItem("Compare", _diffOpen, "Compare the project with a scaffold");
+        if (_codeGraphView)
+        {
+            if (ImGui::MenuItem("Code analysis", nullptr, _codeGraphView->IsAnalysisOpen()))
+                _codeGraphView->ShowAnalysis(!_codeGraphView->IsAnalysisOpen());
+            StatusHint(_status, "What the code graph read: the folders, the files, what was read in part");
+        }
+        if (_diagramView)
+            viewItem("DOT preview", _diagramOpen, "Draw a diagram from DOT text, to check it");
+
+        ImGui::EndPopup();
     }
 
     void Shell::RenderSidebarSplitter(float statusH)

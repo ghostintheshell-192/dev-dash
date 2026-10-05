@@ -288,7 +288,9 @@ TEST_CASE("every source file under the root is read, in path order", "[extractor
     Extraction e("namespace z { struct FromHeader {}; }",
                  "namespace z { struct FromSource { FromHeader header; }; }");
 
-    CHECK(e.result.filesRead == 2);
+    REQUIRE(e.result.filesRead.size() == 2);
+    CHECK(e.result.filesRead[0].filename() == "code.cpp");
+    CHECK(e.result.filesRead[1].filename() == "code.h");
     CHECK(e.result.partlyReadFiles.empty());
     REQUIRE(e.result.model.classes.size() == 2);
     // code.cpp sorts before code.h.
@@ -305,7 +307,7 @@ TEST_CASE("hidden and build directories are skipped", "[extractor]")
     WriteFile(e.root.Path() / "src" / "builder" / "b.h", "struct Builder {};");   // not a build tree
 
     const services::ExtractionResult result = CppClassExtractor().Extract(e.root.Path());
-    CHECK(result.filesRead == 2);
+    CHECK(result.filesRead.size() == 2);
     CHECK(result.model.classes.size() == 2);
 }
 
@@ -318,7 +320,7 @@ TEST_CASE("a stop request ends the reading early", "[extractor]")
     source.request_stop();
     const services::ExtractionResult result = CppClassExtractor().Extract(root.Path(), source.get_token());
     CHECK(result.cancelled);
-    CHECK(result.filesRead == 0);
+    CHECK(result.filesRead.empty());
     CHECK(result.model.classes.empty());
 }
 
@@ -340,7 +342,7 @@ TEST_CASE("test directories stay out by default, and are listed", "[extractor]")
     WriteFile(root.Path() / "lib" / "test" / "helper.h", "struct Helper {};");
 
     const services::ExtractionResult result = CppClassExtractor().Extract(root.Path());
-    CHECK(result.filesRead == 1);
+    CHECK(result.filesRead.size() == 1);
     REQUIRE(result.model.classes.size() == 1);
     CHECK(result.model.classes[0].qualifiedName == "Model");
 
@@ -359,7 +361,7 @@ TEST_CASE("the excluded directories asked for replace the default rule", "[extra
     using Paths = std::vector<std::filesystem::path>;
     const services::ExtractionResult result =
         CppClassExtractor().Extract(root.Path(), {}, Paths{"src/experimental"});
-    CHECK(result.filesRead == 2);
+    CHECK(result.filesRead.size() == 2);
     CHECK(result.excludedDirectories == Paths{"src/experimental"});
 
     std::vector<std::string> names;
@@ -369,7 +371,7 @@ TEST_CASE("the excluded directories asked for replace the default rule", "[extra
     CHECK(names == std::vector<std::string>{"Fixture", "Model"});
 
     // Nothing excluded: everything is read.
-    CHECK(CppClassExtractor().Extract(root.Path(), {}, Paths{}).filesRead == 3);
+    CHECK(CppClassExtractor().Extract(root.Path(), {}, Paths{}).filesRead.size() == 3);
 }
 
 TEST_CASE("a file read in part keeps the line the parser did not understand", "[extractor]")

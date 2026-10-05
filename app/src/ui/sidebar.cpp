@@ -273,16 +273,15 @@ namespace dev_dash::ui
         if (!_codeGraph)
             return;
 
-        const bool open = ImGui::CollapsingHeader("Code graph", kSectionFlags);
-        StatusHint(_status, "The C++ classes of the project by namespace: check some, then create their "
-                            "class diagram");
-        if (!open)
-            return;
-
         ImGui::PushID("code_graph");
-        _codeGraph->RenderSidebarSection();
+        const bool open = ImGui::CollapsingHeader("Code graph", kSectionFlags);
+        StatusHint(_status, "The class diagram of the project: analyze the code, then open a diagram and check its classes");
+        if (open)
+        {
+            _codeGraph->RenderSidebarSection();
+            ImGui::Spacing();
+        }
         ImGui::PopID();
-        ImGui::Spacing();
     }
 
     Sidebar::FileTree Sidebar::BuildFileTree(const std::vector<std::string>& paths)

@@ -158,6 +158,13 @@ namespace dev_dash::app
         // it absent later — the issue is already surfaced above, not silenced.
         _scaffoldRepository->SetScaffoldRoot(scaffolds);
         _snapshotService->SetSnapshotRoot(snapshots);
+
+        // The panel layout (docked tabs, floating panels, their sizes) is
+        // restored at the next run. ImGui reads the file on its first frame,
+        // which comes after this, and writes it back as the layout changes
+        // and at shutdown. Without $HOME it stays off, as before.
+        _layoutFile = (devdash / "layout.ini").string();
+        ImGui::GetIO().IniFilename = _layoutFile.c_str();
     }
 
     void App::RenderStartupIssues()

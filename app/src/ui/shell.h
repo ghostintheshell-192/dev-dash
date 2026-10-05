@@ -56,6 +56,7 @@ namespace dev_dash::ui
 
     private:
         void RenderTopBar();
+        void RenderViewMenu();
         void RenderSidebarSplitter(float availableHeight);
         void RenderStatusBar();
 
