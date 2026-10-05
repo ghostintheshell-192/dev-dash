@@ -99,6 +99,14 @@ Git commands are confirmed one at a time rather than added to the permissions
 allowlist — the confirmation prompt is the deliberate checkpoint to re-read the
 diff before it lands.
 
+**A change the user can see waits for her feedback before the merge.** When a
+branch changes the UI (layout, panels, interaction, colours), push it, show
+it (screenshots, or the branch to try) and merge into `develop` only after
+the user has looked at it and said it is fine. A screenshot taken by Claude
+proves it works, not that it is right. "The base convinces me" or "I have
+graphical changes in mind" is not a go-ahead to merge: ask. Changes with
+nothing to see (services, tests, docs) follow the usual flow.
+
 ### Spec lifecycle automation
 
 The repo ships hooks that move spec files between `specs/{planned,in-progress,implemented}/`
