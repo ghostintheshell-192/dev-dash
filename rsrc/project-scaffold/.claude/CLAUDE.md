@@ -24,6 +24,15 @@ When delegating any codebase exploration or analysis to a sub-agent — built-in
 > Before any other exploration step, read `.development/ARCHITECTURE.md` to
 > orient. Use it as the navigation map; consult specific source files only
 > after the map indicates relevance.
+>
+> If you notice ideas that would improve the code or the project but fall
+> outside your task, do not act on them: list them under an `Ideas` heading at
+> the end of your final report, one line each, with the file or context they
+> came from.
+
+The `Ideas` section comes back to the main session, which filters it and
+captures what survives through the `idea-capture` skill. Sub-agents
+do not write idea notes themselves.
 
 Sub-agents do not inherit the parent session's context, so the directive must
 be passed explicitly at each invocation. **Do not duplicate this instruction
