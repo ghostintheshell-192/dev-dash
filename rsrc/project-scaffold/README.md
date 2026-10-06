@@ -12,6 +12,8 @@ Claude Code configuration.
 ├── commands/
 │   └── handoff.md                  # /handoff slash command
 ├── skills/
+│   ├── idea-capture/
+│   │   └── SKILL.md                # Capture / review / promote idea notes
 │   └── session-handoff/
 │       └── SKILL.md                # Session handoff skill
 └── rules/                          # Auto-loaded project rules
@@ -19,6 +21,7 @@ Claude Code configuration.
     ├── coding-standards.md         # Coding standards (template, language-specific)
     ├── principles.md               # Development principles
     ├── preflight-checks.md         # Pre-work checklist
+    ├── idea-capture.md             # When to use the idea-capture skill
     └── workflow.md                 # Git workflow
 
 .development/                       # Operational documentation
@@ -45,7 +48,7 @@ Claude Code configuration.
 └── post-merge                      # Spec → implemented on merge into develop
 
 .memory-bank/                       # Session continuity
-├── ideas/                          # Tangential idea notes (idea-capture rule)
+├── ideas/                          # Tangential idea notes (idea-capture skill)
 └── sessions/                       # JSONL transcripts (auto-archived)
 
 .devdash-default                    # Marks this scaffold as DevDash's default
